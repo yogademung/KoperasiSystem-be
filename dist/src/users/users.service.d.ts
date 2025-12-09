@@ -5,20 +5,22 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
         role: {
+            id: number;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
-            id: number;
             roleName: string;
             description: string | null;
         };
     } & {
+        id: number;
         username: string;
         password: string;
         fullName: string;
         staffId: string | null;
+        roleId: number;
         regionCode: string | null;
         token: string | null;
         isActive: boolean;
@@ -26,25 +28,25 @@ export declare class UsersService {
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
-        id: number;
-        roleId: number;
     }>;
     findAll(): Promise<({
         role: {
+            id: number;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
-            id: number;
             roleName: string;
             description: string | null;
         };
     } & {
+        id: number;
         username: string;
         password: string;
         fullName: string;
         staffId: string | null;
+        roleId: number;
         regionCode: string | null;
         token: string | null;
         isActive: boolean;
@@ -52,16 +54,14 @@ export declare class UsersService {
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
-        id: number;
-        roleId: number;
     })[]>;
     getRoles(): Promise<{
+        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
-        id: number;
         roleName: string;
         description: string | null;
     }[]>;
