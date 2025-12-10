@@ -1,0 +1,79 @@
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
+import { CreateNasabahDto } from './dto/create-nasabah.dto';
+import { UpdateNasabahDto } from './dto/update-nasabah.dto';
+
+@Injectable()
+export class NasabahService {
+    constructor(private prisma: PrismaService) { }
+
+    async create(createNasabahDto: CreateNasabahDto) {
+        return this.prisma.nasabah.create({
+            data: createNasabahDto,
+        });
+    }
+
+    async findAll() {
+        return this.prisma.nasabah.findMany({
+            orderBy: { createdAt: 'desc' },
+            where: { isActive: true }
+        });
+    }
+
+    async findOne(id: number) {
+        const nasabah = await this.prisma.nasabah.findUnique({
+            where: { id }
+        });
+
+        if (!nasabah) {
+            throw new NotFoundException(`Nasabah #${id} not found`);
+        }
+
+        return nasabah;
+    }
+
+    async update(id: number, updateNasabahDto: UpdateNasabahDto) {
+        await this.findOne(id); // Check existence
+        return this.prisma.nasabah.update({
+            where: { id },
+            data: updateNasabahDto
+        });
+    }
+
+    async remove(id: number) {
+        const nasabah = await this.prisma.nasabah.findUnique({
+            where: { id },
+            include: {
+                anggota: true,
+                tabungan: true,
+                deposito: true,
+                brahmacari: true,
+                balimesari: true,
+                wanaprasta: true,
+                kredit: true,
+            }
+        });
+
+        if (!nasabah) {
+            throw new NotFoundException(`Nasabah #${id} not found`);
+        }
+
+        const activeProducts: string[] = [];
+        if (nasabah.anggota?.length > 0) activeProducts.push('Simpanan Anggota');
+        if (nasabah.tabungan?.length > 0) activeProducts.push('Tabungan Sukarela');
+        if (nasabah.deposito?.length > 0) activeProducts.push('Deposito (Simpanan Jangka)');
+        if (nasabah.brahmacari?.length > 0) activeProducts.push('Brahmacari');
+        if (nasabah.balimesari?.length > 0) activeProducts.push('Bali Mesari');
+        if (nasabah.wanaprasta?.length > 0) activeProducts.push('Wanaprasta');
+        if (nasabah.kredit?.length > 0) activeProducts.push('Kredit/Pinjaman');
+
+        if (activeProducts.length > 0) {
+            throw new BadRequestException(`Gagal menghapus: Nasabah masih memiliki ${activeProducts.join(', ')}`);
+        }
+
+        return this.prisma.nasabah.update({
+            where: { id },
+            data: { isActive: false }
+        });
+    }
+}

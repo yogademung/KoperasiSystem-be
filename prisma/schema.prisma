@@ -105,18 +105,21 @@ model Nasabah {
   nama         String    @db.VarChar(255) @map("NAMA")
   noKtp        String?   @unique @db.VarChar(50) @map("NO_KTP")
   alamat       String?   @db.Text @map("ALAMAT")
+  email        String?   @db.VarChar(100) @map("EMAIL")
   telepon      String?   @db.VarChar(20) @map("TELEPON")
   tempatLahir  String?   @db.VarChar(100) @map("TEMPAT_LAHIR")
   tanggalLahir DateTime? @map("TANGGAL_LAHIR") @db.Date
   jenisKelamin String?   @db.VarChar(1) @map("JENIS_KELAMIN")
   pekerjaan    String?   @db.VarChar(100) @map("PEKERJAAN")
+  fileKtp      String?   @db.VarChar(255) @map("FILE_KTP")
+  fileKk       String?   @db.VarChar(255) @map("FILE_KK")
   isActive     Boolean   @default(true) @map("ACTIVE_FLAG")
   createdBy    String?   @db.VarChar(50) @map("CREATE_WHO")
   createdAt    DateTime  @default(now()) @map("CREATE_DATE")
   updatedBy    String?   @db.VarChar(50) @map("CHANGE_WHO")
   updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
 
-  anggota      NasabahAnggota[]
+  anggota      AnggotaAccount[]
   tabungan     NasabahTab[]
   deposito     NasabahJangka[]
   brahmacari   NasabahBrahmacari[]
@@ -128,19 +131,25 @@ model Nasabah {
   @@map("m_nasabah")
 }
 
-model NasabahAnggota {
-  noAnggota   String    @id @db.VarChar(50) @map("NO_ANGGOTA")
-  nasabahId   Int       @map("NASABAH_ID")
-  tglBuka     DateTime  @map("TGL_BUKA") @db.Date
-  saldo       Decimal   @default(0) @db.Decimal(19, 4) @map("SALDO")
-  status      String    @default("A") @db.VarChar(10) @map("STATUS")
-  createdBy   String?   @db.VarChar(50) @map("CREATE_WHO")
-  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy   String?   @db.VarChar(50) @map("CHANGE_WHO")
-  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
+model AnggotaAccount {
+  accountNumber String    @id @map("NO_ANGGOTA") @db.VarChar(20)
+  customerId    Int       @map("NASABAH_ID")
+  customer      Nasabah   @relation(fields: [customerId], references: [id])
+  principal     Decimal   @map("POKOK") @db.Decimal(19, 4)
+  mandatoryInit Decimal   @map("WAJIB_AWAL") @db.Decimal(19, 4)
+  openDate      DateTime  @map("TGL_DAFTAR") @db.Date
+  closeDate     DateTime? @map("TGL_TUTUP") @db.Date
+  balance       Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
+  status        String    @default("D") @map("STATUS") @db.VarChar(2)
+  regionCode    String    @map("WILAYAH_CD") @db.VarChar(45)
+  groupCode     String    @map("GROUP_CD") @db.VarChar(10)
+  remark        String?   @map("REMARK") @db.Text
+  deduction     Decimal   @default(0) @map("POTONGAN") @db.Decimal(19, 4)
+  isActive      Boolean   @default(true) @map("ACTIVE_FLAG")
+  createdBy     String    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt     DateTime  @default(now()) @map("CREATE_DATE")
 
-  nasabah      Nasabah           @relation(fields: [nasabahId], references: [id])
-  transactions TransAnggota[]
+  transactions  AnggotaTransaction[]
 
   @@map("m_nasabah_anggota")
 }
@@ -150,6 +159,7 @@ model NasabahTab {
   nasabahId   Int       @map("NASABAH_ID")
   tglBuka     DateTime  @map("TGL_BUKA") @db.Date
   saldo       Decimal   @default(0) @db.Decimal(19, 4) @map("SALDO")
+  interestRate Decimal  @default(0) @db.Decimal(5, 2) @map("BUNGA_PCT")
   status      String    @default("A") @db.VarChar(10) @map("STATUS")
   createdBy   String?   @db.VarChar(50) @map("CREATE_WHO")
   createdAt   DateTime  @default(now()) @map("CREATE_DATE")
@@ -186,6 +196,7 @@ model NasabahBrahmacari {
   nasabahId    Int       @map("NASABAH_ID")
   tglBuka      DateTime  @map("TGL_BUKA") @db.Date
   saldo        Decimal   @default(0) @db.Decimal(19, 4) @map("SALDO")
+  interestRate Decimal   @default(0) @db.Decimal(5, 2) @map("BUNGA_PCT")
   status       String    @default("A") @db.VarChar(10) @map("STATUS")
   createdBy    String?   @db.VarChar(50) @map("CREATE_WHO")
   createdAt    DateTime  @default(now()) @map("CREATE_DATE")
@@ -203,6 +214,7 @@ model NasabahBalimesari {
   nasabahId    Int       @map("NASABAH_ID")
   tglBuka      DateTime  @map("TGL_BUKA") @db.Date
   saldo        Decimal   @default(0) @db.Decimal(19, 4) @map("SALDO")
+  interestRate Decimal   @default(0) @db.Decimal(5, 2) @map("BUNGA_PCT")
   status       String    @default("A") @db.VarChar(10) @map("STATUS")
   createdBy    String?   @db.VarChar(50) @map("CREATE_WHO")
   createdAt    DateTime  @default(now()) @map("CREATE_DATE")
@@ -220,6 +232,7 @@ model NasabahWanaprasta {
   nasabahId    Int       @map("NASABAH_ID")
   tglBuka      DateTime  @map("TGL_BUKA") @db.Date
   saldo        Decimal   @default(0) @db.Decimal(19, 4) @map("SALDO")
+  interestRate Decimal   @default(0) @db.Decimal(5, 2) @map("BUNGA_PCT")
   status       String    @default("A") @db.VarChar(10) @map("STATUS")
   createdBy    String?   @db.VarChar(50) @map("CREATE_WHO")
   createdAt    DateTime  @default(now()) @map("CREATE_DATE")
@@ -325,17 +338,17 @@ model JournalAccount {
 // TRANSACTION TABLES (t_*)
 // ============================================
 
-model TransAnggota {
-  id         Int      @id @default(autoincrement()) @map("TRANS_ID")
-  noAnggota  String   @db.VarChar(50) @map("NO_ANGGOTA")
-  tipeTrans  String   @db.VarChar(10) @map("TIPE_TRANS")
-  nominal    Decimal  @db.Decimal(19, 4) @map("NOMINAL")
-  saldoAkhir Decimal  @db.Decimal(19, 4) @map("SALDO_AKHIR")
-  keterangan String?  @db.Text @map("KETERANGAN")
-  createdBy  String?  @db.VarChar(50) @map("CREATE_WHO")
-  createdAt  DateTime @default(now()) @map("CREATE_DATE")
-
-  anggota NasabahAnggota @relation(fields: [noAnggota], references: [noAnggota])
+model AnggotaTransaction {
+  id            Int            @id @default(autoincrement()) @map("TRANS_ID")
+  accountNumber String         @map("NO_ANGGOTA") @db.VarChar(20)
+  account       AnggotaAccount @relation(fields: [accountNumber], references: [accountNumber])
+  transDate     DateTime       @map("TGL_TRANS")
+  transType     String         @map("TIPE_TRANS") @db.VarChar(20)
+  amount        Decimal        @map("NOMINAL") @db.Decimal(19, 4)
+  balanceAfter  Decimal        @map("SALDO_AKHIR") @db.Decimal(19, 4)
+  description   String?        @map("KETERANGAN") @db.Text
+  userId        Int            @map("USER_ID")
+  createdAt     DateTime       @default(now()) @map("CREATE_DATE")
 
   @@map("t_trans_anggota")
 }

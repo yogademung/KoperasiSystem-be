@@ -8,10 +8,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NasabahModule = void 0;
 const common_1 = require("@nestjs/common");
+const nasabah_controller_1 = require("./nasabah.controller");
+const nasabah_service_1 = require("./nasabah.service");
+const prisma_service_1 = require("../database/prisma.service");
 let NasabahModule = class NasabahModule {
 };
 exports.NasabahModule = NasabahModule;
 exports.NasabahModule = NasabahModule = __decorate([
-    (0, common_1.Module)({})
+    (0, common_1.Module)({
+        controllers: [nasabah_controller_1.NasabahController],
+        providers: [nasabah_service_1.NasabahService, prisma_service_1.PrismaService],
+        exports: [nasabah_service_1.NasabahService]
+    })
 ], NasabahModule);
 //# sourceMappingURL=nasabah.module.js.map
