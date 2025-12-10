@@ -8,20 +8,183 @@ export class SimpananInterestService {
 
     constructor(private prisma: PrismaService) { }
 
-    // Run at 00:00 on 1st day of every month
-    @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
-    async handleMonthlyInterest() {
-        this.logger.log('Starting monthly interest calculation...');
+    // Run at 00:00 every day to check for Deposito anniversaries
+    // Other simpanan (Tabungan) still runs only on the 1st.
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    async handleDailyScheduler() {
+        const today = new Date();
+        this.logger.log(`Starting daily interest check for ${today.toISOString().split('T')[0]}...`);
 
-        await this.processTabrelaInterest();
-        await this.processBrahmacariInterest();
-        await this.processBalimesariInterest();
-        await this.processWanaprastaInterest();
-        // Deposito logic to be added - usually triggered by maturity date not just monthly, 
-        // but if it has monthly payout, we add it here.
+        // 1. Process Deposito (Daily Check for Anniversary)
+        await this.processDepositoInterest();
 
-        this.logger.log('Monthly interest calculation completed.');
+        // 2. Process Monthly Savings (Only on 1st of month)
+        if (today.getDate() === 1) {
+            this.logger.log('Date is 1st of month. Processing Monthly Savings Interest...');
+            await this.processTabrelaInterest();
+            await this.processBrahmacariInterest();
+            await this.processBalimesariInterest();
+            await this.processWanaprastaInterest();
+        }
+
+        this.logger.log('Daily interest check completed.');
     }
+
+    // 5. Deposito Interest Logic
+    async processDepositoInterest(targetNoJangka?: string) {
+        // If targetNoJangka is provided (Manual Test), skip date validation.
+        // If not provided (Auto Scheduler), only process if today matches tglBuka.day
+
+        const today = new Date();
+        const currentDay = today.getDate();
+
+        // Check for End of Month to handle dates 29, 30, 31
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const isEndOfMonth = tomorrow.getDate() === 1;
+
+        const whereClause: any = { status: 'A' };
+        if (targetNoJangka) {
+            whereClause.noJangka = targetNoJangka;
+        }
+
+        const depositos = await this.prisma.nasabahJangka.findMany({
+            where: whereClause,
+            include: { nasabah: true }
+        });
+
+        this.logger.log(`Found ${depositos.length} active depositos to check.`);
+
+        for (const dep of depositos) {
+            // DATE VALIDATION (Skip if not Manual Test AND not Anniversary)
+            if (!targetNoJangka) {
+                const openDay = dep.tglBuka.getDate();
+
+                let isDue = false;
+                if (openDay === currentDay) {
+                    isDue = true;
+                } else if (isEndOfMonth && openDay > currentDay) {
+                    // Handle End of Month catch-up:
+                    // 1. If today is 28th/30th/31st AND tomorrow is 1st (End of Month)
+                    // 2. AND the Open Day (e.g. 29, 30, 31) doesn't exist in this month (Open Day > Current Last Day)
+                    // THEN process it now.
+                    // Example: Created Feb 29.
+                    // - Non-Leap Year (2025): Today is Feb 28. isEndOfMonth=True. 29 > 28. -> Processed on Feb 28.
+                    // - Leap Year (2028): Today is Feb 28. isEndOfMonth=False. 29 != 28. -> Waited for Feb 29.
+                    isDue = true;
+                }
+
+                if (!isDue) {
+                    // this.logger.debug(`  Skipping ${dep.noJangka}: Opened on ${openDay}, today is ${currentDay}`);
+                    continue;
+                }
+            }
+
+            this.logger.log(`Processing Interest for ${dep.noJangka} (Due Today)`);
+
+            // Calculate Interest: Nominal * (Bunga/100) / 12
+            const interest = (Number(dep.nominal) * (Number(dep.bunga) / 100)) / 12;
+
+            // Tax Calculation (Example: > 240k tax 20%) - Adjust as needed
+            let tax = 0;
+            if (interest > 240000) tax = interest * 0.20;
+            const netInterest = interest - tax;
+
+            if (netInterest <= 0) continue;
+
+            await this.prisma.$transaction(async (tx) => {
+                // Payout Mode Logic
+                if (dep.payoutMode === 'ROLLOVER') {
+                    // Add to Principal
+                    const newNominal = Number(dep.nominal) + netInterest;
+
+                    // Transaction: Bunga (Income)
+                    await tx.transJangka.create({
+                        data: {
+                            noJangka: dep.noJangka,
+                            tipeTrans: 'BUNGA',
+                            nominal: netInterest,
+                            keterangan: 'Bunga Bulanan (Rollover)',
+                            createdBy: 'SYSTEM'
+                        }
+                    });
+
+                    // Update Master Nominal
+                    await tx.nasabahJangka.update({
+                        where: { noJangka: dep.noJangka },
+                        data: { nominal: newNominal }
+                    });
+
+                } else if (dep.payoutMode === 'TRANSFER' && dep.targetAccountId) {
+                    // Transfer to Savings
+                    // 1. Record Bunga on Deposito (Information only? Or just log?)
+                    await tx.transJangka.create({
+                        data: {
+                            noJangka: dep.noJangka,
+                            tipeTrans: 'BUNGA_OUT',
+                            nominal: netInterest,
+                            keterangan: `Transfer Bunga ke ${dep.targetAccountId}`,
+                            createdBy: 'SYSTEM'
+                        }
+                    });
+
+                    // 2. Credit to Savings
+                    await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', dep.targetAccountId, 'BUNGA_DEP', netInterest, `Bunga Deposito ${dep.noJangka}`);
+
+                } else {
+                    // MATURITY or Default: Accumulate Interest in 'bunga' field?
+                    // Schema has 'bunga' decimal field. Is it Rate or Accumulated Interest?
+                    // Usually 'bunga' in master is Rate. 
+                    // We might need a separate field 'accumulatedInterest' or just create a transaction that stays there?
+                    // Or maybe we don't do anything until maturity?
+                    // User asked: "bertambah nilai bunganya di db".
+                    // Let's Record it as 'BUNGA' transaction but NOT change nominal.
+
+                    await tx.transJangka.create({
+                        data: {
+                            noJangka: dep.noJangka,
+                            tipeTrans: 'BUNGA',
+                            nominal: netInterest,
+                            keterangan: 'Bunga Bulanan (Akumulasi)',
+                            createdBy: 'SYSTEM'
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    // Simulation Helper
+    async simulateProcessing(noJangka: string) {
+        const dep = await this.prisma.nasabahJangka.findUnique({
+            where: { noJangka },
+            include: { nasabah: true }
+        });
+
+        if (!dep) throw new Error('Deposito not found');
+
+        const interest = (Number(dep.nominal) * (Number(dep.bunga) / 100)) / 12;
+
+        let tax = 0;
+        // Tax Calculation Rule (match main logic)
+        if (interest > 240000) tax = interest * 0.20;
+
+        const netInterest = interest - tax;
+
+        return {
+            noJangka: dep.noJangka,
+            nama: dep.nasabah.nama,
+            nominal: dep.nominal,
+            rate: dep.bunga,
+            grossInterest: interest,
+            tax,
+            netInterest,
+            payoutMode: dep.payoutMode,
+            targetAccountId: dep.targetAccountId
+        };
+    }
+
+
 
     // 1. Tabrela (Umum) - 2% p.a
     async processTabrelaInterest() {

@@ -44,6 +44,23 @@ let NasabahService = class NasabahService {
             data: updateNasabahDto
         });
     }
+    async getPortfolio(id) {
+        const nasabah = await this.prisma.nasabah.findUnique({
+            where: { id },
+            include: {
+                anggota: true,
+                tabungan: { where: { status: 'A' } },
+                deposito: { where: { status: 'A' } },
+                brahmacari: { where: { status: 'A' } },
+                balimesari: { where: { status: 'A' } },
+                wanaprasta: { where: { status: 'A' } },
+                kredit: { where: { status: 'A' } },
+            }
+        });
+        if (!nasabah)
+            throw new common_1.NotFoundException(`Nasabah #${id} not found`);
+        return nasabah;
+    }
     async remove(id) {
         const nasabah = await this.prisma.nasabah.findUnique({
             where: { id },

@@ -4,16 +4,16 @@ export declare class TabrelaController {
     private readonly tabrelaService;
     constructor(tabrelaService: TabrelaService);
     create(createDto: CreateTabrelaDto): Promise<{
-        noTab: string;
-        tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
-        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        status: string;
+        noTab: string;
         nasabahId: number;
+        tglBuka: Date;
+        saldo: import("@prisma/client/runtime/library").Decimal;
+        interestRate: import("@prisma/client/runtime/library").Decimal;
     }>;
     findAll(): Promise<({
         nasabah: {
@@ -21,27 +21,28 @@ export declare class TabrelaController {
             noKtp: string | null;
         };
     } & {
-        noTab: string;
-        tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
-        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        status: string;
+        noTab: string;
         nasabahId: number;
+        tglBuka: Date;
+        saldo: import("@prisma/client/runtime/library").Decimal;
+        interestRate: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     findOne(noTab: string): Promise<{
         nasabah: {
+            id: number;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
-            id: number;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -50,29 +51,28 @@ export declare class TabrelaController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
-            isActive: boolean;
         };
         transactions: {
-            noTab: string;
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
-            tipeTrans: string;
+            noTab: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
+            tipeTrans: string;
+            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
     } & {
-        noTab: string;
-        tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
-        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        status: string;
+        noTab: string;
         nasabahId: number;
+        tglBuka: Date;
+        saldo: import("@prisma/client/runtime/library").Decimal;
+        interestRate: import("@prisma/client/runtime/library").Decimal;
     }>;
     setoran(noTab: string, body: any): Promise<{
         success: boolean;

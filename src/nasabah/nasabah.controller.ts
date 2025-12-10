@@ -83,6 +83,11 @@ export class NasabahController {
         return this.nasabahService.findOne(+id);
     }
 
+    @Get(':id/portfolio')
+    getPortfolio(@Param('id') id: string) {
+        return this.nasabahService.getPortfolio(+id);
+    }
+
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateNasabahDto: UpdateNasabahDto) {
         return this.nasabahService.update(+id, updateNasabahDto);

@@ -20,13 +20,122 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async handleMonthlyInterest() {
-        this.logger.log('Starting monthly interest calculation...');
-        await this.processTabrelaInterest();
-        await this.processBrahmacariInterest();
-        await this.processBalimesariInterest();
-        await this.processWanaprastaInterest();
-        this.logger.log('Monthly interest calculation completed.');
+    async handleDailyScheduler() {
+        const today = new Date();
+        this.logger.log(`Starting daily interest check for ${today.toISOString().split('T')[0]}...`);
+        await this.processDepositoInterest();
+        if (today.getDate() === 1) {
+            this.logger.log('Date is 1st of month. Processing Monthly Savings Interest...');
+            await this.processTabrelaInterest();
+            await this.processBrahmacariInterest();
+            await this.processBalimesariInterest();
+            await this.processWanaprastaInterest();
+        }
+        this.logger.log('Daily interest check completed.');
+    }
+    async processDepositoInterest(targetNoJangka) {
+        const today = new Date();
+        const currentDay = today.getDate();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const isEndOfMonth = tomorrow.getDate() === 1;
+        const whereClause = { status: 'A' };
+        if (targetNoJangka) {
+            whereClause.noJangka = targetNoJangka;
+        }
+        const depositos = await this.prisma.nasabahJangka.findMany({
+            where: whereClause,
+            include: { nasabah: true }
+        });
+        this.logger.log(`Found ${depositos.length} active depositos to check.`);
+        for (const dep of depositos) {
+            if (!targetNoJangka) {
+                const openDay = dep.tglBuka.getDate();
+                let isDue = false;
+                if (openDay === currentDay) {
+                    isDue = true;
+                }
+                else if (isEndOfMonth && openDay > currentDay) {
+                    isDue = true;
+                }
+                if (!isDue) {
+                    continue;
+                }
+            }
+            this.logger.log(`Processing Interest for ${dep.noJangka} (Due Today)`);
+            const interest = (Number(dep.nominal) * (Number(dep.bunga) / 100)) / 12;
+            let tax = 0;
+            if (interest > 240000)
+                tax = interest * 0.20;
+            const netInterest = interest - tax;
+            if (netInterest <= 0)
+                continue;
+            await this.prisma.$transaction(async (tx) => {
+                if (dep.payoutMode === 'ROLLOVER') {
+                    const newNominal = Number(dep.nominal) + netInterest;
+                    await tx.transJangka.create({
+                        data: {
+                            noJangka: dep.noJangka,
+                            tipeTrans: 'BUNGA',
+                            nominal: netInterest,
+                            keterangan: 'Bunga Bulanan (Rollover)',
+                            createdBy: 'SYSTEM'
+                        }
+                    });
+                    await tx.nasabahJangka.update({
+                        where: { noJangka: dep.noJangka },
+                        data: { nominal: newNominal }
+                    });
+                }
+                else if (dep.payoutMode === 'TRANSFER' && dep.targetAccountId) {
+                    await tx.transJangka.create({
+                        data: {
+                            noJangka: dep.noJangka,
+                            tipeTrans: 'BUNGA_OUT',
+                            nominal: netInterest,
+                            keterangan: `Transfer Bunga ke ${dep.targetAccountId}`,
+                            createdBy: 'SYSTEM'
+                        }
+                    });
+                    await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', dep.targetAccountId, 'BUNGA_DEP', netInterest, `Bunga Deposito ${dep.noJangka}`);
+                }
+                else {
+                    await tx.transJangka.create({
+                        data: {
+                            noJangka: dep.noJangka,
+                            tipeTrans: 'BUNGA',
+                            nominal: netInterest,
+                            keterangan: 'Bunga Bulanan (Akumulasi)',
+                            createdBy: 'SYSTEM'
+                        }
+                    });
+                }
+            });
+        }
+    }
+    async simulateProcessing(noJangka) {
+        const dep = await this.prisma.nasabahJangka.findUnique({
+            where: { noJangka },
+            include: { nasabah: true }
+        });
+        if (!dep)
+            throw new Error('Deposito not found');
+        const interest = (Number(dep.nominal) * (Number(dep.bunga) / 100)) / 12;
+        let tax = 0;
+        if (interest > 240000)
+            tax = interest * 0.20;
+        const netInterest = interest - tax;
+        return {
+            noJangka: dep.noJangka,
+            nama: dep.nasabah.nama,
+            nominal: dep.nominal,
+            rate: dep.bunga,
+            grossInterest: interest,
+            tax,
+            netInterest,
+            payoutMode: dep.payoutMode,
+            targetAccountId: dep.targetAccountId
+        };
     }
     async processTabrelaInterest() {
         const RATE = 0.02;
@@ -141,11 +250,11 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
 };
 exports.SimpananInterestService = SimpananInterestService;
 __decorate([
-    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT),
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_DAY_AT_MIDNIGHT),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], SimpananInterestService.prototype, "handleMonthlyInterest", null);
+], SimpananInterestService.prototype, "handleDailyScheduler", null);
 exports.SimpananInterestService = SimpananInterestService = SimpananInterestService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])

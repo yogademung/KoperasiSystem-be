@@ -1,19 +1,22 @@
 import { PrismaService } from '../../database/prisma.service';
-import { CreateTabrelaDto } from './dto/create-tabrela.dto';
-export declare class TabrelaService {
+import { CreateDepositoDto } from './dto/create-deposito.dto';
+export declare class DepositoService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(createDto: CreateTabrelaDto): Promise<{
+    create(createDto: CreateDepositoDto, userId: number): Promise<{
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
         status: string;
-        noTab: string;
         nasabahId: number;
         tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
+        noJangka: string;
+        tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
+        bunga: import("@prisma/client/runtime/library").Decimal;
+        payoutMode: string;
+        targetAccountId: string | null;
     }>;
     findAll(): Promise<({
         nasabah: {
@@ -26,13 +29,17 @@ export declare class TabrelaService {
         updatedBy: string | null;
         updatedAt: Date | null;
         status: string;
-        noTab: string;
         nasabahId: number;
         tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
+        noJangka: string;
+        tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
+        bunga: import("@prisma/client/runtime/library").Decimal;
+        payoutMode: string;
+        targetAccountId: string | null;
     })[]>;
-    findOne(noTab: string): Promise<{
+    findOne(noJangka: string): Promise<{
+        accumulatedInterest: number;
         nasabah: {
             id: number;
             isActive: boolean;
@@ -56,35 +63,38 @@ export declare class TabrelaService {
             id: number;
             createdBy: string | null;
             createdAt: Date;
-            noTab: string;
+            noJangka: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
-            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
-    } & {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
         status: string;
-        noTab: string;
         nasabahId: number;
         tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
+        noJangka: string;
+        tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
+        bunga: import("@prisma/client/runtime/library").Decimal;
+        payoutMode: string;
+        targetAccountId: string | null;
     }>;
-    setoran(noTab: string, dto: {
-        amount: number;
-        description?: string;
-        transType?: string;
-    }, userId?: any): Promise<{
-        success: boolean;
-    }>;
-    penarikan(noTab: string, dto: {
-        amount: number;
-        description?: string;
-    }, userId?: any): Promise<{
-        success: boolean;
+    withdraw(noJangka: string, userId: number): Promise<{
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        status: string;
+        nasabahId: number;
+        tglBuka: Date;
+        noJangka: string;
+        tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
+        bunga: import("@prisma/client/runtime/library").Decimal;
+        payoutMode: string;
+        targetAccountId: string | null;
     }>;
 }

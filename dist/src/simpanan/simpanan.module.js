@@ -12,16 +12,17 @@ const anggota_controller_1 = require("./anggota/anggota.controller");
 const anggota_service_1 = require("./anggota/anggota.service");
 const tabrela_controller_1 = require("./tabrela/tabrela.controller");
 const tabrela_service_1 = require("./tabrela/tabrela.service");
+const deposito_controller_1 = require("./deposito/deposito.controller");
+const deposito_service_1 = require("./deposito/deposito.service");
 const simpanan_interest_service_1 = require("./simpanan-interest.service");
-const prisma_service_1 = require("../database/prisma.service");
 let SimpananModule = class SimpananModule {
 };
 exports.SimpananModule = SimpananModule;
 exports.SimpananModule = SimpananModule = __decorate([
     (0, common_1.Module)({
-        controllers: [anggota_controller_1.AnggotaController, tabrela_controller_1.TabrelaController],
-        providers: [anggota_service_1.AnggotaService, tabrela_service_1.TabrelaService, simpanan_interest_service_1.SimpananInterestService, prisma_service_1.PrismaService],
-        exports: [anggota_service_1.AnggotaService, tabrela_service_1.TabrelaService, simpanan_interest_service_1.SimpananInterestService]
+        controllers: [anggota_controller_1.AnggotaController, tabrela_controller_1.TabrelaController, deposito_controller_1.DepositoController],
+        providers: [anggota_service_1.AnggotaService, tabrela_service_1.TabrelaService, deposito_service_1.DepositoService, simpanan_interest_service_1.SimpananInterestService],
+        exports: [anggota_service_1.AnggotaService, tabrela_service_1.TabrelaService, deposito_service_1.DepositoService, simpanan_interest_service_1.SimpananInterestService]
     })
 ], SimpananModule);
 //# sourceMappingURL=simpanan.module.js.map

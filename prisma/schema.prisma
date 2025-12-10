@@ -179,6 +179,8 @@ model NasabahJangka {
   tglJatuhTempo DateTime @map("END_DATE") @db.Date
   nominal     Decimal   @db.Decimal(19, 4) @map("NOMINAL")
   bunga       Decimal   @db.Decimal(5, 2) @map("BUNGA")
+  payoutMode  String    @default("MATURITY") @db.VarChar(20) @map("PAYOUT_MODE") // MATURITY, ROLLOVER, TRANSFER
+  targetAccountId String? @db.VarChar(50) @map("TARGET_ACCOUNT_ID") // For TRANSFER mode
   status      String    @default("A") @db.VarChar(10) @map("STATUS")
   createdBy   String?   @db.VarChar(50) @map("CREATE_WHO")
   createdAt   DateTime  @default(now()) @map("CREATE_DATE")
