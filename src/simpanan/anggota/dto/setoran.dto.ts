@@ -1,7 +1,7 @@
 import { IsEnum, IsNumber, IsString, IsOptional, Min } from 'class-validator';
 
 export class SetoranDto {
-    @IsEnum(['SETORAN_POKOK', 'SETORAN_WAJIB'])
+    @IsEnum(['SETORAN_POKOK', 'SETORAN_WAJIB', 'PENARIKAN'])
     transType: string;
 
     @IsNumber()

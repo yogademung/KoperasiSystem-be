@@ -128,6 +128,41 @@ export class AnggotaService {
         });
     }
 
+    async penarikan(
+        accountNumber: string,
+        dto: SetoranDto, // Reusing SetoranDto or use PenarikanDto
+        userId: number
+    ) {
+        return this.prisma.$transaction(async (tx) => {
+            // Get account
+            const account = await tx.anggotaAccount.findUnique({
+                where: { accountNumber }
+            });
+
+            if (!account) {
+                throw new BadRequestException('Account not found');
+            }
+
+            if (account.status !== 'A') {
+                throw new BadRequestException('Account is not active');
+            }
+
+            const currentBalance = Number(account.balance);
+            if (currentBalance < dto.amount) {
+                throw new BadRequestException('Insufficient balance');
+            }
+
+            // Create transaction (Debit - Negative Amount)
+            await this.createTransaction(tx, accountNumber, {
+                transType: 'PENARIKAN',
+                amount: -Math.abs(dto.amount), // Ensure negative
+                description: dto.description
+            }, userId);
+
+            return { success: true };
+        });
+    }
+
     async getTransactions(
         accountNumber: string,
         page: number = 1,

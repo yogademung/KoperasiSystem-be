@@ -9,26 +9,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SetoranDto = void 0;
+exports.CreateTabrelaDto = void 0;
 const class_validator_1 = require("class-validator");
-class SetoranDto {
-    transType;
-    amount;
-    description;
+class CreateTabrelaDto {
+    nasabahId;
+    setoranAwal;
+    keterangan;
 }
-exports.SetoranDto = SetoranDto;
+exports.CreateTabrelaDto = CreateTabrelaDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(['SETORAN_POKOK', 'SETORAN_WAJIB', 'PENARIKAN']),
-    __metadata("design:type", String)
-], SetoranDto.prototype, "transType", void 0);
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateTabrelaDto.prototype, "nasabahId", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
-], SetoranDto.prototype, "amount", void 0);
+], CreateTabrelaDto.prototype, "setoranAwal", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], SetoranDto.prototype, "description", void 0);
-//# sourceMappingURL=setoran.dto.js.map
+], CreateTabrelaDto.prototype, "keterangan", void 0);
+//# sourceMappingURL=create-tabrela.dto.js.map

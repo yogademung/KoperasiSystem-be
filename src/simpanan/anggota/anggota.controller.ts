@@ -44,6 +44,17 @@ export class AnggotaController {
         return this.anggotaService.setoran(accountNumber, dto, userId);
     }
 
+    @Post(':accountNumber/penarikan')
+    // @Roles('admin', 'teller')
+    async penarikan(
+        @Param('accountNumber') accountNumber: string,
+        @Body() dto: SetoranDto, // Reusing SetoranDto as structure is identical (amount, desc)
+        @Req() req
+    ) {
+        const userId = req.user?.id || 1;
+        return this.anggotaService.penarikan(accountNumber, dto, userId);
+    }
+
     @Get(':accountNumber/transactions')
     async getTransactions(
         @Param('accountNumber') accountNumber: string,

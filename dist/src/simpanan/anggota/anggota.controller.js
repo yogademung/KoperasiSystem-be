@@ -36,6 +36,10 @@ let AnggotaController = class AnggotaController {
         const userId = req.user?.id || 1;
         return this.anggotaService.setoran(accountNumber, dto, userId);
     }
+    async penarikan(accountNumber, dto, req) {
+        const userId = req.user?.id || 1;
+        return this.anggotaService.penarikan(accountNumber, dto, userId);
+    }
     async getTransactions(accountNumber, page = 1, limit = 10) {
         return this.anggotaService.getTransactions(accountNumber, page, limit);
     }
@@ -71,6 +75,15 @@ __decorate([
     __metadata("design:paramtypes", [String, setoran_dto_1.SetoranDto, Object]),
     __metadata("design:returntype", Promise)
 ], AnggotaController.prototype, "setoran", null);
+__decorate([
+    (0, common_1.Post)(':accountNumber/penarikan'),
+    __param(0, (0, common_1.Param)('accountNumber')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, setoran_dto_1.SetoranDto, Object]),
+    __metadata("design:returntype", Promise)
+], AnggotaController.prototype, "penarikan", null);
 __decorate([
     (0, common_1.Get)(':accountNumber/transactions'),
     __param(0, (0, common_1.Param)('accountNumber')),

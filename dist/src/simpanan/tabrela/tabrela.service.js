@@ -1,0 +1,133 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TabrelaService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../../database/prisma.service");
+let TabrelaService = class TabrelaService {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async create(createDto) {
+        const noTab = `TAB-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        return this.prisma.$transaction(async (tx) => {
+            const tabrela = await tx.nasabahTab.create({
+                data: {
+                    noTab,
+                    nasabahId: createDto.nasabahId,
+                    tglBuka: new Date(),
+                    saldo: createDto.setoranAwal || 0,
+                    interestRate: 0,
+                    status: 'A',
+                }
+            });
+            if (createDto.setoranAwal && createDto.setoranAwal > 0) {
+                await tx.transTab.create({
+                    data: {
+                        noTab,
+                        tipeTrans: 'SETORAN',
+                        nominal: createDto.setoranAwal,
+                        saldoAkhir: createDto.setoranAwal,
+                        keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
+                        createdBy: 'SYSTEM'
+                    }
+                });
+            }
+            return tabrela;
+        });
+    }
+    async findAll() {
+        return this.prisma.nasabahTab.findMany({
+            include: {
+                nasabah: {
+                    select: { nama: true, noKtp: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' },
+            where: { status: 'A' }
+        });
+    }
+    async findOne(noTab) {
+        const account = await this.prisma.nasabahTab.findUnique({
+            where: { noTab },
+            include: {
+                nasabah: true,
+                transactions: {
+                    orderBy: { createdAt: 'desc' }
+                }
+            }
+        });
+        if (!account) {
+            throw new common_1.NotFoundException(`Tabungan ${noTab} not found`);
+        }
+        return account;
+    }
+    async setoran(noTab, dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.nasabahTab.findUnique({ where: { noTab } });
+            if (!account)
+                throw new common_1.NotFoundException('Tabungan not found');
+            if (account.status !== 'A')
+                throw new common_1.BadRequestException('Account not active');
+            const newBalance = Number(account.saldo) + dto.amount;
+            await tx.transTab.create({
+                data: {
+                    noTab,
+                    tipeTrans: dto.transType || 'SETORAN',
+                    nominal: dto.amount,
+                    saldoAkhir: newBalance,
+                    keterangan: dto.description,
+                    createdBy: userId?.toString() || 'SYSTEM'
+                }
+            });
+            await tx.nasabahTab.update({
+                where: { noTab },
+                data: { saldo: newBalance }
+            });
+            return { success: true };
+        });
+    }
+    async penarikan(noTab, dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.nasabahTab.findUnique({ where: { noTab } });
+            if (!account)
+                throw new common_1.NotFoundException('Tabungan not found');
+            if (account.status !== 'A')
+                throw new common_1.BadRequestException('Account not active');
+            if (Number(account.saldo) < dto.amount) {
+                throw new common_1.BadRequestException('Insufficient balance');
+            }
+            const newBalance = Number(account.saldo) - dto.amount;
+            await tx.transTab.create({
+                data: {
+                    noTab,
+                    tipeTrans: 'PENARIKAN',
+                    nominal: -Math.abs(dto.amount),
+                    saldoAkhir: newBalance,
+                    keterangan: dto.description,
+                    createdBy: userId?.toString() || 'SYSTEM'
+                }
+            });
+            await tx.nasabahTab.update({
+                where: { noTab },
+                data: { saldo: newBalance }
+            });
+            return { success: true };
+        });
+    }
+};
+exports.TabrelaService = TabrelaService;
+exports.TabrelaService = TabrelaService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], TabrelaService);
+//# sourceMappingURL=tabrela.service.js.map

@@ -102,6 +102,29 @@ let AnggotaService = class AnggotaService {
             return { success: true };
         });
     }
+    async penarikan(accountNumber, dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.anggotaAccount.findUnique({
+                where: { accountNumber }
+            });
+            if (!account) {
+                throw new common_1.BadRequestException('Account not found');
+            }
+            if (account.status !== 'A') {
+                throw new common_1.BadRequestException('Account is not active');
+            }
+            const currentBalance = Number(account.balance);
+            if (currentBalance < dto.amount) {
+                throw new common_1.BadRequestException('Insufficient balance');
+            }
+            await this.createTransaction(tx, accountNumber, {
+                transType: 'PENARIKAN',
+                amount: -Math.abs(dto.amount),
+                description: dto.description
+            }, userId);
+            return { success: true };
+        });
+    }
     async getTransactions(accountNumber, page = 1, limit = 10) {
         const skip = (page - 1) * limit;
         const [transactions, total] = await Promise.all([

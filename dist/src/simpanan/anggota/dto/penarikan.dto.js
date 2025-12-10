@@ -9,26 +9,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SetoranDto = void 0;
+exports.PenarikanDto = void 0;
 const class_validator_1 = require("class-validator");
-class SetoranDto {
-    transType;
+class PenarikanDto {
     amount;
     description;
 }
-exports.SetoranDto = SetoranDto;
-__decorate([
-    (0, class_validator_1.IsEnum)(['SETORAN_POKOK', 'SETORAN_WAJIB', 'PENARIKAN']),
-    __metadata("design:type", String)
-], SetoranDto.prototype, "transType", void 0);
+exports.PenarikanDto = PenarikanDto;
 __decorate([
     (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.Min)(1000),
     __metadata("design:type", Number)
-], SetoranDto.prototype, "amount", void 0);
+], PenarikanDto.prototype, "amount", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], SetoranDto.prototype, "description", void 0);
-//# sourceMappingURL=setoran.dto.js.map
+], PenarikanDto.prototype, "description", void 0);
+//# sourceMappingURL=penarikan.dto.js.map
