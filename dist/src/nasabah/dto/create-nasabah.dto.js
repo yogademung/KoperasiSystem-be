@@ -21,6 +21,8 @@ class CreateNasabahDto {
     tanggalLahir;
     jenisKelamin;
     pekerjaan;
+    fileKtp;
+    fileKk;
 }
 exports.CreateNasabahDto = CreateNasabahDto;
 __decorate([
@@ -66,4 +68,12 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateNasabahDto.prototype, "pekerjaan", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateNasabahDto.prototype, "fileKtp", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateNasabahDto.prototype, "fileKk", void 0);
 //# sourceMappingURL=create-nasabah.dto.js.map

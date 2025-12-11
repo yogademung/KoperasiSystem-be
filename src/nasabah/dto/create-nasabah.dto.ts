@@ -34,4 +34,10 @@ export class CreateNasabahDto {
     @IsString()
     @IsOptional()
     pekerjaan?: string;
+
+    @IsOptional()
+    fileKtp?: string;
+
+    @IsOptional()
+    fileKk?: string;
 }

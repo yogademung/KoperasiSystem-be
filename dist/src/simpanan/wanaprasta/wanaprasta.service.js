@@ -1,0 +1,162 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WanaprastaService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../../database/prisma.service");
+let WanaprastaService = class WanaprastaService {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async create(createDto) {
+        const noWanaprasta = `WNP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        return this.prisma.$transaction(async (tx) => {
+            const wanaprasta = await tx.nasabahWanaprasta.create({
+                data: {
+                    noWanaprasta,
+                    nasabahId: createDto.nasabahId,
+                    tglBuka: new Date(),
+                    saldo: createDto.setoranAwal || 0,
+                    interestRate: 4.0,
+                    status: 'A',
+                }
+            });
+            if (createDto.setoranAwal && createDto.setoranAwal > 0) {
+                await tx.transWanaprasta.create({
+                    data: {
+                        noWanaprasta,
+                        tipeTrans: 'SETORAN',
+                        nominal: createDto.setoranAwal,
+                        saldoAkhir: createDto.setoranAwal,
+                        keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Wanaprasta',
+                        createdBy: 'SYSTEM'
+                    }
+                });
+            }
+            return wanaprasta;
+        });
+    }
+    async findAll() {
+        return this.prisma.nasabahWanaprasta.findMany({
+            include: {
+                nasabah: {
+                    select: { nama: true, noKtp: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+    async findOne(noWanaprasta) {
+        const account = await this.prisma.nasabahWanaprasta.findUnique({
+            where: { noWanaprasta },
+            include: {
+                nasabah: true,
+                transactions: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 20
+                }
+            }
+        });
+        if (!account) {
+            throw new common_1.NotFoundException('Rekening Wanaprasta tidak ditemukan');
+        }
+        return account;
+    }
+    async setoran(noWanaprasta, dto) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.nasabahWanaprasta.findUnique({
+                where: { noWanaprasta }
+            });
+            if (!account) {
+                throw new common_1.NotFoundException('Rekening tidak ditemukan');
+            }
+            if (account.status !== 'A') {
+                throw new common_1.BadRequestException('Rekening tidak aktif');
+            }
+            const newBalance = Number(account.saldo) + dto.nominal;
+            const transaction = await tx.transWanaprasta.create({
+                data: {
+                    noWanaprasta,
+                    tipeTrans: 'SETORAN',
+                    nominal: dto.nominal,
+                    saldoAkhir: newBalance,
+                    keterangan: dto.keterangan || 'Setoran Wanaprasta',
+                    createdBy: 'SYSTEM'
+                }
+            });
+            await tx.nasabahWanaprasta.update({
+                where: { noWanaprasta },
+                data: { saldo: newBalance }
+            });
+            return transaction;
+        });
+    }
+    async penarikan(noWanaprasta, dto) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.nasabahWanaprasta.findUnique({
+                where: { noWanaprasta }
+            });
+            if (!account) {
+                throw new common_1.NotFoundException('Rekening tidak ditemukan');
+            }
+            if (account.status !== 'A') {
+                throw new common_1.BadRequestException('Rekening tidak aktif');
+            }
+            if (Number(account.saldo) < dto.nominal) {
+                throw new common_1.BadRequestException('Saldo tidak mencukupi');
+            }
+            const newBalance = Number(account.saldo) - dto.nominal;
+            const transaction = await tx.transWanaprasta.create({
+                data: {
+                    noWanaprasta,
+                    tipeTrans: 'PENARIKAN',
+                    nominal: dto.nominal,
+                    saldoAkhir: newBalance,
+                    keterangan: dto.keterangan || 'Penarikan Wanaprasta',
+                    createdBy: 'SYSTEM'
+                }
+            });
+            await tx.nasabahWanaprasta.update({
+                where: { noWanaprasta },
+                data: { saldo: newBalance }
+            });
+            return transaction;
+        });
+    }
+    async getTransactions(noWanaprasta, page = 1, limit = 10) {
+        const skip = (page - 1) * limit;
+        const [transactions, total] = await Promise.all([
+            this.prisma.transWanaprasta.findMany({
+                where: { noWanaprasta },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit
+            }),
+            this.prisma.transWanaprasta.count({
+                where: { noWanaprasta }
+            })
+        ]);
+        return {
+            data: transactions,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
+    }
+};
+exports.WanaprastaService = WanaprastaService;
+exports.WanaprastaService = WanaprastaService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], WanaprastaService);
+//# sourceMappingURL=wanaprasta.service.js.map

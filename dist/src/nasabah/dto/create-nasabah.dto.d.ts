@@ -8,4 +8,6 @@ export declare class CreateNasabahDto {
     tanggalLahir?: string;
     jenisKelamin?: string;
     pekerjaan?: string;
+    fileKtp?: string;
+    fileKk?: string;
 }

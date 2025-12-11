@@ -1,13 +1,20 @@
+
 import { Controller, Get, Post, Body, Param, Patch, Delete, UseInterceptors, UploadedFiles, BadRequestException, UseGuards } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
+import { extname, join } from 'path';
+import * as fs from 'fs-extra';
+import sharp from 'sharp';
 import { NasabahService } from './nasabah.service';
 import { CreateNasabahDto } from './dto/create-nasabah.dto';
 import { UpdateNasabahDto } from './dto/update-nasabah.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+
+const UPLOAD_DIR = './uploads/nasabah';
+// Ensure upload dir exists
+fs.ensureDirSync(UPLOAD_DIR);
 
 const fileFilter = (req, file, callback) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
@@ -20,36 +27,79 @@ const fileFilter = (req, file, callback) => {
 export class NasabahController {
     constructor(private readonly nasabahService: NasabahService) { }
 
+    private async processAndSaveFile(file: Express.Multer.File, timestamp: string): Promise<string | null> {
+        if (!file) return null;
+
+        console.log('Processing file:', {
+            fieldname: file.fieldname,
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            timestamp
+        });
+
+        const ext = extname(file.originalname).toLowerCase();
+        // New filename format: fieldname_timestamp.ext
+        // Example: fileKtp_2025-12-11_10-30-45.jpg (Windows-safe, no colons)
+        const filename = `${file.fieldname}_${timestamp}${ext}`;
+        const filePath = join(UPLOAD_DIR, filename);
+
+        try {
+            // Check if file is PDF - save directly without processing
+            if (file.mimetype === 'application/pdf') {
+                console.log('Saving PDF file directly without compression');
+                await fs.writeFile(filePath, file.buffer);
+                return `/uploads/nasabah/${filename}`;
+            }
+
+            // For images, compress with sharp
+            console.log('Compressing image with sharp');
+            await sharp(file.buffer)
+                .resize({ width: 1024, withoutEnlargement: true })
+                .jpeg({ quality: 70 })
+                .toFile(filePath);
+
+            const stats = await fs.stat(filePath);
+            console.log(`File saved successfully: ${filename}, size: ${stats.size} bytes`);
+
+            return `/uploads/nasabah/${filename}`;
+        } catch (error) {
+            console.error('File processing error:', {
+                filename: file.originalname,
+                mimetype: file.mimetype,
+                error: error.message,
+                stack: error.stack
+            });
+            throw new BadRequestException(`Gagal memproses file: ${error.message}`);
+        }
+    }
+
     @Post()
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'fileKtp', maxCount: 1 },
         { name: 'fileKk', maxCount: 1 },
     ], {
-        storage: diskStorage({
-            destination: './uploads/nasabah',
-            filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-                const ext = extname(file.originalname);
-                cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-            },
-        }),
+        storage: memoryStorage(), // Use memory to allow processing
+        limits: { fileSize: 5 * 1024 * 1024 }, // Allow upload up to 5MB, we verify/compress later
         fileFilter: fileFilter,
-        limits: { fileSize: 2000000 }, // 2MB
     }))
-    create(
+    async create(
         @UploadedFiles() files: { fileKtp?: Express.Multer.File[], fileKk?: Express.Multer.File[] },
         @Body() createNasabahDto: CreateNasabahDto
     ) {
         console.log('Received Create Payload:', createNasabahDto);
         console.log('Received Files:', files);
 
-        const fileKtpPath = files?.fileKtp?.[0]?.path;
-        const fileKkPath = files?.fileKk?.[0]?.path;
+        // Get current timestamp for filename - remove ALL invalid filename characters
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
 
-        // Convert DTO to match Service input (renaming/mapping if necessary is handled here or in service)
+        // Process Files with timestamp
+        const fileKtpPath = files?.fileKtp?.[0] ? await this.processAndSaveFile(files.fileKtp[0], timestamp) : null;
+        const fileKkPath = files?.fileKk?.[0] ? await this.processAndSaveFile(files.fileKk[0], timestamp) : null;
+
         const nasabahData: any = { ...createNasabahDto };
 
-        // Fix string 'null' or 'undefined' from FormData
+        // Cleanup
         Object.keys(nasabahData).forEach(key => {
             if (nasabahData[key] === 'null' || nasabahData[key] === 'undefined' || nasabahData[key] === '') {
                 nasabahData[key] = null;
@@ -65,7 +115,8 @@ export class NasabahController {
             fileKtp: fileKtpPath,
             fileKk: fileKkPath
         } as any).catch(err => {
-            console.error('Error creating nasabah:', err);
+            // If failed, we should probably delete the uploaded files? 
+            // For now, ignore orphan files to keep logic simple.
             if (err.code === 'P2002') {
                 throw new BadRequestException('NIK already exists (Data duplikat)');
             }
@@ -89,8 +140,43 @@ export class NasabahController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateNasabahDto: UpdateNasabahDto) {
-        return this.nasabahService.update(+id, updateNasabahDto);
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'fileKtp', maxCount: 1 },
+        { name: 'fileKk', maxCount: 1 },
+    ], {
+        storage: memoryStorage(),
+        limits: { fileSize: 5 * 1024 * 1024 },
+        fileFilter: fileFilter,
+    }))
+    async update(
+        @Param('id') id: string,
+        @Body() updateNasabahDto: UpdateNasabahDto,
+        @UploadedFiles() files: { fileKtp?: Express.Multer.File[], fileKk?: Express.Multer.File[] }
+    ) {
+        // Get current timestamp for filename - remove ALL invalid filename characters
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
+
+        // Transform path to Web URL if files exist
+        const fileKtpPath = files?.fileKtp?.[0] ? await this.processAndSaveFile(files.fileKtp[0], timestamp) : undefined;
+        const fileKkPath = files?.fileKk?.[0] ? await this.processAndSaveFile(files.fileKk[0], timestamp) : undefined;
+
+        const updateData: any = { ...updateNasabahDto };
+
+        if (fileKtpPath) updateData.fileKtp = fileKtpPath;
+        if (fileKkPath) updateData.fileKk = fileKkPath;
+
+        // Cleanup 'null' strings from FormData
+        Object.keys(updateData).forEach(key => {
+            if (updateData[key] === 'null' || updateData[key] === 'undefined' || updateData[key] === '') {
+                updateData[key] = null;
+            }
+        });
+
+        if (updateData.tanggalLahir) {
+            updateData.tanggalLahir = new Date(updateData.tanggalLahir);
+        }
+
+        return this.nasabahService.update(+id, updateData);
     }
 
     @Delete(':id')

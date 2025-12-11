@@ -4,6 +4,7 @@ import { UpdateNasabahDto } from './dto/update-nasabah.dto';
 export declare class NasabahController {
     private readonly nasabahService;
     constructor(nasabahService: NasabahService);
+    private processAndSaveFile;
     create(files: {
         fileKtp?: Express.Multer.File[];
         fileKk?: Express.Multer.File[];
@@ -178,7 +179,10 @@ export declare class NasabahController {
         fileKtp: string | null;
         fileKk: string | null;
     }>;
-    update(id: string, updateNasabahDto: UpdateNasabahDto): Promise<{
+    update(id: string, updateNasabahDto: UpdateNasabahDto, files: {
+        fileKtp?: Express.Multer.File[];
+        fileKk?: Express.Multer.File[];
+    }): Promise<{
         id: number;
         isActive: boolean;
         createdBy: string | null;
