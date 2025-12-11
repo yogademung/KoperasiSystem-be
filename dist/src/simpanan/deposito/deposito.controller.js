@@ -24,9 +24,9 @@ let DepositoController = class DepositoController {
         this.depositoService = depositoService;
         this.interestService = interestService;
     }
-    async testInterest(body) {
-        await this.interestService.processDepositoInterest(body.noJangka);
-        return { message: 'Interest calculation triggered manually' + (body.noJangka ? ` for ${body.noJangka}` : '') };
+    async testInterest() {
+        await this.interestService.forceRunAllInterest();
+        return { message: 'Interest Scheduler Triggered for ALL Products (Forced)' };
     }
     async getSimulation(noJangka) {
         return this.interestService.simulateProcessing(noJangka);
@@ -49,9 +49,8 @@ let DepositoController = class DepositoController {
 exports.DepositoController = DepositoController;
 __decorate([
     (0, common_1.Post)('test-interest'),
-    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], DepositoController.prototype, "testInterest", null);
 __decorate([

@@ -33,6 +33,16 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
         }
         this.logger.log('Daily interest check completed.');
     }
+    async forceRunAllInterest() {
+        this.logger.log('FORCE RUNNING ALL INTEREST CHECKS...');
+        await this.processDepositoInterest();
+        this.logger.log('Force processing Monthly Savings Interest...');
+        await this.processTabrelaInterest();
+        await this.processBrahmacariInterest();
+        await this.processBalimesariInterest();
+        await this.processWanaprastaInterest();
+        this.logger.log('Force Run completed.');
+    }
     async processDepositoInterest(targetNoJangka) {
         const today = new Date();
         const currentDay = today.getDate();
@@ -154,12 +164,12 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
             if (netInterest <= 0)
                 continue;
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_tab', 't_trans_tab', 'noTab', acc.noTab, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', acc.noTab, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_tab', 't_trans_tab', 'noTab', acc.noTab, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', acc.noTab, 'PAJAK', -tax, 'Pajak Bunga');
                 }
                 if (ADMIN_FEE > 0 && Number(acc.saldo) > ADMIN_FEE) {
-                    await this.createTransaction(tx, 'm_nasabah_tab', 't_trans_tab', 'noTab', acc.noTab, 'ADM', -ADMIN_FEE, 'Biaya Admin');
+                    await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', acc.noTab, 'ADM', -ADMIN_FEE, 'Biaya Admin');
                 }
             });
         }
@@ -177,9 +187,9 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
             if (interest > 240000)
                 tax = interest * 0.20;
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_brahmacari', 't_trans_brahmacari', 'noBrahmacari', acc.noBrahmacari, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahBrahmacari', 'transBrahmacari', 'noBrahmacari', acc.noBrahmacari, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_brahmacari', 't_trans_brahmacari', 'noBrahmacari', acc.noBrahmacari, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahBrahmacari', 'transBrahmacari', 'noBrahmacari', acc.noBrahmacari, 'PAJAK', -tax, 'Pajak Bunga');
                 }
             });
         }
@@ -197,12 +207,12 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
             if (interest > 240000)
                 tax = interest * 0.20;
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_balimesari', 't_trans_balimesari', 'noBalimesari', acc.noBalimesari, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_balimesari', 't_trans_balimesari', 'noBalimesari', acc.noBalimesari, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'PAJAK', -tax, 'Pajak Bunga');
                 }
                 if (ADMIN_FEE > 0 && Number(acc.saldo) > ADMIN_FEE) {
-                    await this.createTransaction(tx, 'm_nasabah_balimesari', 't_trans_balimesari', 'noBalimesari', acc.noBalimesari, 'ADM', -ADMIN_FEE, 'Biaya Admin');
+                    await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'ADM', -ADMIN_FEE, 'Biaya Admin');
                 }
             });
         }
@@ -220,12 +230,12 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
             if (interest > 240000)
                 tax = interest * 0.20;
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_wanaprasta', 't_trans_wanaprasta', 'noWanaprasta', acc.noWanaprasta, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_wanaprasta', 't_trans_wanaprasta', 'noWanaprasta', acc.noWanaprasta, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'PAJAK', -tax, 'Pajak Bunga');
                 }
                 if (ADMIN_FEE > 0 && Number(acc.saldo) > ADMIN_FEE) {
-                    await this.createTransaction(tx, 'm_nasabah_wanaprasta', 't_trans_wanaprasta', 'noWanaprasta', acc.noWanaprasta, 'ADM', -ADMIN_FEE, 'Biaya Admin');
+                    await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'ADM', -ADMIN_FEE, 'Biaya Admin');
                 }
             });
         }

@@ -5,9 +5,7 @@ export declare class DepositoController {
     private readonly depositoService;
     private readonly interestService;
     constructor(depositoService: DepositoService, interestService: SimpananInterestService);
-    testInterest(body: {
-        noJangka?: string;
-    }): Promise<{
+    testInterest(): Promise<{
         message: string;
     }>;
     getSimulation(noJangka: string): Promise<{
@@ -27,32 +25,31 @@ export declare class DepositoController {
             noKtp: string | null;
         };
     } & {
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        status: string;
+        noJangka: string;
         nasabahId: number;
         tglBuka: Date;
-        noJangka: string;
         tglJatuhTempo: Date;
         nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
     })[]>;
     findOne(noJangka: string): Promise<{
         accumulatedInterest: number;
         nasabah: {
-            id: number;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
+            id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -61,58 +58,59 @@ export declare class DepositoController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
+            isActive: boolean;
         };
         transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
             noJangka: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
+            createdBy: string | null;
+            createdAt: Date;
+            id: number;
             tipeTrans: string;
+            keterangan: string | null;
         }[];
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        status: string;
+        noJangka: string;
         nasabahId: number;
         tglBuka: Date;
-        noJangka: string;
         tglJatuhTempo: Date;
         nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
     }>;
     create(createDto: CreateDepositoDto, req: any): Promise<{
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        status: string;
+        noJangka: string;
         nasabahId: number;
         tglBuka: Date;
-        noJangka: string;
         tglJatuhTempo: Date;
         nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
     }>;
     withdraw(noJangka: string, req: any): Promise<{
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        status: string;
+        noJangka: string;
         nasabahId: number;
         tglBuka: Date;
-        noJangka: string;
         tglJatuhTempo: Date;
         nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
     }>;
 }

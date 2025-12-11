@@ -30,6 +30,30 @@ export class SimpananInterestService {
         this.logger.log('Daily interest check completed.');
     }
 
+    // Force Run (Manual Test) - Bypasses Date Checks
+    async forceRunAllInterest() {
+        this.logger.log('FORCE RUNNING ALL INTEREST CHECKS...');
+
+        // 1. Deposito (Check all active, maybe force Anniversary logic? 
+        // For now, processDepositoInterest without targetNoJangka checks dates.
+        // We might want to force check ALL? 
+        // Let's modify processDepositoInterest to accept a 'force' flag?
+        // Or for now, just let it run normal checks (so only due ones get processed).
+        // User want to "tes fungsi". If no deposito is due, nothing happens.
+        // But for monthly savings, we MUST bypass the "Date === 1" check.
+
+        await this.processDepositoInterest(); // Only due depositos
+
+        // 2. Monthly Savings - FORCE RUN
+        this.logger.log('Force processing Monthly Savings Interest...');
+        await this.processTabrelaInterest();
+        await this.processBrahmacariInterest();
+        await this.processBalimesariInterest();
+        await this.processWanaprastaInterest();
+
+        this.logger.log('Force Run completed.');
+    }
+
     // 5. Deposito Interest Logic
     async processDepositoInterest(targetNoJangka?: string) {
         // If targetNoJangka is provided (Manual Test), skip date validation.
@@ -216,17 +240,14 @@ export class SimpananInterestService {
             if (netInterest <= 0) continue;
 
             await this.prisma.$transaction(async (tx) => {
-                // Credit Interest
-                await this.createTransaction(tx, 'm_nasabah_tab', 't_trans_tab', 'noTab', acc.noTab, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', acc.noTab, 'BUNGA', interest, 'Bunga Bulanan');
 
-                // Debit Tax
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_tab', 't_trans_tab', 'noTab', acc.noTab, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', acc.noTab, 'PAJAK', -tax, 'Pajak Bunga');
                 }
 
-                // Debit Admin
                 if (ADMIN_FEE > 0 && Number(acc.saldo) > ADMIN_FEE) {
-                    await this.createTransaction(tx, 'm_nasabah_tab', 't_trans_tab', 'noTab', acc.noTab, 'ADM', -ADMIN_FEE, 'Biaya Admin');
+                    await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', acc.noTab, 'ADM', -ADMIN_FEE, 'Biaya Admin');
                 }
             });
         }
@@ -249,9 +270,9 @@ export class SimpananInterestService {
             if (interest > 240000) tax = interest * 0.20;
 
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_brahmacari', 't_trans_brahmacari', 'noBrahmacari', acc.noBrahmacari, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahBrahmacari', 'transBrahmacari', 'noBrahmacari', acc.noBrahmacari, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_brahmacari', 't_trans_brahmacari', 'noBrahmacari', acc.noBrahmacari, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahBrahmacari', 'transBrahmacari', 'noBrahmacari', acc.noBrahmacari, 'PAJAK', -tax, 'Pajak Bunga');
                 }
             });
         }
@@ -274,12 +295,12 @@ export class SimpananInterestService {
             if (interest > 240000) tax = interest * 0.20;
 
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_balimesari', 't_trans_balimesari', 'noBalimesari', acc.noBalimesari, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_balimesari', 't_trans_balimesari', 'noBalimesari', acc.noBalimesari, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'PAJAK', -tax, 'Pajak Bunga');
                 }
                 if (ADMIN_FEE > 0 && Number(acc.saldo) > ADMIN_FEE) {
-                    await this.createTransaction(tx, 'm_nasabah_balimesari', 't_trans_balimesari', 'noBalimesari', acc.noBalimesari, 'ADM', -ADMIN_FEE, 'Biaya Admin');
+                    await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'ADM', -ADMIN_FEE, 'Biaya Admin');
                 }
             });
         }
@@ -302,12 +323,12 @@ export class SimpananInterestService {
             if (interest > 240000) tax = interest * 0.20;
 
             await this.prisma.$transaction(async (tx) => {
-                await this.createTransaction(tx, 'm_nasabah_wanaprasta', 't_trans_wanaprasta', 'noWanaprasta', acc.noWanaprasta, 'BUNGA', interest, 'Bunga Bulanan');
+                await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
-                    await this.createTransaction(tx, 'm_nasabah_wanaprasta', 't_trans_wanaprasta', 'noWanaprasta', acc.noWanaprasta, 'PAJAK', -tax, 'Pajak Bunga');
+                    await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'PAJAK', -tax, 'Pajak Bunga');
                 }
                 if (ADMIN_FEE > 0 && Number(acc.saldo) > ADMIN_FEE) {
-                    await this.createTransaction(tx, 'm_nasabah_wanaprasta', 't_trans_wanaprasta', 'noWanaprasta', acc.noWanaprasta, 'ADM', -ADMIN_FEE, 'Biaya Admin');
+                    await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'ADM', -ADMIN_FEE, 'Biaya Admin');
                 }
             });
         }

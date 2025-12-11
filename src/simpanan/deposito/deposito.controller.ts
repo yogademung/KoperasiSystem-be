@@ -19,9 +19,23 @@ export class DepositoController {
     ) { }
 
     @Post('test-interest')
-    async testInterest(@Body() body: { noJangka?: string }) {
-        await this.interestService.processDepositoInterest(body.noJangka);
-        return { message: 'Interest calculation triggered manually' + (body.noJangka ? ` for ${body.noJangka}` : '') };
+    async testInterest() {
+        // Trigger Daily Scheduler Manually
+        // This process checks:
+        // 1. Deposito (Is it Anniversary?)
+        // 2. Savings (Is it 1st of Month? - We might need to force it for Testing)
+
+        // For testing purposes, we might want to FORCE the "1st of Month" logic.
+        // But handleDailyScheduler uses internal date checks.
+        // Let's create a special public method in Service or just bypass?
+        // User asked to "tes fungsi semua bunga".
+        // Let's call the public scheduler. 
+        // NOTE: If today is NOT 1st, it won't run savings.
+        // We should add a 'force' param to handleDailyScheduler?
+        // Let's modify the service first. But for now, let's just call it.
+        // Actually, better to add a separate force method in Service.
+        await this.interestService.forceRunAllInterest();
+        return { message: 'Interest Scheduler Triggered for ALL Products (Forced)' };
     }
 
     @Get(':noJangka/simulation')

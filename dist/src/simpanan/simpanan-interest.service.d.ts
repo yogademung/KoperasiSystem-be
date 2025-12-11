@@ -4,6 +4,7 @@ export declare class SimpananInterestService {
     private readonly logger;
     constructor(prisma: PrismaService);
     handleDailyScheduler(): Promise<void>;
+    forceRunAllInterest(): Promise<void>;
     processDepositoInterest(targetNoJangka?: string): Promise<void>;
     simulateProcessing(noJangka: string): Promise<{
         noJangka: string;
