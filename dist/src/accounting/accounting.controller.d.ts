@@ -116,28 +116,34 @@ export declare class AccountingController {
         debitAccount: string;
         creditAccount: string;
     }>;
-    getJournals(startDate?: string, endDate?: string, status?: string, sourceCode?: string): Promise<({
-        user: {
-            fullName: string;
-        };
-    } & {
-        wilayahCd: string | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
-        transType: string | null;
-        description: string | null;
-        status: string;
-        userId: number;
-        journalNumber: string;
-        journalDate: Date;
-        postingType: string;
-        sourceCode: string | null;
-        refId: number | null;
-        tellerId: string | null;
-    })[]>;
+    getJournals(startDate?: string, endDate?: string, status?: string, sourceCode?: string, fromAccount?: string, toAccount?: string, page?: string, limit?: string): Promise<{
+        data: ({
+            user: {
+                fullName: string;
+            };
+        } & {
+            wilayahCd: string | null;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            status: string;
+            userId: number;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            sourceCode: string | null;
+            refId: number | null;
+            tellerId: string | null;
+        })[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
     getJournalDetail(id: string): Promise<{
         user: {
             fullName: string;
@@ -210,16 +216,7 @@ export declare class AccountingController {
         refId: number | null;
         tellerId: string | null;
     }>;
-    updateManualJournal(id: string, req: any, body: {
-        date: string;
-        description: string;
-        details: {
-            accountCode: string;
-            debit: number;
-            credit: number;
-            description?: string;
-        }[];
-    }): Promise<{
+    updateManualJournal(id: string, body: any, req: any): Promise<{
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
@@ -237,4 +234,5 @@ export declare class AccountingController {
         refId: number | null;
         tellerId: string | null;
     }>;
+    deleteJournal(id: string, reason: string, req: any): Promise<void>;
 }

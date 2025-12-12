@@ -46,12 +46,16 @@ let AccountingController = class AccountingController {
     updateMapping(transType, body) {
         return this.accountingService.updateMapping(transType, body.debitAccount, body.creditAccount);
     }
-    getJournals(startDate, endDate, status, sourceCode) {
+    getJournals(startDate, endDate, status, sourceCode, fromAccount, toAccount, page, limit) {
         return this.accountingService.getJournals({
             startDate: startDate ? new Date(startDate) : undefined,
             endDate: endDate ? new Date(endDate) : undefined,
             status,
-            sourceCode
+            sourceCode,
+            fromAccount,
+            toAccount,
+            page: page ? parseInt(page) : 1,
+            limit: limit ? parseInt(limit) : 10,
         });
     }
     getJournalDetail(id) {
@@ -66,14 +70,16 @@ let AccountingController = class AccountingController {
             details: body.details
         });
     }
-    updateManualJournal(id, req, body) {
-        const userId = req.user?.id || req.user?.userId;
-        return this.accountingService.updateManualJournal(+id, {
+    async updateManualJournal(id, body, req) {
+        return this.accountingService.updateManualJournal(Number(id), {
             date: new Date(body.date),
             description: body.description,
-            userId: userId ? +userId : 1,
+            userId: req.user.userId,
             details: body.details
         });
+    }
+    async deleteJournal(id, reason, req) {
+        return this.accountingService.deleteJournal(Number(id), req.user.userId, reason || 'Deleted by User');
     }
 };
 exports.AccountingController = AccountingController;
@@ -135,8 +141,12 @@ __decorate([
     __param(1, (0, common_1.Query)('endDate')),
     __param(2, (0, common_1.Query)('status')),
     __param(3, (0, common_1.Query)('sourceCode')),
+    __param(4, (0, common_1.Query)('fromAccount')),
+    __param(5, (0, common_1.Query)('toAccount')),
+    __param(6, (0, common_1.Query)('page')),
+    __param(7, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], AccountingController.prototype, "getJournals", null);
 __decorate([
@@ -155,14 +165,23 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AccountingController.prototype, "createManualJournal", null);
 __decorate([
-    (0, common_1.Put)('journals/:id'),
+    (0, common_1.Put)('/journals/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.Body)()),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AccountingController.prototype, "updateManualJournal", null);
+__decorate([
+    (0, common_1.Delete)('/journals/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('reason')),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], AccountingController.prototype, "deleteJournal", null);
 exports.AccountingController = AccountingController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('accounting'),

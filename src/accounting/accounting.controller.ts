@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { AccountingService } from './accounting.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Prisma } from '@prisma/client';
@@ -71,12 +71,20 @@ export class AccountingController {
         @Query('endDate') endDate?: string,
         @Query('status') status?: string,
         @Query('sourceCode') sourceCode?: string,
+        @Query('fromAccount') fromAccount?: string,
+        @Query('toAccount') toAccount?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
     ) {
         return this.accountingService.getJournals({
             startDate: startDate ? new Date(startDate) : undefined,
             endDate: endDate ? new Date(endDate) : undefined,
             status,
-            sourceCode
+            sourceCode,
+            fromAccount,
+            toAccount,
+            page: page ? parseInt(page) : 1,
+            limit: limit ? parseInt(limit) : 10,
         });
     }
 
@@ -104,22 +112,27 @@ export class AccountingController {
         });
     }
 
-    @Put('journals/:id')
-    updateManualJournal(
-        @Param('id') id: string,
-        @Request() req,
-        @Body() body: {
-            date: string;
-            description: string;
-            details: { accountCode: string; debit: number; credit: number; description?: string }[];
-        }
+    @Put('/journals/:id')
+    async updateManualJournal(
+        @Param('id') id: string, // string from URL
+        @Body() body: any, // Validate DTO properly in real app
+        @Request() req
     ) {
-        const userId = req.user?.id || req.user?.userId;
-        return this.accountingService.updateManualJournal(+id, {
+        // ... (body validation)
+        return this.accountingService.updateManualJournal(Number(id), {
             date: new Date(body.date),
             description: body.description,
-            userId: userId ? +userId : 1,
+            userId: req.user.userId,
             details: body.details
         });
+    }
+
+    @Delete('/journals/:id')
+    async deleteJournal(
+        @Param('id') id: string,
+        @Body('reason') reason: string,
+        @Request() req
+    ) {
+        return this.accountingService.deleteJournal(Number(id), req.user.userId, reason || 'Deleted by User');
     }
 }

@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountingService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
+const core_1 = require("@nestjs/core");
 let AccountingService = class AccountingService {
     prisma;
-    constructor(prisma) {
+    moduleRef;
+    constructor(prisma, moduleRef) {
         this.prisma = prisma;
+        this.moduleRef = moduleRef;
     }
     async getAccounts(type, page = 1, limit = 10) {
         const where = { isActive: true };
@@ -154,13 +157,38 @@ let AccountingService = class AccountingService {
         if (params.sourceCode) {
             where.sourceCode = params.sourceCode;
         }
-        return this.prisma.postedJournal.findMany({
-            where,
-            include: {
-                user: { select: { fullName: true } }
-            },
-            orderBy: { journalNumber: 'desc' }
-        });
+        if (params.fromAccount || params.toAccount) {
+            where.details = {
+                some: {
+                    accountCode: {
+                        gte: params.fromAccount,
+                        lte: params.toAccount
+                    }
+                }
+            };
+        }
+        const page = params.page || 1;
+        const limit = params.limit || 10;
+        const skip = (page - 1) * limit;
+        const [data, total] = await Promise.all([
+            this.prisma.postedJournal.findMany({
+                where,
+                include: {
+                    user: { select: { fullName: true } }
+                },
+                orderBy: { journalNumber: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.postedJournal.count({ where })
+        ]);
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
     }
     async getJournalDetail(id) {
         const journal = await this.prisma.postedJournal.findUnique({
@@ -268,10 +296,29 @@ let AccountingService = class AccountingService {
             }
         });
     }
+    async deleteJournal(id, userId, reason) {
+        const journal = await this.prisma.postedJournal.findUnique({
+            where: { id },
+            include: { details: true }
+        });
+        if (!journal)
+            throw new common_1.NotFoundException('Journal not found');
+        if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {
+            try {
+                const source = journal.sourceCode;
+                let service = null;
+            }
+            catch (error) {
+                console.error('Failed to void transaction during journal delete:', error);
+                throw new common_1.BadRequestException(`Failed to void source transaction: ${error.message}`);
+            }
+        }
+    }
 };
 exports.AccountingService = AccountingService;
 exports.AccountingService = AccountingService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        core_1.ModuleRef])
 ], AccountingService);
 //# sourceMappingURL=accounting.service.js.map

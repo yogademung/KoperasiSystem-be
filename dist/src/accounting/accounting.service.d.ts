@@ -1,8 +1,10 @@
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { ModuleRef } from '@nestjs/core';
 export declare class AccountingService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private moduleRef;
+    constructor(prisma: PrismaService, moduleRef: ModuleRef);
     getAccounts(type?: string, page?: number, limit?: number): Promise<{
         data: {
             accountCode: string;
@@ -123,28 +125,38 @@ export declare class AccountingService {
         endDate?: Date;
         status?: string;
         sourceCode?: string;
-    }): Promise<({
-        user: {
-            fullName: string;
-        };
-    } & {
-        wilayahCd: string | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
-        transType: string | null;
-        description: string | null;
-        status: string;
-        userId: number;
-        journalNumber: string;
-        journalDate: Date;
-        postingType: string;
-        sourceCode: string | null;
-        refId: number | null;
-        tellerId: string | null;
-    })[]>;
+        fromAccount?: string;
+        toAccount?: string;
+        page?: number;
+        limit?: number;
+    }): Promise<{
+        data: ({
+            user: {
+                fullName: string;
+            };
+        } & {
+            wilayahCd: string | null;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            status: string;
+            userId: number;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            sourceCode: string | null;
+            refId: number | null;
+            tellerId: string | null;
+        })[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
     getJournalDetail(id: number): Promise<{
         user: {
             fullName: string;
@@ -272,4 +284,5 @@ export declare class AccountingService {
         refId: number | null;
         tellerId: string | null;
     }>;
+    deleteJournal(id: number, userId: number, reason: string): Promise<void>;
 }

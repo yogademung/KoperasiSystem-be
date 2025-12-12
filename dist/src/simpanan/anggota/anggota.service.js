@@ -221,6 +221,43 @@ let AnggotaService = class AnggotaService {
         }
         return `${regionCode}ANG${sequence.toString().padStart(5, '0')}`;
     }
+    async voidTransaction(transId) {
+        return this.prisma.$transaction(async (tx) => {
+            const original = await tx.anggotaTransaction.findUnique({
+                where: { id: transId }
+            });
+            if (!original)
+                throw new common_1.BadRequestException(`Transaction with ID ${transId} not found`);
+            const account = await tx.anggotaAccount.findUnique({
+                where: { accountNumber: original.accountNumber }
+            });
+            if (!account)
+                throw new common_1.BadRequestException('Account not found');
+            const reversalAmount = Number(original.amount);
+            const newBalance = Number(account.balance) - reversalAmount;
+            const updateData = {
+                balance: newBalance
+            };
+            if (original.transType === 'SETORAN_POKOK') {
+                updateData.principal = Number(account.principal) - reversalAmount;
+            }
+            await tx.anggotaAccount.update({
+                where: { accountNumber: original.accountNumber },
+                data: updateData
+            });
+            return tx.anggotaTransaction.create({
+                data: {
+                    accountNumber: original.accountNumber,
+                    transDate: new Date(),
+                    transType: 'KOREKSI',
+                    amount: -reversalAmount,
+                    balanceAfter: newBalance,
+                    description: `VOID/REVERSAL of Trans #${original.id}: ${original.description || ''}`,
+                    userId: original.userId,
+                }
+            });
+        });
+    }
 };
 exports.AnggotaService = AnggotaService;
 exports.AnggotaService = AnggotaService = __decorate([

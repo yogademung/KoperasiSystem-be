@@ -384,6 +384,41 @@ model PostedJournalDetail {
   @@map("t_posted_journal_detail")
 }
 
+model PostedJournalTemp {
+  id              Int      @id @default(autoincrement()) @map("TEMP_ID")
+  originalId      Int      @map("ORIGINAL_JOURNAL_ID")
+  journalNumber   String   @db.VarChar(30) @map("JOURNAL_NO")
+  journalDate     DateTime @map("TGL_POSTING") @db.Date
+  description     String?  @db.Text @map("KETERANGAN")
+  postingType     String   @db.VarChar(10) @map("POSTING_TYPE")
+  transType       String?  @db.VarChar(30) @map("TRANS_TYPE")
+  sourceCode      String?  @db.VarChar(20) @map("SOURCE_CODE")
+  refId           Int?     @map("REF_ID")
+  userId          Int      @map("USER_ID")
+  wilayahCd       String?  @db.VarChar(10) @map("WILAYAH_CD")
+  status          String   @db.VarChar(20) @map("STATUS")
+  deletedBy       String?  @db.VarChar(50) @map("DELETE_WHO")
+  deletedAt       DateTime @default(now()) @map("DELETE_DATE")
+  deleteReason    String?  @db.Text @map("DELETE_REASON")
+
+  details         PostedJournalDetailTemp[]
+  
+  @@map("t_posted_journal_temp")
+}
+
+model PostedJournalDetailTemp {
+  id              Int      @id @default(autoincrement()) @map("TEMP_DETAIL_ID")
+  tempJournalId   Int      @map("TEMP_JOURNAL_ID")
+  accountCode     String   @db.VarChar(20) @map("ACCOUNT_CD")
+  debit           Decimal  @default(0) @db.Decimal(19, 4) @map("DEBIT")
+  credit          Decimal  @default(0) @db.Decimal(19, 4) @map("CREDIT")
+  description     String?  @db.Text @map("KETERANGAN")
+  
+  journal         PostedJournalTemp @relation(fields: [tempJournalId], references: [id], onDelete: Cascade)
+  
+  @@map("t_posted_journal_detail_temp")
+}
+
 model ProductCoaMapping {
   id              Int      @id @default(autoincrement()) @map("MAPPING_ID")
   module          String   @db.VarChar(20) @map("MODULE") // SIMPANAN, KREDIT

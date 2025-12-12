@@ -245,4 +245,65 @@ export class BrahmacariService {
             totalPages: Math.ceil(total / limit)
         };
     }
+
+    /**
+     * Void/Reverse a transaction
+     * Called when a Journal is deleted
+     */
+    async voidTransaction(transId: number) {
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Find Original Transaction
+            const original = await tx.transBrahmacari.findUnique({
+                where: { id: transId }
+            });
+
+            if (!original) throw new NotFoundException(`Transaction with ID ${transId} not found`);
+
+            // 2. Get Account
+            const account = await tx.nasabahBrahmacari.findUnique({
+                where: { noBrahmacari: original.noBrahmacari }
+            });
+
+            if (!account) throw new NotFoundException('Account not found');
+
+            // 3. Determine Reversal Logic
+            let newBalance = Number(account.saldo);
+            let reversalType = 'KOREKSI';
+            const nominal = Number(original.nominal);
+
+            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'BRAHMACARI_SETOR') {
+                // Was added, so subtract
+                newBalance -= nominal;
+            } else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'BRAHMACARI_TARIK') {
+                // Was subtracted, so add
+                newBalance += nominal;
+            } else {
+                // If it's already a correction or unknown, maybe just ignore or throw?
+                // For now, assume simple reversal.
+                // If original was correction (negative effect?), we might need to be careful.
+                // Let's assume standard SETORAN/PENARIKAN for now.
+                if (original.tipeTrans === 'KOREKSI') {
+                    throw new BadRequestException('Cannot void a correction transaction');
+                }
+            }
+
+            // 4. Update Balance
+            await tx.nasabahBrahmacari.update({
+                where: { noBrahmacari: original.noBrahmacari },
+                data: { saldo: newBalance }
+            });
+
+            // 5. Create Reversal Transaction
+            return tx.transBrahmacari.create({
+                data: {
+                    noBrahmacari: original.noBrahmacari,
+                    tipeTrans: 'KOREKSI',
+                    nominal: nominal,
+                    saldoAkhir: newBalance,
+                    keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan}`,
+                    createdBy: 'SYSTEM'
+                }
+            });
+        });
+    }
 }

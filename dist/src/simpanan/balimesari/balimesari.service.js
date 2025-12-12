@@ -195,6 +195,38 @@ let BalimesariService = class BalimesariService {
             totalPages: Math.ceil(total / limit)
         };
     }
+    async voidTransaction(transId) {
+        return this.prisma.$transaction(async (tx) => {
+            const original = await tx.transBalimesari.findUnique({ where: { id: transId } });
+            if (!original)
+                throw new common_1.NotFoundException(`Transaction ${transId} not found`);
+            const account = await tx.nasabahBalimesari.findUnique({ where: { noBalimesari: original.noBalimesari } });
+            if (!account)
+                throw new common_1.NotFoundException('Account not found');
+            let newBalance = Number(account.saldo);
+            const nominal = Number(original.nominal);
+            if (original.tipeTrans === 'SETORAN') {
+                newBalance -= nominal;
+            }
+            else if (original.tipeTrans === 'PENARIKAN') {
+                newBalance += nominal;
+            }
+            await tx.nasabahBalimesari.update({
+                where: { noBalimesari: original.noBalimesari },
+                data: { saldo: newBalance }
+            });
+            return tx.transBalimesari.create({
+                data: {
+                    noBalimesari: original.noBalimesari,
+                    tipeTrans: 'KOREKSI',
+                    nominal: nominal,
+                    saldoAkhir: newBalance,
+                    keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
+                    createdBy: 'SYSTEM'
+                }
+            });
+        });
+    }
 };
 exports.BalimesariService = BalimesariService;
 exports.BalimesariService = BalimesariService = __decorate([

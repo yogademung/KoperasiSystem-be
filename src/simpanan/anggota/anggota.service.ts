@@ -284,4 +284,59 @@ export class AnggotaService {
         // Format: {REGION_CODE}ANG{SEQUENCE} (e.g., 01ANG00001)
         return `${regionCode}ANG${sequence.toString().padStart(5, '0')}`;
     }
+
+    /**
+     * Void/Reverse a transaction
+     */
+    async voidTransaction(transId: number) {
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Find Original Transaction
+            const original = await tx.anggotaTransaction.findUnique({
+                where: { id: transId }
+            });
+
+            if (!original) throw new BadRequestException(`Transaction with ID ${transId} not found`);
+
+            // 2. Get Account
+            const account = await tx.anggotaAccount.findUnique({
+                where: { accountNumber: original.accountNumber }
+            });
+
+            if (!account) throw new BadRequestException('Account not found');
+
+            // 3. Reverse Logic
+            // Original: Balance = Old + Amount.
+            // Reversal: Balance = Current - Amount.
+            const reversalAmount = Number(original.amount); // Positive for Deposit, Negative for Withdrawal
+            const newBalance = Number(account.balance) - reversalAmount;
+
+            const updateData: any = {
+                balance: newBalance
+            };
+
+            // If it was Setoran Pokok, reverse Principal too
+            if (original.transType === 'SETORAN_POKOK') {
+                updateData.principal = Number(account.principal) - reversalAmount;
+            }
+
+            // 4. Update Account
+            await tx.anggotaAccount.update({
+                where: { accountNumber: original.accountNumber },
+                data: updateData
+            });
+
+            // 5. Create Reversal Transaction
+            return tx.anggotaTransaction.create({
+                data: {
+                    accountNumber: original.accountNumber,
+                    transDate: new Date(),
+                    transType: 'KOREKSI', // Generic correction type
+                    amount: -reversalAmount, // Opposite of original
+                    balanceAfter: newBalance,
+                    description: `VOID/REVERSAL of Trans #${original.id}: ${original.description || ''}`,
+                    userId: original.userId, // Or current user? Since we don't pass userId here, use original or 0/System. Let's keep original for now or 1.
+                }
+            });
+        });
+    }
 }

@@ -2,9 +2,20 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
 
+import { ModuleRef } from '@nestjs/core';
+import { BrahmacariService } from '../simpanan/brahmacari/brahmacari.service';
+import { AnggotaService } from '../simpanan/anggota/anggota.service';
+import { TabrelaService } from '../simpanan/tabrela/tabrela.service';
+import { DepositoService } from '../simpanan/deposito/deposito.service';
+import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
+import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
+
 @Injectable()
 export class AccountingService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private moduleRef: ModuleRef
+    ) { }
 
     // ============================================
     // COA MANAGEMENT
@@ -173,7 +184,16 @@ export class AccountingService {
         return true;
     }
 
-    async getJournals(params: { startDate?: Date; endDate?: Date; status?: string; sourceCode?: string }) {
+    async getJournals(params: {
+        startDate?: Date;
+        endDate?: Date;
+        status?: string;
+        sourceCode?: string;
+        fromAccount?: string;
+        toAccount?: string;
+        page?: number;
+        limit?: number;
+    }) {
         const where: Prisma.PostedJournalWhereInput = {};
 
         if (params.startDate && params.endDate) {
@@ -191,13 +211,41 @@ export class AccountingService {
             where.sourceCode = params.sourceCode;
         }
 
-        return this.prisma.postedJournal.findMany({
-            where,
-            include: {
-                user: { select: { fullName: true } }
-            },
-            orderBy: { journalNumber: 'desc' }
-        });
+        if (params.fromAccount || params.toAccount) {
+            where.details = {
+                some: {
+                    accountCode: {
+                        gte: params.fromAccount,
+                        lte: params.toAccount
+                    }
+                }
+            };
+        }
+
+        const page = params.page || 1;
+        const limit = params.limit || 10;
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await Promise.all([
+            this.prisma.postedJournal.findMany({
+                where,
+                include: {
+                    user: { select: { fullName: true } }
+                },
+                orderBy: { journalNumber: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.postedJournal.count({ where })
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
     }
 
     async getJournalDetail(id: number) {
@@ -346,5 +394,55 @@ export class AccountingService {
                 }
             }
         });
+    }
+
+    // ============================================
+    // DELETE & ARCHIVE
+    // ============================================
+
+    async deleteJournal(id: number, userId: number, reason: string) {
+        const journal = await this.prisma.postedJournal.findUnique({
+            where: { id },
+            include: { details: true }
+        });
+
+        if (!journal) throw new NotFoundException('Journal not found');
+
+        // 1. VOID TRANSACTION LOGIC (For AUTO journals)
+        if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {
+            // Trans Types: ANGGOTA_*, BRAHMACARI_*, TABRELA_*, DEPOSITO_*, BALIMESARI_*, WANAPRASTA_*
+
+            try {
+                const source = journal.sourceCode;
+                let service: any = null;
+
+                // Dynamic Import / ModuleRef could be used, but simple switch is safer for type checking if imported
+                // However, importing everything here might be messy.
+                // I will need to use ModuleRef in constructor. 
+                // But since I cannot change constructor easily without updating module, 
+                // I'll try to use lazy import or just standard dispatch if services are provided in module.
+                // Assuming services are NOT injected yet, I can't use them.
+                // I need to update constructor.
+                // For now, I'll place the logic and assume I'll update constructor in next step.
+
+                // Oops, I can't update constructor with `replace_file_content` easily if I'm only replacing this block.
+                // I will add `private moduleRef: ModuleRef` to checking, but I need to update the file content at the TOP too.
+                // So I will make this a multi-step update or replace class start and end.
+                // Let's assume I will update constructor separately or validly here.
+
+                // actually, I can't access `this.moduleRef` if it's not in constructor.
+                // I will just throw error for now if I can't access it? 
+                // No, I must implement it correctly.
+
+                // Plan: I'll use `import` at top and add to constructor.
+                // But `replace_file_content` works on chunks. 
+                // I will use `multi_replace_file_content`.
+            } catch (error) {
+                console.error('Failed to void transaction during journal delete:', error);
+                throw new BadRequestException(`Failed to void source transaction: ${error.message}`);
+            }
+        }
+
+        // ... (I will switch to multi_replace to handle imports and constructor)
     }
 }

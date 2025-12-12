@@ -195,6 +195,38 @@ let WanaprastaService = class WanaprastaService {
             totalPages: Math.ceil(total / limit)
         };
     }
+    async voidTransaction(transId) {
+        return this.prisma.$transaction(async (tx) => {
+            const original = await tx.transWanaprasta.findUnique({ where: { id: transId } });
+            if (!original)
+                throw new common_1.NotFoundException(`Transaction ${transId} not found`);
+            const account = await tx.nasabahWanaprasta.findUnique({ where: { noWanaprasta: original.noWanaprasta } });
+            if (!account)
+                throw new common_1.NotFoundException('Account not found');
+            let newBalance = Number(account.saldo);
+            const nominal = Number(original.nominal);
+            if (original.tipeTrans === 'SETORAN') {
+                newBalance -= nominal;
+            }
+            else if (original.tipeTrans === 'PENARIKAN') {
+                newBalance += nominal;
+            }
+            await tx.nasabahWanaprasta.update({
+                where: { noWanaprasta: original.noWanaprasta },
+                data: { saldo: newBalance }
+            });
+            return tx.transWanaprasta.create({
+                data: {
+                    noWanaprasta: original.noWanaprasta,
+                    tipeTrans: 'KOREKSI',
+                    nominal: nominal,
+                    saldoAkhir: newBalance,
+                    keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
+                    createdBy: 'SYSTEM'
+                }
+            });
+        });
+    }
 };
 exports.WanaprastaService = WanaprastaService;
 exports.WanaprastaService = WanaprastaService = __decorate([

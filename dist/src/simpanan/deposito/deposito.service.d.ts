@@ -40,6 +40,30 @@ export declare class DepositoService {
         payoutMode: string;
         targetAccountId: string | null;
     })[]>;
+    getTransactions(noJangka: string, page?: number, limit?: number): Promise<{
+        data: {
+            createdBy: string | null;
+            createdAt: Date;
+            id: number;
+            noJangka: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
+            tipeTrans: string;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
+    voidTransaction(transId: number): Promise<{
+        createdBy: string | null;
+        createdAt: Date;
+        id: number;
+        noJangka: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
+        tipeTrans: string;
+    }>;
     findOne(noJangka: string): Promise<{
         accumulatedInterest: number;
         nasabah: {

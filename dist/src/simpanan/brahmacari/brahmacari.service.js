@@ -195,6 +195,48 @@ let BrahmacariService = class BrahmacariService {
             totalPages: Math.ceil(total / limit)
         };
     }
+    async voidTransaction(transId) {
+        return this.prisma.$transaction(async (tx) => {
+            const original = await tx.transBrahmacari.findUnique({
+                where: { id: transId }
+            });
+            if (!original)
+                throw new common_1.NotFoundException(`Transaction with ID ${transId} not found`);
+            const account = await tx.nasabahBrahmacari.findUnique({
+                where: { noBrahmacari: original.noBrahmacari }
+            });
+            if (!account)
+                throw new common_1.NotFoundException('Account not found');
+            let newBalance = Number(account.saldo);
+            let reversalType = 'KOREKSI';
+            const nominal = Number(original.nominal);
+            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'BRAHMACARI_SETOR') {
+                newBalance -= nominal;
+            }
+            else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'BRAHMACARI_TARIK') {
+                newBalance += nominal;
+            }
+            else {
+                if (original.tipeTrans === 'KOREKSI') {
+                    throw new common_1.BadRequestException('Cannot void a correction transaction');
+                }
+            }
+            await tx.nasabahBrahmacari.update({
+                where: { noBrahmacari: original.noBrahmacari },
+                data: { saldo: newBalance }
+            });
+            return tx.transBrahmacari.create({
+                data: {
+                    noBrahmacari: original.noBrahmacari,
+                    tipeTrans: 'KOREKSI',
+                    nominal: nominal,
+                    saldoAkhir: newBalance,
+                    keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan}`,
+                    createdBy: 'SYSTEM'
+                }
+            });
+        });
+    }
 };
 exports.BrahmacariService = BrahmacariService;
 exports.BrahmacariService = BrahmacariService = __decorate([
