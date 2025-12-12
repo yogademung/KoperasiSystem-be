@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateDepositoDto } from './dto/create-deposito.dto';
 
 @Injectable()
 export class DepositoService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private eventEmitter: EventEmitter2
+    ) { }
 
     async create(createDto: CreateDepositoDto, userId: number) {
         const { nasabahId, nominal, jangkaWaktuBulan, bunga, keterangan } = createDto;
@@ -26,14 +30,6 @@ export class DepositoService {
         const tglJatuhTempo = new Date(tglBuka);
         tglJatuhTempo.setMonth(tglJatuhTempo.getMonth() + jangkaWaktuBulan);
 
-        // Create Deposito Entity
-        // Using prisma.$transaction to ensure atomicity if we were adding initial transaction, 
-        // but here we just create the Master Record. 
-        // Usually opening a deposit involves "Setor Tunai" or "Transfer". 
-        // For simplicity, we create the account with the nominal as the initial balance?
-        // Wait, m_nasabah_jangka stores 'nominal' (Principal). 
-        // Unlike Anggota/Tabrela which have balance/saldo, Deposito is usually fixed principal.
-
         return this.prisma.$transaction(async (tx) => {
             // 1. Create Master Record
             const deposito = await tx.nasabahJangka.create({
@@ -52,7 +48,7 @@ export class DepositoService {
             });
 
             // 2. Create Initial Transaction (Setoran Awal)
-            await tx.transJangka.create({
+            const transaction = await tx.transJangka.create({
                 data: {
                     noJangka,
                     tipeTrans: 'SETORAN',
@@ -60,6 +56,16 @@ export class DepositoService {
                     keterangan: 'Setoran Awal Deposito',
                     createdBy: userId.toString(),
                 },
+            });
+
+            // EMIT EVENT
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'DEPOSITO_SETOR',
+                amount: nominal,
+                description: 'Setoran Awal Deposito',
+                userId: userId,
+                refId: transaction.id,
+                branchCode: '001'
             });
 
             return deposito;
@@ -109,13 +115,9 @@ export class DepositoService {
         if (!deposito) throw new NotFoundException('Deposito not found');
         if (deposito.status !== 'A') throw new BadRequestException('Deposito is not active');
 
-        // In a real system, we'd calculate penalty if before maturity.
-        // Here we just mark as Closed ('C')? Or 'L' (Liquidated)?
-        // And verify nominal.
-
         return this.prisma.$transaction(async (tx) => {
             // Create Transaction Record (Payout)
-            await tx.transJangka.create({
+            const transaction = await tx.transJangka.create({
                 data: {
                     noJangka,
                     tipeTrans: 'CAIR',
@@ -126,13 +128,25 @@ export class DepositoService {
             });
 
             // Update Status
-            return tx.nasabahJangka.update({
+            const result = await tx.nasabahJangka.update({
                 where: { noJangka },
                 data: {
                     status: 'C', // Closed
                     updatedBy: userId.toString(),
                 },
             });
+
+            // EMIT EVENT
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'DEPOSITO_CAIR',
+                amount: Number(deposito.nominal),
+                description: 'Pencairan Deposito',
+                userId: userId,
+                refId: transaction.id,
+                branchCode: '001'
+            });
+
+            return result;
         });
     }
 }

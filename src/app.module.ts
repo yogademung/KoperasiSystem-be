@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,6 +14,7 @@ import { KreditModule } from './kredit/kredit.module';
 import { SimpananModule } from './simpanan/simpanan.module';
 import { AkuntansiModule } from './akuntansi/akuntansi.module';
 import { LaporanModule } from './laporan/laporan.module';
+import { AccountingModule } from './accounting/accounting.module';
 
 @Module({
   imports: [
@@ -24,14 +26,17 @@ import { LaporanModule } from './laporan/laporan.module';
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot({ global: true }),
     PrismaModule,
     AuthModule,
     UsersModule,
+    NasabahModule,
     NasabahModule,
     KreditModule,
     SimpananModule,
     AkuntansiModule,
     LaporanModule,
+    AccountingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

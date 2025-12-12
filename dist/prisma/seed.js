@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
+const accounting_seeder_1 = require("./seeds/accounting-seeder");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
@@ -69,6 +70,7 @@ async function main() {
         },
     });
     console.log({ adminUser });
+    await (0, accounting_seeder_1.seedAccounting)();
 }
 main()
     .catch((e) => {

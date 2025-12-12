@@ -1,10 +1,14 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateTabrelaDto } from './dto/create-tabrela.dto';
 
 @Injectable()
 export class TabrelaService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private eventEmitter: EventEmitter2
+    ) { }
 
     async create(createDto: CreateTabrelaDto) {
         // Generate No Tabungan: TAB-{Timestamp}-{Random}
@@ -25,7 +29,7 @@ export class TabrelaService {
 
             // 2. Create Initial Transaction if setoranAwal > 0
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
-                await tx.transTab.create({
+                const transaction = await tx.transTab.create({
                     data: {
                         noTab,
                         tipeTrans: 'SETORAN',
@@ -34,6 +38,16 @@ export class TabrelaService {
                         keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
                         createdBy: 'SYSTEM' // Should be user ID from auth context
                     }
+                });
+
+                // EMIT EVENT
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'TABRELA_SETOR',
+                    amount: createDto.setoranAwal,
+                    description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
+                    userId: 1, // Placeholder
+                    refId: transaction.id,
+                    branchCode: '001'
                 });
             }
 
@@ -83,7 +97,7 @@ export class TabrelaService {
             const newBalance = Number(account.saldo) + dto.amount;
 
             // Create Transaction
-            await tx.transTab.create({
+            const transaction = await tx.transTab.create({
                 data: {
                     noTab,
                     tipeTrans: dto.transType || 'SETORAN',
@@ -98,6 +112,16 @@ export class TabrelaService {
             await tx.nasabahTab.update({
                 where: { noTab },
                 data: { saldo: newBalance }
+            });
+
+            // EMIT EVENT
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'TABRELA_SETOR',
+                amount: dto.amount,
+                description: transaction.keterangan,
+                userId: userId || 1,
+                refId: transaction.id,
+                branchCode: '001'
             });
 
             return { success: true };
@@ -121,7 +145,7 @@ export class TabrelaService {
             const newBalance = Number(account.saldo) - dto.amount;
 
             // Create Transaction (Debit)
-            await tx.transTab.create({
+            const transaction = await tx.transTab.create({
                 data: {
                     noTab,
                     tipeTrans: 'PENARIKAN',
@@ -136,6 +160,16 @@ export class TabrelaService {
             await tx.nasabahTab.update({
                 where: { noTab },
                 data: { saldo: newBalance }
+            });
+
+            // EMIT EVENT
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'TABRELA_TARIK',
+                amount: dto.amount,
+                description: transaction.keterangan,
+                userId: userId || 1,
+                refId: transaction.id,
+                branchCode: '001'
             });
 
             return { success: true };

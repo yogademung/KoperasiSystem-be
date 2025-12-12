@@ -5,16 +5,21 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
         role: {
-            id: number;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
-            roleName: string;
+            id: number;
             description: string | null;
+            roleName: string;
         };
     } & {
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         id: number;
         username: string;
         password: string;
@@ -23,24 +28,24 @@ export declare class UsersService {
         roleId: number;
         regionCode: string | null;
         token: string | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     findAll(): Promise<({
         role: {
-            id: number;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
-            roleName: string;
+            id: number;
             description: string | null;
+            roleName: string;
         };
     } & {
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         id: number;
         username: string;
         password: string;
@@ -49,20 +54,15 @@ export declare class UsersService {
         roleId: number;
         regionCode: string | null;
         token: string | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     })[]>;
     getRoles(): Promise<{
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
-        roleName: string;
+        id: number;
         description: string | null;
+        roleName: string;
     }[]>;
 }

@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WanaprastaService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let WanaprastaService = class WanaprastaService {
     prisma;
-    constructor(prisma) {
+    eventEmitter;
+    constructor(prisma, eventEmitter) {
         this.prisma = prisma;
+        this.eventEmitter = eventEmitter;
     }
     async create(createDto) {
         const noWanaprasta = `WNP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -31,7 +34,7 @@ let WanaprastaService = class WanaprastaService {
                 }
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
-                await tx.transWanaprasta.create({
+                const transaction = await tx.transWanaprasta.create({
                     data: {
                         noWanaprasta,
                         tipeTrans: 'SETORAN',
@@ -41,6 +44,19 @@ let WanaprastaService = class WanaprastaService {
                         createdBy: 'SYSTEM'
                     }
                 });
+                try {
+                    this.eventEmitter.emit('transaction.created', {
+                        transType: 'WANAPRASTA_SETOR',
+                        amount: createDto.setoranAwal,
+                        description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Wanaprasta',
+                        userId: 1,
+                        refId: transaction.id,
+                        branchCode: '001'
+                    });
+                }
+                catch (error) {
+                    console.error('Failed to emit transaction event:', error);
+                }
             }
             return wanaprasta;
         });
@@ -97,6 +113,19 @@ let WanaprastaService = class WanaprastaService {
                 where: { noWanaprasta },
                 data: { saldo: newBalance }
             });
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'WANAPRASTA_SETOR',
+                    amount: dto.nominal,
+                    description: transaction.keterangan,
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
             return transaction;
         });
     }
@@ -129,6 +158,19 @@ let WanaprastaService = class WanaprastaService {
                 where: { noWanaprasta },
                 data: { saldo: newBalance }
             });
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'WANAPRASTA_TARIK',
+                    amount: dto.nominal,
+                    description: transaction.keterangan,
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
             return transaction;
         });
     }
@@ -157,6 +199,7 @@ let WanaprastaService = class WanaprastaService {
 exports.WanaprastaService = WanaprastaService;
 exports.WanaprastaService = WanaprastaService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        event_emitter_1.EventEmitter2])
 ], WanaprastaService);
 //# sourceMappingURL=wanaprasta.service.js.map

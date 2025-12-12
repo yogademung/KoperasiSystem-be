@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const schedule_1 = require("@nestjs/schedule");
 const serve_static_1 = require("@nestjs/serve-static");
+const event_emitter_1 = require("@nestjs/event-emitter");
 const path_1 = require("path");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
@@ -22,6 +23,7 @@ const kredit_module_1 = require("./kredit/kredit.module");
 const simpanan_module_1 = require("./simpanan/simpanan.module");
 const akuntansi_module_1 = require("./akuntansi/akuntansi.module");
 const laporan_module_1 = require("./laporan/laporan.module");
+const accounting_module_1 = require("./accounting/accounting.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,14 +38,17 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
             }),
             schedule_1.ScheduleModule.forRoot(),
+            event_emitter_1.EventEmitterModule.forRoot({ global: true }),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
+            nasabah_module_1.NasabahModule,
             nasabah_module_1.NasabahModule,
             kredit_module_1.KreditModule,
             simpanan_module_1.SimpananModule,
             akuntansi_module_1.AkuntansiModule,
             laporan_module_1.LaporanModule,
+            accounting_module_1.AccountingModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

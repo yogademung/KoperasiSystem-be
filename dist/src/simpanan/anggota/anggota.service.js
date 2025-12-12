@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnggotaService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let AnggotaService = class AnggotaService {
     prisma;
-    constructor(prisma) {
+    eventEmitter;
+    constructor(prisma, eventEmitter) {
         this.prisma = prisma;
+        this.eventEmitter = eventEmitter;
     }
     async create(dto, userId) {
         const accountNumber = await this.generateAccountNumber(dto.regionCode);
@@ -170,6 +173,30 @@ let AnggotaService = class AnggotaService {
             where: { accountNumber },
             data: updateData
         });
+        let eventTransType = '';
+        if (dto.transType === 'SETORAN_POKOK')
+            eventTransType = 'ANGGOTA_SETOR_POKOK';
+        else if (dto.transType === 'SETORAN_WAJIB')
+            eventTransType = 'ANGGOTA_SETOR_WAJIB';
+        else if (dto.transType === 'SETORAN')
+            eventTransType = 'ANGGOTA_SETOR_SUKARELA';
+        else if (dto.transType === 'PENARIKAN')
+            eventTransType = 'ANGGOTA_TARIK';
+        if (eventTransType) {
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: eventTransType,
+                    amount: Math.abs(dto.amount),
+                    description: dto.description || transaction.transType,
+                    userId: userId,
+                    refId: transaction.id,
+                    branchCode: account.regionCode
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
+        }
         return transaction;
     }
     async generateAccountNumber(regionCode) {
@@ -198,6 +225,7 @@ let AnggotaService = class AnggotaService {
 exports.AnggotaService = AnggotaService;
 exports.AnggotaService = AnggotaService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        event_emitter_1.EventEmitter2])
 ], AnggotaService);
 //# sourceMappingURL=anggota.service.js.map

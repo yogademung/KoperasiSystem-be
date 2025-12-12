@@ -1,8 +1,10 @@
 import { PrismaService } from '../../database/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateTabrelaDto } from './dto/create-tabrela.dto';
 export declare class TabrelaService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private eventEmitter;
+    constructor(prisma: PrismaService, eventEmitter: EventEmitter2);
     create(createDto: CreateTabrelaDto): Promise<{
         createdBy: string | null;
         createdAt: Date;
@@ -34,12 +36,12 @@ export declare class TabrelaService {
     })[]>;
     findOne(noTab: string): Promise<{
         nasabah: {
-            id: number;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
+            id: number;
             nama: string;
             alamat: string | null;
             noKtp: string | null;
@@ -53,9 +55,9 @@ export declare class TabrelaService {
             fileKk: string | null;
         };
         transactions: {
-            id: number;
             createdBy: string | null;
             createdAt: Date;
+            id: number;
             noTab: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;

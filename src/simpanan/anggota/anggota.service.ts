@@ -1,11 +1,15 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
 
 @Injectable()
 export class AnggotaService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private eventEmitter: EventEmitter2
+    ) { }
 
     async create(dto: CreateAnggotaDto, userId: number) {
         // Generate account number
@@ -221,6 +225,30 @@ export class AnggotaService {
             where: { accountNumber },
             data: updateData
         });
+
+        // EMIT EVENT
+        // Map Anggota transTypes to standardized event keys
+        let eventTransType = '';
+        if (dto.transType === 'SETORAN_POKOK') eventTransType = 'ANGGOTA_SETOR_POKOK';
+        else if (dto.transType === 'SETORAN_WAJIB') eventTransType = 'ANGGOTA_SETOR_WAJIB';
+        else if (dto.transType === 'SETORAN') eventTransType = 'ANGGOTA_SETOR_SUKARELA';
+        else if (dto.transType === 'PENARIKAN') eventTransType = 'ANGGOTA_TARIK';
+
+        if (eventTransType) {
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: eventTransType,
+                    amount: Math.abs(dto.amount), // Always positive for amount field
+                    description: dto.description || transaction.transType,
+                    userId: userId,
+                    refId: transaction.id,
+                    branchCode: account.regionCode // Use regionCode as branch placeholder
+                });
+            } catch (error) {
+                console.error('Failed to emit transaction event:', error);
+                // Do not throw, allow transaction to complete
+            }
+        }
 
         return transaction;
     }

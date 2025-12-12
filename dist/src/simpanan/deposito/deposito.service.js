@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DepositoService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let DepositoService = class DepositoService {
     prisma;
-    constructor(prisma) {
+    eventEmitter;
+    constructor(prisma, eventEmitter) {
         this.prisma = prisma;
+        this.eventEmitter = eventEmitter;
     }
     async create(createDto, userId) {
         const { nasabahId, nominal, jangkaWaktuBulan, bunga, keterangan } = createDto;
@@ -46,7 +49,7 @@ let DepositoService = class DepositoService {
                     createdBy: userId.toString(),
                 },
             });
-            await tx.transJangka.create({
+            const transaction = await tx.transJangka.create({
                 data: {
                     noJangka,
                     tipeTrans: 'SETORAN',
@@ -54,6 +57,14 @@ let DepositoService = class DepositoService {
                     keterangan: 'Setoran Awal Deposito',
                     createdBy: userId.toString(),
                 },
+            });
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'DEPOSITO_SETOR',
+                amount: nominal,
+                description: 'Setoran Awal Deposito',
+                userId: userId,
+                refId: transaction.id,
+                branchCode: '001'
             });
             return deposito;
         });
@@ -97,7 +108,7 @@ let DepositoService = class DepositoService {
         if (deposito.status !== 'A')
             throw new common_1.BadRequestException('Deposito is not active');
         return this.prisma.$transaction(async (tx) => {
-            await tx.transJangka.create({
+            const transaction = await tx.transJangka.create({
                 data: {
                     noJangka,
                     tipeTrans: 'CAIR',
@@ -106,19 +117,29 @@ let DepositoService = class DepositoService {
                     createdBy: userId.toString(),
                 },
             });
-            return tx.nasabahJangka.update({
+            const result = await tx.nasabahJangka.update({
                 where: { noJangka },
                 data: {
                     status: 'C',
                     updatedBy: userId.toString(),
                 },
             });
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'DEPOSITO_CAIR',
+                amount: Number(deposito.nominal),
+                description: 'Pencairan Deposito',
+                userId: userId,
+                refId: transaction.id,
+                branchCode: '001'
+            });
+            return result;
         });
     }
 };
 exports.DepositoService = DepositoService;
 exports.DepositoService = DepositoService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        event_emitter_1.EventEmitter2])
 ], DepositoService);
 //# sourceMappingURL=deposito.service.js.map

@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { seedAccounting } from './seeds/accounting-seeder';
 
 const prisma = new PrismaClient();
 
@@ -41,6 +42,9 @@ async function main() {
         },
     });
     console.log({ adminUser });
+
+    // 3. Seed Accounting Module
+    await seedAccounting();
 }
 
 main()

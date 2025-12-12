@@ -9,12 +9,12 @@ export declare class NasabahController {
         fileKtp?: Express.Multer.File[];
         fileKk?: Express.Multer.File[];
     }, createNasabahDto: CreateNasabahDto): Promise<{
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        id: number;
         nama: string;
         alamat: string | null;
         noKtp: string | null;
@@ -28,12 +28,12 @@ export declare class NasabahController {
         fileKk: string | null;
     }>;
     findAll(): Promise<{
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        id: number;
         nama: string;
         alamat: string | null;
         noKtp: string | null;
@@ -47,12 +47,12 @@ export declare class NasabahController {
         fileKk: string | null;
     }[]>;
     findOne(id: string): Promise<{
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        id: number;
         nama: string;
         alamat: string | null;
         noKtp: string | null;
@@ -67,10 +67,11 @@ export declare class NasabahController {
     }>;
     getPortfolio(id: string): Promise<{
         anggota: {
-            regionCode: string;
+            remark: string | null;
             isActive: boolean;
             createdBy: string;
             createdAt: Date;
+            regionCode: string;
             status: string;
             accountNumber: string;
             customerId: number;
@@ -80,7 +81,6 @@ export declare class NasabahController {
             closeDate: Date | null;
             balance: import("@prisma/client/runtime/library").Decimal;
             groupCode: string;
-            remark: string | null;
             deduction: import("@prisma/client/runtime/library").Decimal;
         }[];
         tabungan: {
@@ -147,11 +147,11 @@ export declare class NasabahController {
             noWanaprasta: string;
         }[];
         kredit: {
-            id: number;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             updatedAt: Date | null;
+            id: number;
             status: string;
             nasabahId: number;
             nomorKredit: string | null;
@@ -161,12 +161,12 @@ export declare class NasabahController {
             tglPengajuan: Date;
         }[];
     } & {
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        id: number;
         nama: string;
         alamat: string | null;
         noKtp: string | null;
@@ -183,12 +183,12 @@ export declare class NasabahController {
         fileKtp?: Express.Multer.File[];
         fileKk?: Express.Multer.File[];
     }): Promise<{
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        id: number;
         nama: string;
         alamat: string | null;
         noKtp: string | null;
@@ -202,12 +202,12 @@ export declare class NasabahController {
         fileKk: string | null;
     }>;
     remove(id: string): Promise<{
-        id: number;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        id: number;
         nama: string;
         alamat: string | null;
         noKtp: string | null;

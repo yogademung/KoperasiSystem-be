@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TabrelaService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let TabrelaService = class TabrelaService {
     prisma;
-    constructor(prisma) {
+    eventEmitter;
+    constructor(prisma, eventEmitter) {
         this.prisma = prisma;
+        this.eventEmitter = eventEmitter;
     }
     async create(createDto) {
         const noTab = `TAB-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -31,7 +34,7 @@ let TabrelaService = class TabrelaService {
                 }
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
-                await tx.transTab.create({
+                const transaction = await tx.transTab.create({
                     data: {
                         noTab,
                         tipeTrans: 'SETORAN',
@@ -40,6 +43,14 @@ let TabrelaService = class TabrelaService {
                         keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
                         createdBy: 'SYSTEM'
                     }
+                });
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'TABRELA_SETOR',
+                    amount: createDto.setoranAwal,
+                    description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
                 });
             }
             return tabrela;
@@ -79,7 +90,7 @@ let TabrelaService = class TabrelaService {
             if (account.status !== 'A')
                 throw new common_1.BadRequestException('Account not active');
             const newBalance = Number(account.saldo) + dto.amount;
-            await tx.transTab.create({
+            const transaction = await tx.transTab.create({
                 data: {
                     noTab,
                     tipeTrans: dto.transType || 'SETORAN',
@@ -92,6 +103,14 @@ let TabrelaService = class TabrelaService {
             await tx.nasabahTab.update({
                 where: { noTab },
                 data: { saldo: newBalance }
+            });
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'TABRELA_SETOR',
+                amount: dto.amount,
+                description: transaction.keterangan,
+                userId: userId || 1,
+                refId: transaction.id,
+                branchCode: '001'
             });
             return { success: true };
         });
@@ -107,7 +126,7 @@ let TabrelaService = class TabrelaService {
                 throw new common_1.BadRequestException('Insufficient balance');
             }
             const newBalance = Number(account.saldo) - dto.amount;
-            await tx.transTab.create({
+            const transaction = await tx.transTab.create({
                 data: {
                     noTab,
                     tipeTrans: 'PENARIKAN',
@@ -121,6 +140,14 @@ let TabrelaService = class TabrelaService {
                 where: { noTab },
                 data: { saldo: newBalance }
             });
+            this.eventEmitter.emit('transaction.created', {
+                transType: 'TABRELA_TARIK',
+                amount: dto.amount,
+                description: transaction.keterangan,
+                userId: userId || 1,
+                refId: transaction.id,
+                branchCode: '001'
+            });
             return { success: true };
         });
     }
@@ -128,6 +155,7 @@ let TabrelaService = class TabrelaService {
 exports.TabrelaService = TabrelaService;
 exports.TabrelaService = TabrelaService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        event_emitter_1.EventEmitter2])
 ], TabrelaService);
 //# sourceMappingURL=tabrela.service.js.map

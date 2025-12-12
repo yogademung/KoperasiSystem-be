@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BrahmacariService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let BrahmacariService = class BrahmacariService {
     prisma;
-    constructor(prisma) {
+    eventEmitter;
+    constructor(prisma, eventEmitter) {
         this.prisma = prisma;
+        this.eventEmitter = eventEmitter;
     }
     async create(createDto) {
         const noBrahmacari = `BRA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -31,7 +34,7 @@ let BrahmacariService = class BrahmacariService {
                 }
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
-                await tx.transBrahmacari.create({
+                const transaction = await tx.transBrahmacari.create({
                     data: {
                         noBrahmacari,
                         tipeTrans: 'SETORAN',
@@ -41,6 +44,19 @@ let BrahmacariService = class BrahmacariService {
                         createdBy: 'SYSTEM'
                     }
                 });
+                try {
+                    this.eventEmitter.emit('transaction.created', {
+                        transType: 'BRAHMACARI_SETOR',
+                        amount: createDto.setoranAwal,
+                        description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Brahmacari',
+                        userId: 1,
+                        refId: transaction.id,
+                        branchCode: '001'
+                    });
+                }
+                catch (error) {
+                    console.error('Failed to emit transaction event:', error);
+                }
             }
             return brahmacari;
         });
@@ -97,6 +113,19 @@ let BrahmacariService = class BrahmacariService {
                 where: { noBrahmacari },
                 data: { saldo: newBalance }
             });
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BRAHMACARI_SETOR',
+                    amount: dto.nominal,
+                    description: transaction.keterangan,
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
             return transaction;
         });
     }
@@ -129,6 +158,19 @@ let BrahmacariService = class BrahmacariService {
                 where: { noBrahmacari },
                 data: { saldo: newBalance }
             });
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BRAHMACARI_TARIK',
+                    amount: dto.nominal,
+                    description: transaction.keterangan,
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
             return transaction;
         });
     }
@@ -157,6 +199,7 @@ let BrahmacariService = class BrahmacariService {
 exports.BrahmacariService = BrahmacariService;
 exports.BrahmacariService = BrahmacariService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        event_emitter_1.EventEmitter2])
 ], BrahmacariService);
 //# sourceMappingURL=brahmacari.service.js.map

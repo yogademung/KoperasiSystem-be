@@ -30,6 +30,7 @@ model User {
   updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
 
   role Role @relation(fields: [roleId], references: [id])
+  postedJournals PostedJournal[]
 
   @@map("s_user_lpd")
 }
@@ -320,20 +321,84 @@ model DebiturRealisasi {
   @@map("m_debitur_realisasi")
 }
 
-model JournalAccount {
-  accountCd   String    @id @db.VarChar(20) @map("ACCOUNT_CD")
-  accountName String    @db.VarChar(255) @map("ACCOUNT_NAME")
-  accountType String    @db.VarChar(50) @map("ACCOUNT_TYPE")
-  parentCd    String?   @db.VarChar(20) @map("PARENT_CD")
-  isActive    Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy   String?   @db.VarChar(50) @map("CREATE_WHO")
-  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy   String?   @db.VarChar(50) @map("CHANGE_WHO")
-  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
+// ============================================
+// ACCOUNTING TABLES (m_journal_*, t_posted_*)
+// ============================================
 
-  journalDetails PostedJournalDetail[]
+model JournalAccount {
+  accountCode     String    @id @db.VarChar(20) @map("ACCOUNT_CD")
+  accountName     String    @db.VarChar(255) @map("ACCOUNT_NAME")
+  accountType     String    @db.VarChar(50) @map("ACCOUNT_TYPE") // AST, LIA, EQT, REV, EXP
+  parentCode      String?   @db.VarChar(20) @map("PARENT_CD")
+  debetPoleFlag   Boolean   @default(true) @map("DEBET_POLE_FLAG") // true = Debit Normal, false = Credit Normal
+  remark          String?   @db.Text @map("REMARK")
+  wilayahCd       String?   @map("WILAYAH_CD") @db.VarChar(10)
+  isActive        Boolean   @default(true) @map("ACTIVE_FLAG")
+  createdBy       String?   @db.VarChar(50) @map("CREATE_WHO")
+  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy       String?   @db.VarChar(50) @map("CHANGE_WHO")
+  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+
+  journalDetails  PostedJournalDetail[]
+  debitMappings   ProductCoaMapping[] @relation("DebitMapping")
+  creditMappings  ProductCoaMapping[] @relation("CreditMapping")
 
   @@map("m_journal_account")
+}
+
+model PostedJournal {
+  id              Int      @id @default(autoincrement()) @map("JOURNAL_ID")
+  journalNumber   String   @unique @db.VarChar(30) @map("JOURNAL_NO") // Format: JU/YYYY/MM/XXXX
+  journalDate     DateTime @map("TGL_POSTING") @db.Date
+  description     String?  @db.Text @map("KETERANGAN")
+  postingType     String   @default("AUTO") @db.VarChar(10) @map("POSTING_TYPE") // MANUAL, AUTO
+  transType       String?  @db.VarChar(30) @map("TRANS_TYPE") // SIMPANAN_SETOR, etc.
+  sourceCode      String?  @db.VarChar(20) @map("SOURCE_CODE") // ANGGOTA, BRAHMACARI, etc.
+  refId           Int?     @map("REF_ID") // Reference to source transaction
+  userId          Int      @map("USER_ID")
+  tellerId        String?  @db.VarChar(20) @map("TELLER_ID")
+  wilayahCd       String?  @db.VarChar(10) @map("WILAYAH_CD")
+  status          String   @default("POSTED") @db.VarChar(20) @map("STATUS")
+  createdBy       String?  @db.VarChar(50) @map("CREATE_WHO")
+  createdAt       DateTime @default(now()) @map("CREATE_DATE")
+  updatedBy       String?  @db.VarChar(50) @map("CHANGE_WHO")
+  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+
+  details         PostedJournalDetail[]
+  user            User     @relation(fields: [userId], references: [id])
+  
+  @@map("t_posted_journal")
+}
+
+model PostedJournalDetail {
+  id              Int      @id @default(autoincrement()) @map("DETAIL_ID")
+  journalId       Int      @map("JOURNAL_ID")
+  accountCode     String   @db.VarChar(20) @map("ACCOUNT_CD")
+  debit           Decimal  @default(0) @db.Decimal(19, 4) @map("DEBIT")
+  credit          Decimal  @default(0) @db.Decimal(19, 4) @map("CREDIT")
+  description     String?  @db.Text @map("KETERANGAN")
+  
+  journal         PostedJournal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  account         JournalAccount @relation(fields: [accountCode], references: [accountCode])
+  
+  @@map("t_posted_journal_detail")
+}
+
+model ProductCoaMapping {
+  id              Int      @id @default(autoincrement()) @map("MAPPING_ID")
+  module          String   @db.VarChar(20) @map("MODULE") // SIMPANAN, KREDIT
+  transType       String   @unique @db.VarChar(30) @map("TRANS_TYPE") // BRAHMACARI_SETOR, etc.
+  description     String   @db.VarChar(100) @map("DESCRIPTION")
+  
+  debitAccount    String   @db.VarChar(20) @map("DEBIT_ACCOUNT_CD")
+  creditAccount   String   @db.VarChar(20) @map("CREDIT_ACCOUNT_CD")
+  
+  debitRef        JournalAccount @relation("DebitMapping", fields: [debitAccount], references: [accountCode])
+  creditRef       JournalAccount @relation("CreditMapping", fields: [creditAccount], references: [accountCode])
+  
+  updatedAt       DateTime @updatedAt @map("CHANGE_DATE")
+  
+  @@map("m_product_coa_mapping")
 }
 
 // ============================================
@@ -441,32 +506,4 @@ model TransKredit {
   kredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
   @@map("t_trans_kredit")
-}
-
-model PostedJournal {
-  id          Int       @id @default(autoincrement()) @map("JOURNAL_ID")
-  tglPosting  DateTime  @map("TGL_POSTING") @db.Date
-  keterangan  String?   @db.Text @map("KETERANGAN")
-  status      String    @default("DRAFT") @db.VarChar(20) @map("STATUS")
-  createdBy   String?   @db.VarChar(50) @map("CREATE_WHO")
-  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy   String?   @db.VarChar(50) @map("CHANGE_WHO")
-  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
-
-  details PostedJournalDetail[]
-
-  @@map("t_posted_journal")
-}
-
-model PostedJournalDetail {
-  id        Int     @id @default(autoincrement()) @map("DETAIL_ID")
-  journalId Int     @map("JOURNAL_ID")
-  accountCd String  @db.VarChar(20) @map("ACCOUNT_CD")
-  debit     Decimal @default(0) @db.Decimal(19, 4) @map("DEBIT")
-  credit    Decimal @default(0) @db.Decimal(19, 4) @map("CREDIT")
-
-  journal PostedJournal  @relation(fields: [journalId], references: [id])
-  account JournalAccount @relation(fields: [accountCd], references: [accountCd])
-
-  @@map("t_posted_journal_detail")
 }

@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BalimesariService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let BalimesariService = class BalimesariService {
     prisma;
-    constructor(prisma) {
+    eventEmitter;
+    constructor(prisma, eventEmitter) {
         this.prisma = prisma;
+        this.eventEmitter = eventEmitter;
     }
     async create(createDto) {
         const noBalimesari = `BLM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -31,7 +34,7 @@ let BalimesariService = class BalimesariService {
                 }
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
-                await tx.transBalimesari.create({
+                const transaction = await tx.transBalimesari.create({
                     data: {
                         noBalimesari,
                         tipeTrans: 'SETORAN',
@@ -41,6 +44,19 @@ let BalimesariService = class BalimesariService {
                         createdBy: 'SYSTEM'
                     }
                 });
+                try {
+                    this.eventEmitter.emit('transaction.created', {
+                        transType: 'BALIMESARI_SETOR',
+                        amount: createDto.setoranAwal,
+                        description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Bali Mesari',
+                        userId: 1,
+                        refId: transaction.id,
+                        branchCode: '001'
+                    });
+                }
+                catch (error) {
+                    console.error('Failed to emit transaction event:', error);
+                }
             }
             return balimesari;
         });
@@ -97,6 +113,19 @@ let BalimesariService = class BalimesariService {
                 where: { noBalimesari },
                 data: { saldo: newBalance }
             });
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BALIMESARI_SETOR',
+                    amount: dto.nominal,
+                    description: transaction.keterangan,
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
             return transaction;
         });
     }
@@ -129,6 +158,19 @@ let BalimesariService = class BalimesariService {
                 where: { noBalimesari },
                 data: { saldo: newBalance }
             });
+            try {
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BALIMESARI_TARIK',
+                    amount: dto.nominal,
+                    description: transaction.keterangan,
+                    userId: 1,
+                    refId: transaction.id,
+                    branchCode: '001'
+                });
+            }
+            catch (error) {
+                console.error('Failed to emit transaction event:', error);
+            }
             return transaction;
         });
     }
@@ -157,6 +199,7 @@ let BalimesariService = class BalimesariService {
 exports.BalimesariService = BalimesariService;
 exports.BalimesariService = BalimesariService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        event_emitter_1.EventEmitter2])
 ], BalimesariService);
 //# sourceMappingURL=balimesari.service.js.map
