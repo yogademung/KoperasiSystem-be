@@ -10,11 +10,18 @@ import { DepositoService } from '../simpanan/deposito/deposito.service';
 import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
 import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
 
+
 @Injectable()
 export class AccountingService {
     constructor(
         private prisma: PrismaService,
-        private moduleRef: ModuleRef
+        private moduleRef: ModuleRef,
+        private anggotaService: AnggotaService,
+        private tabrelaService: TabrelaService,
+        private depositoService: DepositoService,
+        private brahmacariService: BrahmacariService,
+        private balimesariService: BalimesariService,
+        private wanaprastaService: WanaprastaService
     ) { }
 
     // ============================================
@@ -360,15 +367,28 @@ export class AccountingService {
             throw new Error(`COA Mapping not found for transaction type: ${data.transType}`);
         }
 
-        // 2. GENERATE JOURNAL NO
+        // 2. ENHANCE DESCRIPTION WITH ACCOUNT & SEQUENCE
+        let detailedDescription = data.description || mapping.description;
+        if (data.refId) {
+            try {
+                const info = await this.getTransactionInfo(data.transType, data.refId);
+                if (info) {
+                    detailedDescription += ` [Acct: ${info.accountNo} | #${info.sequence}]`;
+                }
+            } catch (err) {
+                console.warn(`[Accounting] Failed to fetch transaction info for description: ${err.message}`);
+            }
+        }
+
+        // 3. GENERATE JOURNAL NO
         const journalNo = await this.generateJournalNumber();
 
-        // 3. CREATE JOURNAL
+        // 4. CREATE JOURNAL
         return this.prisma.postedJournal.create({
             data: {
                 journalNumber: journalNo,
                 journalDate: new Date(), // Auto post is always NOW
-                description: data.description || mapping.description,
+                description: detailedDescription,
                 postingType: 'AUTO',
                 transType: data.transType,
                 sourceCode: data.transType.split('_')[0], // Extract Source Code (e.g. BRAHMACARI from BRAHMACARI_SETOR)
@@ -382,13 +402,13 @@ export class AccountingService {
                             accountCode: mapping.debitAccount,
                             debit: data.amount,
                             credit: 0,
-                            description: data.description
+                            description: detailedDescription
                         },
                         {
                             accountCode: mapping.creditAccount,
                             debit: 0,
                             credit: data.amount,
-                            description: data.description
+                            description: detailedDescription
                         }
                     ]
                 }
@@ -396,53 +416,326 @@ export class AccountingService {
         });
     }
 
+    private async getTransactionInfo(transType: string, refId: number): Promise<{ accountNo: string, sequence: number } | null> {
+        const source = transType.split('_')[0]; // ANGGOTA, TABRELA, etc.
+        let accountNo = '';
+        let sequence = 0;
+
+        try {
+            switch (source) {
+                case 'ANGGOTA':
+                    const tAnggota = await this.prisma.anggotaTransaction.findUnique({ where: { id: refId } });
+                    if (!tAnggota) return null;
+                    accountNo = tAnggota.accountNumber;
+                    sequence = await this.prisma.anggotaTransaction.count({
+                        where: { accountNumber: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'TABRELA':
+                    const tTab = await this.prisma.transTab.findUnique({ where: { id: refId } });
+                    if (!tTab) return null;
+                    accountNo = tTab.noTab;
+                    sequence = await this.prisma.transTab.count({
+                        where: { noTab: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'DEPOSITO':
+                    const tDep = await this.prisma.transJangka.findUnique({ where: { id: refId } });
+                    if (!tDep) return null;
+                    accountNo = tDep.noJangka;
+                    sequence = await this.prisma.transJangka.count({
+                        where: { noJangka: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'BRAHMACARI':
+                    const tBrah = await this.prisma.transBrahmacari.findUnique({ where: { id: refId } });
+                    if (!tBrah) return null;
+                    accountNo = tBrah.noBrahmacari;
+                    sequence = await this.prisma.transBrahmacari.count({
+                        where: { noBrahmacari: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'BALIMESARI':
+                    const tBali = await this.prisma.transBalimesari.findUnique({ where: { id: refId } });
+                    if (!tBali) return null;
+                    accountNo = tBali.noBalimesari;
+                    sequence = await this.prisma.transBalimesari.count({
+                        where: { noBalimesari: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'WANAPRASTA':
+                    const tWana = await this.prisma.transWanaprasta.findUnique({ where: { id: refId } });
+                    if (!tWana) return null;
+                    accountNo = tWana.noWanaprasta;
+                    sequence = await this.prisma.transWanaprasta.count({
+                        where: { noWanaprasta: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                default:
+                    return null;
+            }
+            return { accountNo, sequence };
+        } catch (e) {
+            console.error(`Error fetching transaction info for ${transType} #${refId}:`, e);
+            return null;
+        }
+    }
+
     // ============================================
     // DELETE & ARCHIVE
     // ============================================
 
     async deleteJournal(id: number, userId: number, reason: string) {
-        const journal = await this.prisma.postedJournal.findUnique({
-            where: { id },
+        console.log(`[Accounting] Deleting Journal ID: ${id} by User: ${userId}`);
+
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Get Journal with details (Using TX to lock/ensure consistency)
+            const journal = await tx.postedJournal.findUnique({
+                where: { id },
+                include: { details: true }
+            });
+
+            if (!journal) throw new NotFoundException('Journal not found');
+
+            // 2. VOID TRANSACTION LOGIC (For AUTO journals)
+            if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {
+                try {
+                    console.log(`[Accounting] Voiding source transaction: ${journal.sourceCode} #${journal.refId}`);
+                    // Determine Source Service based on sourceCode
+                    switch (journal.sourceCode) {
+                        case 'ANGGOTA':
+                            if (this.anggotaService) await this.anggotaService.voidTransaction(journal.refId, tx);
+                            break;
+                        case 'TABRELA':
+                            if (this.tabrelaService) await this.tabrelaService.voidTransaction(journal.refId, tx);
+                            break;
+                        case 'DEPOSITO':
+                            if (this.depositoService) await this.depositoService.voidTransaction(journal.refId, tx);
+                            break;
+                        case 'BRAHMACARI':
+                            if (this.brahmacariService) await this.brahmacariService.voidTransaction(journal.refId, tx);
+                            break;
+                        case 'BALIMESARI':
+                            if (this.balimesariService) await this.balimesariService.voidTransaction(journal.refId, tx);
+                            break;
+                        case 'WANAPRASTA':
+                            if (this.wanaprastaService) await this.wanaprastaService.voidTransaction(journal.refId, tx);
+                            break;
+                        default:
+                            console.warn(`[Accounting] No void handler for sourceCode: ${journal.sourceCode}`);
+                    }
+                    // Future expansion...
+
+                } catch (error) {
+                    console.error('[Accounting] Failed to void transaction during journal delete:', error);
+                    throw new BadRequestException(`Failed to void source transaction: ${error.message}`);
+                }
+            }
+
+            // 3. ARCHIVE to Temp
+            console.log('[Accounting] Archiving to PostedJournalTemp...');
+            const temp = await tx.postedJournalTemp.create({
+                data: {
+                    originalId: journal.id,
+                    journalNumber: journal.journalNumber,
+                    journalDate: journal.journalDate,
+                    description: journal.description,
+                    postingType: journal.postingType,
+                    transType: journal.transType || '',
+                    sourceCode: journal.sourceCode,
+                    refId: journal.refId,
+                    userId: journal.userId,
+                    wilayahCd: journal.wilayahCd,
+                    status: 'DELETED',
+                    deletedBy: userId.toString(),
+                    deleteReason: reason
+                }
+            });
+
+            // Create Details in Temp
+            if (journal.details.length > 0) {
+                await tx.postedJournalDetailTemp.createMany({
+                    data: journal.details.map(d => ({
+                        tempJournalId: temp.id,
+                        accountCode: d.accountCode,
+                        debit: d.debit,
+                        credit: d.credit,
+                        description: d.description
+                    }))
+                });
+            }
+
+            // 4. DELETE Original
+            console.log('[Accounting] Deleting original Journal...');
+            await tx.postedJournalDetail.deleteMany({ where: { journalId: id } });
+            await tx.postedJournal.delete({ where: { id } });
+
+            console.log('[Accounting] Delete Complete.');
+            return { success: true, message: 'Journal deleted and associated transactions voided.' };
+        });
+    }
+    async getDeletedJournals(params: {
+        startDate?: Date;
+        endDate?: Date;
+        page?: number;
+        limit?: number;
+    }) {
+        const where: Prisma.PostedJournalTempWhereInput = {};
+
+        if (params.startDate && params.endDate) {
+            where.deletedAt = {
+                gte: params.startDate,
+                lte: params.endDate,
+            };
+        }
+
+        const page = params.page || 1;
+        const limit = params.limit || 10;
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await Promise.all([
+            this.prisma.postedJournalTemp.findMany({
+                where,
+                orderBy: { deletedAt: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.postedJournalTemp.count({ where })
+        ]);
+
+        // Enrich with Deleted By User Name if possible
+        const userIds = [...new Set(data.map(d => Number(d.deletedBy)).filter(id => !isNaN(id)))];
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true, fullName: true, username: true }
+        });
+
+        const enrichedData = data.map(journal => {
+            const deleterId = Number(journal.deletedBy);
+            const deleter = users.find(u => u.id === deleterId);
+            return {
+                ...journal,
+                deletedByName: deleter ? `${deleter.fullName} (${deleter.username})` : journal.deletedBy
+            };
+        });
+
+        return {
+            data: enrichedData,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
+    }
+    async getDailyReportData(date: Date) {
+        // 1. Define Date Range (Full Day)
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // 2. Fetch Journals for the day
+        const journals = await this.prisma.postedJournal.findMany({
+            where: {
+                journalDate: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            },
             include: { details: true }
         });
 
-        if (!journal) throw new NotFoundException('Journal not found');
+        // 3. Aggregate Transaction Summaries (Setor/Tarik)
+        // We need to group by Product (Source) and Type (Setor/Tarik)
+        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA'];
+        const summaryMap = new Map<string, {
+            product: string;
+            depositTotal: number;
+            withdrawalTotal: number;
+            depositCount: number;
+            withdrawalCount: number;
+        }>();
 
-        // 1. VOID TRANSACTION LOGIC (For AUTO journals)
-        if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {
-            // Trans Types: ANGGOTA_*, BRAHMACARI_*, TABRELA_*, DEPOSITO_*, BALIMESARI_*, WANAPRASTA_*
+        // Initialize Map
+        products.forEach(p => summaryMap.set(p, {
+            product: p,
+            depositTotal: 0,
+            withdrawalTotal: 0,
+            depositCount: 0,
+            withdrawalCount: 0
+        }));
 
-            try {
-                const source = journal.sourceCode;
-                let service: any = null;
+        for (const j of journals) {
+            if (!j.sourceCode || !summaryMap.has(j.sourceCode)) continue;
 
-                // Dynamic Import / ModuleRef could be used, but simple switch is safer for type checking if imported
-                // However, importing everything here might be messy.
-                // I will need to use ModuleRef in constructor. 
-                // But since I cannot change constructor easily without updating module, 
-                // I'll try to use lazy import or just standard dispatch if services are provided in module.
-                // Assuming services are NOT injected yet, I can't use them.
-                // I need to update constructor.
-                // For now, I'll place the logic and assume I'll update constructor in next step.
+            const stats = summaryMap.get(j.sourceCode)!;
 
-                // Oops, I can't update constructor with `replace_file_content` easily if I'm only replacing this block.
-                // I will add `private moduleRef: ModuleRef` to checking, but I need to update the file content at the TOP too.
-                // So I will make this a multi-step update or replace class start and end.
-                // Let's assume I will update constructor separately or validly here.
+            // Logic to determine Setor vs Tarik
+            // Usually 'SETOR' or 'TABUNG' indicates Inflow, 'TARIK' or 'CAIR' indicates Outflow.
+            // We check transType string.
+            const type = j.transType || '';
+            const amount = j.details.reduce((sum, d) => sum + Number(d.debit), 0); // Total mutated amount (Debit = Credit in balanced journal)
 
-                // actually, I can't access `this.moduleRef` if it's not in constructor.
-                // I will just throw error for now if I can't access it? 
-                // No, I must implement it correctly.
-
-                // Plan: I'll use `import` at top and add to constructor.
-                // But `replace_file_content` works on chunks. 
-                // I will use `multi_replace_file_content`.
-            } catch (error) {
-                console.error('Failed to void transaction during journal delete:', error);
-                throw new BadRequestException(`Failed to void source transaction: ${error.message}`);
+            // Heuristic based on Naming Convention (e.g. TABRELA_SETOR vs TABRELA_TARIK)
+            if (type.includes('SETOR') || type.includes('BUKA') || type.includes('TABUNG')) {
+                stats.depositTotal += amount;
+                stats.depositCount++;
+            } else if (type.includes('TARIK') || type.includes('CAIR') || type.includes('TUTUP')) {
+                stats.withdrawalTotal += amount;
+                stats.withdrawalCount++;
             }
         }
 
-        // ... (I will switch to multi_replace to handle imports and constructor)
+        const summary = Array.from(summaryMap.values());
+
+        // 4. Interest Estimation (Daily Accrual)
+        // Formula: Sum(Saldo) * (AvgRate / 100) / 365
+        const interestEstimates: { product: string; totalBalance: number; avgRate: number; estimatedDailyInterest: number }[] = [];
+
+        // Helper for Interest Calc
+        const calcInterest = async (model: any, name: string) => {
+            const agg = await model.aggregate({
+                _sum: { saldo: true },
+                _avg: { interestRate: true }
+            });
+            const totalSaldo = Number(agg._sum.saldo || 0);
+            const avgRate = Number(agg._avg.interestRate || 0);
+            const dailyInterest = (totalSaldo * (avgRate / 100)) / 365;
+
+            return {
+                product: name,
+                totalBalance: totalSaldo,
+                avgRate: avgRate,
+                estimatedDailyInterest: dailyInterest
+            };
+        };
+
+        if (this.prisma.nasabahTab) interestEstimates.push(await calcInterest(this.prisma.nasabahTab, 'TABRELA'));
+        if (this.prisma.nasabahBrahmacari) interestEstimates.push(await calcInterest(this.prisma.nasabahBrahmacari, 'BRAHMACARI'));
+        if (this.prisma.nasabahBalimesari) interestEstimates.push(await calcInterest(this.prisma.nasabahBalimesari, 'BALIMESARI'));
+        if (this.prisma.nasabahWanaprasta) interestEstimates.push(await calcInterest(this.prisma.nasabahWanaprasta, 'WANAPRASTA'));
+        // Deposito usually has fixed monthly, but we can est daily
+        if (this.prisma.nasabahJangka) {
+            const agg = await this.prisma.nasabahJangka.aggregate({
+                _sum: { nominal: true }, // Deposito uses 'nominal' as principal
+                _avg: { bunga: true }
+            });
+            const totalSaldo = Number(agg._sum.nominal || 0);
+            const avgRate = Number(agg._avg.bunga || 0);
+            const dailyInterest = (totalSaldo * (avgRate / 100)) / 365;
+            interestEstimates.push({
+                product: 'DEPOSITO',
+                totalBalance: totalSaldo,
+                avgRate: avgRate,
+                estimatedDailyInterest: dailyInterest
+            });
+        }
+
+        return {
+            date: date,
+            summary,
+            interestEstimates,
+            journals // Also return the raw journals for the list view
+        };
     }
 }

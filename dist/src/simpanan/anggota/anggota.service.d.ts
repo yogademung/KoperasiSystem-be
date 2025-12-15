@@ -153,15 +153,5 @@ export declare class AnggotaService {
     }>;
     private createTransaction;
     private generateAccountNumber;
-    voidTransaction(transId: number): Promise<{
-        createdAt: Date;
-        id: number;
-        transType: string;
-        description: string | null;
-        accountNumber: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        transDate: Date;
-        balanceAfter: import("@prisma/client/runtime/library").Decimal;
-        userId: number;
-    }>;
+    voidTransaction(transId: number, txInput?: any): Promise<any>;
 }

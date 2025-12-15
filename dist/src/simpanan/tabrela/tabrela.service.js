@@ -151,6 +151,42 @@ let TabrelaService = class TabrelaService {
             return { success: true };
         });
     }
+    async voidTransaction(transId, txInput) {
+        const executeLogic = async (tx) => {
+            const original = await tx.transTab.findUnique({
+                where: { id: transId }
+            });
+            if (!original)
+                throw new common_1.BadRequestException(`Transaction with ID ${transId} not found`);
+            const account = await tx.nasabahTab.findUnique({
+                where: { noTab: original.noTab }
+            });
+            if (!account)
+                throw new common_1.BadRequestException('Account not found');
+            const reversalAmount = Number(original.nominal);
+            const newBalance = Number(account.saldo) - reversalAmount;
+            await tx.nasabahTab.update({
+                where: { noTab: original.noTab },
+                data: { saldo: newBalance }
+            });
+            return tx.transTab.create({
+                data: {
+                    noTab: original.noTab,
+                    tipeTrans: 'KOREKSI',
+                    nominal: -reversalAmount,
+                    saldoAkhir: newBalance,
+                    keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan || ''}`,
+                    createdBy: original.createdBy || 'SYSTEM'
+                }
+            });
+        };
+        if (txInput) {
+            return executeLogic(txInput);
+        }
+        else {
+            return this.prisma.$transaction(executeLogic);
+        }
+    }
 };
 exports.TabrelaService = TabrelaService;
 exports.TabrelaService = TabrelaService = __decorate([

@@ -100,21 +100,34 @@ let DepositoService = class DepositoService {
             totalPages: Math.ceil(total / limit)
         };
     }
-    async voidTransaction(transId) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId, txInput) {
+        const executeLogic = async (tx) => {
             const original = await tx.transJangka.findUnique({ where: { id: transId } });
             if (!original)
                 throw new common_1.NotFoundException(`Transaction ${transId} not found`);
-            return tx.transJangka.create({
+            const reversalAmount = Number(original.nominal) * -1;
+            await tx.transJangka.create({
                 data: {
                     noJangka: original.noJangka,
                     tipeTrans: 'KOREKSI',
-                    nominal: original.nominal,
-                    keterangan: `VOID Trans #${original.id}`,
+                    nominal: reversalAmount,
+                    keterangan: `VOID/REVERSAL #${original.id}: ${original.keterangan || ''}`,
                     createdBy: 'SYSTEM'
                 }
             });
-        });
+            if (original.tipeTrans === 'CAIR') {
+                await tx.nasabahJangka.update({
+                    where: { noJangka: original.noJangka },
+                    data: { status: 'A' }
+                });
+            }
+        };
+        if (txInput) {
+            return executeLogic(txInput);
+        }
+        else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
     async findOne(noJangka) {
         const deposito = await this.prisma.nasabahJangka.findUnique({

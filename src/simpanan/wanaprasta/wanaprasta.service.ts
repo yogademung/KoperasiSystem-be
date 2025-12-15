@@ -222,8 +222,8 @@ export class WanaprastaService {
         };
     }
 
-    async voidTransaction(transId: number) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId: number, txInput?: any) {
+        const executeLogic = async (tx: any) => {
             const original = await tx.transWanaprasta.findUnique({ where: { id: transId } });
             if (!original) throw new NotFoundException(`Transaction ${transId} not found`);
 
@@ -232,11 +232,17 @@ export class WanaprastaService {
 
             let newBalance = Number(account.saldo);
             const nominal = Number(original.nominal);
+            let reversalAmount = 0;
 
-            if (original.tipeTrans === 'SETORAN') {
+            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'WANAPRASTA_SETOR') {
                 newBalance -= nominal;
-            } else if (original.tipeTrans === 'PENARIKAN') {
+                reversalAmount = -nominal;
+            } else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'WANAPRASTA_TARIK') {
                 newBalance += nominal;
+                reversalAmount = nominal;
+            } else {
+                newBalance -= nominal;
+                reversalAmount = -nominal;
             }
 
             await tx.nasabahWanaprasta.update({
@@ -248,12 +254,18 @@ export class WanaprastaService {
                 data: {
                     noWanaprasta: original.noWanaprasta,
                     tipeTrans: 'KOREKSI',
-                    nominal: nominal,
+                    nominal: reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
                     createdBy: 'SYSTEM'
                 }
             });
-        });
+        };
+
+        if (txInput) {
+            return executeLogic(txInput);
+        } else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 }

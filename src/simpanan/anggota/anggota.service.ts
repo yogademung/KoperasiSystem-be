@@ -288,8 +288,9 @@ export class AnggotaService {
     /**
      * Void/Reverse a transaction
      */
-    async voidTransaction(transId: number) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId: number, txInput?: any) {
+        // Helper to execute logic with a transaction client
+        const executeLogic = async (tx: any) => {
             // 1. Find Original Transaction
             const original = await tx.anggotaTransaction.findUnique({
                 where: { id: transId }
@@ -334,9 +335,15 @@ export class AnggotaService {
                     amount: -reversalAmount, // Opposite of original
                     balanceAfter: newBalance,
                     description: `VOID/REVERSAL of Trans #${original.id}: ${original.description || ''}`,
-                    userId: original.userId, // Or current user? Since we don't pass userId here, use original or 0/System. Let's keep original for now or 1.
+                    userId: original.userId,
                 }
             });
-        });
+        };
+
+        if (txInput) {
+            return executeLogic(txInput);
+        } else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 }

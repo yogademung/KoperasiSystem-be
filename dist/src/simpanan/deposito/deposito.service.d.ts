@@ -55,15 +55,7 @@ export declare class DepositoService {
         limit: number;
         totalPages: number;
     }>;
-    voidTransaction(transId: number): Promise<{
-        createdBy: string | null;
-        createdAt: Date;
-        id: number;
-        noJangka: string;
-        nominal: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
-        tipeTrans: string;
-    }>;
+    voidTransaction(transId: number, txInput?: any): Promise<void>;
     findOne(noJangka: string): Promise<{
         accumulatedInterest: number;
         nasabah: {

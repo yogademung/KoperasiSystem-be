@@ -144,6 +144,30 @@ export declare class AccountingController {
         limit: number;
         totalPages: number;
     }>;
+    getDeletedJournals(startDate?: string, endDate?: string, page?: string, limit?: string): Promise<{
+        data: {
+            deletedByName: string | null;
+            wilayahCd: string | null;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            status: string;
+            userId: number;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            sourceCode: string | null;
+            refId: number | null;
+            originalId: number;
+            deletedBy: string | null;
+            deletedAt: Date;
+            deleteReason: string | null;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
     getJournalDetail(id: string): Promise<{
         user: {
             fullName: string;
@@ -234,5 +258,51 @@ export declare class AccountingController {
         refId: number | null;
         tellerId: string | null;
     }>;
-    deleteJournal(id: string, reason: string, req: any): Promise<void>;
+    deleteJournal(id: string, reason: string, req: any): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    getDailyReport(date?: string): Promise<{
+        date: Date;
+        summary: {
+            product: string;
+            depositTotal: number;
+            withdrawalTotal: number;
+            depositCount: number;
+            withdrawalCount: number;
+        }[];
+        interestEstimates: {
+            product: string;
+            totalBalance: number;
+            avgRate: number;
+            estimatedDailyInterest: number;
+        }[];
+        journals: ({
+            details: {
+                accountCode: string;
+                id: number;
+                description: string | null;
+                debit: Prisma.Decimal;
+                credit: Prisma.Decimal;
+                journalId: number;
+            }[];
+        } & {
+            wilayahCd: string | null;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            status: string;
+            userId: number;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            sourceCode: string | null;
+            refId: number | null;
+            tellerId: string | null;
+        })[];
+    }>;
 }

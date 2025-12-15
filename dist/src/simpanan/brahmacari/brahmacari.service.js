@@ -195,8 +195,8 @@ let BrahmacariService = class BrahmacariService {
             totalPages: Math.ceil(total / limit)
         };
     }
-    async voidTransaction(transId) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId, txInput) {
+        const executeLogic = async (tx) => {
             const original = await tx.transBrahmacari.findUnique({
                 where: { id: transId }
             });
@@ -208,18 +208,19 @@ let BrahmacariService = class BrahmacariService {
             if (!account)
                 throw new common_1.NotFoundException('Account not found');
             let newBalance = Number(account.saldo);
-            let reversalType = 'KOREKSI';
             const nominal = Number(original.nominal);
-            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'BRAHMACARI_SETOR') {
+            let reversalAmount = 0;
+            if (['SETORAN', 'BRAHMACARI_SETOR', 'BUNGA'].includes(original.tipeTrans)) {
                 newBalance -= nominal;
+                reversalAmount = -nominal;
             }
-            else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'BRAHMACARI_TARIK') {
+            else if (['PENARIKAN', 'BRAHMACARI_TARIK', 'ADMIN_FEE', 'PAJAK'].includes(original.tipeTrans)) {
                 newBalance += nominal;
+                reversalAmount = nominal;
             }
             else {
-                if (original.tipeTrans === 'KOREKSI') {
-                    throw new common_1.BadRequestException('Cannot void a correction transaction');
-                }
+                newBalance -= nominal;
+                reversalAmount = -nominal;
             }
             await tx.nasabahBrahmacari.update({
                 where: { noBrahmacari: original.noBrahmacari },
@@ -229,13 +230,19 @@ let BrahmacariService = class BrahmacariService {
                 data: {
                     noBrahmacari: original.noBrahmacari,
                     tipeTrans: 'KOREKSI',
-                    nominal: nominal,
+                    nominal: reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan}`,
                     createdBy: 'SYSTEM'
                 }
             });
-        });
+        };
+        if (txInput) {
+            return executeLogic(txInput);
+        }
+        else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 };
 exports.BrahmacariService = BrahmacariService;

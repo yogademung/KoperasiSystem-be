@@ -113,14 +113,5 @@ export declare class WanaprastaService {
         limit: number;
         totalPages: number;
     }>;
-    voidTransaction(transId: number): Promise<{
-        createdBy: string | null;
-        createdAt: Date;
-        id: number;
-        nominal: import("@prisma/client/runtime/library").Decimal;
-        noWanaprasta: string;
-        keterangan: string | null;
-        tipeTrans: string;
-        saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-    }>;
+    voidTransaction(transId: number, txInput?: any): Promise<any>;
 }

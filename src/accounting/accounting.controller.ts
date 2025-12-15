@@ -88,6 +88,21 @@ export class AccountingController {
         });
     }
 
+    @Get('journals/deleted')
+    getDeletedJournals(
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        return this.accountingService.getDeletedJournals({
+            startDate: startDate ? new Date(startDate) : undefined,
+            endDate: endDate ? new Date(endDate) : undefined,
+            page: page ? parseInt(page) : 1,
+            limit: limit ? parseInt(limit) : 10,
+        });
+    }
+
     @Get('journals/:id')
     getJournalDetail(@Param('id') id: string) {
         return this.accountingService.getJournalDetail(+id);
@@ -133,6 +148,18 @@ export class AccountingController {
         @Body('reason') reason: string,
         @Request() req
     ) {
-        return this.accountingService.deleteJournal(Number(id), req.user.userId, reason || 'Deleted by User');
+        try {
+            const userId = req.user?.id || req.user?.userId || 0; // Fallback to 0 if undefined
+            return await this.accountingService.deleteJournal(Number(id), Number(userId), reason || 'Deleted by User');
+        } catch (error) {
+            console.error('Delete Journal Controller Error:', error);
+            throw error; // Let global filter handle it, but log it first
+        }
+    }
+    @Get('reports/daily')
+    getDailyReport(
+        @Query('date') date?: string
+    ) {
+        return this.accountingService.getDailyReportData(date ? new Date(date) : new Date());
     }
 }

@@ -175,4 +175,56 @@ export class TabrelaService {
             return { success: true };
         });
     }
+
+
+    /**
+     * Void/Reverse a transaction
+     */
+    async voidTransaction(transId: number, txInput?: any) {
+        const executeLogic = async (tx: any) => {
+            // 1. Find Original Transaction
+            const original = await tx.transTab.findUnique({
+                where: { id: transId }
+            });
+
+            if (!original) throw new BadRequestException(`Transaction with ID ${transId} not found`);
+
+            // 2. Get Account
+            const account = await tx.nasabahTab.findUnique({
+                where: { noTab: original.noTab }
+            });
+
+            if (!account) throw new BadRequestException('Account not found');
+
+            // 3. Reverse Logic
+            // Original: Balance = Old + Amount.
+            // Reversal: Balance = Current - Amount.
+            const reversalAmount = Number(original.nominal);
+            const newBalance = Number(account.saldo) - reversalAmount;
+
+            // 4. Update Account
+            await tx.nasabahTab.update({
+                where: { noTab: original.noTab },
+                data: { saldo: newBalance }
+            });
+
+            // 5. Create Reversal Transaction
+            return tx.transTab.create({
+                data: {
+                    noTab: original.noTab,
+                    tipeTrans: 'KOREKSI', // Generic correction type
+                    nominal: -reversalAmount, // Opposite of original
+                    saldoAkhir: newBalance,
+                    keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan || ''}`,
+                    createdBy: original.createdBy || 'SYSTEM'
+                }
+            });
+        };
+
+        if (txInput) {
+            return executeLogic(txInput);
+        } else {
+            return this.prisma.$transaction(executeLogic);
+        }
+    }
 }

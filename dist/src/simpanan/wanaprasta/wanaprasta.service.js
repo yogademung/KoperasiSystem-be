@@ -195,8 +195,8 @@ let WanaprastaService = class WanaprastaService {
             totalPages: Math.ceil(total / limit)
         };
     }
-    async voidTransaction(transId) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId, txInput) {
+        const executeLogic = async (tx) => {
             const original = await tx.transWanaprasta.findUnique({ where: { id: transId } });
             if (!original)
                 throw new common_1.NotFoundException(`Transaction ${transId} not found`);
@@ -205,11 +205,18 @@ let WanaprastaService = class WanaprastaService {
                 throw new common_1.NotFoundException('Account not found');
             let newBalance = Number(account.saldo);
             const nominal = Number(original.nominal);
-            if (original.tipeTrans === 'SETORAN') {
+            let reversalAmount = 0;
+            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'WANAPRASTA_SETOR') {
                 newBalance -= nominal;
+                reversalAmount = -nominal;
             }
-            else if (original.tipeTrans === 'PENARIKAN') {
+            else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'WANAPRASTA_TARIK') {
                 newBalance += nominal;
+                reversalAmount = nominal;
+            }
+            else {
+                newBalance -= nominal;
+                reversalAmount = -nominal;
             }
             await tx.nasabahWanaprasta.update({
                 where: { noWanaprasta: original.noWanaprasta },
@@ -219,13 +226,19 @@ let WanaprastaService = class WanaprastaService {
                 data: {
                     noWanaprasta: original.noWanaprasta,
                     tipeTrans: 'KOREKSI',
-                    nominal: nominal,
+                    nominal: reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
                     createdBy: 'SYSTEM'
                 }
             });
-        });
+        };
+        if (txInput) {
+            return executeLogic(txInput);
+        }
+        else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 };
 exports.WanaprastaService = WanaprastaService;

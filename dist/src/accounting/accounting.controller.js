@@ -58,6 +58,14 @@ let AccountingController = class AccountingController {
             limit: limit ? parseInt(limit) : 10,
         });
     }
+    getDeletedJournals(startDate, endDate, page, limit) {
+        return this.accountingService.getDeletedJournals({
+            startDate: startDate ? new Date(startDate) : undefined,
+            endDate: endDate ? new Date(endDate) : undefined,
+            page: page ? parseInt(page) : 1,
+            limit: limit ? parseInt(limit) : 10,
+        });
+    }
     getJournalDetail(id) {
         return this.accountingService.getJournalDetail(+id);
     }
@@ -79,7 +87,17 @@ let AccountingController = class AccountingController {
         });
     }
     async deleteJournal(id, reason, req) {
-        return this.accountingService.deleteJournal(Number(id), req.user.userId, reason || 'Deleted by User');
+        try {
+            const userId = req.user?.id || req.user?.userId || 0;
+            return await this.accountingService.deleteJournal(Number(id), Number(userId), reason || 'Deleted by User');
+        }
+        catch (error) {
+            console.error('Delete Journal Controller Error:', error);
+            throw error;
+        }
+    }
+    getDailyReport(date) {
+        return this.accountingService.getDailyReportData(date ? new Date(date) : new Date());
     }
 };
 exports.AccountingController = AccountingController;
@@ -150,6 +168,16 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AccountingController.prototype, "getJournals", null);
 __decorate([
+    (0, common_1.Get)('journals/deleted'),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, common_1.Query)('page')),
+    __param(3, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:returntype", void 0)
+], AccountingController.prototype, "getDeletedJournals", null);
+__decorate([
     (0, common_1.Get)('journals/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -182,6 +210,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], AccountingController.prototype, "deleteJournal", null);
+__decorate([
+    (0, common_1.Get)('reports/daily'),
+    __param(0, (0, common_1.Query)('date')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AccountingController.prototype, "getDailyReport", null);
 exports.AccountingController = AccountingController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('accounting'),

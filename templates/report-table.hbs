@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 10pt;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      font-size: 14pt;
+      margin: 5px 0;
+    }
+    .header p {
+      margin: 3px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 5px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      text-align: center;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .footer {
+      margin-top: 30px;
+      text-align: right;
+    }
+    tfoot td {
+      font-weight: bold;
+      background-color: #e6e6e6;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{title}}</h1>
+    <p>{{period}}</p>
+    <p>Dicetak: {{printDate}}</p>
+  </div>
+  
+  <table>
+    <thead>
+      <tr>
+        {{#each columns}}
+        <th>{{this}}</th>
+        {{/each}}
+      </tr>
+    </thead>
+    <tbody>
+      {{#each rows}}
+      <tr>
+        {{#each this}}
+        <td>{{this}}</td>
+        {{/each}}
+      </tr>
+      {{/each}}
+    </tbody>
+    {{#if totals}}
+    <tfoot>
+      <tr>
+        <td>TOTAL</td>
+        {{!-- 
+          This loop logic is tricky for dynamic columns + totals. 
+          Assuming totals keys match data keys order minus the first column (label).
+          For generic table, it's safer to pass totals as an array of structured objects matching columns 
+          or just handle it in service. 
+          
+          However, based on PdfService implementation:
+          totals is an object.
+          We need to align it with columns. 
+          
+          Simplified approach for now:
+        --}}
+        <td colspan="{{columns.length}}" style="text-align: right; font-style: italic;">
+             Detailed totals below
+        </td>
+      </tr>
+    </tfoot>
+    {{/if}}
+  </table>
+
+  {{#if totals}}
+  <div style="margin-top: 20px; width: 50%; margin-left: auto;">
+      <table style="width: 100%">
+          <tr><th colspan="2">Ringkasan Total</th></tr>
+          {{#each totals}}
+          <tr>
+              <td>{{@key}}</td>
+              <td class="text-right">{{formatCurrency this}}</td>
+          </tr>
+          {{/each}}
+      </table>
+  </div>
+  {{/if}}
+  
+  <div class="footer">
+    <p>{{location}}, {{printDate}}</p>
+    <p style="margin-top: 50px;">
+      (_________________)<br>
+      Kepala LPD
+    </p>
+  </div>
+</body>
+</html>

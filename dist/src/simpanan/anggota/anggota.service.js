@@ -221,8 +221,8 @@ let AnggotaService = class AnggotaService {
         }
         return `${regionCode}ANG${sequence.toString().padStart(5, '0')}`;
     }
-    async voidTransaction(transId) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId, txInput) {
+        const executeLogic = async (tx) => {
             const original = await tx.anggotaTransaction.findUnique({
                 where: { id: transId }
             });
@@ -256,7 +256,13 @@ let AnggotaService = class AnggotaService {
                     userId: original.userId,
                 }
             });
-        });
+        };
+        if (txInput) {
+            return executeLogic(txInput);
+        }
+        else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 };
 exports.AnggotaService = AnggotaService;

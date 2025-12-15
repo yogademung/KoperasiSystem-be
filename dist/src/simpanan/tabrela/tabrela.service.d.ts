@@ -89,4 +89,5 @@ export declare class TabrelaService {
     }, userId?: any): Promise<{
         success: boolean;
     }>;
+    voidTransaction(transId: number, txInput?: any): Promise<any>;
 }

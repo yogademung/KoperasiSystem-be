@@ -1,10 +1,22 @@
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { ModuleRef } from '@nestjs/core';
+import { BrahmacariService } from '../simpanan/brahmacari/brahmacari.service';
+import { AnggotaService } from '../simpanan/anggota/anggota.service';
+import { TabrelaService } from '../simpanan/tabrela/tabrela.service';
+import { DepositoService } from '../simpanan/deposito/deposito.service';
+import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
+import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
 export declare class AccountingService {
     private prisma;
     private moduleRef;
-    constructor(prisma: PrismaService, moduleRef: ModuleRef);
+    private anggotaService;
+    private tabrelaService;
+    private depositoService;
+    private brahmacariService;
+    private balimesariService;
+    private wanaprastaService;
+    constructor(prisma: PrismaService, moduleRef: ModuleRef, anggotaService: AnggotaService, tabrelaService: TabrelaService, depositoService: DepositoService, brahmacariService: BrahmacariService, balimesariService: BalimesariService, wanaprastaService: WanaprastaService);
     getAccounts(type?: string, page?: number, limit?: number): Promise<{
         data: {
             accountCode: string;
@@ -284,5 +296,81 @@ export declare class AccountingService {
         refId: number | null;
         tellerId: string | null;
     }>;
-    deleteJournal(id: number, userId: number, reason: string): Promise<void>;
+    private getTransactionInfo;
+    deleteJournal(id: number, userId: number, reason: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    getDeletedJournals(params: {
+        startDate?: Date;
+        endDate?: Date;
+        page?: number;
+        limit?: number;
+    }): Promise<{
+        data: {
+            deletedByName: string | null;
+            wilayahCd: string | null;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            status: string;
+            userId: number;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            sourceCode: string | null;
+            refId: number | null;
+            originalId: number;
+            deletedBy: string | null;
+            deletedAt: Date;
+            deleteReason: string | null;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
+    getDailyReportData(date: Date): Promise<{
+        date: Date;
+        summary: {
+            product: string;
+            depositTotal: number;
+            withdrawalTotal: number;
+            depositCount: number;
+            withdrawalCount: number;
+        }[];
+        interestEstimates: {
+            product: string;
+            totalBalance: number;
+            avgRate: number;
+            estimatedDailyInterest: number;
+        }[];
+        journals: ({
+            details: {
+                accountCode: string;
+                id: number;
+                description: string | null;
+                debit: Prisma.Decimal;
+                credit: Prisma.Decimal;
+                journalId: number;
+            }[];
+        } & {
+            wilayahCd: string | null;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            status: string;
+            userId: number;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            sourceCode: string | null;
+            refId: number | null;
+            tellerId: string | null;
+        })[];
+    }>;
 }

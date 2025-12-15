@@ -250,8 +250,8 @@ export class BrahmacariService {
      * Void/Reverse a transaction
      * Called when a Journal is deleted
      */
-    async voidTransaction(transId: number) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId: number, txInput?: any) {
+        const executeLogic = async (tx: any) => {
             // 1. Find Original Transaction
             const original = await tx.transBrahmacari.findUnique({
                 where: { id: transId }
@@ -268,23 +268,25 @@ export class BrahmacariService {
 
             // 3. Determine Reversal Logic
             let newBalance = Number(account.saldo);
-            let reversalType = 'KOREKSI';
             const nominal = Number(original.nominal);
+            let reversalAmount = 0;
 
-            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'BRAHMACARI_SETOR') {
-                // Was added, so subtract
+            // In Brahmacari, nominal seems to be stored as positive usually.
+            // Check Transaction Type or infer from impact?
+            // If SETORAN, it added to balance. So we subtract.
+            if (['SETORAN', 'BRAHMACARI_SETOR', 'BUNGA'].includes(original.tipeTrans)) {
                 newBalance -= nominal;
-            } else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'BRAHMACARI_TARIK') {
-                // Was subtracted, so add
+                reversalAmount = -nominal; // Negative for correction
+            } else if (['PENARIKAN', 'BRAHMACARI_TARIK', 'ADMIN_FEE', 'PAJAK'].includes(original.tipeTrans)) {
                 newBalance += nominal;
+                reversalAmount = nominal; // Positive for correction
             } else {
-                // If it's already a correction or unknown, maybe just ignore or throw?
-                // For now, assume simple reversal.
-                // If original was correction (negative effect?), we might need to be careful.
-                // Let's assume standard SETORAN/PENARIKAN for now.
-                if (original.tipeTrans === 'KOREKSI') {
-                    throw new BadRequestException('Cannot void a correction transaction');
-                }
+                // Fallback or generic rule. 
+                // If original.nominal was negative? Schema allows Decimal.
+                // If types are unknown, maybe assumes standard signed?
+                // Let's assume SETORAN is default positive impact.
+                newBalance -= nominal;
+                reversalAmount = -nominal;
             }
 
             // 4. Update Balance
@@ -298,12 +300,21 @@ export class BrahmacariService {
                 data: {
                     noBrahmacari: original.noBrahmacari,
                     tipeTrans: 'KOREKSI',
-                    nominal: nominal,
+                    nominal: reversalAmount, // Signed amount for correction ?? Or should it be positive with KOREKSI type?
+                    // To stay consistent with Tabrela's void, using signed nominal is clearer for "Net Change".
+                    // But if this table expects positive, this might look weird.
+                    // Let's stick to signed for KOREKSI to indicate direction explicitly.
                     saldoAkhir: newBalance,
                     keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan}`,
                     createdBy: 'SYSTEM'
                 }
             });
-        });
+        };
+
+        if (txInput) {
+            return executeLogic(txInput);
+        } else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 }

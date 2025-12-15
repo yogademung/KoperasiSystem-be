@@ -195,8 +195,8 @@ let BalimesariService = class BalimesariService {
             totalPages: Math.ceil(total / limit)
         };
     }
-    async voidTransaction(transId) {
-        return this.prisma.$transaction(async (tx) => {
+    async voidTransaction(transId, txInput) {
+        const executeLogic = async (tx) => {
             const original = await tx.transBalimesari.findUnique({ where: { id: transId } });
             if (!original)
                 throw new common_1.NotFoundException(`Transaction ${transId} not found`);
@@ -205,11 +205,18 @@ let BalimesariService = class BalimesariService {
                 throw new common_1.NotFoundException('Account not found');
             let newBalance = Number(account.saldo);
             const nominal = Number(original.nominal);
-            if (original.tipeTrans === 'SETORAN') {
+            let reversalAmount = 0;
+            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'BALIMESARI_SETOR') {
                 newBalance -= nominal;
+                reversalAmount = -nominal;
             }
-            else if (original.tipeTrans === 'PENARIKAN') {
+            else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'BALIMESARI_TARIK') {
                 newBalance += nominal;
+                reversalAmount = nominal;
+            }
+            else {
+                newBalance -= nominal;
+                reversalAmount = -nominal;
             }
             await tx.nasabahBalimesari.update({
                 where: { noBalimesari: original.noBalimesari },
@@ -219,13 +226,19 @@ let BalimesariService = class BalimesariService {
                 data: {
                     noBalimesari: original.noBalimesari,
                     tipeTrans: 'KOREKSI',
-                    nominal: nominal,
+                    nominal: reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
                     createdBy: 'SYSTEM'
                 }
             });
-        });
+        };
+        if (txInput) {
+            return executeLogic(txInput);
+        }
+        else {
+            return this.prisma.$transaction(executeLogic);
+        }
     }
 };
 exports.BalimesariService = BalimesariService;

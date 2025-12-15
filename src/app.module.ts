@@ -31,7 +31,6 @@ import { AccountingModule } from './accounting/accounting.module';
     AuthModule,
     UsersModule,
     NasabahModule,
-    NasabahModule,
     KreditModule,
     SimpananModule,
     AkuntansiModule,

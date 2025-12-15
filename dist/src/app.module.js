@@ -43,7 +43,6 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             nasabah_module_1.NasabahModule,
-            nasabah_module_1.NasabahModule,
             kredit_module_1.KreditModule,
             simpanan_module_1.SimpananModule,
             akuntansi_module_1.AkuntansiModule,
