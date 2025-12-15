@@ -69,6 +69,37 @@ export class LaporanController {
         );
     }
 
+    @Post('simpanan/mutasi')
+    async mutasiSimpanan(@Body() params: any, @Res() res: Response) {
+        await this.handleReport(res, params, 'xlsx', () =>
+            this.laporanService.generateMutasiSimpanan(this.parseDates(params))
+        );
+    }
+
+    @Post('simpanan/daftar')
+    async daftarRekening(@Body() params: any, @Res() res: Response) {
+        await this.handleReport(res, params, 'xlsx', () =>
+            this.laporanService.generateDaftarRekening(params)
+        );
+    }
+
+    @Post('akuntansi/neraca')
+    async neraca(@Body() params: any, @Res() res: Response) {
+        await this.handleReport(res, params, 'pdf', () =>
+            this.laporanService.generateNeraca({
+                date: new Date(params.endDate || params.date),
+                format: params.format
+            })
+        );
+    }
+
+    @Post('akuntansi/labarugi')
+    async labaRugi(@Body() params: any, @Res() res: Response) {
+        await this.handleReport(res, params, 'pdf', () =>
+            this.laporanService.generateLabaRugi(this.parseDates(params))
+        );
+    }
+
     // Helper handling
     private parseDates(params: any) {
         return {

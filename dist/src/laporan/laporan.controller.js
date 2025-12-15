@@ -53,6 +53,21 @@ let LaporanController = class LaporanController {
     async depositoRekap(params, res) {
         await this.handleReport(res, params, 'xlsx', () => this.laporanService.generateDepositoRekap(this.parseDates(params)));
     }
+    async mutasiSimpanan(params, res) {
+        await this.handleReport(res, params, 'xlsx', () => this.laporanService.generateMutasiSimpanan(this.parseDates(params)));
+    }
+    async daftarRekening(params, res) {
+        await this.handleReport(res, params, 'xlsx', () => this.laporanService.generateDaftarRekening(params));
+    }
+    async neraca(params, res) {
+        await this.handleReport(res, params, 'pdf', () => this.laporanService.generateNeraca({
+            date: new Date(params.endDate || params.date),
+            format: params.format
+        }));
+    }
+    async labaRugi(params, res) {
+        await this.handleReport(res, params, 'pdf', () => this.laporanService.generateLabaRugi(this.parseDates(params)));
+    }
     parseDates(params) {
         return {
             ...params,
@@ -124,6 +139,38 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], LaporanController.prototype, "depositoRekap", null);
+__decorate([
+    (0, common_1.Post)('simpanan/mutasi'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], LaporanController.prototype, "mutasiSimpanan", null);
+__decorate([
+    (0, common_1.Post)('simpanan/daftar'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], LaporanController.prototype, "daftarRekening", null);
+__decorate([
+    (0, common_1.Post)('akuntansi/neraca'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], LaporanController.prototype, "neraca", null);
+__decorate([
+    (0, common_1.Post)('akuntansi/labarugi'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], LaporanController.prototype, "labaRugi", null);
 exports.LaporanController = LaporanController = __decorate([
     (0, common_1.Controller)('accounting/reports'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

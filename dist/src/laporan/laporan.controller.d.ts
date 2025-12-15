@@ -14,6 +14,10 @@ export declare class LaporanController {
     balimesariRekap(params: any, res: Response): Promise<void>;
     wanaprastaRekap(params: any, res: Response): Promise<void>;
     depositoRekap(params: any, res: Response): Promise<void>;
+    mutasiSimpanan(params: any, res: Response): Promise<void>;
+    daftarRekening(params: any, res: Response): Promise<void>;
+    neraca(params: any, res: Response): Promise<void>;
+    labaRugi(params: any, res: Response): Promise<void>;
     private parseDates;
     private handleReport;
 }
