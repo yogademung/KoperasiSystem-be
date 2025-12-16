@@ -42,8 +42,8 @@ export declare class WanaprastaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -59,9 +59,9 @@ export declare class WanaprastaController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
         }[];
     } & {
         createdBy: string | null;
@@ -81,9 +81,9 @@ export declare class WanaprastaController {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
-        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
     }>;
     penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
         createdBy: string | null;
@@ -91,9 +91,9 @@ export declare class WanaprastaController {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
-        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
     }>;
     getTransactions(noWanaprasta: string, page?: string, limit?: string): Promise<{
         data: {
@@ -102,9 +102,9 @@ export declare class WanaprastaController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
         }[];
         total: number;
         page: number;

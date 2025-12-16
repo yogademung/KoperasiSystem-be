@@ -15,6 +15,7 @@ import { SimpananModule } from './simpanan/simpanan.module';
 import { AkuntansiModule } from './akuntansi/akuntansi.module';
 import { LaporanModule } from './laporan/laporan.module';
 import { AccountingModule } from './accounting/accounting.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -36,8 +37,10 @@ import { AccountingModule } from './accounting/accounting.module';
     AkuntansiModule,
     LaporanModule,
     AccountingModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule { }
+

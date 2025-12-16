@@ -41,8 +41,8 @@ export declare class TabrelaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -58,9 +58,9 @@ export declare class TabrelaController {
             id: number;
             noTab: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
         }[];
     } & {
         createdBy: string | null;

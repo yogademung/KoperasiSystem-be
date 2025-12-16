@@ -16,8 +16,8 @@ export declare class NasabahController {
         updatedAt: Date | null;
         id: number;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -35,8 +35,8 @@ export declare class NasabahController {
         updatedAt: Date | null;
         id: number;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -54,8 +54,8 @@ export declare class NasabahController {
         updatedAt: Date | null;
         id: number;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -168,8 +168,8 @@ export declare class NasabahController {
         updatedAt: Date | null;
         id: number;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -190,8 +190,8 @@ export declare class NasabahController {
         updatedAt: Date | null;
         id: number;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -209,8 +209,8 @@ export declare class NasabahController {
         updatedAt: Date | null;
         id: number;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;

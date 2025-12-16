@@ -49,8 +49,8 @@ export declare class DepositoController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -66,8 +66,8 @@ export declare class DepositoController {
             id: number;
             noJangka: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             tipeTrans: string;
+            keterangan: string | null;
         }[];
         createdBy: string | null;
         createdAt: Date;

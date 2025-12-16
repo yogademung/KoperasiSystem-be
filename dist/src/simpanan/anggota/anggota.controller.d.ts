@@ -13,8 +13,8 @@ export declare class AnggotaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -50,8 +50,8 @@ export declare class AnggotaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -87,8 +87,8 @@ export declare class AnggotaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -104,8 +104,8 @@ export declare class AnggotaController {
             transType: string;
             description: string | null;
             accountNumber: string;
-            amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
+            amount: import("@prisma/client/runtime/library").Decimal;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];
@@ -139,8 +139,8 @@ export declare class AnggotaController {
             transType: string;
             description: string | null;
             accountNumber: string;
-            amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
+            amount: import("@prisma/client/runtime/library").Decimal;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];
