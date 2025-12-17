@@ -11,39 +11,44 @@ export declare class ReportController {
     getAllProductModules(): Promise<string[]>;
     listTemplates(productModule?: string, category?: string, isDefault?: string): Promise<{
         templates: {
-            id: number;
-            code: string;
-            name: string;
-            description: string | null;
-            productModule: string;
-            category: string;
-            version: number;
-            isDefault: boolean;
             isActive: boolean;
             createdAt: Date;
             updatedAt: Date | null;
+            name: string;
+            id: number;
+            description: string | null;
+            productModule: string;
+            category: string;
+            code: string;
+            version: number;
+            isDefault: boolean;
         }[];
         total: number;
     }>;
     getTemplate(id: number): Promise<{
         parent: {
+            name: string;
             id: number;
             code: string;
-            name: string;
         } | null;
         versions: {
-            id: number;
-            name: string;
-            version: number;
             createdAt: Date;
+            name: string;
+            id: number;
+            version: number;
         }[];
     } & {
-        id: number;
-        code: string;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         name: string;
+        id: number;
         description: string | null;
         productModule: string;
         category: string;
+        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -55,20 +60,20 @@ export declare class ReportController {
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
         isDefault: boolean;
-        isActive: boolean;
         parentId: number | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     getTemplateByCode(code: string): Promise<{
-        id: number;
-        code: string;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         name: string;
+        id: number;
         description: string | null;
         productModule: string;
         category: string;
+        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -80,20 +85,20 @@ export declare class ReportController {
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
         isDefault: boolean;
-        isActive: boolean;
         parentId: number | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     createTemplate(dto: CreateTemplateDto, req: any): Promise<{
-        id: number;
-        code: string;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         name: string;
+        id: number;
         description: string | null;
         productModule: string;
         category: string;
+        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -105,20 +110,20 @@ export declare class ReportController {
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
         isDefault: boolean;
-        isActive: boolean;
         parentId: number | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     updateTemplate(id: number, dto: UpdateTemplateDto, req: any): Promise<{
-        id: number;
-        code: string;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         name: string;
+        id: number;
         description: string | null;
         productModule: string;
         category: string;
+        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -130,20 +135,20 @@ export declare class ReportController {
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
         isDefault: boolean;
-        isActive: boolean;
         parentId: number | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     deleteTemplate(id: number, req: any): Promise<{
-        id: number;
-        code: string;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         name: string;
+        id: number;
         description: string | null;
         productModule: string;
         category: string;
+        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -155,20 +160,20 @@ export declare class ReportController {
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
         isDefault: boolean;
-        isActive: boolean;
         parentId: number | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     createTemplateVersion(id: number, name: string, req: any): Promise<{
-        id: number;
-        code: string;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
         name: string;
+        id: number;
         description: string | null;
         productModule: string;
         category: string;
+        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -180,48 +185,41 @@ export declare class ReportController {
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
         isDefault: boolean;
-        isActive: boolean;
         parentId: number | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     generateReport(dto: GenerateReportDto, req: any): Promise<{
         success: boolean;
         logId: number;
-        fileUrl: string | null;
+        fileUrl: string;
+        fileSize: number;
+        generatedAt: Date;
+    }>;
+    previewTemplate(templateId: number, format?: 'PDF' | 'EXCEL'): Promise<{
+        success: boolean;
+        logId: number;
+        fileUrl: string;
         fileSize: number;
         generatedAt: Date;
         message: string;
     }>;
-    previewTemplate(templateId: number, format?: 'PDF' | 'EXCEL'): Promise<{
-        success: boolean;
-        message: string;
-        template: {
-            id: number;
-            code: string;
-            name: string;
-        };
-    }>;
     getGenerationLogs(limit?: string, offset?: string): Promise<{
         logs: ({
             template: {
-                code: string;
                 name: string;
+                code: string;
             };
         } & {
-            recordId: string | null;
-            format: string;
-            parameters: import("@prisma/client/runtime/library").JsonValue | null;
+            id: number;
             status: string;
+            format: string;
+            templateId: number;
+            recordId: string | null;
+            parameters: import("@prisma/client/runtime/library").JsonValue | null;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
             generatedBy: string | null;
             generatedAt: Date;
-            id: number;
-            templateId: number;
         })[];
         total: number;
         limit: number;
@@ -229,21 +227,21 @@ export declare class ReportController {
     }>;
     getGenerationLog(id: number): Promise<{
         template: {
-            code: string;
             name: string;
             productModule: string;
+            code: string;
         };
     } & {
-        recordId: string | null;
-        format: string;
-        parameters: import("@prisma/client/runtime/library").JsonValue | null;
+        id: number;
         status: string;
+        format: string;
+        templateId: number;
+        recordId: string | null;
+        parameters: import("@prisma/client/runtime/library").JsonValue | null;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;
         generatedBy: string | null;
         generatedAt: Date;
-        id: number;
-        templateId: number;
     }>;
 }

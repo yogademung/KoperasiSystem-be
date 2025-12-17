@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../database/prisma.service';
 import { CreateTemplateDto, UpdateTemplateDto } from './dto/report.dto';
 import { TemplateSchema } from './interfaces/report.interfaces';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TemplateService {
@@ -101,7 +102,7 @@ export class TemplateService {
                 description: dto.description,
                 productModule: dto.productModule,
                 category: dto.category,
-                jsonSchema: dto.jsonSchema as any,
+                jsonSchema: dto.jsonSchema as Prisma.InputJsonValue,
                 paperSize: dto.paperSize || 'A4',
                 orientation: dto.orientation || 'portrait',
                 parentId: dto.parentId,
@@ -124,7 +125,7 @@ export class TemplateService {
             data: {
                 ...(dto.name && { name: dto.name }),
                 ...(dto.description !== undefined && { description: dto.description }),
-                ...(dto.jsonSchema && { jsonSchema: dto.jsonSchema as any }),
+                ...(dto.jsonSchema && { jsonSchema: dto.jsonSchema as Prisma.InputJsonValue }),
                 ...(dto.isActive !== undefined && { isActive: dto.isActive }),
                 updatedBy: userId,
             },
@@ -167,7 +168,7 @@ export class TemplateService {
                 description: parent.description,
                 productModule: parent.productModule,
                 category: parent.category,
-                jsonSchema: parent.jsonSchema,
+                jsonSchema: parent.jsonSchema as Prisma.InputJsonValue,
                 paperSize: parent.paperSize,
                 orientation: parent.orientation,
                 marginTop: parent.marginTop,

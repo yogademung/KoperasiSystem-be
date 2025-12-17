@@ -13,6 +13,9 @@ const report_service_1 = require("./report.service");
 const report_metadata_service_1 = require("./report-metadata.service");
 const report_generator_service_1 = require("./report-generator.service");
 const template_service_1 = require("./template.service");
+const data_provider_service_1 = require("./data-provider.service");
+const pdf_renderer_service_1 = require("./pdf-renderer.service");
+const excel_renderer_service_1 = require("./excel-renderer.service");
 const prisma_module_1 = require("../database/prisma.module");
 let ReportModule = class ReportModule {
 };
@@ -26,6 +29,9 @@ exports.ReportModule = ReportModule = __decorate([
             report_metadata_service_1.ReportMetadataService,
             report_generator_service_1.ReportGeneratorService,
             template_service_1.TemplateService,
+            data_provider_service_1.DataProviderService,
+            pdf_renderer_service_1.PdfRendererService,
+            excel_renderer_service_1.ExcelRendererService,
         ],
         exports: [report_service_1.ReportService, report_metadata_service_1.ReportMetadataService, report_generator_service_1.ReportGeneratorService],
     })

@@ -61,6 +61,7 @@ export interface PassbookConfig {
 }
 export interface PassbookColumn {
     key: string;
+    header?: string;
     width: number;
     xPosition: number;
     align: 'left' | 'center' | 'right';

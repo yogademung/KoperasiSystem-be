@@ -76,6 +76,7 @@ export interface PassbookConfig {
 
 export interface PassbookColumn {
     key: string;
+    header?: string;
     width: number;
     xPosition: number; // Absolute X position in mm
     align: 'left' | 'center' | 'right';

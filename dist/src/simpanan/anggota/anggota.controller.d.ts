@@ -13,14 +13,14 @@ export declare class AnggotaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
-            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
@@ -50,14 +50,14 @@ export declare class AnggotaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
-            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
@@ -79,6 +79,17 @@ export declare class AnggotaController {
         deduction: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     findOne(accountNumber: string): Promise<{
+        transactions: {
+            createdAt: Date;
+            id: number;
+            transType: string;
+            description: string | null;
+            accountNumber: string;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
+            balanceAfter: import("@prisma/client/runtime/library").Decimal;
+            userId: number;
+        }[];
         customer: {
             isActive: boolean;
             createdBy: string | null;
@@ -87,28 +98,17 @@ export declare class AnggotaController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
-            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
-        transactions: {
-            createdAt: Date;
-            id: number;
-            transType: string;
-            description: string | null;
-            accountNumber: string;
-            transDate: Date;
-            amount: import("@prisma/client/runtime/library").Decimal;
-            balanceAfter: import("@prisma/client/runtime/library").Decimal;
-            userId: number;
-        }[];
     } & {
         remark: string | null;
         isActive: boolean;
@@ -139,8 +139,8 @@ export declare class AnggotaController {
             transType: string;
             description: string | null;
             accountNumber: string;
-            transDate: Date;
             amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];

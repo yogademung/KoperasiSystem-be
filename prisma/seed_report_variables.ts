@@ -1,0 +1,550 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const commonVariables = [
+    { variableKey: 'nama_instansi', variableName: 'Nama Instansi', description: 'Nama Koperasi', dataType: 'STRING', sampleValue: 'Koperasi Krama Bali' },
+    { variableKey: 'alamat_instansi', variableName: 'Alamat Instansi', description: 'Alamat Koperasi', dataType: 'STRING', sampleValue: 'Jl. Raya Denpasar' },
+    { variableKey: 'tanggal_cetak', variableName: 'Tanggal Cetak', description: 'Tanggal Cetak Laporan', dataType: 'DATE', sampleValue: '17-12-2025' },
+    { variableKey: 'kabupaten', variableName: 'Kabupaten', description: 'Kabupaten/Wilayah', dataType: 'STRING', sampleValue: 'DENPASAR' },
+];
+
+const variables = [
+    // --- SIMPANAN ---
+    {
+        productModule: 'SIMPANAN',
+        category: 'Nasabah',
+        variables: [
+            { variableKey: 'no_rek', variableName: 'No Rekening', description: 'Nomor Rekening', dataType: 'STRING', sampleValue: 'TAB001' },
+            { variableKey: 'nama', variableName: 'Nama Nasabah', description: 'Nama Nasabah', dataType: 'STRING', sampleValue: 'I Made Dummy' },
+            { variableKey: 'alamat', variableName: 'Alamat', description: 'Alamat Nasabah', dataType: 'STRING', sampleValue: 'Jl. Melati No. 5' },
+            { variableKey: 'tgl_lahir', variableName: 'Tanggal Lahir', description: 'Tanggal Lahir', dataType: 'DATE', sampleValue: '01-01-1980' },
+            { variableKey: 'tgl_daftar', variableName: 'Tanggal Daftar', description: 'Tanggal Buka Rekening', dataType: 'DATE', sampleValue: '10-05-2023' },
+            { variableKey: 'saldo', variableName: 'Saldo', description: 'Saldo Akhir', dataType: 'CURRENCY', sampleValue: 'Rp 5.000.000' },
+        ]
+    },
+    {
+        productModule: 'SIMPANAN',
+        category: 'Transaksi',
+        variables: [
+            { variableKey: 'transactions', variableName: 'List Transaksi', description: 'List Transaksi', dataType: 'ARRAY', isArray: true, sampleValue: '[List]' },
+            { variableKey: 'transactions.no', variableName: 'No Urut', description: 'Nomor Urut', dataType: 'NUMBER', sampleValue: '1' },
+            { variableKey: 'transactions.tgl', variableName: 'Tanggal Trans', description: 'Tanggal Transaksi', dataType: 'DATE', sampleValue: '12-05-2023' },
+            { variableKey: 'transactions.kode', variableName: 'Kode Trans', description: 'Kode Transaksi', dataType: 'STRING', sampleValue: 'SETOR' },
+            { variableKey: 'transactions.transaksi', variableName: 'Keterangan', description: 'Keterangan', dataType: 'STRING', sampleValue: 'Setoran Awal' },
+            { variableKey: 'transactions.debet', variableName: 'Debet', description: 'Jumlah Debet', dataType: 'CURRENCY', sampleValue: 'Rp 0' },
+            { variableKey: 'transactions.kredit', variableName: 'Kredit', description: 'Jumlah Kredit', dataType: 'CURRENCY', sampleValue: 'Rp 1.000.000' },
+            { variableKey: 'transactions.saldo', variableName: 'Saldo Running', description: 'Saldo Running', dataType: 'CURRENCY', sampleValue: 'Rp 1.000.000' },
+        ]
+    },
+
+    // --- KREDIT ---
+    {
+        productModule: 'KREDIT',
+        category: 'Debitur',
+        variables: [
+            { variableKey: 'no_permohonan', variableName: 'No Permohonan', description: 'Nomor Permohonan/Kredit', dataType: 'STRING', sampleValue: 'KRD001' },
+            { variableKey: 'nama', variableName: 'Nama Debitur', description: 'Nama Debitur', dataType: 'STRING', sampleValue: 'I Ketut Kredit' },
+            { variableKey: 'alamat', variableName: 'Alamat', description: 'Alamat Debitur', dataType: 'STRING', sampleValue: 'Jl. Mawar No. 3' },
+            { variableKey: 'nik', variableName: 'NIK', description: 'NIK/KTP', dataType: 'STRING', sampleValue: '510101...' },
+            { variableKey: 'pekerjaan', variableName: 'Pekerjaan', description: 'Pekerjaan', dataType: 'STRING', sampleValue: 'Wiraswasta' },
+            { variableKey: 'telp', variableName: 'Telepon', description: 'Nomor Telepon', dataType: 'STRING', sampleValue: '0812345678' },
+            { variableKey: 'tmp_lahir', variableName: 'Tempat Lahir', description: 'Tempat Lahir', dataType: 'STRING', sampleValue: 'Denpasar' },
+            { variableKey: 'tgl_lahir', variableName: 'Tanggal Lahir', description: 'Tanggal Lahir', dataType: 'DATE', sampleValue: '15-08-1985' },
+        ]
+    },
+    {
+        productModule: 'KREDIT',
+        category: 'Pengajuan',
+        variables: [
+            { variableKey: 'mohon_kredit', variableName: 'Plafon', description: 'Plafon Diajukan', dataType: 'CURRENCY', sampleValue: 'Rp 10.000.000' },
+            { variableKey: 'terbilang', variableName: 'Terbilang', description: 'Terbilang Rupiah', dataType: 'STRING', sampleValue: 'Sepuluh Juta Rupiah' },
+            { variableKey: 'tujuan_permohonan', variableName: 'Tujuan', description: 'Tujuan Penggunaan', dataType: 'STRING', sampleValue: 'Modal Usaha' },
+            { variableKey: 'mohon_jangka_waktu', variableName: 'Jangka Waktu', description: 'Jangka Waktu', dataType: 'STRING', sampleValue: '12 Bulan' },
+            { variableKey: 'mohon_suku_bunga', variableName: 'Bunga %', description: 'Suku Bunga (%)', dataType: 'STRING', sampleValue: '1.5%' },
+            { variableKey: 'angsuran_pokok', variableName: 'Angsuran Pokok', description: 'Angsuran Pokok', dataType: 'CURRENCY', sampleValue: 'Rp 833.333' },
+            { variableKey: 'angsuran_bunga', variableName: 'Angsuran Bunga', description: 'Angsuran Bunga', dataType: 'CURRENCY', sampleValue: 'Rp 150.000' },
+        ]
+    },
+    {
+        productModule: 'KREDIT',
+        category: 'Transaksi',
+        variables: [
+            { variableKey: 'transactions', variableName: 'List Transaksi', description: 'List Transaksi Pembayaran', dataType: 'ARRAY', isArray: true, sampleValue: '[List]' },
+            { variableKey: 'transactions.tanggal', variableName: 'Tanggal Bayar', description: 'Tanggal Bayar', dataType: 'DATE', sampleValue: '12-06-2023' },
+            { variableKey: 'transactions.kode_transaksi', variableName: 'Kode', description: 'Kode', dataType: 'STRING', sampleValue: 'ANGSUR' },
+            { variableKey: 'transactions.angsuran_pokok', variableName: 'Bayar Pokok', description: 'Bayar Pokok', dataType: 'CURRENCY', sampleValue: 'Rp 833.333' },
+            { variableKey: 'transactions.angsuran_bunga', variableName: 'Bayar Bunga', description: 'Bayar Bunga', dataType: 'CURRENCY', sampleValue: 'Rp 150.000' },
+            { variableKey: 'transactions.denda', variableName: 'Denda', description: 'Denda', dataType: 'CURRENCY', sampleValue: 'Rp 0' },
+            { variableKey: 'transactions.sisa_pinjaman', variableName: 'Sisa Pokok', description: 'Sisa Pokok', dataType: 'CURRENCY', sampleValue: 'Rp 9.166.667' },
+        ]
+    },
+
+    // --- ANGGOTA ---
+    {
+        productModule: 'ANGGOTA',
+        category: 'Data Anggota',
+        variables: [
+            { variableKey: 'no_anggota', variableName: 'No Anggota', description: 'Nomor Anggota', dataType: 'STRING', sampleValue: '001' },
+            { variableKey: 'nama', variableName: 'Nama', description: 'Nama Anggota', dataType: 'STRING', sampleValue: 'I Nyoman Anggota' },
+            { variableKey: 'alamat', variableName: 'Alamat', description: 'Alamat', dataType: 'STRING', sampleValue: 'Jl. Kamboja' },
+            { variableKey: 'tlp', variableName: 'Telepon', description: 'Telepon', dataType: 'STRING', sampleValue: '081...' },
+            { variableKey: 'pokok', variableName: 'Simpanan Pokok', description: 'Simpanan Pokok', dataType: 'CURRENCY', sampleValue: 'Rp 500.000' },
+            { variableKey: 'wajib_awal', variableName: 'Wajib Awal', description: 'Simpanan Wajib Awal', dataType: 'CURRENCY', sampleValue: 'Rp 100.000' },
+            { variableKey: 'wajib', variableName: 'Total Wajib', description: 'Total Simpanan Wajib', dataType: 'CURRENCY', sampleValue: 'Rp 1.200.000' },
+            { variableKey: 'saldo', variableName: 'Total Saldo', description: 'Total Saldo Simpanan', dataType: 'CURRENCY', sampleValue: 'Rp 1.700.000' },
+        ]
+    },
+
+    // --- DEPOSITO ---
+    {
+        productModule: 'DEPOSITO',
+        category: 'Bilyet',
+        variables: [
+            { variableKey: 'nomor_bilyet', variableName: 'No Bilyet', description: 'Nomor Bilyet', dataType: 'STRING', sampleValue: 'B001' },
+            { variableKey: 'nama_nasabah', variableName: 'Nama Nasabah', description: 'Nama Nasabah', dataType: 'STRING', sampleValue: 'I Putu Deposito' },
+            { variableKey: 'alamat', variableName: 'Alamat', description: 'Alamat', dataType: 'STRING', sampleValue: 'Jl. Anggrek' },
+            { variableKey: 'nominal', variableName: 'Nominal', description: 'Nominal Deposito', dataType: 'CURRENCY', sampleValue: 'Rp 50.000.000' },
+            { variableKey: 'nominal_terbilang', variableName: 'Terbilang', description: 'Terbilang', dataType: 'STRING', sampleValue: 'Lima Puluh Juta Rupiah' },
+            { variableKey: 'jangka_waktu', variableName: 'Jangka Waktu', description: 'Jangka Waktu', dataType: 'STRING', sampleValue: '12 Bulan' },
+            { variableKey: 'bunga_persen', variableName: 'Bunga %', description: 'Bunga (%)', dataType: 'STRING', sampleValue: '6%' },
+            { variableKey: 'tanggal_mulai', variableName: 'Mulai', description: 'Tanggal Mulai', dataType: 'DATE', sampleValue: '01-01-2025' },
+            { variableKey: 'tanggal_jatuh_tempo', variableName: 'Jatuh Tempo', description: 'Jatuh Tempo', dataType: 'DATE', sampleValue: '01-01-2026' },
+            { variableKey: 'perpanjangan_otomatis', variableName: 'ARO', description: 'Status ARO', dataType: 'STRING', sampleValue: 'YA' },
+        ]
+    },
+
+    // --- ACCOUNTING ---
+    {
+        productModule: 'ACCOUNTING',
+        category: 'Laporan',
+        variables: [
+            { variableKey: 'aktiva', variableName: 'Aktiva', description: 'List Akun Aktiva', dataType: 'ARRAY', isArray: true, sampleValue: '[List]' },
+            { variableKey: 'aktiva.KODE_PERKIRAAN', variableName: 'Kode Akun', description: 'Kode Akun', dataType: 'STRING', sampleValue: '1-100' },
+            { variableKey: 'aktiva.NAMA_PERKIRAAN', variableName: 'Nama Akun', description: 'Nama Akun', dataType: 'STRING', sampleValue: 'Kas' },
+            { variableKey: 'aktiva.DEBET', variableName: 'Debet', description: 'Saldo Debet', dataType: 'CURRENCY', sampleValue: 'Rp 500.000' },
+            { variableKey: 'aktiva.KREDIT', variableName: 'Kredit', description: 'Saldo Kredit', dataType: 'CURRENCY', sampleValue: 'Rp 0' },
+
+            { variableKey: 'pasiva', variableName: 'Pasiva', description: 'List Akun Pasiva', dataType: 'ARRAY', isArray: true, sampleValue: '[List]' },
+            { variableKey: 'pasiva.KODE_PERKIRAAN', variableName: 'Kode Akun', description: 'Kode Akun', dataType: 'STRING', sampleValue: '2-100' },
+            { variableKey: 'pasiva.NAMA_PERKIRAAN', variableName: 'Nama Akun', description: 'Nama Akun', dataType: 'STRING', sampleValue: 'Hutang' },
+        ]
+    }
+];
+
+async function main() {
+    console.log('🌱 Seeding Report Variables and Templates...');
+
+    // 1. Seed Variables
+    for (const group of variables) {
+        const { productModule, category, variables: vars } = group;
+
+        // Seed generic/group category first if needed, logic simplified below
+
+        for (const v of vars) {
+            await prisma.reportVariable.upsert({
+                where: {
+                    productModule_variableKey: {
+                        productModule,
+                        variableKey: v.variableKey,
+                    },
+                },
+                update: {
+                    category,
+                    variableName: v.variableName,
+                    description: v.description,
+                    dataType: v.dataType,
+                    sampleValue: v.sampleValue,
+                    isArray: v.isArray || false,
+                },
+                create: {
+                    productModule,
+                    category,
+                    variableKey: v.variableKey,
+                    variableName: v.variableName,
+                    description: v.description,
+                    dataType: v.dataType,
+                    sampleValue: v.sampleValue,
+                    isArray: v.isArray || false,
+                },
+            });
+        }
+
+        // Seed Common Variables for this module
+        for (const c of commonVariables) {
+            await prisma.reportVariable.upsert({
+                where: {
+                    productModule_variableKey: {
+                        productModule,
+                        variableKey: c.variableKey,
+                    },
+                },
+                update: { category: 'Umum' }, // Ensure they stay in 'Umum'
+                create: {
+                    productModule,
+                    category: 'Umum',
+                    variableKey: c.variableKey,
+                    variableName: c.variableName,
+                    description: c.description,
+                    dataType: c.dataType,
+                    sampleValue: c.sampleValue,
+                    isArray: false,
+                },
+            });
+        }
+    }
+
+    // 2. Seed Templates
+
+    // S01 - Nominatif Simpanan
+    await prisma.reportTemplate.upsert({
+        where: { code: 'S01' },
+        update: {},
+        create: {
+            code: 'S01',
+            name: 'Daftar Nominatif Simpanan',
+            productModule: 'SIMPANAN',
+            category: 'REPORT',
+            paperSize: 'A4',
+            orientation: 'portrait',
+            marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                elements: [
+                    {
+                        type: 'text',
+                        content: 'LAPORAN DAFTAR NOMINATIF SIMPANAN',
+                        x: 105, y: 20,
+                        width: 100,
+                        style: { fontSize: 14, fontWeight: 'bold', textAlign: 'center' }
+                    },
+                    {
+                        type: 'text',
+                        content: 'Per Tanggal: {{tanggal_cetak}}',
+                        x: 105, y: 30,
+                        width: 100,
+                        style: { fontSize: 10, textAlign: 'center' }
+                    },
+                    {
+                        type: 'table',
+                        x: 20, y: 40,
+                        tableConfig: {
+                            dataSource: 'accounts',
+                            headerStyle: { fontSize: 10, fontWeight: 'bold', backgroundColor: '#e0e0e0' },
+                            rowStyle: { fontSize: 9 },
+                            columns: [
+                                { header: 'No', key: 'no', width: 10, align: 'center' },
+                                { header: 'No Rekening', key: 'no_rek', width: 30, align: 'left' },
+                                { header: 'Nama Nasabah', key: 'nama', width: 60, align: 'left' },
+                                { header: 'Alamat', key: 'alamat', width: 40, align: 'left' },
+                                { header: 'Saldo', key: 'saldo', width: 30, align: 'right' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // K01 - Formulir Kredit
+    await prisma.reportTemplate.upsert({
+        where: { code: 'K01' },
+        update: {},
+        create: {
+            code: 'K01',
+            name: 'Formulir Permohonan Kredit',
+            productModule: 'KREDIT',
+            category: 'FORM',
+            paperSize: 'A4',
+            orientation: 'portrait',
+            marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                elements: [
+                    {
+                        type: 'text',
+                        content: 'FORMULIR PERMOHONAN KREDIT',
+                        x: 105, y: 20,
+                        width: 100,
+                        style: { fontSize: 14, fontWeight: 'bold', textAlign: 'center', border: { style: 'solid', color: '#000000' } }
+                    },
+                    { type: 'text', content: 'Nomor: {{no_permohonan}}', x: 20, y: 35, style: { fontSize: 10 } },
+
+                    { type: 'text', content: 'Data Pemohon:', x: 20, y: 45, style: { fontSize: 10, fontWeight: 'bold' } },
+                    { type: 'text', content: 'Nama', x: 20, y: 55, width: 30 }, { type: 'text', content: ': {{nama}}', x: 50, y: 55 },
+                    { type: 'text', content: 'Alamat', x: 20, y: 60, width: 30 }, { type: 'text', content: ': {{alamat}}', x: 50, y: 60 },
+                    { type: 'text', content: 'NIK', x: 20, y: 65, width: 30 }, { type: 'text', content: ': {{nik}}', x: 50, y: 65 },
+                    { type: 'text', content: 'Pekerjaan', x: 20, y: 70, width: 30 }, { type: 'text', content: ': {{pekerjaan}}', x: 50, y: 70 },
+
+                    { type: 'text', content: 'Data Pengajuan:', x: 20, y: 85, style: { fontSize: 10, fontWeight: 'bold' } },
+                    { type: 'text', content: 'Plafon', x: 20, y: 95, width: 30 }, { type: 'text', content: ': {{mohon_kredit}}', x: 50, y: 95 },
+                    { type: 'text', content: 'Terbilang', x: 20, y: 100, width: 30 }, { type: 'text', content: ': {{terbilang}}', x: 50, y: 100 },
+                    { type: 'text', content: 'Jangka Waktu', x: 20, y: 105, width: 30 }, { type: 'text', content: ': {{mohon_jangka_waktu}}', x: 50, y: 105 },
+                    { type: 'text', content: 'Angsuran', x: 20, y: 110, width: 30 }, { type: 'text', content: ': {{angsuran_pokok}} / bulan', x: 50, y: 110 },
+
+                    { type: 'text', content: 'Tanda Tangan Pemohon', x: 140, y: 150, width: 50, style: { textAlign: 'center' } },
+                    { type: 'text', content: '({{nama}})', x: 140, y: 170, width: 50, style: { textAlign: 'center', fontWeight: 'bold' } }
+                ]
+            }
+        }
+    });
+
+    // K04 - Kartu Pinjaman (Passbook Style)
+    await prisma.reportTemplate.upsert({
+        where: { code: 'K04' },
+        update: {},
+        create: {
+            code: 'K04',
+            name: 'Kartu Pinjaman',
+            productModule: 'KREDIT',
+            category: 'PASSBOOK',
+            paperSize: 'A4',
+            orientation: 'portrait',
+            marginTop: 10, marginBottom: 10, marginLeft: 10, marginRight: 10,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 10, right: 10, bottom: 10, left: 10 },
+                elements: [
+                    { type: 'text', content: 'KARTU PINJAMAN', x: 105, y: 10, style: { fontSize: 12, fontWeight: 'bold', textAlign: 'center' } },
+                    { type: 'text', content: 'Nama: {{nama}}', x: 10, y: 20 },
+                    { type: 'text', content: 'No Rek: {{no_permohonan}}', x: 150, y: 20, style: { textAlign: 'right' } },
+
+                    {
+                        type: 'passbook-grid',
+                        x: 10, y: 30,
+                        passbookConfig: {
+                            startLine: 1,
+                            columns: [
+                                { key: 'tanggal', xPosition: 10, width: 25, align: 'left', header: 'Tanggal' },
+                                { key: 'kode_transaksi', xPosition: 40, width: 20, align: 'center', header: 'Kode' },
+                                { key: 'angsuran_pokok', xPosition: 65, width: 30, align: 'right', header: 'Pokok' },
+                                { key: 'angsuran_bunga', xPosition: 100, width: 30, align: 'right', header: 'Bunga' },
+                                { key: 'denda', xPosition: 135, width: 20, align: 'right', header: 'Denda' },
+                                { key: 'sisa_pinjaman', xPosition: 160, width: 30, align: 'right', header: 'Sisa' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // S02 - Mutasi Harian (Simpanan)
+    await prisma.reportTemplate.upsert({
+        where: { code: 'S02' },
+        update: {},
+        create: {
+            code: 'S02',
+            name: 'Mutasi Harian Simpanan',
+            productModule: 'SIMPANAN',
+            category: 'REPORT',
+            paperSize: 'A4',
+            orientation: 'portrait',
+            marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                elements: [
+                    { type: 'text', content: 'MUTASI HARIAN SIMPANAN', x: 105, y: 20, style: { fontSize: 14, fontWeight: 'bold', textAlign: 'center' } },
+                    { type: 'text', content: 'Nasabah: {{nama}} ({{no_rek}})', x: 20, y: 30 },
+                    {
+                        type: 'table',
+                        x: 20, y: 40,
+                        tableConfig: {
+                            dataSource: 'transactions',
+                            headerStyle: { fontSize: 9, fontWeight: 'bold' },
+                            rowStyle: { fontSize: 9 },
+                            columns: [
+                                { header: 'Tgl', key: 'tgl', width: 25 },
+                                { header: 'Kode', key: 'kt', width: 20, align: 'center' },
+                                { header: 'Keterangan', key: 'transaksi', width: 60 },
+                                { header: 'Debet', key: 'debet', width: 25, align: 'right' },
+                                { header: 'Kredit', key: 'kredit', width: 25, align: 'right' },
+                                { header: 'Saldo', key: 'saldo', width: 25, align: 'right' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // A01 - Laporan Anggota
+    await prisma.reportTemplate.upsert({
+        where: { code: 'A01' },
+        update: {},
+        create: {
+            code: 'A01',
+            name: 'Laporan Daftar Anggota',
+            productModule: 'ANGGOTA',
+            category: 'REPORT',
+            paperSize: 'A4',
+            orientation: 'landscape',
+            marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'landscape',
+                margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                elements: [
+                    { type: 'text', content: 'DATA ANGGOTA KOPERASI', x: 148, y: 20, style: { fontSize: 14, fontWeight: 'bold', textAlign: 'center' } },
+                    {
+                        type: 'table',
+                        x: 10, y: 40,
+                        tableConfig: {
+                            dataSource: 'members',
+                            headerStyle: { fontSize: 10, fontWeight: 'bold' },
+                            columns: [
+                                { header: 'No Anggota', key: 'no_anggota', width: 30 },
+                                { header: 'Nama', key: 'nama', width: 60 },
+                                { header: 'Alamat', key: 'alamat', width: 80 },
+                                { header: 'Pokok', key: 'pokok', width: 30, align: 'right' },
+                                { header: 'Wajib', key: 'wajib', width: 30, align: 'right' },
+                                { header: 'Saldo Total', key: 'saldo', width: 35, align: 'right' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // AK01 - Laporan Kas Teller
+    await prisma.reportTemplate.upsert({
+        where: { code: 'AK01' },
+        update: {},
+        create: {
+            code: 'AK01',
+            name: 'Laporan Kas Teller',
+            productModule: 'ACCOUNTING',
+            category: 'REPORT',
+            paperSize: 'A4',
+            orientation: 'portrait',
+            marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                elements: [
+                    { type: 'text', content: 'LAPORAN KAS TELLER', x: 105, y: 20, style: { fontSize: 14, fontWeight: 'bold', textAlign: 'center' } },
+                    { type: 'text', content: 'Tanggal: {{tanggal}}', x: 105, y: 30, style: { fontSize: 10, textAlign: 'center' } },
+
+                    { type: 'text', content: 'Kas Awal:', x: 20, y: 50 }, { type: 'text', content: '{{kas_awal}}', x: 100, y: 50, style: { textAlign: 'right' } },
+                    { type: 'text', content: 'Kas Masuk:', x: 20, y: 60 }, { type: 'text', content: '{{kas_masuk}}', x: 100, y: 60, style: { textAlign: 'right' } },
+                    { type: 'text', content: 'Kas Keluar:', x: 20, y: 70 }, { type: 'text', content: '{{kas_keluar}}', x: 100, y: 70, style: { textAlign: 'right' } },
+                    { type: 'text', content: 'Kas Akhir:', x: 20, y: 80, style: { fontWeight: 'bold' } }, { type: 'text', content: '{{kas_akhir}}', x: 100, y: 80, style: { textAlign: 'right', fontWeight: 'bold' } },
+
+                    { type: 'text', content: 'Rincian Uang Kertas & Logam', x: 20, y: 100, style: { fontWeight: 'bold' } },
+                    // Placeholder for denominasi list if needed, usually passed as variable list
+                ]
+            }
+        }
+    });
+
+    // AK80a - Neraca (Balance Sheet)
+    await prisma.reportTemplate.upsert({
+        where: { code: 'AK80a' },
+        update: {},
+        create: {
+            code: 'AK80a',
+            name: 'Neraca (Aktiva / Pasiva)',
+            productModule: 'ACCOUNTING',
+            category: 'REPORT',
+            paperSize: 'A4',
+            orientation: 'portrait',
+            marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
+            jsonSchema: {
+                paperSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                elements: [
+                    { type: 'text', content: 'NERACA', x: 105, y: 20, style: { fontSize: 14, fontWeight: 'bold', textAlign: 'center' } },
+                    { type: 'text', content: 'Per Tanggal: {{tanggal}}', x: 105, y: 30, style: { textAlign: 'center' } },
+
+                    { type: 'text', content: 'AKTIVA', x: 20, y: 45, style: { fontWeight: 'bold' } },
+                    {
+                        type: 'table',
+                        x: 20, y: 50,
+                        tableConfig: {
+                            dataSource: 'aktiva',
+                            columns: [
+                                { header: 'Kode', key: 'KODE_PERKIRAAN', width: 30 },
+                                { header: 'Nama Akun', key: 'NAMA_PERKIRAAN', width: 100 },
+                                { header: 'Saldo', key: 'DEBET', width: 40, align: 'right' } // Assuming Debet represents balance for asset
+                            ]
+                        }
+                    },
+
+                    { type: 'text', content: 'PASIVA', x: 20, y: 120, style: { fontWeight: 'bold' } }, // Y usually dynamic but for seed hardcoded
+                    {
+                        type: 'table',
+                        x: 20, y: 125,
+                        tableConfig: {
+                            dataSource: 'pasiva',
+                            columns: [
+                                { header: 'Kode', key: 'KODE_PERKIRAAN', width: 30 },
+                                { header: 'Nama Akun', key: 'NAMA_PERKIRAAN', width: 100 },
+                                { header: 'Saldo', key: 'KREDIT', width: 40, align: 'right' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // D02 - Bilyet Deposito
+    await prisma.reportTemplate.upsert({
+        where: { code: 'D02' },
+        update: {},
+        create: {
+            code: 'D02',
+            name: 'Bilyet Deposito',
+            productModule: 'DEPOSITO',
+            category: 'CERTIFICATE',
+            paperSize: 'Custom',
+            customWidth: 210, customHeight: 148, // A5 Landscape roughly
+            orientation: 'landscape',
+            marginTop: 10, marginBottom: 10, marginLeft: 10, marginRight: 10,
+            jsonSchema: {
+                paperSize: 'Custom',
+                customWidth: 210, customHeight: 148,
+                orientation: 'landscape',
+                margins: { top: 10, right: 10, bottom: 10, left: 10 },
+                elements: [
+                    { type: 'text', content: 'SERTIFIKAT DEPOSITO', x: 105, y: 20, style: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', fontFamily: 'Times-Roman' } },
+                    { type: 'text', content: 'No: {{nomor_bilyet}}', x: 105, y: 30, style: { textAlign: 'center' } },
+
+                    { type: 'text', content: 'Telah terima dari:', x: 30, y: 50 },
+                    { type: 'text', content: '{{nama_nasabah}}', x: 80, y: 50, style: { fontWeight: 'bold' } },
+
+                    { type: 'text', content: 'Sejumlah:', x: 30, y: 60 },
+                    { type: 'text', content: '{{nominal_terbilang}}', x: 80, y: 60, style: { fontStyle: 'italic' } },
+                    { type: 'text', content: '({{nominal}})', x: 180, y: 60, style: { fontWeight: 'bold' } },
+
+                    { type: 'text', content: 'Jangka Waktu:', x: 30, y: 80 }, { type: 'text', content: '{{jangka_waktu}}', x: 80, y: 80 },
+                    { type: 'text', content: 'Bunga:', x: 120, y: 80 }, { type: 'text', content: '{{bunga_persen}} p.a', x: 150, y: 80 },
+
+                    { type: 'text', content: 'Jatuh Tempo:', x: 30, y: 90 },
+                    { type: 'text', content: '{{tanggal_jatuh_tempo}}', x: 80, y: 90, style: { fontWeight: 'bold' } },
+                ]
+            }
+        }
+    });
+
+    console.log('✅ Seeding completed!');
+}
+
+main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

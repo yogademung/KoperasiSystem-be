@@ -6,18 +6,18 @@ export declare class ReportMetadataService {
     getMetadata(productModule: string): Promise<ReportMetadata>;
     getAllProductModules(): Promise<string[]>;
     getVariablesByCategory(productModule: string, category: string): Promise<{
+        createdAt: Date;
+        updatedAt: Date | null;
         id: number;
+        description: string | null;
+        isArray: boolean;
         productModule: string;
+        category: string;
         variableKey: string;
         variableName: string;
         dataType: string;
-        category: string;
-        description: string | null;
         sampleValue: string | null;
-        isArray: boolean;
         formatOptions: import("@prisma/client/runtime/library").JsonValue | null;
-        createdAt: Date;
-        updatedAt: Date | null;
     }[]>;
     createVariable(data: {
         productModule: string;
@@ -30,18 +30,18 @@ export declare class ReportMetadataService {
         isArray?: boolean;
         formatOptions?: any;
     }): Promise<{
+        createdAt: Date;
+        updatedAt: Date | null;
         id: number;
+        description: string | null;
+        isArray: boolean;
         productModule: string;
+        category: string;
         variableKey: string;
         variableName: string;
         dataType: string;
-        category: string;
-        description: string | null;
         sampleValue: string | null;
-        isArray: boolean;
         formatOptions: import("@prisma/client/runtime/library").JsonValue | null;
-        createdAt: Date;
-        updatedAt: Date | null;
     }>;
     bulkCreateVariables(variables: Array<{
         productModule: string;
@@ -54,17 +54,17 @@ export declare class ReportMetadataService {
         isArray?: boolean;
         formatOptions?: any;
     }>): Promise<{
+        createdAt: Date;
+        updatedAt: Date | null;
         id: number;
+        description: string | null;
+        isArray: boolean;
         productModule: string;
+        category: string;
         variableKey: string;
         variableName: string;
         dataType: string;
-        category: string;
-        description: string | null;
         sampleValue: string | null;
-        isArray: boolean;
         formatOptions: import("@prisma/client/runtime/library").JsonValue | null;
-        createdAt: Date;
-        updatedAt: Date | null;
     }[]>;
 }

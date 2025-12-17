@@ -10,12 +10,17 @@ export declare class ReportService {
     constructor(prisma: PrismaService, templateService: TemplateService, metadataService: ReportMetadataService, generatorService: ReportGeneratorService);
     getReportInfo(templateCode: string): Promise<{
         template: {
-            id: number;
-            code: string;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
             name: string;
+            id: number;
             description: string | null;
             productModule: string;
             category: string;
+            code: string;
             jsonSchema: import("@prisma/client/runtime/library").JsonValue;
             paperSize: string;
             orientation: string;
@@ -27,47 +32,41 @@ export declare class ReportService {
             marginRight: import("@prisma/client/runtime/library").Decimal;
             version: number;
             isDefault: boolean;
-            isActive: boolean;
             parentId: number | null;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            updatedAt: Date | null;
         };
         metadata: import("./interfaces/report.interfaces").ReportMetadata;
     }>;
     generateReportByCode(templateCode: string, format: 'PDF' | 'EXCEL', parameters: Record<string, any>, userId: string): Promise<{
         success: boolean;
         logId: number;
-        fileUrl: string | null;
+        fileUrl: string;
         fileSize: number;
         generatedAt: Date;
-        message: string;
     }>;
     getTemplatesByProduct(productModule: string): Promise<{
-        id: number;
-        code: string;
-        name: string;
-        description: string | null;
-        productModule: string;
-        category: string;
-        version: number;
-        isDefault: boolean;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date | null;
+        name: string;
+        id: number;
+        description: string | null;
+        productModule: string;
+        category: string;
+        code: string;
+        version: number;
+        isDefault: boolean;
     }[]>;
     getDefaultTemplates(): Promise<{
-        id: number;
-        code: string;
-        name: string;
-        description: string | null;
-        productModule: string;
-        category: string;
-        version: number;
-        isDefault: boolean;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date | null;
+        name: string;
+        id: number;
+        description: string | null;
+        productModule: string;
+        category: string;
+        code: string;
+        version: number;
+        isDefault: boolean;
     }[]>;
 }

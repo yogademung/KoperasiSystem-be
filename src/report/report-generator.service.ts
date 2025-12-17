@@ -6,6 +6,7 @@ import { DataProviderService } from './data-provider.service';
 import { PdfRendererService } from './pdf-renderer.service';
 import { ExcelRendererService } from './excel-renderer.service';
 import { TemplateSchema } from './interfaces/report.interfaces';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ReportGeneratorService {
@@ -21,7 +22,7 @@ export class ReportGeneratorService {
         try {
             // Get template
             const template = await this.templateService.findOne(dto.templateId);
-            const templateSchema = template.jsonSchema as TemplateSchema;
+            const templateSchema = template.jsonSchema as unknown as TemplateSchema;
 
             // Get data
             const data = await this.dataProvider.getReportData(
@@ -54,7 +55,7 @@ export class ReportGeneratorService {
                     templateId: dto.templateId,
                     recordId: dto.recordId,
                     format: dto.format,
-                    parameters: dto.parameters as any,
+                    parameters: (dto.parameters || {}) as Prisma.InputJsonValue,
                     status: 'SUCCESS',
                     filePath: `/uploads/reports/${filename}`,
                     fileSize,
@@ -76,7 +77,7 @@ export class ReportGeneratorService {
                     templateId: dto.templateId,
                     recordId: dto.recordId,
                     format: dto.format,
-                    parameters: dto.parameters as any,
+                    parameters: (dto.parameters || {}) as Prisma.InputJsonValue,
                     status: 'FAILED',
                     errorMessage: error.message,
                     generatedBy: userId,
@@ -104,7 +105,6 @@ export class ReportGeneratorService {
         );
 
         return {
-            success: true,
             message: 'Preview generated with dummy data',
             ...result,
         };

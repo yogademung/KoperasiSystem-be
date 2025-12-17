@@ -9,10 +9,10 @@ export declare class BrahmacariController {
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
         tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
     }>;
@@ -26,14 +26,24 @@ export declare class BrahmacariController {
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
         tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
     })[]>;
     findOne(noBrahmacari: string): Promise<{
+        transactions: {
+            createdBy: string | null;
+            createdAt: Date;
+            id: number;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            noBrahmacari: string;
+            keterangan: string | null;
+            tipeTrans: string;
+            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        }[];
         nasabah: {
             isActive: boolean;
             createdBy: string | null;
@@ -42,36 +52,26 @@ export declare class BrahmacariController {
             updatedAt: Date | null;
             id: number;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
-            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
-        transactions: {
-            createdBy: string | null;
-            createdAt: Date;
-            id: number;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            noBrahmacari: string;
-            tipeTrans: string;
-            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
-        }[];
     } & {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         updatedAt: Date | null;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
         tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
     }>;
@@ -81,9 +81,9 @@ export declare class BrahmacariController {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
+        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
     }>;
     penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
         createdBy: string | null;
@@ -91,9 +91,9 @@ export declare class BrahmacariController {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
+        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
     }>;
     getTransactions(noBrahmacari: string, page?: string, limit?: string): Promise<{
         data: {
@@ -102,9 +102,9 @@ export declare class BrahmacariController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
+            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
         }[];
         total: number;
         page: number;

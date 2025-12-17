@@ -1,45 +1,50 @@
 import { PrismaService } from '../database/prisma.service';
 import { GenerateReportDto } from './dto/report.dto';
 import { TemplateService } from './template.service';
+import { DataProviderService } from './data-provider.service';
+import { PdfRendererService } from './pdf-renderer.service';
+import { ExcelRendererService } from './excel-renderer.service';
+import { Prisma } from '@prisma/client';
 export declare class ReportGeneratorService {
     private prisma;
     private templateService;
-    constructor(prisma: PrismaService, templateService: TemplateService);
+    private dataProvider;
+    private pdfRenderer;
+    private excelRenderer;
+    constructor(prisma: PrismaService, templateService: TemplateService, dataProvider: DataProviderService, pdfRenderer: PdfRendererService, excelRenderer: ExcelRendererService);
     generate(dto: GenerateReportDto, userId: string): Promise<{
         success: boolean;
         logId: number;
-        fileUrl: string | null;
+        fileUrl: string;
+        fileSize: number;
+        generatedAt: Date;
+    }>;
+    generatePreview(templateId: number, format: 'PDF' | 'EXCEL'): Promise<{
+        success: boolean;
+        logId: number;
+        fileUrl: string;
         fileSize: number;
         generatedAt: Date;
         message: string;
     }>;
-    generatePreview(templateId: number, format: 'PDF' | 'EXCEL'): Promise<{
-        success: boolean;
-        message: string;
-        template: {
-            id: number;
-            code: string;
-            name: string;
-        };
-    }>;
     getGenerationLogs(limit?: number, offset?: number): Promise<{
         logs: ({
             template: {
-                code: string;
                 name: string;
+                code: string;
             };
         } & {
-            recordId: string | null;
-            format: string;
-            parameters: import("@prisma/client/runtime/library").JsonValue | null;
+            id: number;
             status: string;
+            format: string;
+            templateId: number;
+            recordId: string | null;
+            parameters: Prisma.JsonValue | null;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
             generatedBy: string | null;
             generatedAt: Date;
-            id: number;
-            templateId: number;
         })[];
         total: number;
         limit: number;
@@ -47,35 +52,40 @@ export declare class ReportGeneratorService {
     }>;
     getGenerationLog(id: number): Promise<{
         template: {
-            code: string;
             name: string;
             productModule: string;
+            code: string;
         };
     } & {
-        recordId: string | null;
-        format: string;
-        parameters: import("@prisma/client/runtime/library").JsonValue | null;
+        id: number;
         status: string;
+        format: string;
+        templateId: number;
+        recordId: string | null;
+        parameters: Prisma.JsonValue | null;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;
         generatedBy: string | null;
         generatedAt: Date;
-        id: number;
-        templateId: number;
     }>;
     printPassbook(options: {
         accountNumber: string;
         productType: string;
         startLine?: number;
         mode: 'NEW_ONLY' | 'ALL' | 'RANGE';
+        rangeStart?: number;
+        rangeEnd?: number;
     }): Promise<{
         success: boolean;
-        message: string;
+        logId: number;
+        fileUrl: string;
+        fileSize: number;
+        generatedAt: Date;
     }>;
     getPassbookState(accountNumber: string): Promise<{
-        id: number;
         updatedAt: Date;
+        id: number;
         accountNumber: string;
         productType: string;
         lastPrintedTransId: number | null;
@@ -83,12 +93,16 @@ export declare class ReportGeneratorService {
         totalLinesPrinted: number;
     } | null>;
     updatePassbookState(accountNumber: string, productType: string, lastPrintedTransId: number, lastPrintedLine: number): Promise<{
-        id: number;
         updatedAt: Date;
+        id: number;
         accountNumber: string;
         productType: string;
         lastPrintedTransId: number | null;
         lastPrintedLine: number;
         totalLinesPrinted: number;
     }>;
+    private getNewTransactions;
+    private getAllTransactions;
+    private getTransactionRange;
+    private generateDummyData;
 }

@@ -1,112 +1,112 @@
 import { IsString, IsOptional, IsEnum, IsNumber, IsBoolean, IsObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+// import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTemplateDto {
-    @ApiProperty({ example: 'S01_CUSTOM' })
+    // @ApiProperty({ example: 'S01_CUSTOM' })
     @IsString()
     code: string;
 
-    @ApiProperty({ example: 'Custom Nominatif Template' })
+    // @ApiProperty({ example: 'Custom Nominatif Template' })
     @IsString()
     name: string;
 
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsString()
     description?: string;
 
-    @ApiProperty({ example: 'SIMPANAN' })
+    // @ApiProperty({ example: 'SIMPANAN' })
     @IsString()
     productModule: string;
 
-    @ApiProperty({ example: 'REPORT' })
+    // @ApiProperty({ example: 'REPORT' })
     @IsString()
     category: string;
 
-    @ApiProperty({ type: 'object' })
+    // @ApiProperty({ type: 'object' })
     @IsObject()
     jsonSchema: any;
 
-    @ApiPropertyOptional({ example: 'A4' })
+    // @ApiPropertyOptional({ example: 'A4' })
     @IsOptional()
     @IsString()
     paperSize?: string;
 
-    @ApiPropertyOptional({ example: 'portrait' })
+    // @ApiPropertyOptional({ example: 'portrait' })
     @IsOptional()
     @IsString()
     orientation?: string;
 
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsNumber()
     parentId?: number;
 }
 
 export class UpdateTemplateDto {
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsString()
     name?: string;
 
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsString()
     description?: string;
 
-    @ApiPropertyOptional({ type: 'object' })
+    // @ApiPropertyOptional({ type: 'object' })
     @IsOptional()
     @IsObject()
     jsonSchema?: any;
 
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsBoolean()
     isActive?: boolean;
 }
 
 export class PassbookOptionsDto {
-    @ApiPropertyOptional({ example: 5 })
+    // @ApiPropertyOptional({ example: 5 })
     @IsOptional()
     @IsNumber()
     startLine?: number;
 
-    @ApiProperty({ example: 'NEW_ONLY', enum: ['NEW_ONLY', 'ALL', 'RANGE'] })
+    // @ApiProperty({ example: 'NEW_ONLY', enum: ['NEW_ONLY', 'ALL', 'RANGE'] })
     @IsEnum(['NEW_ONLY', 'ALL', 'RANGE'])
     mode: 'NEW_ONLY' | 'ALL' | 'RANGE';
 
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsNumber()
     rangeStart?: number;
 
-    @ApiPropertyOptional()
+    // @ApiPropertyOptional()
     @IsOptional()
     @IsNumber()
     rangeEnd?: number;
 }
 
 export class GenerateReportDto {
-    @ApiProperty({ example: 1 })
+    // @ApiProperty({ example: 1 })
     @IsNumber()
     templateId: number;
 
-    @ApiProperty({ example: 'PDF', enum: ['PDF', 'EXCEL'] })
+    // @ApiProperty({ example: 'PDF', enum: ['PDF', 'EXCEL'] })
     @IsEnum(['PDF', 'EXCEL'])
     format: 'PDF' | 'EXCEL';
 
-    @ApiPropertyOptional({ example: 'TAB001' })
+    // @ApiPropertyOptional({ example: 'TAB001' })
     @IsOptional()
     @IsString()
     recordId?: string;
 
-    @ApiPropertyOptional({ type: 'object' })
+    // @ApiPropertyOptional({ type: 'object' })
     @IsOptional()
     @IsObject()
     parameters?: Record<string, any>;
 
-    @ApiPropertyOptional({ type: PassbookOptionsDto })
+    // @ApiPropertyOptional({ type: PassbookOptionsDto })
     @IsOptional()
     @ValidateNested()
     @Type(() => PassbookOptionsDto)

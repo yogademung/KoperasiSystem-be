@@ -14,7 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportController = void 0;
 const common_1 = require("@nestjs/common");
-const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const template_service_1 = require("./template.service");
 const report_metadata_service_1 = require("./report-metadata.service");
@@ -86,8 +85,6 @@ let ReportController = class ReportController {
 exports.ReportController = ReportController;
 __decorate([
     (0, common_1.Get)('metadata/:productModule'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get available variables for a product module' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns variable metadata' }),
     __param(0, (0, common_1.Param)('productModule')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -95,15 +92,12 @@ __decorate([
 ], ReportController.prototype, "getMetadata", null);
 __decorate([
     (0, common_1.Get)('metadata'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all product modules' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "getAllProductModules", null);
 __decorate([
     (0, common_1.Get)('templates'),
-    (0, swagger_1.ApiOperation)({ summary: 'List all templates' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns list of templates' }),
     __param(0, (0, common_1.Query)('productModule')),
     __param(1, (0, common_1.Query)('category')),
     __param(2, (0, common_1.Query)('isDefault')),
@@ -113,9 +107,6 @@ __decorate([
 ], ReportController.prototype, "listTemplates", null);
 __decorate([
     (0, common_1.Get)('templates/:id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get template details' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns template details' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Template not found' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -123,7 +114,6 @@ __decorate([
 ], ReportController.prototype, "getTemplate", null);
 __decorate([
     (0, common_1.Get)('templates/code/:code'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get template by code' }),
     __param(0, (0, common_1.Param)('code')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -131,9 +121,6 @@ __decorate([
 ], ReportController.prototype, "getTemplateByCode", null);
 __decorate([
     (0, common_1.Post)('templates'),
-    (0, swagger_1.ApiOperation)({ summary: 'Create new template' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Template created successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid template data' }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -142,9 +129,6 @@ __decorate([
 ], ReportController.prototype, "createTemplate", null);
 __decorate([
     (0, common_1.Put)('templates/:id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Update template' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Template updated successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Template not found' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Request)()),
@@ -154,8 +138,6 @@ __decorate([
 ], ReportController.prototype, "updateTemplate", null);
 __decorate([
     (0, common_1.Delete)('templates/:id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Delete template (soft delete)' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Template deleted successfully' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -164,7 +146,6 @@ __decorate([
 ], ReportController.prototype, "deleteTemplate", null);
 __decorate([
     (0, common_1.Post)('templates/:id/version'),
-    (0, swagger_1.ApiOperation)({ summary: 'Create new version of template' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)('name')),
     __param(2, (0, common_1.Request)()),
@@ -174,9 +155,6 @@ __decorate([
 ], ReportController.prototype, "createTemplateVersion", null);
 __decorate([
     (0, common_1.Post)('generate'),
-    (0, swagger_1.ApiOperation)({ summary: 'Generate report from template' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Report generated successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Template not found' }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -185,7 +163,6 @@ __decorate([
 ], ReportController.prototype, "generateReport", null);
 __decorate([
     (0, common_1.Get)('preview/:templateId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Generate preview with dummy data' }),
     __param(0, (0, common_1.Param)('templateId', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Query)('format')),
     __metadata("design:type", Function),
@@ -194,7 +171,6 @@ __decorate([
 ], ReportController.prototype, "previewTemplate", null);
 __decorate([
     (0, common_1.Get)('logs'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get report generation logs' }),
     __param(0, (0, common_1.Query)('limit')),
     __param(1, (0, common_1.Query)('offset')),
     __metadata("design:type", Function),
@@ -203,17 +179,14 @@ __decorate([
 ], ReportController.prototype, "getGenerationLogs", null);
 __decorate([
     (0, common_1.Get)('logs/:id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get specific generation log' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "getGenerationLog", null);
 exports.ReportController = ReportController = __decorate([
-    (0, swagger_1.ApiTags)('reports'),
     (0, common_1.Controller)('reports'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [template_service_1.TemplateService,
         report_metadata_service_1.ReportMetadataService,
         report_generator_service_1.ReportGeneratorService])
