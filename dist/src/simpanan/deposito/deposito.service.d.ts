@@ -47,8 +47,8 @@ export declare class DepositoService {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
-            keterangan: string | null;
             tipeTrans: string;
+            keterangan: string | null;
         }[];
         total: number;
         page: number;
@@ -64,8 +64,8 @@ export declare class DepositoService {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
-            keterangan: string | null;
             tipeTrans: string;
+            keterangan: string | null;
         }[];
         nasabah: {
             isActive: boolean;

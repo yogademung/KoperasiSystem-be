@@ -36,15 +36,15 @@ export declare class ReportGeneratorService {
         } & {
             id: number;
             status: string;
-            format: string;
-            templateId: number;
             recordId: string | null;
             parameters: Prisma.JsonValue | null;
+            format: string;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
             generatedBy: string | null;
             generatedAt: Date;
+            templateId: number;
         })[];
         total: number;
         limit: number;
@@ -59,15 +59,15 @@ export declare class ReportGeneratorService {
     } & {
         id: number;
         status: string;
-        format: string;
-        templateId: number;
         recordId: string | null;
         parameters: Prisma.JsonValue | null;
+        format: string;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;
         generatedBy: string | null;
         generatedAt: Date;
+        templateId: number;
     }>;
     printPassbook(options: {
         accountNumber: string;

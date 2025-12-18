@@ -15,6 +15,7 @@ import { SimpananModule } from './simpanan/simpanan.module';
 import { AkuntansiModule } from './akuntansi/akuntansi.module';
 import { LaporanModule } from './laporan/laporan.module';
 import { AccountingModule } from './accounting/accounting.module';
+import { AssetModule } from './accounting/asset/asset.module';
 import { ReportModule } from './report/report.module';
 
 @Module({

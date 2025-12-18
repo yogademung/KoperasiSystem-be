@@ -127,6 +127,7 @@ model Nasabah {
   balimesari NasabahBalimesari[]
   wanaprasta NasabahWanaprasta[]
   kredit     DebiturKredit[]
+  collaterals Collateral[]
   waris      NasabahWaris[]
 
   @@map("m_nasabah")
@@ -269,11 +270,19 @@ model DebiturKredit {
   id               Int       @id @default(autoincrement()) @map("DEBITUR_KREDIT_ID")
   nasabahId        Int       @map("NASABAH_ID")
   nomorKredit      String?   @unique @map("NOMOR_KREDIT") @db.VarChar(50)
+  noPermohonan     String?   @unique @map("NO_PERMOHONAN") @db.VarChar(50)
   jenisKredit      String    @map("JENIS_KREDIT") @db.VarChar(50)
   tujuanKredit     String?   @map("TUJUAN_KREDIT") @db.Text
   nominalPengajuan Decimal   @map("NOMINAL_PENGAJUAN") @db.Decimal(19, 4)
   status           String    @default("OPEN") @map("STATUS") @db.VarChar(20)
   tglPengajuan     DateTime  @map("TGL_PENGAJUAN") @db.Date
+  
+  // New fields for Phase 5
+  mohonJangkaWaktu Int?      @map("MOHON_JANGKA_WAKTU")
+  mohonSukuBunga   Decimal?  @map("MOHON_SUKU_BUNGA") @db.Decimal(5, 2)
+  metodeAngsuran   String?   @map("METODE_ANGSURAN") @db.VarChar(20)
+  sistemBunga      String?   @map("SISTEM_BUNGA") @db.VarChar(20)
+  
   createdBy        String?   @map("CREATE_WHO") @db.VarChar(50)
   createdAt        DateTime  @default(now()) @map("CREATE_DATE")
   updatedBy        String?   @map("CHANGE_WHO") @db.VarChar(50)
@@ -283,6 +292,8 @@ model DebiturKredit {
   transactions TransKredit[]
   fasilitas    DebiturFasilitas[]
   realisasi    DebiturRealisasi[]
+  analysis     CreditAnalysis?
+  collaterals  KreditCollateral[]
 
   @@map("m_debitur_kredit")
 }
@@ -319,6 +330,104 @@ model DebiturRealisasi {
   debiturKredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
   @@map("m_debitur_realisasi")
+}
+
+model CreditAnalysis {
+  id              Int      @id @default(autoincrement()) @map("ANALISA_ID")
+  debiturKreditId Int      @unique @map("DEBITUR_KREDIT_ID")
+  characterScore  Int      @map("POINT_CHARACTER")
+  characterDesc   String?  @map("URAIAN_CHARACTER") @db.Text
+  capitalScore    Int      @map("POINT_CAPITAL")
+  capitalDesc     String?  @map("URAIAN_CAPITAL") @db.Text
+  capacityScore   Int      @map("POINT_CAPASITY")
+  capacityDesc    String?  @map("URAIAN_CAPASITY") @db.Text
+  conditionScore  Int      @map("POINT_CONDISION")
+  conditionDesc   String?  @map("URAIAN_CONDISION") @db.Text
+  collateralScore Int      @map("POINT_COLATERAL")
+  collateralDesc  String?  @map("URAIAN_COLATERAL") @db.Text
+  totalScore      Int      @map("SCORE")
+  recommendation  String?  @map("REKOMENDASI") @db.Text
+  
+  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+
+  debiturKredit   DebiturKredit @relation(fields: [debiturKreditId], references: [id])
+
+  @@map("m_kredit_analisa")
+}
+
+model Collateral {
+  id              Int      @id @default(autoincrement()) @map("COLATERAL_ID")
+  nasabahId       Int      @map("NASABAH_ID")
+  type            String   @map("JENIS_JAMINAN") // TANAH, BANGUNAN, KENDARAAN, DEPOSITO, EMAS
+  description     String?  @map("KETERANGAN") @db.Text
+  marketValue     Decimal  @map("NILAI_PASAR") @db.Decimal(19, 4)
+  assessedValue   Decimal  @map("NILAI_TAKASI") @db.Decimal(19, 4)
+  details         Json?    @map("DETAIL_DATA") // No Sertifikat/BPKB, Luas, Lokasi, Pemilik
+  photos          String?  @map("PHOTOS") @db.Text // JSON array of photo paths
+  status          String   @default("ACTIVE") @map("STATUS") // ACTIVE, SEIZED, RELEASED
+  
+  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+
+  nasabah         Nasabah           @relation(fields: [nasabahId], references: [id])
+  links           KreditCollateral[]
+
+  @@map("m_debitur_colateral")
+}
+
+model KreditCollateral {
+  creditId     Int @map("DEBITUR_KREDIT_ID")
+  collateralId Int @map("COLATERAL_ID")
+
+  credit     DebiturKredit @relation(fields: [creditId], references: [id])
+  collateral Collateral    @relation(fields: [collateralId], references: [id])
+
+  @@id([creditId, collateralId])
+  @@map("m_kredit_colateral")
+}
+
+model Asset {
+  id                         Int      @id @default(autoincrement()) @map("ASSET_ID")
+  name                       String   @map("NAMA_AKTIVA")
+  code                        String   @unique @map("NO_AKTIVA")
+  type                       String   @map("JENIS_AKTIVA") // GEDUNG, KENDARAAN, INVENTARIS, TANAH
+  acquisitionDate            DateTime @map("TGL_PEROLEHAN")
+  acquisitionCost            Decimal  @map("NILAI_PEROLEHAN") @db.Decimal(19, 4)
+  residualValue              Decimal  @map("NILAI_RESIDU") @db.Decimal(19, 4)
+  usefulLifeYears            Int      @map("MASA_MANFAAT")
+  depreciationRate           Float    @map("PCT_PENYUSUTAN")
+  depreciationMethod         String   @map("METODE_PENYUSUTAN") // STRAIGHT_LINE, DECLINING_BALANCE
+  assetAccountId             String   @map("ACCOUNT_AKTIVA")
+  accumDepreciationAccountId String   @map("ACCOUNT_AKUM_PENY")
+  expenseAccountId           String   @map("ACCOUNT_BIAYA_PENY")
+  status                     String   @default("ACTIVE") @map("STATUS") // ACTIVE, SOLD, DISPOSED, FULLY_DEPRECIATED
+  
+  createdBy                  String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt                  DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy                  String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt                  DateTime? @updatedAt @map("CHANGE_DATE")
+
+  depreciationHistory AssetDepreciationHistory[]
+
+  @@map("m_aktiva")
+}
+
+model AssetDepreciationHistory {
+  id        Int      @id @default(autoincrement()) @map("HISTORY_ID")
+  assetId   Int      @map("ASSET_ID")
+  period    String   @map("PERIODE") // YYYY-MM
+  amount    Decimal  @map("NOMINAL") @db.Decimal(19, 4)
+  journalId Int?     @map("JOURNAL_ID")
+  createdAt DateTime @default(now()) @map("CREATE_DATE")
+
+  asset Asset @relation(fields: [assetId], references: [id])
+
+  @@map("t_aktiva_penyusutan")
 }
 
 // ============================================

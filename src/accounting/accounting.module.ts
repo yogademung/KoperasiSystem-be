@@ -8,6 +8,7 @@ import { AccountingListener } from './listeners/accounting.listener';
 @Module({
   imports: [PrismaModule, SimpananModule],
   providers: [AccountingService, AccountingListener],
-  controllers: [AccountingController]
+  controllers: [AccountingController],
+  exports: [AccountingService]
 })
 export class AccountingModule { }

@@ -42,9 +42,9 @@ export declare class BalimesariService {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBalimesari: string;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
         }[];
         nasabah: {
             isActive: boolean;
@@ -83,9 +83,9 @@ export declare class BalimesariService {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
-        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
     }>;
     penarikan(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
         createdBy: string | null;
@@ -93,9 +93,9 @@ export declare class BalimesariService {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
-        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
     }>;
     getTransactions(noBalimesari: string, page?: number, limit?: number): Promise<{
         data: {
@@ -104,9 +104,9 @@ export declare class BalimesariService {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBalimesari: string;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
         }[];
         total: number;
         page: number;

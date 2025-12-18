@@ -47,8 +47,8 @@ export declare class DepositoController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
-            keterangan: string | null;
             tipeTrans: string;
+            keterangan: string | null;
         }[];
         nasabah: {
             isActive: boolean;

@@ -191,9 +191,9 @@ export declare class AccountingController {
             accountCode: string;
             id: number;
             description: string | null;
-            journalId: number;
             debit: Prisma.Decimal;
             credit: Prisma.Decimal;
+            journalId: number;
         })[];
     } & {
         wilayahCd: string | null;
@@ -282,9 +282,9 @@ export declare class AccountingController {
                 accountCode: string;
                 id: number;
                 description: string | null;
-                journalId: number;
                 debit: Prisma.Decimal;
                 credit: Prisma.Decimal;
+                journalId: number;
             }[];
         } & {
             wilayahCd: string | null;

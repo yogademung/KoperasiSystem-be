@@ -75,10 +75,15 @@ export declare class NasabahController {
             status: string;
             nasabahId: number;
             nomorKredit: string | null;
+            noPermohonan: string | null;
             jenisKredit: string;
             tujuanKredit: string | null;
             nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
             tglPengajuan: Date;
+            mohonJangkaWaktu: number | null;
+            mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
+            metodeAngsuran: string | null;
+            sistemBunga: string | null;
         }[];
         anggota: {
             remark: string | null;

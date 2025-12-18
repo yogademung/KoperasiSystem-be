@@ -8,10 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KreditModule = void 0;
 const common_1 = require("@nestjs/common");
+const kredit_service_1 = require("./kredit.service");
+const kredit_controller_1 = require("./kredit.controller");
+const prisma_module_1 = require("../database/prisma.module");
+const accounting_module_1 = require("../accounting/accounting.module");
 let KreditModule = class KreditModule {
 };
 exports.KreditModule = KreditModule;
 exports.KreditModule = KreditModule = __decorate([
-    (0, common_1.Module)({})
+    (0, common_1.Module)({
+        imports: [prisma_module_1.PrismaModule, (0, common_1.forwardRef)(() => accounting_module_1.AccountingModule)],
+        providers: [kredit_service_1.KreditService],
+        controllers: [kredit_controller_1.KreditController],
+        exports: [kredit_service_1.KreditService],
+    })
 ], KreditModule);
 //# sourceMappingURL=kredit.module.js.map

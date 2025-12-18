@@ -20,7 +20,8 @@ exports.AccountingModule = AccountingModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule, simpanan_module_1.SimpananModule],
         providers: [accounting_service_1.AccountingService, accounting_listener_1.AccountingListener],
-        controllers: [accounting_controller_1.AccountingController]
+        controllers: [accounting_controller_1.AccountingController],
+        exports: [accounting_service_1.AccountingService]
     })
 ], AccountingModule);
 //# sourceMappingURL=accounting.module.js.map

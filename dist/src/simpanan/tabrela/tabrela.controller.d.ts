@@ -39,9 +39,9 @@ export declare class TabrelaController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noTab: string;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
         }[];
         nasabah: {
             isActive: boolean;
