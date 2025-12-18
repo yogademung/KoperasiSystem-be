@@ -199,15 +199,41 @@ let KreditService = class KreditService {
                     { accountCode: mapping.debitAccount, debit: Number(data.plafond), credit: 0, description: `Pencairan Kredit ${nomorKredit}` },
                     { accountCode: mapping.creditAccount, debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
                 ];
-                const journal = await this.accountingService.createManualJournal({
-                    date: new Date(),
-                    description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
-                    userId,
-                    details: journalDetails,
+                const journalNo = await this.accountingService.generateJournalNumber(new Date());
+                await tx.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: new Date(),
+                        description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
+                        postingType: 'AUTO',
+                        sourceCode: 'KREDIT',
+                        refId: realization.id,
+                        userId: userId,
+                        status: 'POSTED',
+                        transType: 'KREDIT_REALISASI',
+                        details: {
+                            create: journalDetails.map(d => ({
+                                accountCode: d.accountCode,
+                                debit: d.debit,
+                                credit: d.credit,
+                                description: d.description
+                            }))
+                        }
+                    }
                 });
-                await tx.postedJournal.update({
-                    where: { id: journal.id },
-                    data: { postingType: 'AUTO', sourceCode: 'KREDIT', refId: realization.id },
+                const schedule = this.calculateInstallmentSchedule(Number(data.plafond), Number(data.bungaPct), Number(data.jangkaWaktu), new Date());
+                await tx.debiturJadwal.createMany({
+                    data: schedule.map(s => ({
+                        debiturKreditId: creditId,
+                        angsuranKe: s.angsuranKe,
+                        tglJatuhTempo: s.tglJatuhTempo,
+                        pokok: new client_1.Prisma.Decimal(s.pokok),
+                        bunga: new client_1.Prisma.Decimal(s.bunga),
+                        total: new client_1.Prisma.Decimal(s.total),
+                        sisaPokok: new client_1.Prisma.Decimal(s.sisaPokok),
+                        status: 'UNPAID',
+                        createdBy: userId.toString()
+                    }))
                 });
                 return await tx.debiturKredit.update({
                     where: { id: creditId },
@@ -219,6 +245,7 @@ let KreditService = class KreditService {
                 });
             }
             catch (error) {
+                console.error('Credit Activation Error:', error);
                 if (error instanceof client_1.Prisma.PrismaClientKnownRequestError) {
                     if (error.code === 'P2003') {
                         throw new common_1.BadRequestException('Terjadi kesalahan data referensi (Akun Akuntansi tidak ditemukan). Harap periksa konfigurasi Chart of Account.');
@@ -226,7 +253,6 @@ let KreditService = class KreditService {
                 }
                 if (error instanceof common_1.BadRequestException)
                     throw error;
-                console.error('Credit Activation Error:', error);
                 throw new common_1.BadRequestException(`Gagal merealisasikan kredit: ${error.message}`);
             }
         });
@@ -236,6 +262,33 @@ let KreditService = class KreditService {
             where: { nomorKredit: { not: null } }
         });
         return `K-${String(nasabahId).padStart(4, '0')}-${String(count + 1).padStart(3, '0')}`;
+    }
+    calculateInstallmentSchedule(plafond, bungaPct, duration, startDate) {
+        const schedule = [];
+        let currentSisaPokok = plafond;
+        const angsuranPokok = plafond / duration;
+        const angsuranBunga = plafond * (bungaPct / 100);
+        for (let i = 1; i <= duration; i++) {
+            let currentPokok = angsuranPokok;
+            if (i === duration) {
+                currentPokok = currentSisaPokok;
+            }
+            currentSisaPokok -= currentPokok;
+            if (currentSisaPokok < 0.0001 && currentSisaPokok > -0.0001)
+                currentSisaPokok = 0;
+            const currentTotal = currentPokok + angsuranBunga;
+            const dueDate = new Date(startDate);
+            dueDate.setMonth(startDate.getMonth() + i);
+            schedule.push({
+                angsuranKe: i,
+                tglJatuhTempo: dueDate,
+                pokok: currentPokok,
+                bunga: angsuranBunga,
+                total: currentTotal,
+                sisaPokok: currentSisaPokok
+            });
+        }
+        return schedule;
     }
     async findAll(page = 1, limit = 10, status) {
         const skip = (page - 1) * limit;
@@ -271,6 +324,9 @@ let KreditService = class KreditService {
                 },
                 fasilitas: true,
                 realisasi: true,
+                jadwal: {
+                    orderBy: { angsuranKe: 'asc' }
+                },
             },
         });
         if (!credit)

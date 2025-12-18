@@ -99,6 +99,7 @@ export declare class KreditService {
         sistemBunga: string | null;
     }>;
     private generateAccountNumber;
+    private calculateInstallmentSchedule;
     findAll(page?: number, limit?: number, status?: string): Promise<{
         data: ({
             nasabah: {
@@ -207,6 +208,22 @@ export declare class KreditService {
             tglRealisasi: Date;
             nominalRealisasi: Prisma.Decimal;
             rekening: string | null;
+        }[];
+        jadwal: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            pokok: Prisma.Decimal;
+            status: string;
+            tglJatuhTempo: Date;
+            bunga: Prisma.Decimal;
+            total: Prisma.Decimal;
+            debiturKreditId: number;
+            angsuranKe: number;
+            sisaPokok: Prisma.Decimal;
+            tglBayar: Date | null;
         }[];
         analysis: {
             createdBy: string | null;

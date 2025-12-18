@@ -130,6 +130,22 @@ export declare class KreditController {
             nominalRealisasi: import("@prisma/client/runtime/library").Decimal;
             rekening: string | null;
         }[];
+        jadwal: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            pokok: import("@prisma/client/runtime/library").Decimal;
+            status: string;
+            tglJatuhTempo: Date;
+            bunga: import("@prisma/client/runtime/library").Decimal;
+            total: import("@prisma/client/runtime/library").Decimal;
+            debiturKreditId: number;
+            angsuranKe: number;
+            sisaPokok: import("@prisma/client/runtime/library").Decimal;
+            tglBayar: Date | null;
+        }[];
         analysis: {
             createdBy: string | null;
             createdAt: Date;

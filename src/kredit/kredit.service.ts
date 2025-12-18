@@ -233,20 +233,55 @@ export class KreditService {
                     { accountCode: mapping.creditAccount, debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
                 ];
 
-                const journal = await this.accountingService.createManualJournal({
-                    date: new Date(),
-                    description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
-                    userId,
-                    details: journalDetails,
+                // FIX: Generate No via Service, but CREATE using TX to ensure visibility
+                const journalNo = await this.accountingService.generateJournalNumber(new Date());
+
+                // Create Journal directly in transaction
+                await tx.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: new Date(),
+                        description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
+                        postingType: 'AUTO',
+                        sourceCode: 'KREDIT',
+                        refId: realization.id,
+                        userId: userId,
+                        status: 'POSTED',
+                        transType: 'KREDIT_REALISASI',
+                        details: {
+                            create: journalDetails.map(d => ({
+                                accountCode: d.accountCode,
+                                debit: d.debit,
+                                credit: d.credit,
+                                description: d.description
+                            }))
+                        }
+                    }
                 });
 
-                // Update journal to AUTO and sourceCode KREDIT
-                await tx.postedJournal.update({
-                    where: { id: journal.id },
-                    data: { postingType: 'AUTO', sourceCode: 'KREDIT', refId: realization.id },
+                // 4. Generate & Save Installment Schedule (Jadwal Angsuran)
+                const schedule = this.calculateInstallmentSchedule(
+                    Number(data.plafond),
+                    Number(data.bungaPct),
+                    Number(data.jangkaWaktu),
+                    new Date() // Start Date is Realization Date
+                );
+
+                await tx.debiturJadwal.createMany({
+                    data: schedule.map(s => ({
+                        debiturKreditId: creditId,
+                        angsuranKe: s.angsuranKe,
+                        tglJatuhTempo: s.tglJatuhTempo,
+                        pokok: new Prisma.Decimal(s.pokok),
+                        bunga: new Prisma.Decimal(s.bunga),
+                        total: new Prisma.Decimal(s.total),
+                        sisaPokok: new Prisma.Decimal(s.sisaPokok),
+                        status: 'UNPAID',
+                        createdBy: userId.toString()
+                    }))
                 });
 
-                // 4. Update Credit Status to ACTIVE
+                // 5. Update Credit Status to ACTIVE
                 return await tx.debiturKredit.update({
                     where: { id: creditId },
                     data: {
@@ -256,6 +291,8 @@ export class KreditService {
                     },
                 });
             } catch (error) {
+                console.error('Credit Activation Error:', error);
+
                 if (error instanceof Prisma.PrismaClientKnownRequestError) {
                     if (error.code === 'P2003') { // Foreign Key Violation
                         throw new BadRequestException('Terjadi kesalahan data referensi (Akun Akuntansi tidak ditemukan). Harap periksa konfigurasi Chart of Account.');
@@ -263,7 +300,6 @@ export class KreditService {
                 }
                 if (error instanceof BadRequestException) throw error;
 
-                console.error('Credit Activation Error:', error);
                 throw new BadRequestException(`Gagal merealisasikan kredit: ${error.message}`);
             }
         });
@@ -275,6 +311,51 @@ export class KreditService {
             where: { nomorKredit: { not: null } }
         });
         return `K-${String(nasabahId).padStart(4, '0')}-${String(count + 1).padStart(3, '0')}`;
+    }
+
+    private calculateInstallmentSchedule(plafond: number, bungaPct: number, duration: number, startDate: Date) {
+        const schedule: any[] = [];
+        let currentSisaPokok = plafond;
+
+        // FLAT Calculation Assumption (Bunga Menetap)
+        // Pokok = Plafond / Jangka Waktu
+        // Bunga = Plafond * (Rate / 100) -> Asumsi Rate per Bulan
+
+        // Calculate principal per month (keep precision)
+        const angsuranPokok = plafond / duration;
+        const angsuranBunga = plafond * (bungaPct / 100);
+
+        for (let i = 1; i <= duration; i++) {
+            // Determine Principal for this month
+            let currentPokok = angsuranPokok;
+
+            // Adjust last month to match remaining balance explicitly
+            if (i === duration) {
+                currentPokok = currentSisaPokok;
+            }
+
+            // Update Remaining Balance
+            currentSisaPokok -= currentPokok;
+
+            // Ensure 0 if tiny precision error
+            if (currentSisaPokok < 0.0001 && currentSisaPokok > -0.0001) currentSisaPokok = 0;
+
+            const currentTotal = currentPokok + angsuranBunga;
+
+            // Due Date: Same day next month
+            const dueDate = new Date(startDate);
+            dueDate.setMonth(startDate.getMonth() + i);
+
+            schedule.push({
+                angsuranKe: i,
+                tglJatuhTempo: dueDate,
+                pokok: currentPokok,
+                bunga: angsuranBunga,
+                total: currentTotal,
+                sisaPokok: currentSisaPokok
+            });
+        }
+        return schedule;
     }
 
     // ============================================
@@ -317,6 +398,9 @@ export class KreditService {
                 },
                 fasilitas: true,
                 realisasi: true,
+                jadwal: {
+                    orderBy: { angsuranKe: 'asc' }
+                },
             },
         });
         if (!credit) throw new NotFoundException('Credit application not found');

@@ -154,7 +154,7 @@ export class AccountingService {
     // JOURNAL ENTRIES
     // ============================================
 
-    private async generateJournalNumber(date: Date = new Date()): Promise<string> {
+    async generateJournalNumber(date: Date = new Date()): Promise<string> {
         // Format: JU/YYYY/MM/XXXX
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');

@@ -292,6 +292,7 @@ model DebiturKredit {
   transactions TransKredit[]
   fasilitas    DebiturFasilitas[]
   realisasi    DebiturRealisasi[]
+  jadwal       DebiturJadwal[]
   analysis     CreditAnalysis?
   collaterals  KreditCollateral[]
 
@@ -314,6 +315,28 @@ model DebiturFasilitas {
   debiturKredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
   @@map("m_debitur_fasilitas")
+}
+
+model DebiturJadwal {
+  id              Int       @id @default(autoincrement()) @map("JADWAL_ID")
+  debiturKreditId Int       @map("DEBITUR_KREDIT_ID")
+  angsuranKe      Int       @map("ANGSURAN_KE")
+  tglJatuhTempo   DateTime  @map("TGL_JATUH_TEMPO") @db.Date
+  pokok           Decimal   @map("POKOK") @db.Decimal(19, 4)
+  bunga           Decimal   @map("BUNGA") @db.Decimal(19, 4)
+  total           Decimal   @map("TOTAL_ANGSURAN") @db.Decimal(19, 4)
+  sisaPokok       Decimal   @map("SISA_POKOK") @db.Decimal(19, 4)
+  status          String    @default("UNPAID") @map("STATUS") @db.VarChar(20) // UNPAID, PARTIAL, PAID, LATE
+  tglBayar        DateTime? @map("TGL_BAYAR") @db.Date // Actual payment date
+
+  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+
+  debiturKredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
+
+  @@map("m_debitur_jadwal")
 }
 
 model DebiturRealisasi {

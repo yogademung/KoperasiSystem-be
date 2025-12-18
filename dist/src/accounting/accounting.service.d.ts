@@ -127,7 +127,7 @@ export declare class AccountingService {
         debitAccount: string;
         creditAccount: string;
     }>;
-    private generateJournalNumber;
+    generateJournalNumber(date?: Date): Promise<string>;
     validateJournalEntry(details: {
         debit: number;
         credit: number;
