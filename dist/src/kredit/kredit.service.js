@@ -54,28 +54,58 @@ let KreditService = class KreditService {
         return `${prefix}/${String(count + 1).padStart(4, '0')}`;
     }
     async addCollateral(creditId, data, userId) {
-        return this.prisma.$transaction(async (tx) => {
-            const collateral = await tx.collateral.create({
-                data: {
-                    nasabahId: data.nasabahId,
-                    type: data.type,
-                    description: data.description,
-                    marketValue: new client_1.Prisma.Decimal(data.marketValue),
-                    assessedValue: new client_1.Prisma.Decimal(data.assessedValue),
-                    details: data.details,
-                    photos: data.photos || null,
-                    status: 'ACTIVE',
-                    createdBy: userId.toString(),
-                },
+        try {
+            const nasabahId = parseInt(data.nasabahId);
+            if (isNaN(nasabahId))
+                throw new common_1.BadRequestException('Invalid Nasabah ID');
+            const type = data.type;
+            if (!type)
+                throw new common_1.BadRequestException('Collateral type is required');
+            const marketVal = parseFloat(data.marketValue || '0');
+            const assessedVal = parseFloat(data.assessedValue || '0');
+            if (isNaN(marketVal) || isNaN(assessedVal))
+                throw new common_1.BadRequestException('Invalid market or assessed value');
+            if (marketVal < 0 || assessedVal < 0)
+                throw new common_1.BadRequestException('Values must be positive');
+            let detailsObj = data.details;
+            if (typeof detailsObj === 'string') {
+                try {
+                    detailsObj = JSON.parse(detailsObj);
+                }
+                catch (e) {
+                    console.warn('Failed to parse details JSON string:', detailsObj);
+                }
+            }
+            return await this.prisma.$transaction(async (tx) => {
+                const collateral = await tx.collateral.create({
+                    data: {
+                        nasabahId: nasabahId,
+                        type: type,
+                        description: data.description || '',
+                        marketValue: new client_1.Prisma.Decimal(marketVal),
+                        assessedValue: new client_1.Prisma.Decimal(assessedVal),
+                        details: detailsObj ?? client_1.Prisma.JsonNull,
+                        photos: data.photos || null,
+                        status: 'ACTIVE',
+                        createdBy: userId.toString(),
+                    },
+                });
+                await tx.kreditCollateral.create({
+                    data: {
+                        creditId: creditId,
+                        collateralId: collateral.id,
+                    },
+                });
+                return collateral;
             });
-            await tx.kreditCollateral.create({
-                data: {
-                    creditId,
-                    collateralId: collateral.id,
-                },
-            });
-            return collateral;
-        });
+        }
+        catch (error) {
+            if (error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            console.error('Add Collateral Service Error:', error);
+            throw new common_1.BadRequestException(`Failed to add collateral: ${error.message}`);
+        }
     }
     async submitAnalysis(creditId, data, userId) {
         return this.prisma.$transaction(async (tx) => {
@@ -139,47 +169,66 @@ let KreditService = class KreditService {
         }
         const nomorKredit = await this.generateAccountNumber(credit.nasabahId);
         return this.prisma.$transaction(async (tx) => {
-            await tx.debiturFasilitas.create({
-                data: {
-                    debiturKreditId: creditId,
-                    nominal: new client_1.Prisma.Decimal(data.plafond),
-                    bunga: new client_1.Prisma.Decimal(data.bungaPct),
-                    jangkaWaktu: data.jangkaWaktu,
-                    angsuranPokok: new client_1.Prisma.Decimal(data.angsuranPokok),
-                    angsuranBunga: new client_1.Prisma.Decimal(data.angsuranBunga),
-                    createdBy: userId.toString(),
-                },
-            });
-            const realization = await tx.debiturRealisasi.create({
-                data: {
-                    debiturKreditId: creditId,
-                    tglRealisasi: new Date(),
-                    nominalRealisasi: new client_1.Prisma.Decimal(data.plafond),
-                    createdBy: userId.toString(),
-                },
-            });
-            const journalDetails = [
-                { accountCode: '1301', debit: Number(data.plafond), credit: 0, description: `Pencairan Kredit ${nomorKredit}` },
-                { accountCode: '1101', debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
-            ];
-            const journal = await this.accountingService.createManualJournal({
-                date: new Date(),
-                description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
-                userId,
-                details: journalDetails,
-            });
-            await tx.postedJournal.update({
-                where: { id: journal.id },
-                data: { postingType: 'AUTO', sourceCode: 'KREDIT', refId: realization.id },
-            });
-            return tx.debiturKredit.update({
-                where: { id: creditId },
-                data: {
-                    nomorKredit,
-                    status: 'ACTIVE',
-                    updatedBy: userId.toString(),
-                },
-            });
+            try {
+                await tx.debiturFasilitas.create({
+                    data: {
+                        debiturKreditId: creditId,
+                        nominal: new client_1.Prisma.Decimal(data.plafond),
+                        bunga: new client_1.Prisma.Decimal(data.bungaPct),
+                        jangkaWaktu: data.jangkaWaktu,
+                        angsuranPokok: new client_1.Prisma.Decimal(data.angsuranPokok),
+                        angsuranBunga: new client_1.Prisma.Decimal(data.angsuranBunga),
+                        createdBy: userId.toString(),
+                    },
+                });
+                const realization = await tx.debiturRealisasi.create({
+                    data: {
+                        debiturKreditId: creditId,
+                        tglRealisasi: new Date(),
+                        nominalRealisasi: new client_1.Prisma.Decimal(data.plafond),
+                        createdBy: userId.toString(),
+                    },
+                });
+                const mapping = await tx.productCoaMapping.findUnique({
+                    where: { transType: 'KREDIT_REALISASI' }
+                });
+                if (!mapping) {
+                    throw new common_1.BadRequestException('Konfigurasi COA Mapping untuk [KREDIT_REALISASI] belum tersedia. Hubungi Administrator.');
+                }
+                const journalDetails = [
+                    { accountCode: mapping.debitAccount, debit: Number(data.plafond), credit: 0, description: `Pencairan Kredit ${nomorKredit}` },
+                    { accountCode: mapping.creditAccount, debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
+                ];
+                const journal = await this.accountingService.createManualJournal({
+                    date: new Date(),
+                    description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
+                    userId,
+                    details: journalDetails,
+                });
+                await tx.postedJournal.update({
+                    where: { id: journal.id },
+                    data: { postingType: 'AUTO', sourceCode: 'KREDIT', refId: realization.id },
+                });
+                return await tx.debiturKredit.update({
+                    where: { id: creditId },
+                    data: {
+                        nomorKredit,
+                        status: 'ACTIVE',
+                        updatedBy: userId.toString(),
+                    },
+                });
+            }
+            catch (error) {
+                if (error instanceof client_1.Prisma.PrismaClientKnownRequestError) {
+                    if (error.code === 'P2003') {
+                        throw new common_1.BadRequestException('Terjadi kesalahan data referensi (Akun Akuntansi tidak ditemukan). Harap periksa konfigurasi Chart of Account.');
+                    }
+                }
+                if (error instanceof common_1.BadRequestException)
+                    throw error;
+                console.error('Credit Activation Error:', error);
+                throw new common_1.BadRequestException(`Gagal merealisasikan kredit: ${error.message}`);
+            }
         });
     }
     async generateAccountNumber(nasabahId) {

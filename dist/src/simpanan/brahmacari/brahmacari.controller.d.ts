@@ -40,9 +40,9 @@ export declare class BrahmacariController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
+            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
         }[];
         nasabah: {
             isActive: boolean;
@@ -81,9 +81,9 @@ export declare class BrahmacariController {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
+        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
     }>;
     penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
         createdBy: string | null;
@@ -91,9 +91,9 @@ export declare class BrahmacariController {
         id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
+        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
     }>;
     getTransactions(noBrahmacari: string, page?: string, limit?: string): Promise<{
         data: {
@@ -102,9 +102,9 @@ export declare class BrahmacariController {
             id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
+            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
         }[];
         total: number;
         page: number;

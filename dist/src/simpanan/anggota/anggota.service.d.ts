@@ -87,8 +87,8 @@ export declare class AnggotaService {
             transType: string;
             description: string | null;
             accountNumber: string;
-            transDate: Date;
             amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];
@@ -141,8 +141,8 @@ export declare class AnggotaService {
             transType: string;
             description: string | null;
             accountNumber: string;
-            transDate: Date;
             amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];

@@ -56,33 +56,60 @@ export class KreditController {
         @Body() data: any,
         @UploadedFiles() files: { photos?: Express.Multer.File[] }
     ) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
-        const photoPaths: string[] = [];
+        try {
+            console.log('Adding Collateral - Payload:', JSON.stringify(data));
+            console.log('Adding Collateral - Files:', files?.photos?.length || 0);
 
-        if (files?.photos) {
-            for (const [index, file] of files.photos.entries()) {
-                const ext = extname(file.originalname).toLowerCase();
-                const filename = `collateral_${timestamp}_${index}${ext}`;
-                const filePath = join(UPLOAD_DIR, filename);
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
+            const photoPaths: string[] = [];
 
-                try {
-                    if (file.mimetype === 'application/pdf') {
-                        await fs.writeFile(filePath, file.buffer);
-                    } else {
-                        await sharp(file.buffer)
-                            .resize({ width: 1024, withoutEnlargement: true })
-                            .jpeg({ quality: 70 })
-                            .toFile(filePath);
+            if (files?.photos) {
+                for (const [index, file] of files.photos.entries()) {
+                    const ext = extname(file.originalname).toLowerCase();
+                    const filename = `collateral_${timestamp}_${index}${ext}`;
+                    const filePath = join(UPLOAD_DIR, filename);
+
+                    try {
+                        if (file.mimetype === 'application/pdf') {
+                            await fs.writeFile(filePath, file.buffer);
+                        } else {
+                            await sharp(file.buffer)
+                                .resize({ width: 1024, withoutEnlargement: true })
+                                .jpeg({ quality: 70 })
+                                .toFile(filePath);
+                        }
+                        photoPaths.push(`/uploads/collateral/${filename}`);
+                    } catch (error) {
+                        console.error('Photo processing error:', error);
+                        throw new BadRequestException(`Failed to process photo: ${error.message}`);
                     }
-                    photoPaths.push(`/uploads/collateral/${filename}`);
-                } catch (error) {
-                    console.error('Photo processing error:', error);
-                    throw new BadRequestException(`Failed to process photo: ${error.message}`);
                 }
             }
-        }
 
-        return this.kreditService.addCollateral(+id, { ...data, photos: JSON.stringify(photoPaths) }, user.id);
+            // Validate and Parse Payload
+            const nasabahId = parseInt(data.nasabahId);
+            if (isNaN(nasabahId)) throw new BadRequestException('Invalid Nasabah ID');
+
+            const marketValue = data.marketValue ? data.marketValue.toString() : '0';
+            const assessedValue = data.assessedValue ? data.assessedValue.toString() : '0';
+
+            // Parse FormData fields
+            const payload = {
+                ...data,
+                nasabahId: nasabahId,
+                marketValue: marketValue,
+                assessedValue: assessedValue,
+                details: data.details ? JSON.parse(data.details) : undefined,
+                photos: JSON.stringify(photoPaths)
+            };
+
+            return await this.kreditService.addCollateral(+id, payload, user.id);
+
+        } catch (error) {
+            console.error('Add Collateral Error:', error);
+            if (error instanceof BadRequestException) throw error;
+            throw new BadRequestException(`Internal Error: ${error.message}`);
+        }
     }
 
     @Post(':id/analysis')

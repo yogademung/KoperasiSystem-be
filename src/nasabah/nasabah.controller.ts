@@ -52,15 +52,27 @@ export class NasabahController {
                 return `/uploads/nasabah/${filename}`;
             }
 
-            // For images, compress with sharp
-            console.log('Compressing image with sharp');
-            await sharp(file.buffer)
-                .resize({ width: 1024, withoutEnlargement: true })
-                .jpeg({ quality: 70 })
-                .toFile(filePath);
+            // For images, preserve original format
+            console.log('Compressing image with sharp, preserving format');
+            const isPng = file.mimetype === 'image/png';
+
+            const sharpInstance = sharp(file.buffer)
+                .resize({ width: 1024, withoutEnlargement: true });
+
+            // Use appropriate format and quality settings
+            if (isPng) {
+                await sharpInstance
+                    .png({ quality: 80, compressionLevel: 8 })
+                    .toFile(filePath);
+            } else {
+                // For JPEG and other formats
+                await sharpInstance
+                    .jpeg({ quality: 80 })
+                    .toFile(filePath);
+            }
 
             const stats = await fs.stat(filePath);
-            console.log(`File saved successfully: ${filename}, size: ${stats.size} bytes`);
+            console.log(`File saved successfully: ${filename}, format: ${isPng ? 'PNG' : 'JPEG'}, size: ${stats.size} bytes`);
 
             return `/uploads/nasabah/${filename}`;
         } catch (error) {

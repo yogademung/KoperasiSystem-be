@@ -54,32 +54,65 @@ export class KreditService {
     // ============================================
 
     async addCollateral(creditId: number, data: any, userId: number) {
-        return this.prisma.$transaction(async (tx) => {
-            // 1. Create Collateral Master
-            const collateral = await tx.collateral.create({
-                data: {
-                    nasabahId: data.nasabahId,
-                    type: data.type,
-                    description: data.description,
-                    marketValue: new Prisma.Decimal(data.marketValue),
-                    assessedValue: new Prisma.Decimal(data.assessedValue),
-                    details: data.details, // Json
-                    photos: data.photos || null, // JSON string of photo paths
-                    status: 'ACTIVE',
-                    createdBy: userId.toString(),
-                },
-            });
+        try {
+            // Explicit Parsing & Validation to local variables
+            const nasabahId = parseInt(data.nasabahId);
+            if (isNaN(nasabahId)) throw new BadRequestException('Invalid Nasabah ID');
 
-            // 2. Link to Credit Application
-            await tx.kreditCollateral.create({
-                data: {
-                    creditId,
-                    collateralId: collateral.id,
-                },
-            });
+            const type = data.type;
+            if (!type) throw new BadRequestException('Collateral type is required');
 
-            return collateral;
-        });
+            const marketVal = parseFloat(data.marketValue || '0');
+            const assessedVal = parseFloat(data.assessedValue || '0');
+
+            if (isNaN(marketVal) || isNaN(assessedVal)) throw new BadRequestException('Invalid market or assessed value');
+            if (marketVal < 0 || assessedVal < 0) throw new BadRequestException('Values must be positive');
+
+            // Ensure details is an object (Prisma Json expectation)
+            let detailsObj = data.details;
+            if (typeof detailsObj === 'string') {
+                try {
+                    detailsObj = JSON.parse(detailsObj);
+                } catch (e) {
+                    // If parse fails, treat as simple string wrapped in object or leave as is if acceptable
+                    // Generally Prisma expects valid JSON value.
+                    console.warn('Failed to parse details JSON string:', detailsObj);
+                }
+            }
+
+            return await this.prisma.$transaction(async (tx) => {
+                // 1. Create Collateral Master
+                const collateral = await tx.collateral.create({
+                    data: {
+                        nasabahId: nasabahId, // STRICTLY use the parsed integer variable
+                        type: type,
+                        description: data.description || '',
+                        marketValue: new Prisma.Decimal(marketVal),
+                        assessedValue: new Prisma.Decimal(assessedVal),
+                        details: detailsObj ?? Prisma.JsonNull,
+                        photos: data.photos || null,
+                        status: 'ACTIVE',
+                        createdBy: userId.toString(),
+                    },
+                });
+
+                // 2. Link to Credit Application
+                await tx.kreditCollateral.create({
+                    data: {
+                        creditId: creditId, // Ensure creditId is number
+                        collateralId: collateral.id,
+                    },
+                });
+
+                return collateral;
+            });
+        } catch (error) {
+            if (error instanceof BadRequestException) {
+                throw error;
+            }
+            console.error('Add Collateral Service Error:', error);
+            throw new BadRequestException(`Failed to add collateral: ${error.message}`);
+        }
     }
 
     // ============================================
@@ -161,61 +194,78 @@ export class KreditService {
         const nomorKredit = await this.generateAccountNumber(credit.nasabahId);
 
         return this.prisma.$transaction(async (tx) => {
-            // 1. Set Facilities
-            await tx.debiturFasilitas.create({
-                data: {
-                    debiturKreditId: creditId,
-                    nominal: new Prisma.Decimal(data.plafond),
-                    bunga: new Prisma.Decimal(data.bungaPct),
-                    jangkaWaktu: data.jangkaWaktu,
-                    angsuranPokok: new Prisma.Decimal(data.angsuranPokok),
-                    angsuranBunga: new Prisma.Decimal(data.angsuranBunga),
-                    createdBy: userId.toString(),
-                },
-            });
+            try {
+                // 1. Set Facilities
+                await tx.debiturFasilitas.create({
+                    data: {
+                        debiturKreditId: creditId,
+                        nominal: new Prisma.Decimal(data.plafond),
+                        bunga: new Prisma.Decimal(data.bungaPct),
+                        jangkaWaktu: data.jangkaWaktu,
+                        angsuranPokok: new Prisma.Decimal(data.angsuranPokok),
+                        angsuranBunga: new Prisma.Decimal(data.angsuranBunga),
+                        createdBy: userId.toString(),
+                    },
+                });
 
-            // 2. Record Realization
-            const realization = await tx.debiturRealisasi.create({
-                data: {
-                    debiturKreditId: creditId,
-                    tglRealisasi: new Date(),
-                    nominalRealisasi: new Prisma.Decimal(data.plafond),
-                    createdBy: userId.toString(),
-                },
-            });
+                // 2. Record Realization
+                const realization = await tx.debiturRealisasi.create({
+                    data: {
+                        debiturKreditId: creditId,
+                        tglRealisasi: new Date(),
+                        nominalRealisasi: new Prisma.Decimal(data.plafond),
+                        createdBy: userId.toString(),
+                    },
+                });
 
-            // 3. Post Journal (Automated)
-            // DR: Piutang Kredit (1301)
-            // CR: Kas (1101)
-            // CR: Pendapatan Adm/Provisi (Optional, for now just simple realization)
+                // 3. Post Journal (Automated with Mapping)
+                // Fetch Mapping
+                const mapping = await tx.productCoaMapping.findUnique({
+                    where: { transType: 'KREDIT_REALISASI' }
+                });
 
-            const journalDetails = [
-                { accountCode: '1301', debit: Number(data.plafond), credit: 0, description: `Pencairan Kredit ${nomorKredit}` },
-                { accountCode: '1101', debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
-            ];
+                if (!mapping) {
+                    throw new BadRequestException('Konfigurasi COA Mapping untuk [KREDIT_REALISASI] belum tersedia. Hubungi Administrator.');
+                }
 
-            const journal = await this.accountingService.createManualJournal({
-                date: new Date(),
-                description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
-                userId,
-                details: journalDetails,
-            });
+                const journalDetails = [
+                    { accountCode: mapping.debitAccount, debit: Number(data.plafond), credit: 0, description: `Pencairan Kredit ${nomorKredit}` },
+                    { accountCode: mapping.creditAccount, debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
+                ];
 
-            // Update journal to AUTO and sourceCode KREDIT
-            await tx.postedJournal.update({
-                where: { id: journal.id },
-                data: { postingType: 'AUTO', sourceCode: 'KREDIT', refId: realization.id },
-            });
+                const journal = await this.accountingService.createManualJournal({
+                    date: new Date(),
+                    description: `Realisasi Kredit ${nomorKredit} - ${credit.nasabah.nama}`,
+                    userId,
+                    details: journalDetails,
+                });
 
-            // 4. Update Credit Status to ACTIVE
-            return tx.debiturKredit.update({
-                where: { id: creditId },
-                data: {
-                    nomorKredit,
-                    status: 'ACTIVE',
-                    updatedBy: userId.toString(),
-                },
-            });
+                // Update journal to AUTO and sourceCode KREDIT
+                await tx.postedJournal.update({
+                    where: { id: journal.id },
+                    data: { postingType: 'AUTO', sourceCode: 'KREDIT', refId: realization.id },
+                });
+
+                // 4. Update Credit Status to ACTIVE
+                return await tx.debiturKredit.update({
+                    where: { id: creditId },
+                    data: {
+                        nomorKredit,
+                        status: 'ACTIVE',
+                        updatedBy: userId.toString(),
+                    },
+                });
+            } catch (error) {
+                if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                    if (error.code === 'P2003') { // Foreign Key Violation
+                        throw new BadRequestException('Terjadi kesalahan data referensi (Akun Akuntansi tidak ditemukan). Harap periksa konfigurasi Chart of Account.');
+                    }
+                }
+                if (error instanceof BadRequestException) throw error;
+
+                console.error('Credit Activation Error:', error);
+                throw new BadRequestException(`Gagal merealisasikan kredit: ${error.message}`);
+            }
         });
     }
 

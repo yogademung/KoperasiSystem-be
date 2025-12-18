@@ -126,6 +126,10 @@ const mappingData = [
     // 6. Wanaprasta
     { module: 'SIMPANAN', transType: 'WANAPRASTA_SETOR', description: 'Setoran Wanaprasta', debit: '1.01.01', credit: '2.10.07' },
     { module: 'SIMPANAN', transType: 'WANAPRASTA_TARIK', description: 'Penarikan Wanaprasta', debit: '2.10.07', credit: '1.01.01' },
+
+    // 7. Kredit
+    // Realisasi -> Piutang (D) / Kas (K)
+    { module: 'KREDIT', transType: 'KREDIT_REALISASI', description: 'Realisasi Kredit', debit: '1.20.01', credit: '1.01.01' },
 ];
 
 export async function seedAccounting() {

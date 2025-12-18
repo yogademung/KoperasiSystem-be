@@ -93,13 +93,22 @@ let NasabahController = class NasabahController {
                 await fs.writeFile(filePath, file.buffer);
                 return `/uploads/nasabah/${filename}`;
             }
-            console.log('Compressing image with sharp');
-            await (0, sharp_1.default)(file.buffer)
-                .resize({ width: 1024, withoutEnlargement: true })
-                .jpeg({ quality: 70 })
-                .toFile(filePath);
+            console.log('Compressing image with sharp, preserving format');
+            const isPng = file.mimetype === 'image/png';
+            const sharpInstance = (0, sharp_1.default)(file.buffer)
+                .resize({ width: 1024, withoutEnlargement: true });
+            if (isPng) {
+                await sharpInstance
+                    .png({ quality: 80, compressionLevel: 8 })
+                    .toFile(filePath);
+            }
+            else {
+                await sharpInstance
+                    .jpeg({ quality: 80 })
+                    .toFile(filePath);
+            }
             const stats = await fs.stat(filePath);
-            console.log(`File saved successfully: ${filename}, size: ${stats.size} bytes`);
+            console.log(`File saved successfully: ${filename}, format: ${isPng ? 'PNG' : 'JPEG'}, size: ${stats.size} bytes`);
             return `/uploads/nasabah/${filename}`;
         }
         catch (error) {
