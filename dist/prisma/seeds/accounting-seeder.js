@@ -81,6 +81,8 @@ const mappingData = [
     { module: 'SIMPANAN', transType: 'WANAPRASTA_SETOR', description: 'Setoran Wanaprasta', debit: '1.01.01', credit: '2.10.07' },
     { module: 'SIMPANAN', transType: 'WANAPRASTA_TARIK', description: 'Penarikan Wanaprasta', debit: '2.10.07', credit: '1.01.01' },
     { module: 'KREDIT', transType: 'KREDIT_REALISASI', description: 'Realisasi Kredit', debit: '1.20.01', credit: '1.01.01' },
+    { module: 'KREDIT', transType: 'KREDIT_ANGSURAN', description: 'Mapping Angsuran Pokok', debit: '1.01.01', credit: '1.03.00' },
+    { module: 'KREDIT', transType: 'KREDIT_BUNGA', description: 'Mapping Angsuran Bunga', debit: '1.01.01', credit: '4.10.01' },
 ];
 async function seedAccounting() {
     console.log('🌱 Seeding Journal Accounts...');

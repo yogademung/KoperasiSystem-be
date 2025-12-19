@@ -326,6 +326,7 @@ model DebiturJadwal {
   bunga           Decimal   @map("BUNGA") @db.Decimal(19, 4)
   total           Decimal   @map("TOTAL_ANGSURAN") @db.Decimal(19, 4)
   sisaPokok       Decimal   @map("SISA_POKOK") @db.Decimal(19, 4)
+  sisaBunga       Decimal   @default(0) @map("SISA_BUNGA") @db.Decimal(19, 4) // New field for partial interest
   status          String    @default("UNPAID") @map("STATUS") @db.VarChar(20) // UNPAID, PARTIAL, PAID, LATE
   tglBayar        DateTime? @map("TGL_BAYAR") @db.Date // Actual payment date
 

@@ -82,30 +82,69 @@ let KreditController = class KreditController {
     }
     async addCollateral(id, user, data, files) {
         try {
-            console.log('Adding Collateral - Payload:', JSON.stringify(data));
-            console.log('Adding Collateral - Files:', files?.photos?.length || 0);
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
+            console.log('=== COLLATERAL UPLOAD DEBUG ===');
+            console.log('Payload:', JSON.stringify(data));
+            console.log('Files object:', files);
+            console.log('Files.photos:', files?.photos);
+            console.log('Photos count:', files?.photos?.length || 0);
+            if (files?.photos && files.photos.length > 0) {
+                console.log('First file details:', {
+                    originalname: files.photos[0].originalname,
+                    mimetype: files.photos[0].mimetype,
+                    size: files.photos[0].size
+                });
+            }
+            else {
+                console.warn('⚠️ NO FILES RECEIVED - Check frontend FormData field name must be "photos"');
+            }
+            let creditCode = `CREDIT_${id}`;
+            try {
+                const credit = await this.kreditService.findOne(+id);
+                creditCode = credit.nomorKredit || credit.noPermohonan || `REQ_${id}`;
+                creditCode = creditCode.replace(/[^a-zA-Z0-9]/g, '_');
+            }
+            catch (e) {
+                console.warn('Could not fetch credit for naming, using ID');
+            }
             const photoPaths = [];
             if (files?.photos) {
+                const absoluteUploadDir = (0, path_1.join)(process.cwd(), 'uploads', 'collateral');
+                await fs.ensureDir(absoluteUploadDir);
+                console.log(`Upload directory: ${absoluteUploadDir}`);
                 for (const [index, file] of files.photos.entries()) {
-                    const ext = (0, path_1.extname)(file.originalname).toLowerCase();
-                    const filename = `collateral_${timestamp}_${index}${ext}`;
-                    const filePath = (0, path_1.join)(UPLOAD_DIR, filename);
                     try {
+                        const ext = (0, path_1.extname)(file.originalname).toLowerCase();
+                        const timestamp = new Date().getTime();
+                        const filename = `${creditCode}_col_${timestamp}_${index}${ext}`;
+                        const filePath = (0, path_1.join)(absoluteUploadDir, filename);
+                        console.log(`Saving file: ${filePath}`);
                         if (file.mimetype === 'application/pdf') {
                             await fs.writeFile(filePath, file.buffer);
+                            console.log(`PDF saved successfully`);
                         }
                         else {
-                            await (0, sharp_1.default)(file.buffer)
-                                .resize({ width: 1024, withoutEnlargement: true })
-                                .jpeg({ quality: 70 })
-                                .toFile(filePath);
+                            try {
+                                const pipeline = (0, sharp_1.default)(file.buffer).resize({ width: 1024, withoutEnlargement: true });
+                                if (file.mimetype === 'image/png') {
+                                    await pipeline.png({ quality: 80 }).toFile(filePath);
+                                }
+                                else {
+                                    await pipeline.jpeg({ quality: 75 }).toFile(filePath);
+                                }
+                                console.log(`Image processed and saved`);
+                            }
+                            catch (sharpError) {
+                                console.warn(`Sharp failed, using raw write:`, sharpError.message);
+                                await fs.writeFile(filePath, file.buffer);
+                                console.log(`Raw file saved`);
+                            }
                         }
+                        const exists = await fs.pathExists(filePath);
+                        console.log(`File exists: ${exists}`);
                         photoPaths.push(`/uploads/collateral/${filename}`);
                     }
                     catch (error) {
-                        console.error('Photo processing error:', error);
-                        throw new common_1.BadRequestException(`Failed to process photo: ${error.message}`);
+                        console.error(`Failed to process photo [${file.originalname}]:`, error);
                     }
                 }
             }
@@ -140,6 +179,9 @@ let KreditController = class KreditController {
     activate(id, user, data) {
         return this.kreditService.activateCredit(+id, data, user.id);
     }
+    payInstallment(id, user, data) {
+        return this.kreditService.payInstallment(+id, data, user.id);
+    }
 };
 exports.KreditController = KreditController;
 __decorate([
@@ -169,7 +211,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/collateral'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
-        { name: 'photos', maxCount: 10 },
+        { name: 'photos', maxCount: 1 },
     ], {
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: 5 * 1024 * 1024 },
@@ -210,6 +252,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", void 0)
 ], KreditController.prototype, "activate", null);
+__decorate([
+    (0, common_1.Post)(':id/payment'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], KreditController.prototype, "payInstallment", null);
 exports.KreditController = KreditController = __decorate([
     (0, common_1.Controller)('api/kredit'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

@@ -44,7 +44,7 @@ export class KreditController {
 
     @Post(':id/collateral')
     @UseInterceptors(FileFieldsInterceptor([
-        { name: 'photos', maxCount: 10 },
+        { name: 'photos', maxCount: 1 },
     ], {
         storage: memoryStorage(),
         limits: { fileSize: 5 * 1024 * 1024 },
@@ -57,31 +57,75 @@ export class KreditController {
         @UploadedFiles() files: { photos?: Express.Multer.File[] }
     ) {
         try {
-            console.log('Adding Collateral - Payload:', JSON.stringify(data));
-            console.log('Adding Collateral - Files:', files?.photos?.length || 0);
+            console.log('=== COLLATERAL UPLOAD DEBUG ===');
+            console.log('Payload:', JSON.stringify(data));
+            console.log('Files object:', files);
+            console.log('Files.photos:', files?.photos);
+            console.log('Photos count:', files?.photos?.length || 0);
 
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
+            if (files?.photos && files.photos.length > 0) {
+                console.log('First file details:', {
+                    originalname: files.photos[0].originalname,
+                    mimetype: files.photos[0].mimetype,
+                    size: files.photos[0].size
+                });
+            } else {
+                console.warn('⚠️ NO FILES RECEIVED - Check frontend FormData field name must be "photos"');
+            }
+
+            // 1. Fetch Credit info for Filename
+            let creditCode = `CREDIT_${id}`;
+            try {
+                const credit = await this.kreditService.findOne(+id);
+                creditCode = credit.nomorKredit || credit.noPermohonan || `REQ_${id}`;
+                creditCode = creditCode.replace(/[^a-zA-Z0-9]/g, '_');
+            } catch (e) {
+                console.warn('Could not fetch credit for naming, using ID');
+            }
+
             const photoPaths: string[] = [];
 
             if (files?.photos) {
-                for (const [index, file] of files.photos.entries()) {
-                    const ext = extname(file.originalname).toLowerCase();
-                    const filename = `collateral_${timestamp}_${index}${ext}`;
-                    const filePath = join(UPLOAD_DIR, filename);
+                const absoluteUploadDir = join(process.cwd(), 'uploads', 'collateral');
+                await fs.ensureDir(absoluteUploadDir);
+                console.log(`Upload directory: ${absoluteUploadDir}`);
 
+                for (const [index, file] of files.photos.entries()) {
                     try {
+                        const ext = extname(file.originalname).toLowerCase();
+                        const timestamp = new Date().getTime();
+                        const filename = `${creditCode}_col_${timestamp}_${index}${ext}`;
+                        const filePath = join(absoluteUploadDir, filename);
+
+                        console.log(`Saving file: ${filePath}`);
+
                         if (file.mimetype === 'application/pdf') {
                             await fs.writeFile(filePath, file.buffer);
+                            console.log(`PDF saved successfully`);
                         } else {
-                            await sharp(file.buffer)
-                                .resize({ width: 1024, withoutEnlargement: true })
-                                .jpeg({ quality: 70 })
-                                .toFile(filePath);
+                            try {
+                                const pipeline = sharp(file.buffer).resize({ width: 1024, withoutEnlargement: true });
+
+                                if (file.mimetype === 'image/png') {
+                                    await pipeline.png({ quality: 80 }).toFile(filePath);
+                                } else {
+                                    await pipeline.jpeg({ quality: 75 }).toFile(filePath);
+                                }
+                                console.log(`Image processed and saved`);
+                            } catch (sharpError) {
+                                console.warn(`Sharp failed, using raw write:`, sharpError.message);
+                                await fs.writeFile(filePath, file.buffer);
+                                console.log(`Raw file saved`);
+                            }
                         }
+
+                        // Verify file exists
+                        const exists = await fs.pathExists(filePath);
+                        console.log(`File exists: ${exists}`);
+
                         photoPaths.push(`/uploads/collateral/${filename}`);
                     } catch (error) {
-                        console.error('Photo processing error:', error);
-                        throw new BadRequestException(`Failed to process photo: ${error.message}`);
+                        console.error(`Failed to process photo [${file.originalname}]:`, error);
                     }
                 }
             }
@@ -93,7 +137,6 @@ export class KreditController {
             const marketValue = data.marketValue ? data.marketValue.toString() : '0';
             const assessedValue = data.assessedValue ? data.assessedValue.toString() : '0';
 
-            // Parse FormData fields
             const payload = {
                 ...data,
                 nasabahId: nasabahId,
@@ -137,5 +180,14 @@ export class KreditController {
         @Body() data: any
     ) {
         return this.kreditService.activateCredit(+id, data, user.id);
+    }
+
+    @Post(':id/payment')
+    payInstallment(
+        @Param('id') id: string,
+        @CurrentUser() user: any,
+        @Body() data: any
+    ) {
+        return this.kreditService.payInstallment(+id, data, user.id);
     }
 }

@@ -230,9 +230,10 @@ let KreditService = class KreditService {
                         pokok: new client_1.Prisma.Decimal(s.pokok),
                         bunga: new client_1.Prisma.Decimal(s.bunga),
                         total: new client_1.Prisma.Decimal(s.total),
-                        sisaPokok: new client_1.Prisma.Decimal(s.sisaPokok),
+                        sisaPokok: new client_1.Prisma.Decimal(s.pokok),
+                        sisaBunga: new client_1.Prisma.Decimal(s.bunga),
                         status: 'UNPAID',
-                        createdBy: userId.toString()
+                        createdBy: 'SYSTEM'
                     }))
                 });
                 return await tx.debiturKredit.update({
@@ -255,6 +256,140 @@ let KreditService = class KreditService {
                     throw error;
                 throw new common_1.BadRequestException(`Gagal merealisasikan kredit: ${error.message}`);
             }
+        });
+    }
+    async payInstallment(creditId, data, userId) {
+        const credit = await this.prisma.debiturKredit.findUnique({
+            where: { id: creditId },
+            include: { nasabah: true }
+        });
+        if (!credit || credit.status !== 'ACTIVE') {
+            throw new common_1.BadRequestException('Credit is not ACTIVE or not found');
+        }
+        const paymentAmount = Number(data.amount);
+        if (paymentAmount <= 0)
+            throw new common_1.BadRequestException('Payment amount must be positive');
+        const paymentDate = data.date ? new Date(data.date) : new Date();
+        return this.prisma.$transaction(async (tx) => {
+            const trans = await tx.transKredit.create({
+                data: {
+                    debiturKreditId: creditId,
+                    tipeTrans: 'ANGSURAN',
+                    nominal: new client_1.Prisma.Decimal(paymentAmount),
+                    keterangan: data.description || 'Pembayaran Angsuran Kredit',
+                    createdBy: userId.toString(),
+                    createdAt: paymentDate
+                }
+            });
+            const schedules = await tx.debiturJadwal.findMany({
+                where: {
+                    debiturKreditId: creditId,
+                    status: { in: ['UNPAID', 'PARTIAL'] }
+                },
+                orderBy: { angsuranKe: 'asc' }
+            });
+            let remainingMoney = Number(paymentAmount);
+            const journalDetailsData = [];
+            const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'KREDIT_ANGSURAN' } });
+            const cashAccount = mapping?.debitAccount || '10100';
+            const receivableAccount = mapping?.creditAccount || '10300';
+            const interestMapping = await tx.productCoaMapping.findUnique({ where: { transType: 'KREDIT_BUNGA' } });
+            const interestIncomeAccount = interestMapping?.creditAccount || '40100';
+            let totalPrincipalPaid = 0;
+            let totalInterestPaid = 0;
+            for (const sched of schedules) {
+                if (remainingMoney <= 0)
+                    break;
+                let interestDue = Number(sched.sisaBunga);
+                let principalDue = Number(sched.sisaPokok);
+                if (interestDue === 0 && Number(sched.bunga) > 0) {
+                    if (sched.status === 'UNPAID' || (sched.status === 'PARTIAL' && principalDue >= Number(sched.pokok) - 100)) {
+                        interestDue = Number(sched.bunga);
+                    }
+                }
+                let payInt = 0;
+                if (interestDue > 0) {
+                    payInt = Math.min(remainingMoney, interestDue);
+                    interestDue -= payInt;
+                    remainingMoney -= payInt;
+                    totalInterestPaid += payInt;
+                }
+                let payPrin = 0;
+                if (remainingMoney > 0 && principalDue > 0) {
+                    payPrin = Math.min(remainingMoney, principalDue);
+                    principalDue -= payPrin;
+                    remainingMoney -= payPrin;
+                    totalPrincipalPaid += payPrin;
+                }
+                if (payInt > 0 || payPrin > 0) {
+                    let newStatus = 'PARTIAL';
+                    if (interestDue <= 0.01 && principalDue <= 0.01) {
+                        newStatus = 'PAID';
+                    }
+                    await tx.debiturJadwal.update({
+                        where: { id: sched.id },
+                        data: {
+                            sisaBunga: new client_1.Prisma.Decimal(interestDue),
+                            sisaPokok: new client_1.Prisma.Decimal(principalDue),
+                            status: newStatus,
+                            tglBayar: new Date(),
+                            updatedBy: userId.toString()
+                        }
+                    });
+                }
+            }
+            if (totalPrincipalPaid + totalInterestPaid > 0) {
+                const journalNo = await this.accountingService.generateJournalNumber(paymentDate);
+                const journalDetails = [
+                    {
+                        accountCode: cashAccount,
+                        debit: totalPrincipalPaid + totalInterestPaid,
+                        credit: 0,
+                        description: `Pembayaran Angsuran ${credit.nomorKredit}`
+                    }
+                ];
+                if (totalPrincipalPaid > 0) {
+                    journalDetails.push({
+                        accountCode: receivableAccount,
+                        debit: 0,
+                        credit: totalPrincipalPaid,
+                        description: `Angsuran Pokok ${credit.nomorKredit}`
+                    });
+                }
+                if (totalInterestPaid > 0) {
+                    journalDetails.push({
+                        accountCode: interestIncomeAccount,
+                        debit: 0,
+                        credit: totalInterestPaid,
+                        description: `Angsuran Bunga ${credit.nomorKredit}`
+                    });
+                }
+                await tx.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: paymentDate,
+                        description: `Angsuran Kredit ${credit.nomorKredit} - ${credit.nasabah.nama}`,
+                        postingType: 'AUTO',
+                        sourceCode: 'KREDIT',
+                        refId: trans.id,
+                        userId: userId,
+                        status: 'POSTED',
+                        transType: 'KREDIT_ANGSURAN',
+                        details: {
+                            create: journalDetails
+                        }
+                    }
+                });
+            }
+            return {
+                message: 'Payment recorded successfully',
+                allocatedPrincipal: totalPrincipalPaid,
+                allocatedInterest: totalInterestPaid,
+                remainingDeposit: remainingMoney
+            };
+        }).catch(error => {
+            console.error("PAY INSTALLMENT ERROR:", error);
+            throw error;
         });
     }
     async generateAccountNumber(nasabahId) {

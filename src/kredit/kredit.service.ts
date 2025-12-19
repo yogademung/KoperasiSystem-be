@@ -275,9 +275,10 @@ export class KreditService {
                         pokok: new Prisma.Decimal(s.pokok),
                         bunga: new Prisma.Decimal(s.bunga),
                         total: new Prisma.Decimal(s.total),
-                        sisaPokok: new Prisma.Decimal(s.sisaPokok),
+                        sisaPokok: new Prisma.Decimal(s.pokok),
+                        sisaBunga: new Prisma.Decimal(s.bunga),
                         status: 'UNPAID',
-                        createdBy: userId.toString()
+                        createdBy: 'SYSTEM'
                     }))
                 });
 
@@ -302,6 +303,196 @@ export class KreditService {
 
                 throw new BadRequestException(`Gagal merealisasikan kredit: ${error.message}`);
             }
+        });
+    }
+
+    // ============================================
+    // 5. PAYMENT (ANGSURAN)
+    // ============================================
+
+    async payInstallment(creditId: number, data: any, userId: number) {
+        const credit = await this.prisma.debiturKredit.findUnique({
+            where: { id: creditId },
+            include: { nasabah: true }
+        });
+
+        if (!credit || credit.status !== 'ACTIVE') {
+            throw new BadRequestException('Credit is not ACTIVE or not found');
+        }
+
+        const paymentAmount = Number(data.amount);
+        if (paymentAmount <= 0) throw new BadRequestException('Payment amount must be positive');
+
+        const paymentDate = data.date ? new Date(data.date) : new Date();
+
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Record Transaction History
+            const trans = await tx.transKredit.create({
+                data: {
+                    debiturKreditId: creditId,
+                    tipeTrans: 'ANGSURAN',
+                    nominal: new Prisma.Decimal(paymentAmount),
+                    keterangan: data.description || 'Pembayaran Angsuran Kredit',
+                    createdBy: userId.toString(),
+                    createdAt: paymentDate
+                }
+            });
+
+            // 2. Allocate Payment (Interest First, then Principal)
+            // Fetch UNPAID schedules (UNPAID or PARTIAL)
+            const schedules = await tx.debiturJadwal.findMany({
+                where: {
+                    debiturKreditId: creditId,
+                    status: { in: ['UNPAID', 'PARTIAL'] }
+                },
+                orderBy: { angsuranKe: 'asc' }
+            });
+
+            let remainingMoney = Number(paymentAmount);
+            const journalDetailsData: { account: string, debit: number, credit: number, desc: string }[] = [];
+
+            // COA Mapping (Standard behavior or Fallback)
+            const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'KREDIT_ANGSURAN' } });
+            const cashAccount = mapping?.debitAccount || '10100'; // Default Cash
+            const receivableAccount = mapping?.creditAccount || '10300'; // Default Piutang
+
+            // Interest Income Mapping
+            const interestMapping = await tx.productCoaMapping.findUnique({ where: { transType: 'KREDIT_BUNGA' } });
+            const interestIncomeAccount = interestMapping?.creditAccount || '40100'; // Default Interest Income
+
+            let totalPrincipalPaid = 0;
+            let totalInterestPaid = 0;
+
+            for (const sched of schedules) {
+                if (remainingMoney <= 0) break;
+
+                // Outstanding amounts
+                // If sisaBunga is null (legacy data), assume it matches bunga if status is not PAID, else 0.
+                // But for robust logic, strict "Interest First" means we assume full interest is due if sisaBunga is missing.
+                // However, we just added the column default 0.
+                // MIGRATION FIX: If sisaBunga is 0 but status != PAID and sisaPokok == pokok, likely unmigrated.
+                // For this implementation, we assume NEW data or handled data.
+                // We will treat `sisaBunga` as the source of truth for Interest Due.
+
+                // If sisaBunga is 0 and status is UNPAID/PARTIAL, is it really 0?
+                // Ideally we should have initialized it.
+                // For safety: if sisaBunga is 0 and sisaPokok == pokok (untouched), we could force it to equal bunga.
+                // But let's trust the data for now or users might get free interest.
+
+                let interestDue = Number(sched.sisaBunga);
+                let principalDue = Number(sched.sisaPokok);
+
+                // FIX FOR LEGACY DATA:
+                // If sisaBunga is 0 BUT status is UNPAID (or PARTIAL with untouched principal), assume interest is fully due.
+                // This prevents users from skipping interest payment on old credits.
+                if (interestDue === 0 && Number(sched.bunga) > 0) {
+                    if (sched.status === 'UNPAID' || (sched.status === 'PARTIAL' && principalDue >= Number(sched.pokok) - 100)) {
+                        interestDue = Number(sched.bunga);
+                    }
+                }
+
+
+                // --- LOGIC: PAY INTEREST FIRST ---
+                let payInt = 0;
+                if (interestDue > 0) {
+                    payInt = Math.min(remainingMoney, interestDue);
+                    interestDue -= payInt;
+                    remainingMoney -= payInt;
+                    totalInterestPaid += payInt;
+                }
+
+                // --- LOGIC: PAY PRINCIPAL NEXT ---
+                let payPrin = 0;
+                if (remainingMoney > 0 && principalDue > 0) {
+                    payPrin = Math.min(remainingMoney, principalDue);
+                    principalDue -= payPrin;
+                    remainingMoney -= payPrin;
+                    totalPrincipalPaid += payPrin;
+                }
+
+                // Update Schedule if changed
+                if (payInt > 0 || payPrin > 0) {
+                    let newStatus = 'PARTIAL';
+                    if (interestDue <= 0.01 && principalDue <= 0.01) {
+                        newStatus = 'PAID';
+                    }
+
+                    await tx.debiturJadwal.update({
+                        where: { id: sched.id },
+                        data: {
+                            sisaBunga: new Prisma.Decimal(interestDue),
+                            sisaPokok: new Prisma.Decimal(principalDue),
+                            status: newStatus,
+                            tglBayar: new Date(),
+                            updatedBy: userId.toString()
+                        }
+                    });
+                }
+            }
+
+            // 3. Journal Entires
+            // Cash Debit
+            if (totalPrincipalPaid + totalInterestPaid > 0) {
+                // Generate Journal Number
+                const journalNo = await this.accountingService.generateJournalNumber(paymentDate);
+
+                const journalDetails = [
+                    // Debit Cash
+                    {
+                        accountCode: cashAccount,
+                        debit: totalPrincipalPaid + totalInterestPaid,
+                        credit: 0,
+                        description: `Pembayaran Angsuran ${credit.nomorKredit}`
+                    }
+                ];
+
+                // Credit Principal (Piutang)
+                if (totalPrincipalPaid > 0) {
+                    journalDetails.push({
+                        accountCode: receivableAccount,
+                        debit: 0,
+                        credit: totalPrincipalPaid,
+                        description: `Angsuran Pokok ${credit.nomorKredit}`
+                    });
+                }
+
+                // Credit Interest (Pendapatan)
+                if (totalInterestPaid > 0) {
+                    journalDetails.push({
+                        accountCode: interestIncomeAccount,
+                        debit: 0,
+                        credit: totalInterestPaid,
+                        description: `Angsuran Bunga ${credit.nomorKredit}`
+                    });
+                }
+
+                await tx.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: paymentDate,
+                        description: `Angsuran Kredit ${credit.nomorKredit} - ${credit.nasabah.nama}`,
+                        postingType: 'AUTO',
+                        sourceCode: 'KREDIT',
+                        refId: trans.id,
+                        userId: userId,
+                        status: 'POSTED',
+                        transType: 'KREDIT_ANGSURAN',
+                        details: {
+                            create: journalDetails
+                        }
+                    }
+                });
+            }
+
+            return {
+                message: 'Payment recorded successfully',
+                allocatedPrincipal: totalPrincipalPaid,
+                allocatedInterest: totalInterestPaid,
+                remainingDeposit: remainingMoney
+            };
+        }).catch(error => {
+            console.error("PAY INSTALLMENT ERROR:", error);
+            throw error;
         });
     }
 
