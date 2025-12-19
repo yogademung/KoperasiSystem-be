@@ -4,20 +4,22 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function checkMappings() {
-    const keys = [
-        'ANGGOTA_SETOR_POKOK',
-        'ANGGOTA_SETOR_WAJIB',
-        'ANGGOTA_SETOR_SUKARELA'
-    ];
+    console.log('Checking KREDIT_REALISASI mapping...');
+    try {
+        const mapping = await prisma.productCoaMapping.findUnique({
+            where: { transType: 'KREDIT_REALISASI' }
+        });
 
-    const mappings = await prisma.productCoaMapping.findMany({
-        where: { transType: { in: keys } }
-    });
-
-    console.log('Found Mappings:', mappings.map(m => m.transType));
-
-    const all = await prisma.productCoaMapping.findMany();
-    console.log('All TransTypes:', all.map(m => m.transType));
+        if (mapping) {
+            console.log('Mapping FOUND:', mapping);
+        } else {
+            console.error('Mapping NOT FOUND for KREDIT_REALISASI');
+            process.exit(1);
+        }
+    } catch (e) {
+        console.error('Error checking mapping:', e);
+        process.exit(1);
+    }
 }
 
 checkMappings()

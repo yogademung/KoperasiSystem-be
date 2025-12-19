@@ -355,6 +355,7 @@ model DebiturRealisasi {
   @@map("m_debitur_realisasi")
 }
 
+
 model CreditAnalysis {
   id              Int      @id @default(autoincrement()) @map("ANALISA_ID")
   debiturKreditId Int      @unique @map("DEBITUR_KREDIT_ID")
