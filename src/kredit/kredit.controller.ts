@@ -138,4 +138,17 @@ export class KreditController {
     ) {
         return this.kreditService.activateCredit(+id, data, user.id);
     }
+
+    @Post(':id/payment')
+    processPayment(
+        @Param('id') id: string,
+        @CurrentUser() user: any,
+        @Body() paymentData: {
+            amount: number;
+            paymentDate?: string;
+            keterangan?: string;
+        }
+    ) {
+        return this.kreditService.processPayment(+id, paymentData, user.id);
+    }
 }

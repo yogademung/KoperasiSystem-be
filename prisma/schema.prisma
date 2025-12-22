@@ -326,8 +326,15 @@ model DebiturJadwal {
   bunga           Decimal   @map("BUNGA") @db.Decimal(19, 4)
   total           Decimal   @map("TOTAL_ANGSURAN") @db.Decimal(19, 4)
   sisaPokok       Decimal   @map("SISA_POKOK") @db.Decimal(19, 4)
-  status          String    @default("UNPAID") @map("STATUS") @db.VarChar(20) // UNPAID, PARTIAL, PAID, LATE
+  status          String    @default("UNPAID") @map("STATUS") @db.VarChar(20) // UNPAID, PARTIAL, PAID
   tglBayar        DateTime? @map("TGL_BAYAR") @db.Date // Actual payment date
+
+  // Payment Tracking Fields (Flexible Payment)
+  paidPrincipal   Decimal   @default(0) @map("BAYAR_POKOK") @db.Decimal(19, 4)
+  paidInterest    Decimal   @default(0) @map("BAYAR_BUNGA") @db.Decimal(19, 4)
+  paidPenalty     Decimal   @default(0) @map("BAYAR_DENDA") @db.Decimal(19, 4)
+  assessedPenalty Decimal   @default(0) @map("DENDA") @db.Decimal(19, 4)
+  totalPaid       Decimal   @default(0) @map("TOTAL_BAYAR") @db.Decimal(19, 4)
 
   createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
   createdAt       DateTime  @default(now()) @map("CREATE_DATE")
@@ -665,8 +672,17 @@ model TransWanaprasta {
 model TransKredit {
   id              Int      @id @default(autoincrement()) @map("TRANS_ID")
   debiturKreditId Int      @map("DEBITUR_KREDIT_ID")
-  tipeTrans       String   @map("TIPE_TRANS") @db.VarChar(10)
+  tipeTrans       String   @map("TIPE_TRANS") @db.VarChar(10) // PAYMENT, DISBURSEMENT
+  tglTrans        DateTime @map("TGL_TRANS") @db.Date // Transaction date
   nominal         Decimal  @map("NOMINAL") @db.Decimal(19, 4)
+  
+  // Payment Breakdown (for PAYMENT type)
+  pokokBayar      Decimal? @default(0) @map("POKOK_BAYAR") @db.Decimal(19, 4)
+  bungaBayar      Decimal? @default(0) @map("BUNGA_BAYAR") @db.Decimal(19, 4)
+  dendaBayar      Decimal? @default(0) @map("DENDA_BAYAR") @db.Decimal(19, 4)
+  
+  journalId       Int?     @map("JOURNAL_ID") // Link to auto-posted journal
+  
   keterangan      String?  @map("KETERANGAN") @db.Text
   createdBy       String?  @map("CREATE_WHO") @db.VarChar(50)
   createdAt       DateTime @default(now()) @map("CREATE_DATE")
