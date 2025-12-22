@@ -130,6 +130,10 @@ const mappingData = [
     // 7. Kredit
     // Realisasi -> Piutang (D) / Kas (K)
     { module: 'KREDIT', transType: 'KREDIT_REALISASI', description: 'Realisasi Kredit', debit: '1.20.01', credit: '1.01.01' },
+    // Angsuran Pokok -> Kas (D) / Piutang (K)
+    { module: 'KREDIT', transType: 'KREDIT_ANGSURAN', description: 'Mapping Angsuran Pokok', debit: '1.01.01', credit: '1.03.00' },
+    // Angsuran Bunga -> Kas (D) / Pendapatan Bunga (K)
+    { module: 'KREDIT', transType: 'KREDIT_BUNGA', description: 'Mapping Angsuran Bunga', debit: '1.01.01', credit: '4.10.01' },
 ];
 
 export async function seedAccounting() {
