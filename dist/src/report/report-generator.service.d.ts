@@ -84,8 +84,8 @@ export declare class ReportGeneratorService {
         generatedAt: Date;
     }>;
     getPassbookState(accountNumber: string): Promise<{
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
         accountNumber: string;
         productType: string;
         lastPrintedTransId: number | null;
@@ -93,8 +93,8 @@ export declare class ReportGeneratorService {
         totalLinesPrinted: number;
     } | null>;
     updatePassbookState(accountNumber: string, productType: string, lastPrintedTransId: number, lastPrintedLine: number): Promise<{
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
         accountNumber: string;
         productType: string;
         lastPrintedTransId: number | null;

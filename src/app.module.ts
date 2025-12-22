@@ -38,6 +38,7 @@ import { ReportModule } from './report/report.module';
     AkuntansiModule,
     LaporanModule,
     AccountingModule,
+    AssetModule,
     ReportModule,
   ],
   controllers: [AppController],

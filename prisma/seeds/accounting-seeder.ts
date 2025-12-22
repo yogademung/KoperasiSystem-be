@@ -134,6 +134,13 @@ const mappingData = [
     { module: 'KREDIT', transType: 'KREDIT_ANGSURAN', description: 'Mapping Angsuran Pokok', debit: '1.01.01', credit: '1.03.00' },
     // Angsuran Bunga -> Kas (D) / Pendapatan Bunga (K)
     { module: 'KREDIT', transType: 'KREDIT_BUNGA', description: 'Mapping Angsuran Bunga', debit: '1.01.01', credit: '4.10.01' },
+
+    // 8. Asset Management
+    // Perolehan Aset -> Aset Tetap (D) / Kas/Bank (K)
+    // Note: Account akan dipilih per jenis aset (1.30.01, 1.30.02, 1.30.03)
+    { module: 'ASSET', transType: 'ASSET_ACQUISITION', description: 'Perolehan Aset Tetap', debit: '1.30.00', credit: '1.01.01' },
+    // Penyusutan -> Biaya Penyusutan (D) / Akumulasi Penyusutan (K)
+    { module: 'ASSET', transType: 'ASSET_DEPRECIATION', description: 'Penyusutan Aset Tetap', debit: '5.30.00', credit: '1.30.99' },
 ];
 
 export async function seedAccounting() {

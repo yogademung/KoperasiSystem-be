@@ -6,10 +6,10 @@ export declare class ReportMetadataService {
     getMetadata(productModule: string): Promise<ReportMetadata>;
     getAllProductModules(): Promise<string[]>;
     getVariablesByCategory(productModule: string, category: string): Promise<{
-        createdAt: Date;
-        updatedAt: Date | null;
         id: number;
         description: string | null;
+        updatedAt: Date | null;
+        createdAt: Date;
         isArray: boolean;
         productModule: string;
         category: string;
@@ -30,10 +30,10 @@ export declare class ReportMetadataService {
         isArray?: boolean;
         formatOptions?: any;
     }): Promise<{
-        createdAt: Date;
-        updatedAt: Date | null;
         id: number;
         description: string | null;
+        updatedAt: Date | null;
+        createdAt: Date;
         isArray: boolean;
         productModule: string;
         category: string;
@@ -54,10 +54,10 @@ export declare class ReportMetadataService {
         isArray?: boolean;
         formatOptions?: any;
     }>): Promise<{
-        createdAt: Date;
-        updatedAt: Date | null;
         id: number;
         description: string | null;
+        updatedAt: Date | null;
+        createdAt: Date;
         isArray: boolean;
         productModule: string;
         category: string;

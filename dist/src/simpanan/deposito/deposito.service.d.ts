@@ -6,10 +6,10 @@ export declare class DepositoService {
     private eventEmitter;
     constructor(prisma: PrismaService, eventEmitter: EventEmitter2);
     create(createDto: CreateDepositoDto, userId: number): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -26,10 +26,10 @@ export declare class DepositoService {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -42,9 +42,9 @@ export declare class DepositoService {
     })[]>;
     getTransactions(noJangka: string, page?: number, limit?: number): Promise<{
         data: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
             keterangan: string | null;
@@ -59,21 +59,21 @@ export declare class DepositoService {
     findOne(noJangka: string): Promise<{
         accumulatedInterest: number;
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
             keterangan: string | null;
             tipeTrans: string;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -86,10 +86,10 @@ export declare class DepositoService {
             fileKtp: string | null;
             fileKk: string | null;
         };
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -101,10 +101,10 @@ export declare class DepositoService {
         targetAccountId: string | null;
     }>;
     withdraw(noJangka: string, userId: number): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;

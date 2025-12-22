@@ -275,6 +275,7 @@ let KreditService = class KreditService {
                 data: {
                     debiturKreditId: creditId,
                     tipeTrans: 'ANGSURAN',
+                    tglTrans: paymentDate,
                     nominal: new client_1.Prisma.Decimal(paymentAmount),
                     keterangan: data.description || 'Pembayaran Angsuran Kredit',
                     createdBy: userId.toString(),
@@ -462,6 +463,10 @@ let KreditService = class KreditService {
                 jadwal: {
                     orderBy: { angsuranKe: 'asc' }
                 },
+                transactions: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }
             },
         });
         if (!credit)

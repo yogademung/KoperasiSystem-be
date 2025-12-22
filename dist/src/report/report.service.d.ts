@@ -10,14 +10,14 @@ export declare class ReportService {
     constructor(prisma: PrismaService, templateService: TemplateService, metadataService: ReportMetadataService, generatorService: ReportGeneratorService);
     getReportInfo(templateCode: string): Promise<{
         template: {
+            id: number;
+            description: string | null;
+            updatedAt: Date | null;
+            name: string;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
-            id: number;
-            description: string | null;
             productModule: string;
             category: string;
             code: string;
@@ -44,12 +44,12 @@ export declare class ReportService {
         generatedAt: Date;
     }>;
     getTemplatesByProduct(productModule: string): Promise<{
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date | null;
-        name: string;
         id: number;
         description: string | null;
+        updatedAt: Date | null;
+        name: string;
+        isActive: boolean;
+        createdAt: Date;
         productModule: string;
         category: string;
         code: string;
@@ -57,12 +57,12 @@ export declare class ReportService {
         isDefault: boolean;
     }[]>;
     getDefaultTemplates(): Promise<{
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date | null;
-        name: string;
         id: number;
         description: string | null;
+        updatedAt: Date | null;
+        name: string;
+        isActive: boolean;
+        createdAt: Date;
         productModule: string;
         category: string;
         code: string;

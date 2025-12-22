@@ -5,10 +5,10 @@ export declare class WanaprastaController {
     private readonly wanaprastaService;
     constructor(wanaprastaService: WanaprastaService);
     create(createDto: CreateWanaprastaDto): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -22,10 +22,10 @@ export declare class WanaprastaController {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -35,9 +35,9 @@ export declare class WanaprastaController {
     })[]>;
     findOne(noWanaprasta: string): Promise<{
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
             keterangan: string | null;
@@ -45,12 +45,12 @@ export declare class WanaprastaController {
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -64,10 +64,10 @@ export declare class WanaprastaController {
             fileKk: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -76,9 +76,9 @@ export declare class WanaprastaController {
         noWanaprasta: string;
     }>;
     setoran(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
         keterangan: string | null;
@@ -86,9 +86,9 @@ export declare class WanaprastaController {
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
     }>;
     penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
         keterangan: string | null;
@@ -97,9 +97,9 @@ export declare class WanaprastaController {
     }>;
     getTransactions(noWanaprasta: string, page?: string, limit?: string): Promise<{
         data: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
             keterangan: string | null;

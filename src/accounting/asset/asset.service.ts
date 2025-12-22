@@ -11,13 +11,84 @@ export class AssetService {
         private accountingService: AccountingService
     ) { }
 
-    async create(data: any) {
-        return this.prisma.asset.create({
-            data: {
-                ...data,
-                acquisitionCost: new Prisma.Decimal(data.acquisitionCost),
-                residualValue: new Prisma.Decimal(data.residualValue || 0),
+    async create(createAssetDto: any) {
+        return this.prisma.$transaction(async (tx) => {
+            // VALIDATION: Check if all required account codes exist in COA
+            const sourceAccount = createAssetDto.sourceAccountId || '10100';
+            const accountCodesToValidate = [
+                { code: createAssetDto.assetAccountId, name: 'Akun Aset' },
+                { code: createAssetDto.accumDepreciationAccountId, name: 'Akun Akumulasi Penyusutan' },
+                { code: createAssetDto.expenseAccountId, name: 'Akun Biaya Penyusutan' },
+                { code: sourceAccount, name: 'Akun Sumber Dana' }
+            ];
+
+            // Validate all accounts exist
+            for (const acc of accountCodesToValidate) {
+                const exists = await tx.journalAccount.findUnique({
+                    where: { accountCode: acc.code }
+                });
+                if (!exists) {
+                    throw new Error(`${acc.name} dengan kode '${acc.code}' tidak ditemukan di Chart of Accounts. Silakan periksa konfigurasi COA.`);
+                }
             }
+
+            // 1. Create Asset
+            const asset = await tx.asset.create({
+                data: {
+                    name: createAssetDto.name,
+                    code: createAssetDto.code,
+                    type: createAssetDto.type,
+                    acquisitionDate: new Date(createAssetDto.acquisitionDate),
+                    acquisitionCost: new Prisma.Decimal(createAssetDto.acquisitionCost),
+                    residualValue: new Prisma.Decimal(createAssetDto.residualValue || 0),
+                    usefulLifeYears: Number(createAssetDto.usefulLifeYears),
+                    depreciationRate: Number(createAssetDto.depreciationRate),
+                    depreciationMethod: createAssetDto.depreciationMethod,
+                    assetAccountId: createAssetDto.assetAccountId,
+                    accumDepreciationAccountId: createAssetDto.accumDepreciationAccountId,
+                    expenseAccountId: createAssetDto.expenseAccountId,
+                    status: 'ACTIVE',
+                    createdBy: 'SYSTEM'
+                }
+            });
+
+            // 2. Post Journal (Debit Asset, Credit Source/Cash)
+            const date = new Date(createAssetDto.acquisitionDate);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const count = await tx.postedJournal.count({
+                where: {
+                    journalDate: {
+                        gte: new Date(year, date.getMonth(), 1),
+                        lt: new Date(year, date.getMonth() + 1, 1)
+                    }
+                }
+            });
+            const journalNo = `JU/${year}/${month}/${String(count + 1).padStart(4, '0')}`;
+
+            const amount = Number(createAssetDto.acquisitionCost);
+
+            const journal = await tx.postedJournal.create({
+                data: {
+                    journalNumber: journalNo,
+                    journalDate: date,
+                    description: `Perolehan Aset ${asset.name} (${asset.code})`,
+                    postingType: 'AUTO',
+                    sourceCode: 'ASSET',
+                    refId: asset.id,
+                    userId: 1,
+                    status: 'POSTED',
+                    transType: 'ASSET_ACQUISITION',
+                    details: {
+                        create: [
+                            { accountCode: asset.assetAccountId, debit: amount, credit: 0, description: `Aset: ${asset.name}` },
+                            { accountCode: sourceAccount, debit: 0, credit: amount, description: `Pembelian Aset: ${asset.name}` }
+                        ]
+                    }
+                }
+            });
+
+            return { asset, journal };
         });
     }
 
@@ -44,7 +115,12 @@ export class AssetService {
     async findOne(id: number) {
         const asset = await this.prisma.asset.findUnique({
             where: { id },
-            include: { depreciationHistory: true }
+            include: {
+                depreciationHistory: {
+                    include: { journal: true },
+                    orderBy: { period: 'desc' }
+                }
+            }
         });
         if (!asset) throw new NotFoundException('Asset not found');
         return asset;
@@ -92,6 +168,24 @@ export class AssetService {
             }
         });
 
+        if (assets.length === 0) {
+            return { message: 'Tidak ada aset aktif untuk disusutkan', processedCount: 0 };
+        }
+
+        // 2. Validate all accounts exist BEFORE processing
+        const uniqueExpenseAccounts = [...new Set(assets.map(a => a.expenseAccountId))];
+        const uniqueAccumAccounts = [...new Set(assets.map(a => a.accumDepreciationAccountId))];
+        const allAccountsToValidate = [...uniqueExpenseAccounts, ...uniqueAccumAccounts];
+
+        for (const accountCode of allAccountsToValidate) {
+            const exists = await this.prisma.journalAccount.findUnique({
+                where: { accountCode }
+            });
+            if (!exists) {
+                throw new Error(`Akun '${accountCode}' tidak ditemukan di Chart of Accounts. Periksa konfigurasi aset sebelum menjalankan penyusutan.`);
+            }
+        }
+
         const results: { assetId: number; amount: number }[] = [];
         let totalDepreciation = 0;
 
@@ -121,7 +215,7 @@ export class AssetService {
         }
 
         if (journalEntries.length === 0) {
-            return { message: 'No assets to depreciate for this period' };
+            return { message: 'Tidak ada aset yang perlu disusutkan untuk periode ini', processedCount: 0 };
         }
 
         // Post Journal (Consolidated)

@@ -7,10 +7,10 @@ export declare class BalimesariService {
     private eventEmitter;
     constructor(prisma: PrismaService, eventEmitter: EventEmitter2);
     create(createDto: CreateBalimesariDto): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -24,10 +24,10 @@ export declare class BalimesariService {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -37,9 +37,9 @@ export declare class BalimesariService {
     })[]>;
     findOne(noBalimesari: string): Promise<{
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBalimesari: string;
             keterangan: string | null;
@@ -47,12 +47,12 @@ export declare class BalimesariService {
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -66,10 +66,10 @@ export declare class BalimesariService {
             fileKk: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -78,9 +78,9 @@ export declare class BalimesariService {
         noBalimesari: string;
     }>;
     setoran(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
         keterangan: string | null;
@@ -88,9 +88,9 @@ export declare class BalimesariService {
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
     }>;
     penarikan(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
         keterangan: string | null;
@@ -99,9 +99,9 @@ export declare class BalimesariService {
     }>;
     getTransactions(noBalimesari: string, page?: number, limit?: number): Promise<{
         data: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBalimesari: string;
             keterangan: string | null;

@@ -183,24 +183,11 @@ export class KreditController {
     }
 
     @Post(':id/payment')
-<<<<<<< HEAD
-    processPayment(
-        @Param('id') id: string,
-        @CurrentUser() user: any,
-        @Body() paymentData: {
-            amount: number;
-            paymentDate?: string;
-            keterangan?: string;
-        }
-    ) {
-        return this.kreditService.processPayment(+id, paymentData, user.id);
-=======
     payInstallment(
         @Param('id') id: string,
         @CurrentUser() user: any,
         @Body() data: any
     ) {
         return this.kreditService.payInstallment(+id, data, user.id);
->>>>>>> 328371233394512658189bf9a2043bf8648cb8ed
     }
 }

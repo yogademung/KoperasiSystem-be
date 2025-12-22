@@ -8,22 +8,22 @@ export declare class JwtStrategy extends JwtStrategy_base {
     constructor(prisma: PrismaService);
     validate(payload: any): Promise<{
         role: {
+            id: number;
+            description: string | null;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            description: string | null;
             roleName: string;
         };
     } & {
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         username: string;
         password: string;
         fullName: string;

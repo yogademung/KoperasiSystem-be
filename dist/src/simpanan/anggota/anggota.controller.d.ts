@@ -6,12 +6,12 @@ export declare class AnggotaController {
     constructor(anggotaService: AnggotaService);
     create(dto: CreateAnggotaDto, req: any): Promise<{
         customer: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -43,12 +43,12 @@ export declare class AnggotaController {
     }>;
     findAll(): Promise<({
         customer: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -80,10 +80,10 @@ export declare class AnggotaController {
     })[]>;
     findOne(accountNumber: string): Promise<{
         transactions: {
-            createdAt: Date;
             id: number;
             transType: string;
             description: string | null;
+            createdAt: Date;
             accountNumber: string;
             amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
@@ -91,12 +91,12 @@ export declare class AnggotaController {
             userId: number;
         }[];
         customer: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -134,10 +134,10 @@ export declare class AnggotaController {
     }>;
     getTransactions(accountNumber: string, page?: number, limit?: number): Promise<{
         data: {
-            createdAt: Date;
             id: number;
             transType: string;
             description: string | null;
+            createdAt: Date;
             accountNumber: string;
             amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;

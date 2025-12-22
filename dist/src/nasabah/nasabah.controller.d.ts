@@ -9,12 +9,12 @@ export declare class NasabahController {
         fileKtp?: Express.Multer.File[];
         fileKk?: Express.Multer.File[];
     }, createNasabahDto: CreateNasabahDto): Promise<{
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         nama: string;
         alamat: string | null;
         pekerjaan: string | null;
@@ -28,12 +28,12 @@ export declare class NasabahController {
         fileKk: string | null;
     }>;
     findAll(): Promise<{
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         nama: string;
         alamat: string | null;
         pekerjaan: string | null;
@@ -47,12 +47,12 @@ export declare class NasabahController {
         fileKk: string | null;
     }[]>;
     findOne(id: string): Promise<{
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         nama: string;
         alamat: string | null;
         pekerjaan: string | null;
@@ -67,11 +67,11 @@ export declare class NasabahController {
     }>;
     getPortfolio(id: string): Promise<{
         kredit: {
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             status: string;
             nasabahId: number;
             nomorKredit: string | null;
@@ -103,10 +103,10 @@ export declare class NasabahController {
             deduction: import("@prisma/client/runtime/library").Decimal;
         }[];
         tabungan: {
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
             noTab: string;
@@ -115,10 +115,10 @@ export declare class NasabahController {
             interestRate: import("@prisma/client/runtime/library").Decimal;
         }[];
         deposito: {
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             nominal: import("@prisma/client/runtime/library").Decimal;
             status: string;
             nasabahId: number;
@@ -130,10 +130,10 @@ export declare class NasabahController {
             targetAccountId: string | null;
         }[];
         brahmacari: {
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
             nasabahId: number;
@@ -142,10 +142,10 @@ export declare class NasabahController {
             noBrahmacari: string;
         }[];
         balimesari: {
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
             nasabahId: number;
@@ -154,10 +154,10 @@ export declare class NasabahController {
             noBalimesari: string;
         }[];
         wanaprasta: {
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
             nasabahId: number;
@@ -166,12 +166,12 @@ export declare class NasabahController {
             noWanaprasta: string;
         }[];
     } & {
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         nama: string;
         alamat: string | null;
         pekerjaan: string | null;
@@ -188,12 +188,12 @@ export declare class NasabahController {
         fileKtp?: Express.Multer.File[];
         fileKk?: Express.Multer.File[];
     }): Promise<{
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         nama: string;
         alamat: string | null;
         pekerjaan: string | null;
@@ -207,12 +207,12 @@ export declare class NasabahController {
         fileKk: string | null;
     }>;
     remove(id: string): Promise<{
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         nama: string;
         alamat: string | null;
         pekerjaan: string | null;

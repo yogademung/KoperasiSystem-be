@@ -24,6 +24,7 @@ const simpanan_module_1 = require("./simpanan/simpanan.module");
 const akuntansi_module_1 = require("./akuntansi/akuntansi.module");
 const laporan_module_1 = require("./laporan/laporan.module");
 const accounting_module_1 = require("./accounting/accounting.module");
+const asset_module_1 = require("./accounting/asset/asset.module");
 const report_module_1 = require("./report/report.module");
 let AppModule = class AppModule {
 };
@@ -49,6 +50,7 @@ exports.AppModule = AppModule = __decorate([
             akuntansi_module_1.AkuntansiModule,
             laporan_module_1.LaporanModule,
             accounting_module_1.AccountingModule,
+            asset_module_1.AssetModule,
             report_module_1.ReportModule,
         ],
         controllers: [app_controller_1.AppController],

@@ -5,22 +5,22 @@ export declare class UsersController {
     constructor(usersService: UsersService);
     create(createUserDto: CreateUserDto): Promise<{
         role: {
+            id: number;
+            description: string | null;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            description: string | null;
             roleName: string;
         };
     } & {
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         username: string;
         password: string;
         fullName: string;
@@ -31,22 +31,22 @@ export declare class UsersController {
     }>;
     findAll(): Promise<({
         role: {
+            id: number;
+            description: string | null;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            description: string | null;
             roleName: string;
         };
     } & {
+        id: number;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         username: string;
         password: string;
         fullName: string;
@@ -56,13 +56,13 @@ export declare class UsersController {
         token: string | null;
     })[]>;
     getRoles(): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
-        description: string | null;
         roleName: string;
     }[]>;
 }

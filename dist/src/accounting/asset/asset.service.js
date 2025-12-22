@@ -24,13 +24,74 @@ let AssetService = class AssetService {
         this.prisma = prisma;
         this.accountingService = accountingService;
     }
-    async create(data) {
-        return this.prisma.asset.create({
-            data: {
-                ...data,
-                acquisitionCost: new client_1.Prisma.Decimal(data.acquisitionCost),
-                residualValue: new client_1.Prisma.Decimal(data.residualValue || 0),
+    async create(createAssetDto) {
+        return this.prisma.$transaction(async (tx) => {
+            const sourceAccount = createAssetDto.sourceAccountId || '10100';
+            const accountCodesToValidate = [
+                { code: createAssetDto.assetAccountId, name: 'Akun Aset' },
+                { code: createAssetDto.accumDepreciationAccountId, name: 'Akun Akumulasi Penyusutan' },
+                { code: createAssetDto.expenseAccountId, name: 'Akun Biaya Penyusutan' },
+                { code: sourceAccount, name: 'Akun Sumber Dana' }
+            ];
+            for (const acc of accountCodesToValidate) {
+                const exists = await tx.journalAccount.findUnique({
+                    where: { accountCode: acc.code }
+                });
+                if (!exists) {
+                    throw new Error(`${acc.name} dengan kode '${acc.code}' tidak ditemukan di Chart of Accounts. Silakan periksa konfigurasi COA.`);
+                }
             }
+            const asset = await tx.asset.create({
+                data: {
+                    name: createAssetDto.name,
+                    code: createAssetDto.code,
+                    type: createAssetDto.type,
+                    acquisitionDate: new Date(createAssetDto.acquisitionDate),
+                    acquisitionCost: new client_1.Prisma.Decimal(createAssetDto.acquisitionCost),
+                    residualValue: new client_1.Prisma.Decimal(createAssetDto.residualValue || 0),
+                    usefulLifeYears: Number(createAssetDto.usefulLifeYears),
+                    depreciationRate: Number(createAssetDto.depreciationRate),
+                    depreciationMethod: createAssetDto.depreciationMethod,
+                    assetAccountId: createAssetDto.assetAccountId,
+                    accumDepreciationAccountId: createAssetDto.accumDepreciationAccountId,
+                    expenseAccountId: createAssetDto.expenseAccountId,
+                    status: 'ACTIVE',
+                    createdBy: 'SYSTEM'
+                }
+            });
+            const date = new Date(createAssetDto.acquisitionDate);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const count = await tx.postedJournal.count({
+                where: {
+                    journalDate: {
+                        gte: new Date(year, date.getMonth(), 1),
+                        lt: new Date(year, date.getMonth() + 1, 1)
+                    }
+                }
+            });
+            const journalNo = `JU/${year}/${month}/${String(count + 1).padStart(4, '0')}`;
+            const amount = Number(createAssetDto.acquisitionCost);
+            const journal = await tx.postedJournal.create({
+                data: {
+                    journalNumber: journalNo,
+                    journalDate: date,
+                    description: `Perolehan Aset ${asset.name} (${asset.code})`,
+                    postingType: 'AUTO',
+                    sourceCode: 'ASSET',
+                    refId: asset.id,
+                    userId: 1,
+                    status: 'POSTED',
+                    transType: 'ASSET_ACQUISITION',
+                    details: {
+                        create: [
+                            { accountCode: asset.assetAccountId, debit: amount, credit: 0, description: `Aset: ${asset.name}` },
+                            { accountCode: sourceAccount, debit: 0, credit: amount, description: `Pembelian Aset: ${asset.name}` }
+                        ]
+                    }
+                }
+            });
+            return { asset, journal };
         });
     }
     async findAll(page = 1, limit = 10) {
@@ -54,7 +115,12 @@ let AssetService = class AssetService {
     async findOne(id) {
         const asset = await this.prisma.asset.findUnique({
             where: { id },
-            include: { depreciationHistory: true }
+            include: {
+                depreciationHistory: {
+                    include: { journal: true },
+                    orderBy: { period: 'desc' }
+                }
+            }
         });
         if (!asset)
             throw new common_1.NotFoundException('Asset not found');
@@ -94,6 +160,20 @@ let AssetService = class AssetService {
                 acquisitionDate: { lte: date }
             }
         });
+        if (assets.length === 0) {
+            return { message: 'Tidak ada aset aktif untuk disusutkan', processedCount: 0 };
+        }
+        const uniqueExpenseAccounts = [...new Set(assets.map(a => a.expenseAccountId))];
+        const uniqueAccumAccounts = [...new Set(assets.map(a => a.accumDepreciationAccountId))];
+        const allAccountsToValidate = [...uniqueExpenseAccounts, ...uniqueAccumAccounts];
+        for (const accountCode of allAccountsToValidate) {
+            const exists = await this.prisma.journalAccount.findUnique({
+                where: { accountCode }
+            });
+            if (!exists) {
+                throw new Error(`Akun '${accountCode}' tidak ditemukan di Chart of Accounts. Periksa konfigurasi aset sebelum menjalankan penyusutan.`);
+            }
+        }
         const results = [];
         let totalDepreciation = 0;
         const journalEntries = [];
@@ -116,7 +196,7 @@ let AssetService = class AssetService {
             results.push({ assetId: asset.id, amount });
         }
         if (journalEntries.length === 0) {
-            return { message: 'No assets to depreciate for this period' };
+            return { message: 'Tidak ada aset yang perlu disusutkan untuk periode ini', processedCount: 0 };
         }
         return this.prisma.$transaction(async (tx) => {
             const details = [];

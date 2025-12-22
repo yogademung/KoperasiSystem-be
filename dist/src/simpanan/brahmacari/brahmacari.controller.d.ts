@@ -5,10 +5,10 @@ export declare class BrahmacariController {
     private readonly brahmacariService;
     constructor(brahmacariService: BrahmacariService);
     create(createDto: CreateBrahmacariDto): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -22,10 +22,10 @@ export declare class BrahmacariController {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -35,9 +35,9 @@ export declare class BrahmacariController {
     })[]>;
     findOne(noBrahmacari: string): Promise<{
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
             keterangan: string | null;
@@ -45,12 +45,12 @@ export declare class BrahmacariController {
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -64,10 +64,10 @@ export declare class BrahmacariController {
             fileKk: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -76,9 +76,9 @@ export declare class BrahmacariController {
         noBrahmacari: string;
     }>;
     setoran(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
         keterangan: string | null;
@@ -86,9 +86,9 @@ export declare class BrahmacariController {
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
     }>;
     penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
         keterangan: string | null;
@@ -97,9 +97,9 @@ export declare class BrahmacariController {
     }>;
     getTransactions(noBrahmacari: string, page?: string, limit?: string): Promise<{
         data: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
             keterangan: string | null;

@@ -9,12 +9,12 @@ export declare class TemplateService {
         category?: string;
         isDefault?: boolean;
     }): Promise<{
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date | null;
-        name: string;
         id: number;
         description: string | null;
+        updatedAt: Date | null;
+        name: string;
+        isActive: boolean;
+        createdAt: Date;
         productModule: string;
         category: string;
         code: string;
@@ -23,25 +23,25 @@ export declare class TemplateService {
     }[]>;
     findOne(id: number): Promise<{
         parent: {
-            name: string;
             id: number;
+            name: string;
             code: string;
         } | null;
         versions: {
-            createdAt: Date;
-            name: string;
             id: number;
+            name: string;
+            createdAt: Date;
             version: number;
         }[];
     } & {
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -59,14 +59,14 @@ export declare class TemplateService {
         parentId: number | null;
     }>;
     findByCode(code: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -84,14 +84,14 @@ export declare class TemplateService {
         parentId: number | null;
     }>;
     create(dto: CreateTemplateDto, userId: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -109,14 +109,14 @@ export declare class TemplateService {
         parentId: number | null;
     }>;
     update(id: number, dto: UpdateTemplateDto, userId: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -134,14 +134,14 @@ export declare class TemplateService {
         parentId: number | null;
     }>;
     delete(id: number, userId: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -159,14 +159,14 @@ export declare class TemplateService {
         parentId: number | null;
     }>;
     createVersion(parentId: number, name: string, userId: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;

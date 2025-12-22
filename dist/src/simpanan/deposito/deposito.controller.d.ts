@@ -25,10 +25,10 @@ export declare class DepositoController {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -42,21 +42,21 @@ export declare class DepositoController {
     findOne(noJangka: string): Promise<{
         accumulatedInterest: number;
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
             keterangan: string | null;
             tipeTrans: string;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -69,10 +69,10 @@ export declare class DepositoController {
             fileKtp: string | null;
             fileKk: string | null;
         };
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -84,10 +84,10 @@ export declare class DepositoController {
         targetAccountId: string | null;
     }>;
     create(createDto: CreateDepositoDto, req: any): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -99,10 +99,10 @@ export declare class DepositoController {
         targetAccountId: string | null;
     }>;
     withdraw(noJangka: string, req: any): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;

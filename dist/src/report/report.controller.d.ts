@@ -11,12 +11,12 @@ export declare class ReportController {
     getAllProductModules(): Promise<string[]>;
     listTemplates(productModule?: string, category?: string, isDefault?: string): Promise<{
         templates: {
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date | null;
-            name: string;
             id: number;
             description: string | null;
+            updatedAt: Date | null;
+            name: string;
+            isActive: boolean;
+            createdAt: Date;
             productModule: string;
             category: string;
             code: string;
@@ -27,25 +27,25 @@ export declare class ReportController {
     }>;
     getTemplate(id: number): Promise<{
         parent: {
-            name: string;
             id: number;
+            name: string;
             code: string;
         } | null;
         versions: {
-            createdAt: Date;
-            name: string;
             id: number;
+            name: string;
+            createdAt: Date;
             version: number;
         }[];
     } & {
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -63,14 +63,14 @@ export declare class ReportController {
         parentId: number | null;
     }>;
     getTemplateByCode(code: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -88,14 +88,14 @@ export declare class ReportController {
         parentId: number | null;
     }>;
     createTemplate(dto: CreateTemplateDto, req: any): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -113,14 +113,14 @@ export declare class ReportController {
         parentId: number | null;
     }>;
     updateTemplate(id: number, dto: UpdateTemplateDto, req: any): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -138,14 +138,14 @@ export declare class ReportController {
         parentId: number | null;
     }>;
     deleteTemplate(id: number, req: any): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;
@@ -163,14 +163,14 @@ export declare class ReportController {
         parentId: number | null;
     }>;
     createTemplateVersion(id: number, name: string, req: any): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
-        description: string | null;
         productModule: string;
         category: string;
         code: string;

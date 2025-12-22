@@ -7,10 +7,10 @@ export declare class BrahmacariService {
     private eventEmitter;
     constructor(prisma: PrismaService, eventEmitter: EventEmitter2);
     create(createDto: CreateBrahmacariDto): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -24,10 +24,10 @@ export declare class BrahmacariService {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -37,9 +37,9 @@ export declare class BrahmacariService {
     })[]>;
     findOne(noBrahmacari: string): Promise<{
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
             keterangan: string | null;
@@ -47,12 +47,12 @@ export declare class BrahmacariService {
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -66,10 +66,10 @@ export declare class BrahmacariService {
             fileKk: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         nasabahId: number;
@@ -78,9 +78,9 @@ export declare class BrahmacariService {
         noBrahmacari: string;
     }>;
     setoran(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
         keterangan: string | null;
@@ -88,9 +88,9 @@ export declare class BrahmacariService {
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
     }>;
     penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+        id: number;
         createdBy: string | null;
         createdAt: Date;
-        id: number;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
         keterangan: string | null;
@@ -99,9 +99,9 @@ export declare class BrahmacariService {
     }>;
     getTransactions(noBrahmacari: string, page?: number, limit?: number): Promise<{
         data: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
             keterangan: string | null;

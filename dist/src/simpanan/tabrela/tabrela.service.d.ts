@@ -6,10 +6,10 @@ export declare class TabrelaService {
     private eventEmitter;
     constructor(prisma: PrismaService, eventEmitter: EventEmitter2);
     create(createDto: CreateTabrelaDto): Promise<{
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         noTab: string;
@@ -23,10 +23,10 @@ export declare class TabrelaService {
             noKtp: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         noTab: string;
@@ -36,9 +36,9 @@ export declare class TabrelaService {
     })[]>;
     findOne(noTab: string): Promise<{
         transactions: {
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noTab: string;
             keterangan: string | null;
@@ -46,12 +46,12 @@ export declare class TabrelaService {
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
         }[];
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
             alamat: string | null;
             pekerjaan: string | null;
@@ -65,10 +65,10 @@ export declare class TabrelaService {
             fileKk: string | null;
         };
     } & {
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
         saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
         noTab: string;
