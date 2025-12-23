@@ -37,9 +37,9 @@ export declare class ReportGeneratorService {
             id: number;
             status: string;
             format: string;
-            templateId: number;
             recordId: string | null;
             parameters: Prisma.JsonValue | null;
+            templateId: number;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
@@ -60,9 +60,9 @@ export declare class ReportGeneratorService {
         id: number;
         status: string;
         format: string;
-        templateId: number;
         recordId: string | null;
         parameters: Prisma.JsonValue | null;
+        templateId: number;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;

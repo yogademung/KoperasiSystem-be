@@ -276,9 +276,9 @@ export declare class AccountingService {
         description: string;
         userId: number;
         refId?: number;
-        wilayahCd?: string;
         branchCode?: string;
-    }): Promise<{
+        wilayahCd?: string;
+    }, tx?: Prisma.TransactionClient): Promise<{
         id: number;
         transType: string | null;
         description: string | null;

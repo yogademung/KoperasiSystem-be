@@ -212,9 +212,9 @@ export declare class ReportController {
             id: number;
             status: string;
             format: string;
-            templateId: number;
             recordId: string | null;
             parameters: import("@prisma/client/runtime/library").JsonValue | null;
+            templateId: number;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
@@ -235,9 +235,9 @@ export declare class ReportController {
         id: number;
         status: string;
         format: string;
-        templateId: number;
         recordId: string | null;
         parameters: import("@prisma/client/runtime/library").JsonValue | null;
+        templateId: number;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;

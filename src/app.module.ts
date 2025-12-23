@@ -16,7 +16,9 @@ import { AkuntansiModule } from './akuntansi/akuntansi.module';
 import { LaporanModule } from './laporan/laporan.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { AssetModule } from './accounting/asset/asset.module';
-import { ReportModule } from './report/report.module';
+import { CapitalModule } from './capital/capital.module';
+import { ReportsModule } from './reports/reports.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -39,7 +41,9 @@ import { ReportModule } from './report/report.module';
     LaporanModule,
     AccountingModule,
     AssetModule,
-    ReportModule,
+    CapitalModule,
+    ReportsModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

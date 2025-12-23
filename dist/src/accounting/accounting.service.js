@@ -275,8 +275,9 @@ let AccountingService = class AccountingService {
             return updated;
         });
     }
-    async autoPostJournal(data) {
-        const mapping = await this.prisma.productCoaMapping.findUnique({
+    async autoPostJournal(data, tx) {
+        const prisma = tx || this.prisma;
+        const mapping = await prisma.productCoaMapping.findUnique({
             where: { transType: data.transType }
         });
         if (!mapping) {
@@ -295,7 +296,7 @@ let AccountingService = class AccountingService {
             }
         }
         const journalNo = await this.generateJournalNumber();
-        return this.prisma.postedJournal.create({
+        return prisma.postedJournal.create({
             data: {
                 journalNumber: journalNo,
                 journalDate: new Date(),
@@ -385,6 +386,23 @@ let AccountingService = class AccountingService {
                     sequence = await this.prisma.transWanaprasta.count({
                         where: { noWanaprasta: accountNo, id: { lte: refId } }
                     });
+                    break;
+                case 'MODAL':
+                    const tModal = await this.prisma.transModal.findUnique({ where: { id: refId } });
+                    if (!tModal)
+                        return null;
+                    accountNo = tModal.noRekModal;
+                    sequence = await this.prisma.transModal.count({
+                        where: { noRekModal: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'LOAN':
+                case 'PINJAMAN_LUAR':
+                    const loan = await this.prisma.externalLoan.findUnique({ where: { id: refId } });
+                    if (!loan)
+                        return null;
+                    accountNo = loan.contractNumber;
+                    sequence = 1;
                     break;
                 default:
                     return null;

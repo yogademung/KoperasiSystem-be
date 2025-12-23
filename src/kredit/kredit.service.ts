@@ -191,7 +191,7 @@ export class KreditService {
             throw new BadRequestException('Credit application is not approved or not found');
         }
 
-        const nomorKredit = await this.generateAccountNumber(credit.nasabahId);
+        const nomorKredit = await this.generateSpkNumber();
 
         return this.prisma.$transaction(async (tx) => {
             try {
@@ -497,8 +497,52 @@ export class KreditService {
         });
     }
 
+    private async generateSpkNumber(): Promise<string> {
+        // Pattern: SPK/NO_URUT/ROMAWI_BULAN/TAHUN
+        // Example: SPK/001/XII/2024
+
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const romanMonth = this.getRomanMonth(month);
+
+        // Atomic Counter using Prisma Transaction roughly (or just pessimistic lock if needed, but simple update is okay for now)
+        // We use s_lov_value: Code=COUNTER, Value=SPK
+        let counter = 1;
+
+        const counterRecord = await this.prisma.lovValue.findUnique({
+            where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } }
+        });
+
+        if (counterRecord) {
+            counter = Number(counterRecord.description) + 1;
+            await this.prisma.lovValue.update({
+                where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } },
+                data: { description: counter.toString() }
+            });
+        } else {
+            await this.prisma.lovValue.create({
+                data: {
+                    code: 'COUNTER',
+                    codeValue: 'SPK',
+                    description: '1',
+                    orderNum: 1
+                }
+            });
+        }
+
+        const sequence = String(counter).padStart(3, '0');
+        return `SPK/${sequence}/${romanMonth}/${year}`;
+    }
+
+    private getRomanMonth(month: number): string {
+        const romans = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+        return romans[month] || "";
+    }
+
     private async generateAccountNumber(nasabahId: number): Promise<string> {
-        // Simplified account number logic: K.NASABAH_ID.SEQUENCE
+        // Legacy: Not used for SPK anymore, maybe used for other references?
+        // kept for backward compatibility if needed, but ActivateCredit uses generateSpkNumber now.
         const count = await this.prisma.debiturKredit.count({
             where: { nomorKredit: { not: null } }
         });

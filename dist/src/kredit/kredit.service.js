@@ -167,7 +167,7 @@ let KreditService = class KreditService {
         if (!credit || credit.status !== 'APPROVE') {
             throw new common_1.BadRequestException('Credit application is not approved or not found');
         }
-        const nomorKredit = await this.generateAccountNumber(credit.nasabahId);
+        const nomorKredit = await this.generateSpkNumber();
         return this.prisma.$transaction(async (tx) => {
             try {
                 await tx.debiturFasilitas.create({
@@ -392,6 +392,39 @@ let KreditService = class KreditService {
             console.error("PAY INSTALLMENT ERROR:", error);
             throw error;
         });
+    }
+    async generateSpkNumber() {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const romanMonth = this.getRomanMonth(month);
+        let counter = 1;
+        const counterRecord = await this.prisma.lovValue.findUnique({
+            where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } }
+        });
+        if (counterRecord) {
+            counter = Number(counterRecord.description) + 1;
+            await this.prisma.lovValue.update({
+                where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } },
+                data: { description: counter.toString() }
+            });
+        }
+        else {
+            await this.prisma.lovValue.create({
+                data: {
+                    code: 'COUNTER',
+                    codeValue: 'SPK',
+                    description: '1',
+                    orderNum: 1
+                }
+            });
+        }
+        const sequence = String(counter).padStart(3, '0');
+        return `SPK/${sequence}/${romanMonth}/${year}`;
+    }
+    getRomanMonth(month) {
+        const romans = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+        return romans[month] || "";
     }
     async generateAccountNumber(nasabahId) {
         const count = await this.prisma.debiturKredit.count({

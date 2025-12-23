@@ -243,6 +243,74 @@ let AssetService = class AssetService {
             return { journalId: journal.id, processedCount: results.length, totalAmount: totalDepreciation };
         });
     }
+    async getBalanceSheet(date) {
+        const assets = await this.prisma.asset.findMany({
+            where: {
+                acquisitionDate: { lte: date },
+                status: 'ACTIVE'
+            }
+        });
+        const reportData = await Promise.all(assets.map(async (asset) => {
+            const history = await this.prisma.assetDepreciationHistory.findMany({
+                where: {
+                    assetId: asset.id,
+                    period: { lte: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}` }
+                }
+            });
+            const totalDepreciation = history.reduce((sum, h) => sum.plus(h.amount), new client_1.Prisma.Decimal(0));
+            const bookValue = new client_1.Prisma.Decimal(asset.acquisitionCost).minus(totalDepreciation);
+            return {
+                id: asset.id,
+                code: asset.code,
+                name: asset.name,
+                type: asset.type,
+                acquisitionCost: asset.acquisitionCost,
+                accumulatedDepreciation: totalDepreciation,
+                bookValue: bookValue
+            };
+        }));
+        return {
+            date,
+            totalAcquisition: reportData.reduce((sum, r) => sum.plus(r.acquisitionCost), new client_1.Prisma.Decimal(0)),
+            totalBookValue: reportData.reduce((sum, r) => sum.plus(r.bookValue), new client_1.Prisma.Decimal(0)),
+            details: reportData
+        };
+    }
+    async getAssetMutations(startDate, endDate) {
+        const acquisitions = await this.prisma.asset.findMany({
+            where: {
+                acquisitionDate: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            select: { id: true, name: true, code: true, acquisitionDate: true, acquisitionCost: true }
+        });
+        const startPeriod = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
+        const endPeriod = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
+        const depreciations = await this.prisma.assetDepreciationHistory.findMany({
+            where: {
+                period: { gte: startPeriod, lte: endPeriod }
+            },
+            include: { asset: { select: { name: true, code: true } } }
+        });
+        return {
+            startDate,
+            endDate,
+            acquisitions: acquisitions.map(a => ({
+                type: 'ACQUISITION',
+                date: a.acquisitionDate,
+                asset: `${a.name} (${a.code})`,
+                amount: a.acquisitionCost
+            })),
+            depreciations: depreciations.map(d => ({
+                type: 'DEPRECIATION',
+                period: d.period,
+                asset: `${d.asset.name} (${d.asset.code})`,
+                amount: d.amount
+            }))
+        };
+    }
 };
 exports.AssetService = AssetService;
 exports.AssetService = AssetService = __decorate([

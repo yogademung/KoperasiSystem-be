@@ -274,12 +274,97 @@ export class AssetService {
                         journalId: journal.id
                     }
                 });
-
-                // Update Asset current status if useful life expired (optional improvement)
-                // For now just record the history
             }
 
             return { journalId: journal.id, processedCount: results.length, totalAmount: totalDepreciation };
         });
+    }
+
+    // ============================
+    // REPORTING METHODS
+    // ============================
+
+    async getBalanceSheet(date: Date) {
+        // AK80a: List of Assets and their current Book Values
+        const assets = await this.prisma.asset.findMany({
+            where: {
+                acquisitionDate: { lte: date },
+                status: 'ACTIVE' // Or include SOLD/DISPOSED based on requirements
+            }
+        });
+
+        // For each asset, calculate book value as of date
+        const reportData = await Promise.all(assets.map(async (asset) => {
+            // Get accum depreciation up to date
+            const history = await this.prisma.assetDepreciationHistory.findMany({
+                where: {
+                    assetId: asset.id,
+                    period: { lte: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}` }
+                }
+            });
+
+            const totalDepreciation = history.reduce((sum, h) => sum.plus(h.amount), new Prisma.Decimal(0));
+            const bookValue = new Prisma.Decimal(asset.acquisitionCost).minus(totalDepreciation);
+
+            return {
+                id: asset.id,
+                code: asset.code,
+                name: asset.name,
+                type: asset.type,
+                acquisitionCost: asset.acquisitionCost,
+                accumulatedDepreciation: totalDepreciation,
+                bookValue: bookValue
+            };
+        }));
+
+        // Group by Type (AKTIVA TETAP based on COA mapping usually)
+        return {
+            date,
+            totalAcquisition: reportData.reduce((sum, r) => sum.plus(r.acquisitionCost), new Prisma.Decimal(0)),
+            totalBookValue: reportData.reduce((sum, r) => sum.plus(r.bookValue), new Prisma.Decimal(0)),
+            details: reportData
+        };
+    }
+
+    async getAssetMutations(startDate: Date, endDate: Date) {
+        // AK81: Asset Mutations
+        // 1. Acquisitions in period
+        const acquisitions = await this.prisma.asset.findMany({
+            where: {
+                acquisitionDate: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            select: { id: true, name: true, code: true, acquisitionDate: true, acquisitionCost: true }
+        });
+
+        // 2. Depreciations in period
+        const startPeriod = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
+        const endPeriod = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
+
+        const depreciations = await this.prisma.assetDepreciationHistory.findMany({
+            where: {
+                period: { gte: startPeriod, lte: endPeriod }
+            },
+            include: { asset: { select: { name: true, code: true } } }
+        });
+
+        return {
+            startDate,
+            endDate,
+            acquisitions: acquisitions.map(a => ({
+                type: 'ACQUISITION',
+                date: a.acquisitionDate,
+                asset: `${a.name} (${a.code})`,
+                amount: a.acquisitionCost
+            })),
+            depreciations: depreciations.map(d => ({
+                type: 'DEPRECIATION',
+                period: d.period,
+                asset: `${d.asset.name} (${d.asset.code})`,
+                amount: d.amount
+            }))
+        };
     }
 }

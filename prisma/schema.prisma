@@ -129,6 +129,7 @@ model Nasabah {
   kredit     DebiturKredit[]
   collaterals Collateral[]
   waris      NasabahWaris[]
+  modal      NasabahModal[]
 
   @@map("m_nasabah")
 }
@@ -451,6 +452,7 @@ model AssetDepreciationHistory {
   createdAt DateTime @default(now()) @map("CREATE_DATE")
 
   asset Asset @relation(fields: [assetId], references: [id])
+  journal PostedJournal? @relation(fields: [journalId], references: [id])
 
   @@map("t_aktiva_penyusutan")
 }
@@ -500,6 +502,7 @@ model PostedJournal {
 
   details PostedJournalDetail[]
   user    User                  @relation(fields: [userId], references: [id])
+  assetHistory AssetDepreciationHistory[]
 
   @@map("t_posted_journal")
 }
@@ -784,4 +787,85 @@ model PassbookPrintState {
   updatedAt DateTime @updatedAt @map("LAST_PRINT_DATE")
 
   @@map("passbook_print_state")
+}
+
+// ============================================
+// CAPITAL MANAGEMENT (Phase 6)
+// ============================================
+
+model NasabahModal {
+  noRekModal   String    @id @map("NO_REK_MODAL") @db.VarChar(50)
+  nasabahId    Int       @map("NASABAH_ID")
+  tglBuka      DateTime  @map("TGL_BUKA") @db.Date
+  saldo        Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
+  status       String    @default("A") @map("STATUS") @db.VarChar(10) // A=Active, C=Closed
+  wilayahCd    String?   @map("WILAYAH_CD") @db.VarChar(10)
+  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
+
+  nasabah      Nasabah   @relation(fields: [nasabahId], references: [id])
+  transactions TransModal[]
+
+  @@map("m_nasabah_modal")
+}
+
+model TransModal {
+  id           Int          @id @default(autoincrement()) @map("TRANS_ID")
+  noRekModal   String       @map("NO_REK_MODAL") @db.VarChar(50)
+  tipeTrans    String       @map("TIPE_TRANS") @db.VarChar(10) // SETOR, TARIK, SHU
+  transDate    DateTime     @default(now()) @map("TGL_TRANS") @db.Date
+  nominal      Decimal      @map("NOMINAL") @db.Decimal(19, 4)
+  saldoAkhir   Decimal      @map("SALDO_AKHIR") @db.Decimal(19, 4)
+  keterangan   String?      @map("KETERANGAN") @db.Text
+  journalId    Int?         @map("JOURNAL_ID")
+  createdBy    String?      @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime     @default(now()) @map("CREATE_DATE")
+
+  nasabahModal NasabahModal @relation(fields: [noRekModal], references: [noRekModal])
+
+  @@map("t_trans_modal")
+}
+
+model ExternalLoan {
+  id                Int      @id @default(autoincrement()) @map("LOAN_ID")
+  bankName          String   @map("BANK_NAME") @db.VarChar(100)
+  contractNumber    String   @map("CONTRACT_NUMBER") @db.VarChar(50)
+  loanDate          DateTime @map("LOAN_DATE") @db.Date
+  maturityDate      DateTime @map("MATURITY_DATE") @db.Date
+  principal         Decimal  @map("PRINCIPAL") @db.Decimal(19, 4)
+  interestRate      Decimal  @map("INTEREST_RATE") @db.Decimal(5, 2)
+  termMonths        Int      @map("TERM_MONTHS")
+  installmentType   String   @map("INSTALLMENT_TYPE") @db.VarChar(20) // FLAT, ANUITAS
+  monthlyInstallment Decimal @map("MONTHLY_INSTALLMENT") @db.Decimal(19, 4)
+  outstandingPrincipal Decimal @map("OUTSTANDING_PRINCIPAL") @db.Decimal(19, 4)
+  
+  status            String   @default("ACTIVE") @map("STATUS") @db.VarChar(20)
+  
+  createdBy         String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt         DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy         String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt         DateTime? @updatedAt @map("CHANGE_DATE")
+
+  schedule          InstallmentSchedule[]
+
+  @@map("m_pinjaman_external")
+}
+
+model InstallmentSchedule {
+  id                Int          @id @default(autoincrement()) @map("SCHEDULE_ID")
+  loanId            Int          @map("LOAN_ID")
+  installmentNumber Int          @map("INSTALLMENT_NUMBER")
+  dueDate           DateTime     @map("DUE_DATE") @db.Date
+  principalDue      Decimal      @map("PRINCIPAL_DUE") @db.Decimal(19, 4)
+  interestDue       Decimal      @map("INTEREST_DUE") @db.Decimal(19, 4)
+  totalDue          Decimal      @map("TOTAL_DUE") @db.Decimal(19, 4)
+  
+  status            String       @default("DUE") @map("STATUS") @db.VarChar(20) // DUE, PAID, OVERDUE
+  paidDate          DateTime?    @map("PAID_DATE") @db.Date
+  
+  loan              ExternalLoan @relation(fields: [loanId], references: [id])
+
+  @@map("t_jadwal_pinjaman_external")
 }

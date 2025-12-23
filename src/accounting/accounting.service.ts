@@ -355,11 +355,12 @@ export class AccountingService {
         description: string;
         userId: number;
         refId?: number;
-        wilayahCd?: string;
         branchCode?: string;
-    }) {
+        wilayahCd?: string;
+    }, tx?: Prisma.TransactionClient) {
+        const prisma = tx || this.prisma;
         // 1. DYNAMIC LOOKUP
-        const mapping = await this.prisma.productCoaMapping.findUnique({
+        const mapping = await prisma.productCoaMapping.findUnique({
             where: { transType: data.transType }
         });
 
@@ -384,7 +385,7 @@ export class AccountingService {
         const journalNo = await this.generateJournalNumber();
 
         // 4. CREATE JOURNAL
-        return this.prisma.postedJournal.create({
+        return prisma.postedJournal.create({
             data: {
                 journalNumber: journalNo,
                 journalDate: new Date(), // Auto post is always NOW
@@ -470,6 +471,21 @@ export class AccountingService {
                     sequence = await this.prisma.transWanaprasta.count({
                         where: { noWanaprasta: accountNo, id: { lte: refId } }
                     });
+                    break;
+                case 'MODAL':
+                    const tModal = await (this.prisma as any).transModal.findUnique({ where: { id: refId } });
+                    if (!tModal) return null;
+                    accountNo = tModal.noRekModal;
+                    sequence = await (this.prisma as any).transModal.count({
+                        where: { noRekModal: accountNo, id: { lte: refId } }
+                    });
+                    break;
+                case 'LOAN':
+                case 'PINJAMAN_LUAR':
+                    const loan = await (this.prisma as any).externalLoan.findUnique({ where: { id: refId } });
+                    if (!loan) return null;
+                    accountNo = loan.contractNumber;
+                    sequence = 1;
                     break;
                 default:
                     return null;

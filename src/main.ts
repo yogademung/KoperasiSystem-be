@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 
 async function bootstrap() {
+  console.log('Force Rebuild TS ' + Date.now());
   const app = await NestFactory.create(AppModule);
 
   // Security
