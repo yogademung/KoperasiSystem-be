@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const anggota_service_1 = require("./anggota.service");
 const create_anggota_dto_1 = require("./dto/create-anggota.dto");
 const setoran_dto_1 = require("./dto/setoran.dto");
+const tutup_anggota_dto_1 = require("./dto/tutup-anggota.dto");
 let AnggotaController = class AnggotaController {
     anggotaService;
     constructor(anggotaService) {
@@ -42,6 +43,10 @@ let AnggotaController = class AnggotaController {
     }
     async getTransactions(accountNumber, page = 1, limit = 10) {
         return this.anggotaService.getTransactions(accountNumber, page, limit);
+    }
+    async tutup(accountNumber, dto, req) {
+        const userId = req.user?.id || 1;
+        return this.anggotaService.closeAccount(accountNumber, dto, userId);
     }
 };
 exports.AnggotaController = AnggotaController;
@@ -93,6 +98,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], AnggotaController.prototype, "getTransactions", null);
+__decorate([
+    (0, common_1.Post)(':accountNumber/tutup'),
+    __param(0, (0, common_1.Param)('accountNumber')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, tutup_anggota_dto_1.TutupAnggotaDto, Object]),
+    __metadata("design:returntype", Promise)
+], AnggotaController.prototype, "tutup", null);
 exports.AnggotaController = AnggotaController = __decorate([
     (0, common_1.Controller)('api/simpanan/anggota'),
     __metadata("design:paramtypes", [anggota_service_1.AnggotaService])

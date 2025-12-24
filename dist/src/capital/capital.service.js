@@ -197,6 +197,115 @@ let CapitalService = class CapitalService {
             throw new common_1.NotFoundException('Loan not found');
         return loan;
     }
+    async repayExternalLoan(id, dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const client = tx;
+            const loan = await client.externalLoan.findUnique({
+                where: { id },
+                include: {
+                    schedule: {
+                        where: { status: 'DUE' },
+                        orderBy: { installmentNumber: 'asc' },
+                        take: 1
+                    }
+                }
+            });
+            if (!loan)
+                throw new common_1.NotFoundException('Loan not found');
+            if (loan.status !== 'ACTIVE')
+                throw new common_1.BadRequestException('Loan is not active');
+            if (loan.schedule.length === 0)
+                throw new common_1.BadRequestException('No upcoming installments due');
+            const dueInstallment = loan.schedule[0];
+            if (Number(dto.amount) !== Number(dueInstallment.totalDue)) {
+                throw new common_1.BadRequestException(`Amount must match due installment: ${dueInstallment.totalDue}`);
+            }
+            await client.installmentSchedule.update({
+                where: { id: dueInstallment.id },
+                data: {
+                    status: 'PAID',
+                    paidDate: new Date(dto.paymentDate)
+                }
+            });
+            const newOutstanding = Number(loan.outstandingPrincipal) - Number(dueInstallment.principalDue);
+            const isFullyPaid = newOutstanding <= 0 && loan.termMonths === dueInstallment.installmentNumber;
+            await client.externalLoan.update({
+                where: { id: loan.id },
+                data: {
+                    outstandingPrincipal: newOutstanding,
+                    status: isFullyPaid ? 'CLOSED' : 'ACTIVE'
+                }
+            });
+            await this.ensureExternalLoanAccounts(tx);
+            const desc = dto.description || `Angsuran Pinjaman Bank ${loan.bankName} - Ke ${dueInstallment.installmentNumber}`;
+            const journal = await client.postedJournal.create({
+                data: {
+                    journalNumber: `JU/${new Date().getFullYear()}/${new Date().getMonth() + 1}/LOAN-${loan.id}-${dueInstallment.installmentNumber}`,
+                    journalDate: new Date(dto.paymentDate),
+                    description: desc,
+                    postingType: 'AUTO',
+                    transType: 'LOAN_REPAYMENT',
+                    sourceCode: 'EXTERNAL_LOAN',
+                    refId: loan.id,
+                    userId: userId,
+                    status: 'POSTED',
+                    details: {
+                        create: [
+                            {
+                                accountCode: dto.sourceAccountId,
+                                credit: dto.amount,
+                                debit: 0,
+                                description: 'Pembayaran Angsuran'
+                            },
+                            {
+                                accountCode: '2.30.01',
+                                credit: 0,
+                                debit: dueInstallment.principalDue,
+                                description: 'Pokok Angsuran'
+                            },
+                            {
+                                accountCode: '5.20.10',
+                                credit: 0,
+                                debit: dueInstallment.interestDue,
+                                description: 'Bunga Angsuran'
+                            }
+                        ]
+                    }
+                }
+            });
+            return { loan, journal };
+        });
+    }
+    async ensureExternalLoanAccounts(tx) {
+        const accPrincipal = await tx.journalAccount.findUnique({ where: { accountCode: '2.30.01' } });
+        if (!accPrincipal) {
+            await tx.journalAccount.create({
+                data: {
+                    accountCode: '2.30.01',
+                    accountName: 'HUTANG PINJAMAN EXTERNAL',
+                    accountType: 'LIA',
+                    debetPoleFlag: false,
+                    parentCode: null,
+                    isActive: true,
+                    createdBy: 'SYSTEM'
+                }
+            });
+        }
+        const accInterest = await tx.journalAccount.findUnique({ where: { accountCode: '5.20.10' } });
+        if (!accInterest) {
+            await tx.journalAccount.create({
+                data: {
+                    accountCode: '5.20.10',
+                    accountName: 'BIAYA BUNGA PINJAMAN EXTERNAL',
+                    accountType: 'EXP',
+                    debetPoleFlag: true,
+                    parentCode: null,
+                    isActive: true,
+                    createdBy: 'SYSTEM'
+                }
+            });
+        }
+    }
 };
 exports.CapitalService = CapitalService;
 exports.CapitalService = CapitalService = __decorate([

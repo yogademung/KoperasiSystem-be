@@ -19,6 +19,7 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const create_modal_dto_1 = require("./dto/create-modal.dto");
 const trans_modal_dto_1 = require("./dto/trans-modal.dto");
 const create_loan_dto_1 = require("./dto/create-loan.dto");
+const repay_loan_dto_1 = require("./dto/repay-loan.dto");
 let CapitalController = class CapitalController {
     capitalService;
     constructor(capitalService) {
@@ -44,6 +45,9 @@ let CapitalController = class CapitalController {
     }
     findOneLoan(id) {
         return this.capitalService.findOneExternalLoan(+id);
+    }
+    repayLoan(id, dto, req) {
+        return this.capitalService.repayExternalLoan(+id, dto, req.user.userId || req.user.id);
     }
 };
 exports.CapitalController = CapitalController;
@@ -98,6 +102,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CapitalController.prototype, "findOneLoan", null);
+__decorate([
+    (0, common_1.Post)('loans/:id/repayment'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, repay_loan_dto_1.RepayExternalLoanDto, Object]),
+    __metadata("design:returntype", void 0)
+], CapitalController.prototype, "repayLoan", null);
 exports.CapitalController = CapitalController = __decorate([
     (0, common_1.Controller)('capital'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

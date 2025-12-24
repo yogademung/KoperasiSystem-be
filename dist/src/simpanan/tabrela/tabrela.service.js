@@ -187,6 +187,88 @@ let TabrelaService = class TabrelaService {
             return this.prisma.$transaction(executeLogic);
         }
     }
+    async closeAccount(noTab, dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.nasabahTab.findUnique({ where: { noTab } });
+            if (!account)
+                throw new common_1.NotFoundException('Account not found');
+            if (account.status !== 'A')
+                throw new common_1.BadRequestException('Account is not active');
+            let currentBalance = Number(account.saldo);
+            const penalty = dto.penalty || 0;
+            const adminFee = dto.adminFee || 0;
+            if (penalty > 0) {
+                currentBalance -= penalty;
+                const penaltyTx = await tx.transTab.create({
+                    data: {
+                        noTab,
+                        tipeTrans: 'DENDA',
+                        nominal: -penalty,
+                        saldoAkhir: currentBalance,
+                        keterangan: `Denda Penutupan: ${dto.reason}`,
+                        createdBy: userId?.toString() || 'SYSTEM'
+                    }
+                });
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'TABRELA_DENDA',
+                    amount: penalty,
+                    description: `Denda Penutupan ${noTab}`,
+                    userId: userId || 1,
+                    refId: penaltyTx.id,
+                    branchCode: '001'
+                });
+            }
+            if (adminFee > 0) {
+                currentBalance -= adminFee;
+                const adminTx = await tx.transTab.create({
+                    data: {
+                        noTab,
+                        tipeTrans: 'BIAYA_ADMIN',
+                        nominal: -adminFee,
+                        saldoAkhir: currentBalance,
+                        keterangan: 'Biaya Administrasi Penutupan',
+                        createdBy: userId?.toString() || 'SYSTEM'
+                    }
+                });
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'TABRELA_ADMIN',
+                    amount: adminFee,
+                    description: `Biaya Admin Penutupan ${noTab}`,
+                    userId: userId || 1,
+                    refId: adminTx.id,
+                    branchCode: '001'
+                });
+            }
+            if (currentBalance > 0) {
+                const closeTx = await tx.transTab.create({
+                    data: {
+                        noTab,
+                        tipeTrans: 'TUTUP',
+                        nominal: -currentBalance,
+                        saldoAkhir: 0,
+                        keterangan: `Penutupan Rekening: ${dto.reason}`,
+                        createdBy: userId?.toString() || 'SYSTEM'
+                    }
+                });
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'TABRELA_TUTUP',
+                    amount: currentBalance,
+                    description: `Penutupan Rekening ${noTab}`,
+                    userId: userId || 1,
+                    refId: closeTx.id,
+                    branchCode: '001'
+                });
+            }
+            await tx.nasabahTab.update({
+                where: { noTab },
+                data: {
+                    status: 'T',
+                    saldo: 0
+                }
+            });
+            return { success: true, refund: currentBalance };
+        });
+    }
 };
 exports.TabrelaService = TabrelaService;
 exports.TabrelaService = TabrelaService = __decorate([

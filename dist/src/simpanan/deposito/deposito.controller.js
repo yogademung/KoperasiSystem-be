@@ -41,9 +41,9 @@ let DepositoController = class DepositoController {
         const userId = req.user?.id || 1;
         return this.depositoService.create(createDto, userId);
     }
-    withdraw(noJangka, req) {
+    withdraw(noJangka, body, req) {
         const userId = req.user?.id || 1;
-        return this.depositoService.withdraw(noJangka, userId);
+        return this.depositoService.withdraw(noJangka, userId, body);
     }
 };
 exports.DepositoController = DepositoController;
@@ -84,9 +84,10 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':noJangka/cair'),
     __param(0, (0, common_1.Param)('noJangka')),
-    __param(1, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", void 0)
 ], DepositoController.prototype, "withdraw", null);
 exports.DepositoController = DepositoController = __decorate([

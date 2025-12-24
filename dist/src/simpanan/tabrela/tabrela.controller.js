@@ -36,6 +36,9 @@ let TabrelaController = class TabrelaController {
     penarikan(noTab, body) {
         return this.tabrelaService.penarikan(noTab, body);
     }
+    close(noTab, body) {
+        return this.tabrelaService.closeAccount(noTab, body);
+    }
 };
 exports.TabrelaController = TabrelaController;
 __decorate([
@@ -74,6 +77,14 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], TabrelaController.prototype, "penarikan", null);
+__decorate([
+    (0, common_1.Post)(':noTab/tutup'),
+    __param(0, (0, common_1.Param)('noTab')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], TabrelaController.prototype, "close", null);
 exports.TabrelaController = TabrelaController = __decorate([
     (0, common_1.Controller)('api/simpanan/tabrela'),
     __metadata("design:paramtypes", [tabrela_service_1.TabrelaService])

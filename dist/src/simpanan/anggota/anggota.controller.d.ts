@@ -1,6 +1,7 @@
 import { AnggotaService } from './anggota.service';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
+import { TutupAnggotaDto } from './dto/tutup-anggota.dto';
 export declare class AnggotaController {
     private readonly anggotaService;
     constructor(anggotaService: AnggotaService);
@@ -148,5 +149,10 @@ export declare class AnggotaController {
         page: number;
         limit: number;
         totalPages: number;
+    }>;
+    tutup(accountNumber: string, dto: TutupAnggotaDto, req: any): Promise<{
+        success: boolean;
+        refundAmount: number;
+        message: string;
     }>;
 }

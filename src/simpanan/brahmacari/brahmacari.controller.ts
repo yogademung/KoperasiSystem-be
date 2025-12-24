@@ -50,4 +50,8 @@ export class BrahmacariController {
             parseInt(limit)
         );
     }
+    @Post(':noBrahmacari/tutup')
+    close(@Param('noBrahmacari') noBrahmacari: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
+        return this.brahmacariService.closeAccount(noBrahmacari, body);
+    }
 }

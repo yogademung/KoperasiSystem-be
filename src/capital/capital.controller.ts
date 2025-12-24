@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateModalDto } from './dto/create-modal.dto';
 import { TransModalDto } from './dto/trans-modal.dto';
 import { CreateExternalLoanDto } from './dto/create-loan.dto';
+import { RepayExternalLoanDto } from './dto/repay-loan.dto';
 
 @Controller('capital')
 @UseGuards(JwtAuthGuard)
@@ -45,5 +46,10 @@ export class CapitalController {
     @Get('loans/:id')
     findOneLoan(@Param('id') id: string) {
         return this.capitalService.findOneExternalLoan(+id);
+    }
+
+    @Post('loans/:id/repayment')
+    repayLoan(@Param('id') id: string, @Body() dto: RepayExternalLoanDto, @Request() req) {
+        return this.capitalService.repayExternalLoan(+id, dto, req.user.userId || req.user.id);
     }
 }

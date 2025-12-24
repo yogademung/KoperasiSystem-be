@@ -57,6 +57,11 @@ export class ReportsController {
         return this.reportsService.getDepositoCertificateData(id);
     }
 
+    @Get('deposito/:id/closure')
+    async getDepositoClosure(@Param('id') id: string) {
+        return this.reportsService.getDepositoClosureData(id);
+    }
+
     // ============================
     // SAVINGS (TABUNGAN)
     // ============================
@@ -68,5 +73,35 @@ export class ReportsController {
     ) {
         // Type: TABUNGAN, BRAHMACARI, BALIMESARI, WANAPRASTA
         return this.reportsService.getSavingsPassbookData(type as any, id);
+    }
+
+    @Get('savings/ANGGOTA/:id/registration')
+    async getAnggotaRegistration(@Param('id') id: string) {
+        return this.reportsService.getAnggotaRegistrationData(id);
+    }
+
+    @Get('savings/ANGGOTA/:id/closure')
+    async getAnggotaClosure(@Param('id') id: string) {
+        return this.reportsService.getAnggotaClosureData(id);
+    }
+
+    @Get('savings/TABRELA/:id/closure')
+    async getTabrelaClosure(@Param('id') id: string) {
+        return this.reportsService.getTabrelaClosureData(id);
+    }
+
+    @Get('savings/BRAHMACARI/:id/closure')
+    async getBrahmacariClosure(@Param('id') id: string) {
+        return this.reportsService.getBrahmacariClosureData(id);
+    }
+
+    @Get('savings/BALIMESARI/:id/closure')
+    async getBalimesariClosure(@Param('id') id: string) {
+        return this.reportsService.getBalimesariClosureData(id);
+    }
+
+    @Get('savings/WANAPRASTA/:id/closure')
+    async getWanaprastaClosure(@Param('id') id: string) {
+        return this.reportsService.getWanaprastaClosureData(id);
     }
 }

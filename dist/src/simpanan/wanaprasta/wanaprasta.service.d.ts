@@ -114,4 +114,12 @@ export declare class WanaprastaService {
         totalPages: number;
     }>;
     voidTransaction(transId: number, txInput?: any): Promise<any>;
+    closeAccount(noWanaprasta: string, dto: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

@@ -100,7 +100,11 @@ export declare class DepositoService {
         payoutMode: string;
         targetAccountId: string | null;
     }>;
-    withdraw(noJangka: string, userId: number): Promise<{
+    withdraw(noJangka: string, userId: number, options?: {
+        penalty?: number;
+        adminFee?: number;
+        reason?: string;
+    }): Promise<{
         updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;

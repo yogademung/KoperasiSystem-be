@@ -114,4 +114,12 @@ export declare class BalimesariService {
         totalPages: number;
     }>;
     voidTransaction(transId: number, txInput?: any): Promise<any>;
+    closeAccount(noBalimesari: string, dto: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

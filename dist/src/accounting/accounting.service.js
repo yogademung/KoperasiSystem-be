@@ -551,7 +551,7 @@ let AccountingService = class AccountingService {
             },
             include: { details: true }
         });
-        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA'];
+        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA', 'KREDIT'];
         const summaryMap = new Map();
         products.forEach(p => summaryMap.set(p, {
             product: p,
@@ -566,11 +566,11 @@ let AccountingService = class AccountingService {
             const stats = summaryMap.get(j.sourceCode);
             const type = j.transType || '';
             const amount = j.details.reduce((sum, d) => sum + Number(d.debit), 0);
-            if (type.includes('SETOR') || type.includes('BUKA') || type.includes('TABUNG')) {
+            if (type.includes('SETOR') || type.includes('BUKA') || type.includes('TABUNG') || type.includes('ANGSURAN')) {
                 stats.depositTotal += amount;
                 stats.depositCount++;
             }
-            else if (type.includes('TARIK') || type.includes('CAIR') || type.includes('TUTUP')) {
+            else if (type.includes('TARIK') || type.includes('CAIR') || type.includes('TUTUP') || type.includes('REALISASI')) {
                 stats.withdrawalTotal += amount;
                 stats.withdrawalCount++;
             }

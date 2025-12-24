@@ -97,17 +97,17 @@ export declare class ReportsController {
             totalAngsuran: number;
             sisaPinjaman: number;
             id: number;
-            status: string;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            debiturKreditId: number;
-            angsuranKe: number;
-            tglJatuhTempo: Date;
             pokok: import("@prisma/client/runtime/library").Decimal;
+            status: string;
+            tglJatuhTempo: Date;
             bunga: import("@prisma/client/runtime/library").Decimal;
             total: import("@prisma/client/runtime/library").Decimal;
+            debiturKreditId: number;
+            angsuranKe: number;
             sisaPokok: import("@prisma/client/runtime/library").Decimal;
             sisaBunga: import("@prisma/client/runtime/library").Decimal;
             tglBayar: Date | null;
@@ -117,14 +117,14 @@ export declare class ReportsController {
             id: number;
             createdBy: string | null;
             createdAt: Date;
-            debiturKreditId: number;
+            keterangan: string | null;
             tipeTrans: string;
+            journalId: number | null;
+            debiturKreditId: number;
             tglTrans: Date;
             pokokBayar: import("@prisma/client/runtime/library").Decimal | null;
             bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
             dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
-            journalId: number | null;
-            keterangan: string | null;
         }[];
     }>;
     getDepositoCertificate(id: string): Promise<{
@@ -144,6 +144,50 @@ export declare class ReportsController {
             tglMulai: Date;
             tglJatuhTempo: Date;
             perpanjanganOtomatis: string;
+        };
+        account: {
+            noRekening: string;
+            nominal: number;
+            terbilang: string;
+            jangkaWaktu: string;
+            jatuhTempo: Date;
+            bunga: import("@prisma/client/runtime/library").Decimal;
+            tglBuka: Date;
+            perpanjanganOtomatis: string;
+        };
+    }>;
+    getDepositoClosure(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            tglTutup: Date;
+            tglJatuhTempo: Date;
+            closeBalance: number;
+            penalty: number;
+            adminFee: number;
+            refund: number;
+            terbilangRefund: string;
+        };
+        nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            nama: string;
+            alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
+            email: string | null;
+            telepon: string | null;
+            tempatLahir: string | null;
+            tanggalLahir: Date | null;
+            jenisKelamin: string | null;
+            fileKtp: string | null;
+            fileKk: string | null;
         };
     }>;
     getSavingsPassbook(type: string, id: string): Promise<{
@@ -165,5 +209,178 @@ export declare class ReportsController {
             balance: number;
             description: any;
         }[];
+    }>;
+    getAnggotaRegistration(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            principal: number;
+            mandatory: number;
+            terbilangPokok: string;
+            terbilangWajib: string;
+        };
+        nasabah: {
+            nama: string;
+            id: number;
+            ktp: string | null;
+            alamat: string | null;
+            pekerjaan: string | null;
+            phone: string | null;
+        };
+    }>;
+    getAnggotaClosure(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            tglTutup: Date;
+            closeBalance: number;
+            penalty: number;
+            adminFee: number;
+            refund: number;
+            terbilangRefund: string;
+        };
+        nasabah: {
+            nama: string;
+            id: number;
+            ktp: string | null;
+            alamat: string | null;
+            phone: string | null;
+        };
+    }>;
+    getTabrelaClosure(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            tglTutup: Date;
+            closeBalance: number;
+            penalty: number;
+            adminFee: number;
+            refund: number;
+            terbilangRefund: string;
+        };
+        nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            nama: string;
+            alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
+            email: string | null;
+            telepon: string | null;
+            tempatLahir: string | null;
+            tanggalLahir: Date | null;
+            jenisKelamin: string | null;
+            fileKtp: string | null;
+            fileKk: string | null;
+        };
+    }>;
+    getBrahmacariClosure(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            tglTutup: Date;
+            closeBalance: number;
+            penalty: number;
+            adminFee: number;
+            refund: number;
+            terbilangRefund: string;
+        };
+        nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            nama: string;
+            alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
+            email: string | null;
+            telepon: string | null;
+            tempatLahir: string | null;
+            tanggalLahir: Date | null;
+            jenisKelamin: string | null;
+            fileKtp: string | null;
+            fileKk: string | null;
+        };
+    }>;
+    getBalimesariClosure(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            tglTutup: Date;
+            closeBalance: number;
+            penalty: number;
+            adminFee: number;
+            refund: number;
+            terbilangRefund: string;
+        };
+        nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            nama: string;
+            alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
+            email: string | null;
+            telepon: string | null;
+            tempatLahir: string | null;
+            tanggalLahir: Date | null;
+            jenisKelamin: string | null;
+            fileKtp: string | null;
+            fileKk: string | null;
+        };
+    }>;
+    getWanaprastaClosure(id: string): Promise<{
+        template: string;
+        companyProfile: Record<string, string>;
+        account: {
+            noRekening: string;
+            tglBuka: Date;
+            tglTutup: Date;
+            closeBalance: number;
+            penalty: number;
+            adminFee: number;
+            refund: number;
+            terbilangRefund: string;
+        };
+        nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            nama: string;
+            alamat: string | null;
+            pekerjaan: string | null;
+            noKtp: string | null;
+            email: string | null;
+            telepon: string | null;
+            tempatLahir: string | null;
+            tanggalLahir: Date | null;
+            jenisKelamin: string | null;
+            fileKtp: string | null;
+            fileKk: string | null;
+        };
     }>;
 }

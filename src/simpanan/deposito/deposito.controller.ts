@@ -61,8 +61,8 @@ export class DepositoController {
     }
 
     @Post(':noJangka/cair')
-    withdraw(@Param('noJangka') noJangka: string, @Req() req: any) {
+    withdraw(@Param('noJangka') noJangka: string, @Body() body: { penalty?: number; adminFee?: number; reason?: string }, @Req() req: any) {
         const userId = req.user?.id || 1;
-        return this.depositoService.withdraw(noJangka, userId);
+        return this.depositoService.withdraw(noJangka, userId, body);
     }
 }

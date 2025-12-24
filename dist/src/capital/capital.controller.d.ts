@@ -2,6 +2,7 @@ import { CapitalService } from './capital.service';
 import { CreateModalDto } from './dto/create-modal.dto';
 import { TransModalDto } from './dto/trans-modal.dto';
 import { CreateExternalLoanDto } from './dto/create-loan.dto';
+import { RepayExternalLoanDto } from './dto/repay-loan.dto';
 export declare class CapitalController {
     private readonly capitalService;
     constructor(capitalService: CapitalService);
@@ -12,4 +13,8 @@ export declare class CapitalController {
     createLoan(dto: CreateExternalLoanDto, req: any): Promise<any>;
     findAllLoans(): Promise<any>;
     findOneLoan(id: string): Promise<any>;
+    repayLoan(id: string, dto: RepayExternalLoanDto, req: any): Promise<{
+        loan: any;
+        journal: any;
+    }>;
 }

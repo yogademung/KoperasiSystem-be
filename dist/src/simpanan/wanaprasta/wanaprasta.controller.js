@@ -40,6 +40,9 @@ let WanaprastaController = class WanaprastaController {
     getTransactions(noWanaprasta, page = '1', limit = '10') {
         return this.wanaprastaService.getTransactions(noWanaprasta, parseInt(page), parseInt(limit));
     }
+    close(noWanaprasta, body) {
+        return this.wanaprastaService.closeAccount(noWanaprasta, body);
+    }
 };
 exports.WanaprastaController = WanaprastaController;
 __decorate([
@@ -87,6 +90,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], WanaprastaController.prototype, "getTransactions", null);
+__decorate([
+    (0, common_1.Post)(':noWanaprasta/tutup'),
+    __param(0, (0, common_1.Param)('noWanaprasta')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], WanaprastaController.prototype, "close", null);
 exports.WanaprastaController = WanaprastaController = __decorate([
     (0, common_1.Controller)('api/simpanan/wanaprasta'),
     __metadata("design:paramtypes", [wanaprasta_service_1.WanaprastaService])

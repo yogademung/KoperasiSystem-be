@@ -273,8 +273,434 @@ export class ReportsService {
                 bungaPct: deposito.bunga,
                 tglMulai: deposito.tglBuka,
                 tglJatuhTempo: deposito.tglJatuhTempo,
-                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER' ? 'YA' : 'TIDAK'
+                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER' ? 'YA (Kapitalisasi Bunga)' :
+                    deposito.payoutMode === 'TRANSFER' ? `YA (Bunga Masuk Tabungan: ${deposito.targetAccountId || '-'})` : 'TIDAK'
+            },
+            // Legacy Template Compatibility
+            account: {
+                noRekening: deposito.noJangka,
+                nominal: this.normalizeCurrency(deposito.nominal),
+                terbilang: this.terbilang(this.normalizeCurrency(deposito.nominal)),
+                jangkaWaktu: 'X', // Need calculation or just 'X'
+                jatuhTempo: deposito.tglJatuhTempo,
+                bunga: deposito.bunga,
+                tglBuka: deposito.tglBuka,
+                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER' ? 'YA (Kapitalisasi Bunga)' :
+                    deposito.payoutMode === 'TRANSFER' ? `YA (Bunga Masuk Tabungan: ${deposito.targetAccountId || '-'})` : 'TIDAK'
             }
+        };
+    }
+
+    async getAnggotaRegistrationData(accountNumber: string) {
+        const account = await this.prisma.anggotaAccount.findUnique({
+            where: { accountNumber },
+            include: { customer: true }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        return {
+            template: 'FORM_ANGGOTA',
+            companyProfile,
+            account: {
+                noRekening: account.accountNumber,
+                tglBuka: account.openDate,
+                principal: this.normalizeCurrency(account.principal),
+                mandatory: this.normalizeCurrency(account.mandatoryInit),
+                terbilangPokok: this.terbilang(this.normalizeCurrency(account.principal)),
+                terbilangWajib: this.terbilang(this.normalizeCurrency(account.mandatoryInit))
+            },
+            nasabah: {
+                nama: account.customer.nama,
+                id: account.customer.id,
+                ktp: account.customer.noKtp,
+                alamat: account.customer.alamat,
+                pekerjaan: account.customer.pekerjaan,
+                phone: account.customer.telepon
+            }
+        };
+    }
+
+    async getAnggotaClosureData(accountNumber: string) {
+        const account = await this.prisma.anggotaAccount.findUnique({
+            where: { accountNumber },
+            include: {
+                customer: true,
+                transactions: {
+                    where: {
+                        transType: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                    },
+                    orderBy: { transDate: 'desc' },
+                    take: 10
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Extract closure details from transactions
+        const closureTx = account.transactions.find(t => t.transType === 'TUTUP');
+        // Filter penalty/admin that are close to the closure time (or just take latest)
+        // Since we take 10 latest, and closure is recent, this should be fine.
+        const penaltyTx = account.transactions.find(t => t.transType === 'DENDA');
+        const adminTx = account.transactions.find(t => t.transType === 'BIAYA_ADMIN');
+
+        let refundAmount = 0;
+        let penaltyAmount = 0;
+        let adminAmount = 0;
+        let closeBalance = 0;
+
+        if (closureTx) {
+            // Account is Closed (Transaction exists)
+            refundAmount = Math.abs(this.normalizeCurrency(closureTx.amount));
+            penaltyAmount = penaltyTx ? Math.abs(this.normalizeCurrency(penaltyTx.amount)) : 0;
+            adminAmount = adminTx ? Math.abs(this.normalizeCurrency(adminTx.amount)) : 0;
+            closeBalance = refundAmount + penaltyAmount + adminAmount; // Reconstruct original balance before deductions
+        } else {
+            // Account is Active (Draft Closure)
+            // Use current balance as the projected refund (assuming no penalty/admin yet)
+            closeBalance = this.normalizeCurrency(account.balance);
+            refundAmount = closeBalance;
+        }
+
+        return {
+            template: 'FORM_TUTUP_ANGGOTA',
+            companyProfile,
+            account: {
+                noRekening: account.accountNumber,
+                tglBuka: account.openDate,
+                tglTutup: account.closeDate || new Date(),
+                closeBalance: closeBalance,
+                penalty: penaltyAmount,
+                adminFee: adminAmount,
+                refund: refundAmount,
+                terbilangRefund: this.terbilang(refundAmount)
+            },
+            nasabah: {
+                nama: account.customer.nama,
+                id: account.customer.id,
+                ktp: account.customer.noKtp,
+                alamat: account.customer.alamat,
+                phone: account.customer.telepon
+            }
+        };
+    }
+
+    async getTabrelaClosureData(noTab: string) {
+        const account = await this.prisma.nasabahTab.findUnique({
+            where: { noTab },
+            include: {
+                nasabah: true,
+                transactions: {
+                    where: {
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Extract closure details
+        // Access via account.transactions
+        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+
+        let refundAmount = 0;
+        let penaltyAmount = 0;
+        let adminAmount = 0;
+        let closeBalance = 0;
+
+        if (closureTx) {
+            // Account Closed
+            refundAmount = Math.abs(Number(closureTx.nominal));
+            penaltyAmount = penaltyTx ? Math.abs(Number(penaltyTx.nominal)) : 0;
+            adminAmount = adminTx ? Math.abs(Number(adminTx.nominal)) : 0;
+            closeBalance = refundAmount + penaltyAmount + adminAmount;
+        } else {
+            // Draft
+            closeBalance = Number(account.saldo);
+            refundAmount = closeBalance;
+        }
+
+        return {
+            template: 'FORM_TUTUP_TABRELA',
+            companyProfile,
+            account: {
+                noRekening: account.noTab,
+                tglBuka: account.tglBuka,
+                // Tabrela doesn't have closeDate or tglTutup in schema apparently?
+                // Using current date as fallback.
+                tglTutup: new Date(),
+                closeBalance: closeBalance,
+                penalty: penaltyAmount,
+                adminFee: adminAmount,
+                refund: refundAmount,
+                terbilangRefund: this.terbilang(refundAmount)
+            },
+            nasabah: account.nasabah
+        };
+    }
+
+    async getBrahmacariClosureData(noBrahmacari: string) {
+        const account = await this.prisma.nasabahBrahmacari.findUnique({
+            where: { noBrahmacari },
+            include: {
+                nasabah: true,
+                transactions: {
+                    where: {
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Extract closure details
+        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+
+        let refundAmount = 0;
+        let penaltyAmount = 0;
+        let adminAmount = 0;
+        let closeBalance = 0;
+
+        if (closureTx) {
+            // Account Closed
+            refundAmount = Math.abs(Number(closureTx.nominal));
+            penaltyAmount = penaltyTx ? Math.abs(Number(penaltyTx.nominal)) : 0;
+            adminAmount = adminTx ? Math.abs(Number(adminTx.nominal)) : 0;
+            closeBalance = refundAmount + penaltyAmount + adminAmount;
+        } else {
+            // Draft
+            closeBalance = Number(account.saldo);
+            refundAmount = closeBalance;
+        }
+
+        return {
+            template: 'FORM_TUTUP_BRAHMACARI',
+            companyProfile,
+            account: {
+                noRekening: account.noBrahmacari,
+                tglBuka: account.tglBuka,
+                tglTutup: new Date(),
+                closeBalance: closeBalance,
+                penalty: penaltyAmount,
+                adminFee: adminAmount,
+                refund: refundAmount,
+                terbilangRefund: this.terbilang(refundAmount)
+            },
+            nasabah: account.nasabah
+        };
+    }
+
+    async getBalimesariClosureData(noBalimesari: string) {
+        const account = await this.prisma.nasabahBalimesari.findUnique({
+            where: { noBalimesari },
+            include: {
+                nasabah: true,
+                transactions: {
+                    where: {
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Extract closure details
+        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+
+        let refundAmount = 0;
+        let penaltyAmount = 0;
+        let adminAmount = 0;
+        let closeBalance = 0;
+
+        if (closureTx) {
+            // Account Closed
+            refundAmount = Math.abs(Number(closureTx.nominal));
+            penaltyAmount = penaltyTx ? Math.abs(Number(penaltyTx.nominal)) : 0;
+            adminAmount = adminTx ? Math.abs(Number(adminTx.nominal)) : 0;
+            closeBalance = refundAmount + penaltyAmount + adminAmount;
+        } else {
+            // Draft
+            closeBalance = Number(account.saldo);
+            refundAmount = closeBalance;
+        }
+
+        return {
+            template: 'FORM_TUTUP_BALIMESARI',
+            companyProfile,
+            account: {
+                noRekening: account.noBalimesari,
+                tglBuka: account.tglBuka,
+                tglTutup: new Date(),
+                closeBalance: closeBalance,
+                penalty: penaltyAmount,
+                adminFee: adminAmount,
+                refund: refundAmount,
+                terbilangRefund: this.terbilang(refundAmount)
+            },
+            nasabah: account.nasabah
+        };
+    }
+
+    async getWanaprastaClosureData(noWanaprasta: string) {
+        const account = await this.prisma.nasabahWanaprasta.findUnique({
+            where: { noWanaprasta },
+            include: {
+                nasabah: true,
+                transactions: {
+                    where: {
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Extract closure details
+        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+
+        let refundAmount = 0;
+        let penaltyAmount = 0;
+        let adminAmount = 0;
+        let closeBalance = 0;
+
+        if (closureTx) {
+            // Account Closed
+            refundAmount = Math.abs(Number(closureTx.nominal));
+            penaltyAmount = penaltyTx ? Math.abs(Number(penaltyTx.nominal)) : 0;
+            adminAmount = adminTx ? Math.abs(Number(adminTx.nominal)) : 0;
+            closeBalance = refundAmount + penaltyAmount + adminAmount;
+        } else {
+            // Draft
+            closeBalance = Number(account.saldo);
+            refundAmount = closeBalance;
+        }
+
+        return {
+            template: 'FORM_TUTUP_WANAPRASTA',
+            companyProfile,
+            account: {
+                noRekening: account.noWanaprasta,
+                tglBuka: account.tglBuka,
+                tglTutup: new Date(),
+                closeBalance: closeBalance,
+                penalty: penaltyAmount,
+                adminFee: adminAmount,
+                refund: refundAmount,
+                terbilangRefund: this.terbilang(refundAmount)
+            },
+            nasabah: account.nasabah
+        };
+    }
+
+    async getDepositoClosureData(noJangka: string) {
+        const account = await this.prisma.nasabahJangka.findUnique({
+            where: { noJangka },
+            include: {
+                nasabah: true,
+                transactions: {
+                    where: {
+                        tipeTrans: { in: ['CAIR', 'DENDA', 'BIAYA_ADMIN'] }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Extract closure details
+        // Note: Deposito creates 'CAIR' for principal withdrawal.
+        const closureTx = account.transactions.find(t => t.tipeTrans === 'CAIR');
+        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+
+        let refundAmount = 0;
+        let penaltyAmount = 0;
+        let adminAmount = 0;
+        let closeBalance = 0;
+
+        // Logic might be slightly different for Deposito if it's based on Principal
+        // But for "Closure Form", we usually want to show:
+        // Nominal Deposito, Penalties, and Net Refund.
+
+        const principal = this.normalizeCurrency(account.nominal);
+
+        if (closureTx) {
+            // Account Closed
+            // Refund Amount in CAIR transaction is the Principal usually (negative).
+            // But we want the "Net Received".
+            // Let's rely on the individual transaction amounts.
+
+            // If CAIR is -1000, Denda is -50, Admin is -10.
+            // Net Cash Out = 1000 - 50 - 10 = 940 (This is what we assume happened financially)
+            // But usually we just Display:
+            // Principal: 1000
+            // Denda: 50
+            // Admin: 10
+            // Total: 940
+
+            penaltyAmount = penaltyTx ? Math.abs(this.normalizeCurrency(penaltyTx.nominal)) : 0;
+            adminAmount = adminTx ? Math.abs(this.normalizeCurrency(adminTx.nominal)) : 0;
+
+            closeBalance = principal; // The 'Balance' before close is the Principal
+            refundAmount = closeBalance - penaltyAmount - adminAmount;
+        } else {
+            // Draft mode (Active)
+            closeBalance = principal;
+            refundAmount = closeBalance;
+        }
+
+        return {
+            template: 'FORM_TUTUP_DEPOSITO',
+            companyProfile,
+            account: {
+                noRekening: account.noJangka,
+                tglBuka: account.tglBuka,
+                tglTutup: new Date(),
+                tglJatuhTempo: account.tglJatuhTempo,
+                closeBalance: closeBalance,
+                penalty: penaltyAmount,
+                adminFee: adminAmount,
+                refund: refundAmount,
+                terbilangRefund: this.terbilang(refundAmount)
+            },
+            nasabah: account.nasabah
         };
     }
 

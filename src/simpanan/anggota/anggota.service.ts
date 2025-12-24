@@ -3,6 +3,7 @@ import { PrismaService } from '../../database/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
+import { TutupAnggotaDto } from './dto/tutup-anggota.dto';
 
 @Injectable()
 export class AnggotaService {
@@ -164,6 +165,78 @@ export class AnggotaService {
             }, userId);
 
             return { success: true };
+            return { success: true };
+        });
+    }
+
+    async closeAccount(
+        accountNumber: string,
+        dto: TutupAnggotaDto,
+        userId: number
+    ) {
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Get Account
+            const account = await tx.anggotaAccount.findUnique({
+                where: { accountNumber }
+            });
+
+            if (!account) {
+                throw new BadRequestException('Account not found');
+            }
+
+            if (account.status === 'T') {
+                throw new BadRequestException('Account is already closed');
+            }
+
+            const currentBalance = Number(account.balance);
+            let finalBalance = currentBalance;
+
+            // 2. Handle Penalty (Denda)
+            if (dto.penaltyAmount && dto.penaltyAmount > 0) {
+                await this.createTransaction(tx, accountNumber, {
+                    transType: 'DENDA',
+                    amount: -dto.penaltyAmount,
+                    description: `Penalty: ${dto.reason || 'Account Closure'}`
+                }, userId);
+                finalBalance -= dto.penaltyAmount;
+            }
+
+            // 3. Handle Admin Fee
+            if (dto.adminFee && dto.adminFee > 0) {
+                await this.createTransaction(tx, accountNumber, {
+                    transType: 'BIAYA_ADMIN',
+                    amount: -dto.adminFee,
+                    description: `Admin Fee: ${dto.reason || 'Account Closure'}`
+                }, userId);
+                finalBalance -= dto.adminFee;
+            }
+
+            // 4. Final Disbursement (TUTUP)
+            // Even if balance is 0 or negative (should not be), we might need to record the closing.
+            // Assuming balance > 0 for disbursement.
+            if (finalBalance > 0) {
+                await this.createTransaction(tx, accountNumber, {
+                    transType: 'TUTUP',
+                    amount: -finalBalance,
+                    description: `Closing Account: ${dto.reason || ''}`
+                }, userId);
+            }
+
+            // 5. Update Status
+            await tx.anggotaAccount.update({
+                where: { accountNumber },
+                data: {
+                    status: 'T',
+                    closeDate: new Date(),
+                    balance: 0 // Ensure it's explicitly 0
+                }
+            });
+
+            return {
+                success: true,
+                refundAmount: finalBalance,
+                message: 'Account closed successfully'
+            };
         });
     }
 
@@ -233,6 +306,9 @@ export class AnggotaService {
         else if (dto.transType === 'SETORAN_WAJIB') eventTransType = 'ANGGOTA_SETOR_WAJIB';
         else if (dto.transType === 'SETORAN') eventTransType = 'ANGGOTA_SETOR_SUKARELA';
         else if (dto.transType === 'PENARIKAN') eventTransType = 'ANGGOTA_TARIK';
+        else if (dto.transType === 'DENDA') eventTransType = 'ANGGOTA_DENDA';
+        else if (dto.transType === 'BIAYA_ADMIN') eventTransType = 'ANGGOTA_ADMIN';
+        else if (dto.transType === 'TUTUP') eventTransType = 'ANGGOTA_TUTUP';
 
         if (eventTransType) {
             try {

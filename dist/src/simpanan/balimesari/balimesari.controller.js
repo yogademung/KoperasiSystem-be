@@ -40,6 +40,9 @@ let BalimesariController = class BalimesariController {
     getTransactions(noBalimesari, page = '1', limit = '10') {
         return this.balimesariService.getTransactions(noBalimesari, parseInt(page), parseInt(limit));
     }
+    close(noBalimesari, body) {
+        return this.balimesariService.closeAccount(noBalimesari, body);
+    }
 };
 exports.BalimesariController = BalimesariController;
 __decorate([
@@ -87,6 +90,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], BalimesariController.prototype, "getTransactions", null);
+__decorate([
+    (0, common_1.Post)(':noBalimesari/tutup'),
+    __param(0, (0, common_1.Param)('noBalimesari')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], BalimesariController.prototype, "close", null);
 exports.BalimesariController = BalimesariController = __decorate([
     (0, common_1.Controller)('api/simpanan/balimesari'),
     __metadata("design:paramtypes", [balimesari_service_1.BalimesariService])

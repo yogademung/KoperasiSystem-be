@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nest
 import { AnggotaService } from './anggota.service';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
+import { TutupAnggotaDto } from './dto/tutup-anggota.dto';
 // Assumed Guards - using mock or standard names if not found. Prompt suggests these guards.
 // import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 // import { RolesGuard } from '@/common/guards/roles.guard';
@@ -62,5 +63,16 @@ export class AnggotaController {
         @Query('limit') limit: number = 10
     ) {
         return this.anggotaService.getTransactions(accountNumber, page, limit);
+    }
+
+    @Post(':accountNumber/tutup')
+    // @Roles('admin', 'teller')
+    async tutup(
+        @Param('accountNumber') accountNumber: string,
+        @Body() dto: TutupAnggotaDto,
+        @Req() req
+    ) {
+        const userId = req.user?.id || 1;
+        return this.anggotaService.closeAccount(accountNumber, dto, userId);
     }
 }

@@ -80,4 +80,12 @@ export declare class TabrelaController {
     penarikan(noTab: string, body: any): Promise<{
         success: boolean;
     }>;
+    close(noTab: string, body: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

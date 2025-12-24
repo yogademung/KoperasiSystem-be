@@ -40,6 +40,9 @@ let BrahmacariController = class BrahmacariController {
     getTransactions(noBrahmacari, page = '1', limit = '10') {
         return this.brahmacariService.getTransactions(noBrahmacari, parseInt(page), parseInt(limit));
     }
+    close(noBrahmacari, body) {
+        return this.brahmacariService.closeAccount(noBrahmacari, body);
+    }
 };
 exports.BrahmacariController = BrahmacariController;
 __decorate([
@@ -87,6 +90,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], BrahmacariController.prototype, "getTransactions", null);
+__decorate([
+    (0, common_1.Post)(':noBrahmacari/tutup'),
+    __param(0, (0, common_1.Param)('noBrahmacari')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], BrahmacariController.prototype, "close", null);
 exports.BrahmacariController = BrahmacariController = __decorate([
     (0, common_1.Controller)('api/simpanan/brahmacari'),
     __metadata("design:paramtypes", [brahmacari_service_1.BrahmacariService])

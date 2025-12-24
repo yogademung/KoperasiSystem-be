@@ -268,4 +268,75 @@ export class BalimesariService {
             return this.prisma.$transaction(executeLogic);
         }
     }
+
+    /**
+     * Close Account
+     */
+    async closeAccount(noBalimesari: string, dto: { reason: string, penalty?: number, adminFee?: number }) {
+        const { reason, penalty = 0, adminFee = 0 } = dto;
+        const userId = 1; // Default System User
+
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.nasabahBalimesari.findUnique({ where: { noBalimesari } });
+            if (!account) throw new NotFoundException('Account not found');
+            if (account.status !== 'A') throw new BadRequestException('Account is not active');
+
+            let currentBalance = Number(account.saldo);
+
+            // 1. Apply Penalty (if any)
+            if (penalty > 0) {
+                currentBalance -= penalty;
+                await tx.transBalimesari.create({
+                    data: {
+                        noBalimesari,
+                        tipeTrans: 'DENDA',
+                        nominal: -penalty,
+                        saldoAkhir: currentBalance,
+                        keterangan: `Denda Penutupan: ${reason}`,
+                        createdBy: userId?.toString() || 'SYSTEM'
+                    }
+                });
+            }
+
+            // 2. Apply Admin Fee (if any)
+            if (adminFee > 0) {
+                currentBalance -= adminFee;
+                await tx.transBalimesari.create({
+                    data: {
+                        noBalimesari,
+                        tipeTrans: 'BIAYA_ADMIN',
+                        nominal: -adminFee,
+                        saldoAkhir: currentBalance,
+                        keterangan: 'Biaya Administrasi Penutupan',
+                        createdBy: userId?.toString() || 'SYSTEM'
+                    }
+                });
+            }
+
+            // 3. Final Withdrawal (TUTUP) if balance > 0
+            if (currentBalance > 0) {
+                await tx.transBalimesari.create({
+                    data: {
+                        noBalimesari,
+                        tipeTrans: 'TUTUP',
+                        nominal: -currentBalance,
+                        saldoAkhir: 0,
+                        keterangan: `Penutupan Rekening: ${reason}`,
+                        createdBy: userId?.toString() || 'SYSTEM'
+                    }
+                });
+            }
+
+            // 4. Update Account Status
+            await tx.nasabahBalimesari.update({
+                where: { noBalimesari },
+                data: {
+                    status: 'T', // Closed
+                    saldo: 0
+                }
+            });
+
+            return { success: true, refund: currentBalance };
+        });
+    }
 }

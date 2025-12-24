@@ -90,4 +90,12 @@ export declare class TabrelaService {
         success: boolean;
     }>;
     voidTransaction(transId: number, txInput?: any): Promise<any>;
+    closeAccount(noTab: string, dto: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }, userId?: number): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

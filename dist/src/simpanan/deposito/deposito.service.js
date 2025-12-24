@@ -149,21 +149,51 @@ let DepositoService = class DepositoService {
             accumulatedInterest
         };
     }
-    async withdraw(noJangka, userId) {
+    async withdraw(noJangka, userId, options) {
         const deposito = await this.prisma.nasabahJangka.findUnique({
             where: { noJangka },
+            include: { transactions: true }
         });
         if (!deposito)
             throw new common_1.NotFoundException('Deposito not found');
         if (deposito.status !== 'A')
             throw new common_1.BadRequestException('Deposito is not active');
+        const penalty = options?.penalty || 0;
+        const adminFee = options?.adminFee || 0;
+        const reason = options?.reason || 'Pencairan Deposito';
         return this.prisma.$transaction(async (tx) => {
+            let principal = Number(deposito.nominal);
+            let finalPayout = principal;
+            if (penalty > 0) {
+                finalPayout -= penalty;
+                await tx.transJangka.create({
+                    data: {
+                        noJangka,
+                        tipeTrans: 'DENDA',
+                        nominal: -penalty,
+                        keterangan: `Denda Pencairan: ${reason}`,
+                        createdBy: userId.toString(),
+                    }
+                });
+            }
+            if (adminFee > 0) {
+                finalPayout -= adminFee;
+                await tx.transJangka.create({
+                    data: {
+                        noJangka,
+                        tipeTrans: 'BIAYA_ADMIN',
+                        nominal: -adminFee,
+                        keterangan: 'Biaya Administrasi Pencairan',
+                        createdBy: userId.toString(),
+                    }
+                });
+            }
             const transaction = await tx.transJangka.create({
                 data: {
                     noJangka,
                     tipeTrans: 'CAIR',
-                    nominal: deposito.nominal.negated(),
-                    keterangan: 'Pencairan Deposito',
+                    nominal: -principal,
+                    keterangan: `Pencairan Deposito: ${reason}`,
                     createdBy: userId.toString(),
                 },
             });
@@ -176,8 +206,8 @@ let DepositoService = class DepositoService {
             });
             this.eventEmitter.emit('transaction.created', {
                 transType: 'DEPOSITO_CAIR',
-                amount: Number(deposito.nominal),
-                description: 'Pencairan Deposito',
+                amount: finalPayout,
+                description: `Pencairan Deposito (${reason})`,
                 userId: userId,
                 refId: transaction.id,
                 branchCode: '001'

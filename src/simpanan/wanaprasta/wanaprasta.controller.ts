@@ -50,4 +50,8 @@ export class WanaprastaController {
             parseInt(limit)
         );
     }
+    @Post(':noWanaprasta/tutup')
+    close(@Param('noWanaprasta') noWanaprasta: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
+        return this.wanaprastaService.closeAccount(noWanaprasta, body);
+    }
 }

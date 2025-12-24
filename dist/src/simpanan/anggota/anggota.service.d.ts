@@ -2,6 +2,7 @@ import { PrismaService } from '../../database/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
+import { TutupAnggotaDto } from './dto/tutup-anggota.dto';
 export declare class AnggotaService {
     private prisma;
     private eventEmitter;
@@ -133,6 +134,11 @@ export declare class AnggotaService {
     }>;
     penarikan(accountNumber: string, dto: SetoranDto, userId: number): Promise<{
         success: boolean;
+    }>;
+    closeAccount(accountNumber: string, dto: TutupAnggotaDto, userId: number): Promise<{
+        success: boolean;
+        refundAmount: number;
+        message: string;
     }>;
     getTransactions(accountNumber: string, page?: number, limit?: number): Promise<{
         data: {

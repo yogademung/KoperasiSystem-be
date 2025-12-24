@@ -33,4 +33,9 @@ export class TabrelaController {
     penarikan(@Param('noTab') noTab: string, @Body() body: any) {
         return this.tabrelaService.penarikan(noTab, body);
     }
+
+    @Post(':noTab/tutup')
+    close(@Param('noTab') noTab: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
+        return this.tabrelaService.closeAccount(noTab, body);
+    }
 }

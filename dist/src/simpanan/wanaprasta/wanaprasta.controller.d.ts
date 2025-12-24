@@ -111,4 +111,12 @@ export declare class WanaprastaController {
         limit: number;
         totalPages: number;
     }>;
+    close(noWanaprasta: string, body: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

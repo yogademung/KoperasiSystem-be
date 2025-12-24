@@ -126,6 +126,58 @@ let AnggotaService = class AnggotaService {
                 description: dto.description
             }, userId);
             return { success: true };
+            return { success: true };
+        });
+    }
+    async closeAccount(accountNumber, dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const account = await tx.anggotaAccount.findUnique({
+                where: { accountNumber }
+            });
+            if (!account) {
+                throw new common_1.BadRequestException('Account not found');
+            }
+            if (account.status === 'T') {
+                throw new common_1.BadRequestException('Account is already closed');
+            }
+            const currentBalance = Number(account.balance);
+            let finalBalance = currentBalance;
+            if (dto.penaltyAmount && dto.penaltyAmount > 0) {
+                await this.createTransaction(tx, accountNumber, {
+                    transType: 'DENDA',
+                    amount: -dto.penaltyAmount,
+                    description: `Penalty: ${dto.reason || 'Account Closure'}`
+                }, userId);
+                finalBalance -= dto.penaltyAmount;
+            }
+            if (dto.adminFee && dto.adminFee > 0) {
+                await this.createTransaction(tx, accountNumber, {
+                    transType: 'BIAYA_ADMIN',
+                    amount: -dto.adminFee,
+                    description: `Admin Fee: ${dto.reason || 'Account Closure'}`
+                }, userId);
+                finalBalance -= dto.adminFee;
+            }
+            if (finalBalance > 0) {
+                await this.createTransaction(tx, accountNumber, {
+                    transType: 'TUTUP',
+                    amount: -finalBalance,
+                    description: `Closing Account: ${dto.reason || ''}`
+                }, userId);
+            }
+            await tx.anggotaAccount.update({
+                where: { accountNumber },
+                data: {
+                    status: 'T',
+                    closeDate: new Date(),
+                    balance: 0
+                }
+            });
+            return {
+                success: true,
+                refundAmount: finalBalance,
+                message: 'Account closed successfully'
+            };
         });
     }
     async getTransactions(accountNumber, page = 1, limit = 10) {
@@ -182,6 +234,12 @@ let AnggotaService = class AnggotaService {
             eventTransType = 'ANGGOTA_SETOR_SUKARELA';
         else if (dto.transType === 'PENARIKAN')
             eventTransType = 'ANGGOTA_TARIK';
+        else if (dto.transType === 'DENDA')
+            eventTransType = 'ANGGOTA_DENDA';
+        else if (dto.transType === 'BIAYA_ADMIN')
+            eventTransType = 'ANGGOTA_ADMIN';
+        else if (dto.transType === 'TUTUP')
+            eventTransType = 'ANGGOTA_TUTUP';
         if (eventTransType) {
             try {
                 this.eventEmitter.emit('transaction.created', {

@@ -50,4 +50,8 @@ export class BalimesariController {
             parseInt(limit)
         );
     }
+    @Post(':noBalimesari/tutup')
+    close(@Param('noBalimesari') noBalimesari: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
+        return this.balimesariService.closeAccount(noBalimesari, body);
+    }
 }

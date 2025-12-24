@@ -111,4 +111,12 @@ export declare class BalimesariController {
         limit: number;
         totalPages: number;
     }>;
+    close(noBalimesari: string, body: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

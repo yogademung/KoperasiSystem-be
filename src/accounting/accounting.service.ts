@@ -663,7 +663,7 @@ export class AccountingService {
 
         // 3. Aggregate Transaction Summaries (Setor/Tarik)
         // We need to group by Product (Source) and Type (Setor/Tarik)
-        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA'];
+        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA', 'KREDIT'];
         const summaryMap = new Map<string, {
             product: string;
             depositTotal: number;
@@ -693,10 +693,11 @@ export class AccountingService {
             const amount = j.details.reduce((sum, d) => sum + Number(d.debit), 0); // Total mutated amount (Debit = Credit in balanced journal)
 
             // Heuristic based on Naming Convention (e.g. TABRELA_SETOR vs TABRELA_TARIK)
-            if (type.includes('SETOR') || type.includes('BUKA') || type.includes('TABUNG')) {
+            // KREDIT: ANGSURAN (In), REALISASI (Out)
+            if (type.includes('SETOR') || type.includes('BUKA') || type.includes('TABUNG') || type.includes('ANGSURAN')) {
                 stats.depositTotal += amount;
                 stats.depositCount++;
-            } else if (type.includes('TARIK') || type.includes('CAIR') || type.includes('TUTUP')) {
+            } else if (type.includes('TARIK') || type.includes('CAIR') || type.includes('TUTUP') || type.includes('REALISASI')) {
                 stats.withdrawalTotal += amount;
                 stats.withdrawalCount++;
             }

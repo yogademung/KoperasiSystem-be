@@ -171,26 +171,79 @@ export class DepositoService {
     }
 
     // Cairkan / Withdraw
-    async withdraw(noJangka: string, userId: number) {
+    async withdraw(noJangka: string, userId: number, options?: { penalty?: number, adminFee?: number, reason?: string }) {
         const deposito = await this.prisma.nasabahJangka.findUnique({
             where: { noJangka },
+            include: { transactions: true }
         });
         if (!deposito) throw new NotFoundException('Deposito not found');
         if (deposito.status !== 'A') throw new BadRequestException('Deposito is not active');
 
+        const penalty = options?.penalty || 0;
+        const adminFee = options?.adminFee || 0;
+        const reason = options?.reason || 'Pencairan Deposito';
+
+        // Calculate Accumulated Interest (Credit/BUNGA) - Existing Withdrawals/Pajak
+        // For simplicity, we assume payout is Principal + Remaining Interest - Fees
+        // But often Deposito payout is just Principal if interest was monthly.
+        // If payoutMode='ON_MATURITY', we pay Principal + Interest.
+        // Checking existing transactions:
+        // Let's assume the 'nominal' to be returned is primarily the Principal.
+        // Interest usually paid out monthly or at end.
+        // If we are closing early, usually we might even clawback interest?
+        // User request is simple: just add penalty condition.
+
+        // Refined Logic:
+        // Payout = Principal - Penalty - AdminFee
+        // (Any unpaid interest logic is separate, typically processed before close if applicable)
+
         return this.prisma.$transaction(async (tx) => {
-            // Create Transaction Record (Payout)
+            let principal = Number(deposito.nominal);
+            let finalPayout = principal;
+
+            // 1. Charge Penalty
+            if (penalty > 0) {
+                finalPayout -= penalty;
+                await tx.transJangka.create({
+                    data: {
+                        noJangka,
+                        tipeTrans: 'DENDA',
+                        nominal: -penalty,
+                        keterangan: `Denda Pencairan: ${reason}`,
+                        createdBy: userId.toString(),
+                    }
+                });
+            }
+
+            // 2. Charge Admin Fee
+            if (adminFee > 0) {
+                finalPayout -= adminFee;
+                await tx.transJangka.create({
+                    data: {
+                        noJangka,
+                        tipeTrans: 'BIAYA_ADMIN',
+                        nominal: -adminFee,
+                        keterangan: 'Biaya Administrasi Pencairan',
+                        createdBy: userId.toString(),
+                    }
+                });
+            }
+
+            // 3. Create Transaction Record (Payout Principal)
+            // We record the FULL principal withdrawal, and the fees reduce the net cash out effectively.
+            // But usually we just show the lines.
+            // To balance the books: 'CAIR' entry should remove the Liability (Principal).
             const transaction = await tx.transJangka.create({
                 data: {
                     noJangka,
                     tipeTrans: 'CAIR',
-                    nominal: deposito.nominal.negated(), // Outflow
-                    keterangan: 'Pencairan Deposito',
+                    nominal: -principal, // Remove Principal from Liability
+                    keterangan: `Pencairan Deposito: ${reason}`,
                     createdBy: userId.toString(),
                 },
             });
 
-            // Update Status
+            // 4. Update Status
             const result = await tx.nasabahJangka.update({
                 where: { noJangka },
                 data: {
@@ -202,8 +255,8 @@ export class DepositoService {
             // EMIT EVENT
             this.eventEmitter.emit('transaction.created', {
                 transType: 'DEPOSITO_CAIR',
-                amount: Number(deposito.nominal),
-                description: 'Pencairan Deposito',
+                amount: finalPayout, // Net Payout Amount for Cashier
+                description: `Pencairan Deposito (${reason})`,
                 userId: userId,
                 refId: transaction.id,
                 branchCode: '001'

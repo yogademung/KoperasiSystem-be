@@ -111,4 +111,12 @@ export declare class BrahmacariController {
         limit: number;
         totalPages: number;
     }>;
+    close(noBrahmacari: string, body: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }

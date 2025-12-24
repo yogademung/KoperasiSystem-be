@@ -3,6 +3,7 @@ import { CreateModalDto } from './dto/create-modal.dto';
 import { TransModalDto } from './dto/trans-modal.dto';
 import { CreateExternalLoanDto } from './dto/create-loan.dto';
 import { AccountingService } from '../accounting/accounting.service';
+import { RepayExternalLoanDto } from './dto/repay-loan.dto';
 export declare class CapitalService {
     private prisma;
     private accountingService;
@@ -16,4 +17,9 @@ export declare class CapitalService {
     createExternalLoan(dto: CreateExternalLoanDto, userId: number): Promise<any>;
     findAllExternalLoans(): Promise<any>;
     findOneExternalLoan(id: number): Promise<any>;
+    repayExternalLoan(id: number, dto: RepayExternalLoanDto, userId: number): Promise<{
+        loan: any;
+        journal: any;
+    }>;
+    private ensureExternalLoanAccounts;
 }

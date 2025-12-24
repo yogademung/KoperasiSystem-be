@@ -114,4 +114,12 @@ export declare class BrahmacariService {
         totalPages: number;
     }>;
     voidTransaction(transId: number, txInput?: any): Promise<any>;
+    closeAccount(noBrahmacari: string, dto: {
+        reason: string;
+        penalty?: number;
+        adminFee?: number;
+    }): Promise<{
+        success: boolean;
+        refund: number;
+    }>;
 }
