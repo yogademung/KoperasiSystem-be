@@ -32,6 +32,13 @@ model User {
   role           Role            @relation(fields: [roleId], references: [id])
   postedJournals PostedJournal[]
 
+  // Phase 7 Relations
+  periodLocks     PeriodLock[]    @relation("PeriodLocker")
+  periodUnlocks   PeriodLock[]    @relation("PeriodUnlocker")
+  unlockRequests  UnlockRequest[] @relation("UnlockRequester")
+  unlockApprovals UnlockRequest[] @relation("UnlockApprover")
+  monthEndLogs    MonthEndLog[]
+
   @@map("s_user_lpd")
 }
 
@@ -868,4 +875,64 @@ model InstallmentSchedule {
   loan              ExternalLoan @relation(fields: [loanId], references: [id])
 
   @@map("t_jadwal_pinjaman_external")
+}
+
+// ============================================
+// PHASE 7: MONTHLY CLOSING (Added)
+// ============================================
+
+model PeriodLock {
+  period   String   @id @map("PERIODE") @db.VarChar(7) // YYYY-MM
+  status   String   @map("STATUS") @db.VarChar(20) // LOCKED, UNLOCKED
+  reason   String?  @map("REASON") @db.Text
+  
+  lockedAt DateTime @map("LOCKED_AT")
+  lockedBy Int      @map("LOCKED_BY")
+  
+  unlockedAt DateTime? @map("UNLOCKED_AT")
+  unlockedBy Int?      @map("UNLOCKED_BY")
+  unlockReason String? @map("UNLOCK_REASON") @db.Text
+  
+  creator  User     @relation("PeriodLocker", fields: [lockedBy], references: [id])
+  unlocker User?    @relation("PeriodUnlocker", fields: [unlockedBy], references: [id])
+  
+  requests UnlockRequest[]
+
+  @@map("t_period_lock")
+}
+
+model UnlockRequest {
+  id           Int      @id @default(autoincrement()) @map("REQUEST_ID")
+  period       String   @map("PERIODE") @db.VarChar(7)
+  
+  requestedBy  Int      @map("REQUESTED_BY")
+  requestedAt  DateTime @default(now()) @map("REQUESTED_AT")
+  reason       String   @map("REASON") @db.Text
+  
+  status       String   @default("PENDING") @map("STATUS") @db.VarChar(20) // PENDING, APPROVED, REJECTED
+  
+  approvedBy   Int?     @map("APPROVED_BY")
+  approvedAt   DateTime? @map("APPROVED_AT")
+  managerNotes String?  @map("MANAGER_NOTES") @db.Text
+  
+  periodLock   PeriodLock @relation(fields: [period], references: [period])
+  requester    User       @relation("UnlockRequester", fields: [requestedBy], references: [id])
+  approver     User?      @relation("UnlockApprover", fields: [approvedBy], references: [id])
+  
+  @@map("t_unlock_request")
+}
+
+model MonthEndLog {
+  id        Int      @id @default(autoincrement()) @map("LOG_ID")
+  period    String   @map("PERIODE") @db.VarChar(7)
+  action    String   @map("ACTION") @db.VarChar(50) // DEPRECIATION, INTEREST_ACCRUAL, CLOSING
+  status    String   @map("STATUS") @db.VarChar(20) // SUCCESS, FAILED
+  details   String?  @map("DETAILS") @db.Text
+  
+  performedBy Int    @map("PERFORMED_BY")
+  performedAt DateTime @default(now()) @map("PERFORMED_AT")
+  
+  user      User     @relation(fields: [performedBy], references: [id])
+  
+  @@map("t_month_end_log")
 }

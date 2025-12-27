@@ -19,6 +19,10 @@ import { AssetModule } from './accounting/asset/asset.module';
 import { CapitalModule } from './capital/capital.module';
 import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
+import { PeriodLockService } from './month-end/period-lock.service';
+import { BalanceSheetService } from './month-end/balance-sheet.service';
+import { DepreciationService } from './month-end/depreciation.service';
+import { MonthEndController } from './month-end/month-end.controller';
 
 @Module({
   imports: [
@@ -45,8 +49,8 @@ import { SettingsModule } from './settings/settings.module';
     ReportsModule,
     SettingsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, MonthEndController],
+  providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService],
 })
 export class AppModule { }
 
