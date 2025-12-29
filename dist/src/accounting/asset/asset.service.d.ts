@@ -14,8 +14,8 @@ export declare class AssetService {
             createdAt: Date;
             updatedBy: string | null;
             code: string;
-            type: string;
             status: string;
+            type: string;
             acquisitionDate: Date;
             acquisitionCost: Prisma.Decimal;
             residualValue: Prisma.Decimal;
@@ -54,8 +54,8 @@ export declare class AssetService {
             createdAt: Date;
             updatedBy: string | null;
             code: string;
-            type: string;
             status: string;
+            type: string;
             acquisitionDate: Date;
             acquisitionCost: Prisma.Decimal;
             residualValue: Prisma.Decimal;
@@ -94,9 +94,9 @@ export declare class AssetService {
         } & {
             id: number;
             createdAt: Date;
+            period: string;
             amount: Prisma.Decimal;
             journalId: number | null;
-            period: string;
             assetId: number;
         })[];
     } & {
@@ -107,8 +107,8 @@ export declare class AssetService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
-        type: string;
         status: string;
+        type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
         residualValue: Prisma.Decimal;
@@ -127,8 +127,8 @@ export declare class AssetService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
-        type: string;
         status: string;
+        type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
         residualValue: Prisma.Decimal;
@@ -147,8 +147,8 @@ export declare class AssetService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
-        type: string;
         status: string;
+        type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
         residualValue: Prisma.Decimal;

@@ -11,8 +11,8 @@ export declare class AssetController {
             createdAt: Date;
             updatedBy: string | null;
             code: string;
-            type: string;
             status: string;
+            type: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
             residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -51,8 +51,8 @@ export declare class AssetController {
             createdAt: Date;
             updatedBy: string | null;
             code: string;
-            type: string;
             status: string;
+            type: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
             residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -91,9 +91,9 @@ export declare class AssetController {
         } & {
             id: number;
             createdAt: Date;
+            period: string;
             amount: import("@prisma/client/runtime/library").Decimal;
             journalId: number | null;
-            period: string;
             assetId: number;
         })[];
     } & {
@@ -104,8 +104,8 @@ export declare class AssetController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
-        type: string;
         status: string;
+        type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
         residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -124,8 +124,8 @@ export declare class AssetController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
-        type: string;
         status: string;
+        type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
         residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -144,8 +144,8 @@ export declare class AssetController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
-        type: string;
         status: string;
+        type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
         residualValue: import("@prisma/client/runtime/library").Decimal;

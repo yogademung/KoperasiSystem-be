@@ -101,8 +101,8 @@ export declare class ReportsController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            pokok: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            pokok: import("@prisma/client/runtime/library").Decimal;
             tglJatuhTempo: Date;
             bunga: import("@prisma/client/runtime/library").Decimal;
             total: import("@prisma/client/runtime/library").Decimal;

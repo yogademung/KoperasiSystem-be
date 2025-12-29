@@ -10,8 +10,8 @@ export declare class TabrelaService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         noTab: string;
         nasabahId: number;
         tglBuka: Date;
@@ -27,8 +27,8 @@ export declare class TabrelaService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         noTab: string;
         nasabahId: number;
         tglBuka: Date;
@@ -69,8 +69,8 @@ export declare class TabrelaService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         noTab: string;
         nasabahId: number;
         tglBuka: Date;

@@ -10,8 +10,8 @@ export declare class DepositoService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
@@ -30,8 +30,8 @@ export declare class DepositoService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
@@ -90,8 +90,8 @@ export declare class DepositoService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
@@ -109,8 +109,8 @@ export declare class DepositoService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;

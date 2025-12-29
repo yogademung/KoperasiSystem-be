@@ -108,8 +108,8 @@ export declare class KreditController {
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                type: string;
                 status: string;
+                type: string;
                 nasabahId: number;
                 details: import("@prisma/client/runtime/library").JsonValue | null;
                 marketValue: import("@prisma/client/runtime/library").Decimal;
@@ -150,8 +150,8 @@ export declare class KreditController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            pokok: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            pokok: import("@prisma/client/runtime/library").Decimal;
             tglJatuhTempo: Date;
             bunga: import("@prisma/client/runtime/library").Decimal;
             total: import("@prisma/client/runtime/library").Decimal;
@@ -209,8 +209,8 @@ export declare class KreditController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        type: string;
         status: string;
+        type: string;
         nasabahId: number;
         details: import("@prisma/client/runtime/library").JsonValue | null;
         marketValue: import("@prisma/client/runtime/library").Decimal;

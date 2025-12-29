@@ -9,8 +9,8 @@ export declare class BalimesariController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         interestRate: import("@prisma/client/runtime/library").Decimal;
@@ -26,8 +26,8 @@ export declare class BalimesariController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         interestRate: import("@prisma/client/runtime/library").Decimal;
@@ -68,8 +68,8 @@ export declare class BalimesariController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         status: string;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         interestRate: import("@prisma/client/runtime/library").Decimal;

@@ -13,8 +13,8 @@ export declare class DepreciationService {
                 createdAt: Date;
                 updatedBy: string | null;
                 code: string;
-                type: string;
                 status: string;
+                type: string;
                 acquisitionDate: Date;
                 acquisitionCost: import("@prisma/client/runtime/library").Decimal;
                 residualValue: import("@prisma/client/runtime/library").Decimal;

@@ -27,10 +27,23 @@ let PeriodLockService = PeriodLockService_1 = class PeriodLockService {
     }
     async isPeriodLocked(period) {
         try {
+            this.logger.log(`Checking if period ${period} is locked...`);
             const lock = await this.prisma.periodLock.findUnique({
                 where: { period },
             });
-            return lock?.status === 'LOCKED';
+            this.logger.log(`DB Lock record for ${period}: ${JSON.stringify(lock)}`);
+            if (lock?.status === 'LOCKED') {
+                this.logger.log(`Period ${period} is LOCKED (found in DB)`);
+                return true;
+            }
+            const lastClosingMonth = await this.lovValueService.getLastClosingMonth();
+            this.logger.log(`Last Closing Month from config: ${lastClosingMonth}`);
+            if (lastClosingMonth && period <= lastClosingMonth) {
+                this.logger.log(`Period ${period} is LOCKED (${period} <= ${lastClosingMonth})`);
+                return true;
+            }
+            this.logger.log(`Period ${period} is UNLOCKED`);
+            return false;
         }
         catch (error) {
             this.logger.error(`Error checking period lock status for ${period}:`, error);

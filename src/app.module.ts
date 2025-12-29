@@ -24,6 +24,9 @@ import { BalanceSheetService } from './month-end/balance-sheet.service';
 import { DepreciationService } from './month-end/depreciation.service';
 import { LovValueService } from './month-end/lov-value.service';
 import { MonthEndController } from './month-end/month-end.controller';
+import { MigrationModule } from './migration/migration.module';
+
+
 
 @Module({
   imports: [
@@ -49,6 +52,7 @@ import { MonthEndController } from './month-end/month-end.controller';
     CapitalModule,
     ReportsModule,
     SettingsModule,
+    MigrationModule,
   ],
   controllers: [AppController, MonthEndController],
   providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService, LovValueService],

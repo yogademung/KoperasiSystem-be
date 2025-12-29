@@ -26,13 +26,14 @@ export class LovValueService {
     }
 
     async getLastClosingMonth(): Promise<string | null> {
-        // Use code = 'ACCOUNTING', codeValue = 'LAST_CLOSING_MONTH'
+        // Use code = 'COMPANY_PROFILE', codeValue = 'LAST_CLOSING_MONTH'
         // Store the period value in description field
-        return this.getValue('ACCOUNTING', 'LAST_CLOSING_MONTH');
+        // Matches SettingsService location
+        return this.getValue('COMPANY_PROFILE', 'LAST_CLOSING_MONTH');
     }
 
     async setLastClosingMonth(period: string, userId: string) {
         // Store period value (e.g., '2024-12') in description field
-        return this.setValue('ACCOUNTING', 'LAST_CLOSING_MONTH', period, userId);
+        return this.setValue('COMPANY_PROFILE', 'LAST_CLOSING_MONTH', period, userId);
     }
 }

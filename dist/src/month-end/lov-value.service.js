@@ -36,10 +36,10 @@ let LovValueService = class LovValueService {
         });
     }
     async getLastClosingMonth() {
-        return this.getValue('ACCOUNTING', 'LAST_CLOSING_MONTH');
+        return this.getValue('COMPANY_PROFILE', 'LAST_CLOSING_MONTH');
     }
     async setLastClosingMonth(period, userId) {
-        return this.setValue('ACCOUNTING', 'LAST_CLOSING_MONTH', period, userId);
+        return this.setValue('COMPANY_PROFILE', 'LAST_CLOSING_MONTH', period, userId);
     }
 };
 exports.LovValueService = LovValueService;

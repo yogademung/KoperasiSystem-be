@@ -122,8 +122,8 @@ export declare class NasabahService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             noTab: string;
             nasabahId: number;
             tglBuka: Date;
@@ -134,8 +134,8 @@ export declare class NasabahService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            nominal: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
             noJangka: string;
@@ -149,8 +149,8 @@ export declare class NasabahService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
             interestRate: import("@prisma/client/runtime/library").Decimal;
@@ -161,8 +161,8 @@ export declare class NasabahService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
             interestRate: import("@prisma/client/runtime/library").Decimal;
@@ -173,8 +173,8 @@ export declare class NasabahService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             status: string;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
             interestRate: import("@prisma/client/runtime/library").Decimal;

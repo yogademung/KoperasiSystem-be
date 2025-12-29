@@ -15,10 +15,29 @@ export class PeriodLockService {
 
     async isPeriodLocked(period: string): Promise<boolean> {
         try {
+            this.logger.log(`Checking if period ${period} is locked...`);
+
+            // 1. Check database lock record
             const lock = await this.prisma.periodLock.findUnique({
                 where: { period },
             });
-            return lock?.status === 'LOCKED';
+            this.logger.log(`DB Lock record for ${period}: ${JSON.stringify(lock)}`);
+            if (lock?.status === 'LOCKED') {
+                this.logger.log(`Period ${period} is LOCKED (found in DB)`);
+                return true;
+            }
+
+            // 2. Check global configuration (Last Closing Month)
+            const lastClosingMonth = await this.lovValueService.getLastClosingMonth();
+            this.logger.log(`Last Closing Month from config: ${lastClosingMonth}`);
+
+            if (lastClosingMonth && period <= lastClosingMonth) {
+                this.logger.log(`Period ${period} is LOCKED (${period} <= ${lastClosingMonth})`);
+                return true;
+            }
+
+            this.logger.log(`Period ${period} is UNLOCKED`);
+            return false;
         } catch (error) {
             this.logger.error(`Error checking period lock status for ${period}:`, error);
             // If table doesn't exist or other DB error, assume unlocked

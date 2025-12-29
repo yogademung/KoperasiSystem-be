@@ -32,8 +32,8 @@ export declare class KreditService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        type: string;
         status: string;
+        type: string;
         nasabahId: number;
         details: Prisma.JsonValue | null;
         marketValue: Prisma.Decimal;
@@ -195,8 +195,8 @@ export declare class KreditService {
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                type: string;
                 status: string;
+                type: string;
                 nasabahId: number;
                 details: Prisma.JsonValue | null;
                 marketValue: Prisma.Decimal;
@@ -237,8 +237,8 @@ export declare class KreditService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            pokok: Prisma.Decimal;
             status: string;
+            pokok: Prisma.Decimal;
             tglJatuhTempo: Date;
             bunga: Prisma.Decimal;
             total: Prisma.Decimal;

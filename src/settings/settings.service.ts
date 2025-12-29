@@ -3,7 +3,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 const PROFILE_CODE = 'COMPANY_PROFILE';
-const KEYS = ['NAME', 'ADDRESS', 'PHONE', 'EMAIL', 'WEBSITE', 'LOGO', 'THEME_COLOR'];
+const KEYS = ['NAME', 'ADDRESS', 'PHONE', 'EMAIL', 'WEBSITE', 'LOGO', 'THEME_COLOR', 'LAST_CLOSING_MONTH'];
 
 @Injectable()
 export class SettingsService implements OnModuleInit {
@@ -24,6 +24,7 @@ export class SettingsService implements OnModuleInit {
                 { codeValue: 'WEBSITE', description: 'www.kspsejahtera.com' },
                 { codeValue: 'LOGO', description: '' },
                 { codeValue: 'THEME_COLOR', description: 'oklch(0.208 0.042 265.755)' }, // Default dark blue
+                { codeValue: 'LAST_CLOSING_MONTH', description: '' }, // Format: YYYY-MM
             ];
 
             for (const d of defaults) {
