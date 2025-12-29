@@ -22,6 +22,7 @@ import { SettingsModule } from './settings/settings.module';
 import { PeriodLockService } from './month-end/period-lock.service';
 import { BalanceSheetService } from './month-end/balance-sheet.service';
 import { DepreciationService } from './month-end/depreciation.service';
+import { LovValueService } from './month-end/lov-value.service';
 import { MonthEndController } from './month-end/month-end.controller';
 
 @Module({
@@ -50,7 +51,7 @@ import { MonthEndController } from './month-end/month-end.controller';
     SettingsModule,
   ],
   controllers: [AppController, MonthEndController],
-  providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService],
+  providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService, LovValueService],
 })
 export class AppModule { }
 

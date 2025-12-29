@@ -1,79 +1,69 @@
-import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
-import { BalanceSheetService } from './balance-sheet.service';
-import { LovValueService } from './lov-value.service';
-
-@Injectable()
-export class PeriodLockService {
-    private readonly logger = new Logger(PeriodLockService.name);
-
-    constructor(
-        private prisma: PrismaService,
-        private balanceSheetService: BalanceSheetService,
-        private lovValueService: LovValueService,
-    ) { }
-
-    async isPeriodLocked(period: string): Promise<boolean> {
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var PeriodLockService_1;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PeriodLockService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../database/prisma.service");
+const balance_sheet_service_1 = require("./balance-sheet.service");
+const lov_value_service_1 = require("./lov-value.service");
+let PeriodLockService = PeriodLockService_1 = class PeriodLockService {
+    prisma;
+    balanceSheetService;
+    lovValueService;
+    logger = new common_1.Logger(PeriodLockService_1.name);
+    constructor(prisma, balanceSheetService, lovValueService) {
+        this.prisma = prisma;
+        this.balanceSheetService = balanceSheetService;
+        this.lovValueService = lovValueService;
+    }
+    async isPeriodLocked(period) {
         try {
             const lock = await this.prisma.periodLock.findUnique({
                 where: { period },
             });
             return lock?.status === 'LOCKED';
-        } catch (error) {
+        }
+        catch (error) {
             this.logger.error(`Error checking period lock status for ${period}:`, error);
-            // If table doesn't exist or other DB error, assume unlocked
             return false;
         }
     }
-
-    private getPreviousPeriod(period: string): string {
+    getPreviousPeriod(period) {
         const [year, month] = period.split('-').map(Number);
         if (month === 1) {
             return `${year - 1}-12`;
         }
         return `${year}-${String(month - 1).padStart(2, '0')}`;
     }
-
-    private async validateSequentialClosing(period: string): Promise<void> {
-        // Get last closed period from config
+    async validateSequentialClosing(period) {
         const lastClosedPeriod = await this.lovValueService.getLastClosingMonth();
-
         if (!lastClosedPeriod) {
-            // First time implementation - allow any period
             this.logger.log(`First month-end closing for implementation`);
             return;
         }
-
         const previousPeriod = this.getPreviousPeriod(period);
-
-        // Check if previous period is locked
         const isPreviousLocked = await this.isPeriodLocked(previousPeriod);
-
         if (!isPreviousLocked && previousPeriod !== lastClosedPeriod) {
-            throw new BadRequestException(
-                `Periode ${previousPeriod} belum ditutup. ` +
-                `Harap tutup periode sebelumnya terlebih dahulu untuk menjaga urutan penutupan.`
-            );
+            throw new common_1.BadRequestException(`Periode ${previousPeriod} belum ditutup. ` +
+                `Harap tutup periode sebelumnya terlebih dahulu untuk menjaga urutan penutupan.`);
         }
     }
-
-    async closePeriod(period: string, userId: number) {
-        // 1. Check if already locked
+    async closePeriod(period, userId) {
         if (await this.isPeriodLocked(period)) {
-            throw new BadRequestException(`Periode ${period} sudah ditutup (locked).`);
+            throw new common_1.BadRequestException(`Periode ${period} sudah ditutup (locked).`);
         }
-
-        // 2. Validate sequential closing
         await this.validateSequentialClosing(period);
-
-        // 3. Validate Balance Sheet
-        // This will throw if invalid
         await this.balanceSheetService.validateBalance(period);
-
-        // 4. Process Retained Earnings if Year End
         await this.balanceSheetService.processRetainedEarnings(period, userId);
-
-        // 5. Create Lock
         const lock = await this.prisma.periodLock.create({
             data: {
                 period,
@@ -83,11 +73,7 @@ export class PeriodLockService {
                 lockedAt: new Date(),
             },
         });
-
-        // 6. Update last closing month config
         await this.lovValueService.setLastClosingMonth(period, userId.toString());
-
-        // 7. Log
         await this.prisma.monthEndLog.create({
             data: {
                 period,
@@ -97,18 +83,14 @@ export class PeriodLockService {
                 details: `Period ${period} closed successfully with sequential validation.`,
             },
         });
-
         this.logger.log(`Period ${period} closed by User ${userId}`);
         return lock;
     }
-
-    async requestUnlock(period: string, userId: number, reason: string) {
+    async requestUnlock(period, userId, reason) {
         const isLocked = await this.isPeriodLocked(period);
         if (!isLocked) {
-            throw new BadRequestException(`Periode ${period} tidak sedang tertutup.`);
+            throw new common_1.BadRequestException(`Periode ${period} tidak sedang tertutup.`);
         }
-
-        // Create Request
         const request = await this.prisma.unlockRequest.create({
             data: {
                 period,
@@ -117,19 +99,14 @@ export class PeriodLockService {
                 status: 'PENDING',
             },
         });
-
         return request;
     }
-
-    async adminForceUnlock(period: string, adminId: number, reason: string) {
+    async adminForceUnlock(period, adminId, reason) {
         const lock = await this.prisma.periodLock.findUnique({ where: { period } });
         if (!lock || lock.status !== 'LOCKED') {
-            throw new BadRequestException(`Periode ${period} tidak terkunci.`);
+            throw new common_1.BadRequestException(`Periode ${period} tidak terkunci.`);
         }
-
-        // Force Unlock
         await this.prisma.$transaction(async (tx) => {
-            // Update Lock
             await tx.periodLock.update({
                 where: { period },
                 data: {
@@ -139,8 +116,6 @@ export class PeriodLockService {
                     unlockReason: `FORCE UNLOCK: ${reason}`,
                 },
             });
-
-            // Log
             await tx.monthEndLog.create({
                 data: {
                     period,
@@ -151,24 +126,19 @@ export class PeriodLockService {
                 },
             });
         });
-
         this.logger.log(`Period ${period} FORCE UNLOCKED by Admin ${adminId}`);
         return { success: true };
     }
-
-    async approveUnlock(requestId: number, managerId: number, notes?: string) {
+    async approveUnlock(requestId, managerId, notes) {
         const request = await this.prisma.unlockRequest.findUnique({
             where: { id: requestId },
             include: { periodLock: true },
         });
-
-        if (!request) throw new NotFoundException('Unlock Request not found');
-        if (request.status !== 'PENDING') throw new BadRequestException('Request is not PENDING');
-
-        // Assume Manager Role check is done by Guard/Controller
-
+        if (!request)
+            throw new common_1.NotFoundException('Unlock Request not found');
+        if (request.status !== 'PENDING')
+            throw new common_1.BadRequestException('Request is not PENDING');
         await this.prisma.$transaction(async (tx) => {
-            // 1. Update Request
             await tx.unlockRequest.update({
                 where: { id: requestId },
                 data: {
@@ -178,8 +148,6 @@ export class PeriodLockService {
                     managerNotes: notes,
                 },
             });
-
-            // 2. Unlock Period
             await tx.periodLock.update({
                 where: { period: request.period },
                 data: {
@@ -189,8 +157,6 @@ export class PeriodLockService {
                     unlockReason: `Approved Request #${requestId}: ${request.reason}`,
                 },
             });
-
-            // 3. Log
             await tx.monthEndLog.create({
                 data: {
                     period: request.period,
@@ -201,24 +167,20 @@ export class PeriodLockService {
                 },
             });
         });
-
         return { success: true };
     }
-
-    async rejectUnlock(requestId: number, managerId: number, notes?: string) {
-        // Reject logic...
+    async rejectUnlock(requestId, managerId, notes) {
         await this.prisma.unlockRequest.update({
             where: { id: requestId },
             data: {
                 status: 'REJECTED',
-                approvedBy: managerId, // Who rejected it
+                approvedBy: managerId,
                 approvedAt: new Date(),
                 managerNotes: notes
             }
         });
         return { success: true };
     }
-
     async getLockedPeriods() {
         return this.prisma.periodLock.findMany({
             where: { status: 'LOCKED' },
@@ -226,4 +188,12 @@ export class PeriodLockService {
             include: { creator: { select: { fullName: true } } }
         });
     }
-}
+};
+exports.PeriodLockService = PeriodLockService;
+exports.PeriodLockService = PeriodLockService = PeriodLockService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        balance_sheet_service_1.BalanceSheetService,
+        lov_value_service_1.LovValueService])
+], PeriodLockService);
+//# sourceMappingURL=period-lock.service.js.map

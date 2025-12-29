@@ -70,6 +70,19 @@ async function main() {
         },
     });
     console.log({ adminUser });
+    const lastClosingConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'ACCOUNTING', codeValue: 'LAST_CLOSING_MONTH' } },
+        update: {},
+        create: {
+            code: 'ACCOUNTING',
+            codeValue: 'LAST_CLOSING_MONTH',
+            description: null,
+            orderNum: 1,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Configuration parameter seeded:', lastClosingConfig);
     await (0, accounting_seeder_1.seedAccounting)();
 }
 main()

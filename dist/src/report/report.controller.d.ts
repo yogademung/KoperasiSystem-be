@@ -17,9 +17,9 @@ export declare class ReportController {
             name: string;
             isActive: boolean;
             createdAt: Date;
+            code: string;
             productModule: string;
             category: string;
-            code: string;
             version: number;
             isDefault: boolean;
         }[];
@@ -46,9 +46,9 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        code: string;
         productModule: string;
         category: string;
-        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -71,9 +71,9 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        code: string;
         productModule: string;
         category: string;
-        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -96,9 +96,9 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        code: string;
         productModule: string;
         category: string;
-        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -121,9 +121,9 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        code: string;
         productModule: string;
         category: string;
-        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -146,9 +146,9 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        code: string;
         productModule: string;
         category: string;
-        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -171,9 +171,9 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        code: string;
         productModule: string;
         category: string;
-        code: string;
         jsonSchema: import("@prisma/client/runtime/library").JsonValue;
         paperSize: string;
         orientation: string;
@@ -228,8 +228,8 @@ export declare class ReportController {
     getGenerationLog(id: number): Promise<{
         template: {
             name: string;
-            productModule: string;
             code: string;
+            productModule: string;
         };
     } & {
         id: number;

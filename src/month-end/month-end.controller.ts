@@ -5,6 +5,7 @@ import { BalanceSheetService } from './balance-sheet.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { LovValueService } from './lov-value.service';
 
 @Controller('month-end')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -12,7 +13,8 @@ export class MonthEndController {
     constructor(
         private readonly periodLockService: PeriodLockService,
         private readonly depreciationService: DepreciationService,
-        private readonly balanceSheetService: BalanceSheetService
+        private readonly balanceSheetService: BalanceSheetService,
+        private readonly lovValueService: LovValueService
     ) { }
 
     @Get('lock/:period')
@@ -63,5 +65,11 @@ export class MonthEndController {
     @Get('validate-balance/:period')
     async validateBalance(@Param('period') period: string) {
         return this.balanceSheetService.validateBalance(period);
+    }
+
+    @Get('last-closed-period')
+    async getLastClosedPeriod() {
+        const period = await this.lovValueService.getLastClosingMonth();
+        return { period };
     }
 }

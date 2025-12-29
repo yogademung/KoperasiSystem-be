@@ -53,8 +53,8 @@ export declare class ReportGeneratorService {
     getGenerationLog(id: number): Promise<{
         template: {
             name: string;
-            productModule: string;
             code: string;
+            productModule: string;
         };
     } & {
         id: number;

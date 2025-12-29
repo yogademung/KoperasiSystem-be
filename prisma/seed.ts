@@ -43,7 +43,23 @@ async function main() {
     });
     console.log({ adminUser });
 
-    // 3. Seed Accounting Module
+    // 3. Seed Configuration Parameters
+    // Add LAST_CLOSING_MONTH setting (will be updated when first closing happens)
+    const lastClosingConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'ACCOUNTING', codeValue: 'LAST_CLOSING_MONTH' } },
+        update: {},
+        create: {
+            code: 'ACCOUNTING',
+            codeValue: 'LAST_CLOSING_MONTH',
+            description: null, // Will be set to period (e.g., '2024-12') when first closing happens
+            orderNum: 1,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Configuration parameter seeded:', lastClosingConfig);
+
+    // 4. Seed Accounting Module
     await seedAccounting();
 }
 

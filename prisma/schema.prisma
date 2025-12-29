@@ -58,6 +58,8 @@ model Role {
   @@map("s_role_lpd")
 }
 
+
+
 model Menu {
   id        Int       @id @default(autoincrement()) @map("menu_lpd_id")
   menuName  String    @map("nama_menu") @db.VarChar(100)
