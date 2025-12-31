@@ -9,10 +9,10 @@ export declare class TabrelaController {
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         noTab: string;
         nasabahId: number;
         tglBuka: Date;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
     }>;
     findAll(): Promise<({
@@ -26,23 +26,13 @@ export declare class TabrelaController {
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         noTab: string;
         nasabahId: number;
         tglBuka: Date;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     findOne(noTab: string): Promise<{
-        transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            noTab: string;
-            keterangan: string | null;
-            tipeTrans: string;
-            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        }[];
         nasabah: {
             id: number;
             updatedAt: Date | null;
@@ -52,26 +42,36 @@ export declare class TabrelaController {
             updatedBy: string | null;
             nama: string;
             alamat: string | null;
-            pekerjaan: string | null;
             noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
+            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
+        transactions: {
+            id: number;
+            createdBy: string | null;
+            createdAt: Date;
+            noTab: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
+            tipeTrans: string;
+            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        }[];
     } & {
         updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        saldo: import("@prisma/client/runtime/library").Decimal;
         noTab: string;
         nasabahId: number;
         tglBuka: Date;
+        saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
     }>;
     setoran(noTab: string, body: any): Promise<{

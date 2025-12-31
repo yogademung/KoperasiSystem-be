@@ -13,12 +13,13 @@ const accounting_controller_1 = require("./accounting.controller");
 const prisma_module_1 = require("../database/prisma.module");
 const simpanan_module_1 = require("../simpanan/simpanan.module");
 const accounting_listener_1 = require("./listeners/accounting.listener");
+const month_end_module_1 = require("../month-end/month-end.module");
 let AccountingModule = class AccountingModule {
 };
 exports.AccountingModule = AccountingModule;
 exports.AccountingModule = AccountingModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, simpanan_module_1.SimpananModule],
+        imports: [prisma_module_1.PrismaModule, simpanan_module_1.SimpananModule, month_end_module_1.MonthEndModule],
         providers: [accounting_service_1.AccountingService, accounting_listener_1.AccountingListener],
         controllers: [accounting_controller_1.AccountingController],
         exports: [accounting_service_1.AccountingService]

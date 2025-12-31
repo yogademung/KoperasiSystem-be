@@ -15,13 +15,13 @@ export declare class AnggotaController {
             updatedBy: string | null;
             nama: string;
             alamat: string | null;
-            pekerjaan: string | null;
             noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
+            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
@@ -52,13 +52,13 @@ export declare class AnggotaController {
             updatedBy: string | null;
             nama: string;
             alamat: string | null;
-            pekerjaan: string | null;
             noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
+            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
@@ -80,6 +80,25 @@ export declare class AnggotaController {
         deduction: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     findOne(accountNumber: string): Promise<{
+        customer: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            nama: string;
+            alamat: string | null;
+            noKtp: string | null;
+            email: string | null;
+            telepon: string | null;
+            tempatLahir: string | null;
+            tanggalLahir: Date | null;
+            jenisKelamin: string | null;
+            pekerjaan: string | null;
+            fileKtp: string | null;
+            fileKk: string | null;
+        };
         transactions: {
             id: number;
             transType: string;
@@ -91,25 +110,6 @@ export declare class AnggotaController {
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];
-        customer: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            pekerjaan: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
     } & {
         remark: string | null;
         isActive: boolean;

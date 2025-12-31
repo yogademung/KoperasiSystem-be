@@ -34,6 +34,7 @@ const depreciation_service_1 = require("./month-end/depreciation.service");
 const lov_value_service_1 = require("./month-end/lov-value.service");
 const month_end_controller_1 = require("./month-end/month-end.controller");
 const migration_module_1 = require("./migration/migration.module");
+const menu_module_1 = require("./menu/menu.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -63,6 +64,7 @@ exports.AppModule = AppModule = __decorate([
             reports_module_1.ReportsModule,
             settings_module_1.SettingsModule,
             migration_module_1.MigrationModule,
+            menu_module_1.MenuModule,
         ],
         controllers: [app_controller_1.AppController, month_end_controller_1.MonthEndController],
         providers: [app_service_1.AppService, period_lock_service_1.PeriodLockService, balance_sheet_service_1.BalanceSheetService, depreciation_service_1.DepreciationService, lov_value_service_1.LovValueService],

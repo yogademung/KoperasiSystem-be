@@ -1,0 +1,67 @@
+-- Migration: Add Geolocation Tracking to All Transaction Tables
+-- Created: 2025-12-30
+-- Purpose: Track GPS coordinates for collector transactions
+
+-- Add geolocation columns to t_trans_anggota
+ALTER TABLE t_trans_anggota 
+ADD COLUMN IF NOT EXISTS LATITUDE DECIMAL(10,8) NULL COMMENT 'GPS Latitude',
+ADD COLUMN IF NOT EXISTS LONGITUDE DECIMAL(11,8) NULL COMMENT 'GPS Longitude',
+ADD COLUMN IF NOT EXISTS LOCATION_ACCURACY DECIMAL(10,2) NULL COMMENT 'GPS accuracy in meters',
+ADD COLUMN IF NOT EXISTS LOCATION_TIMESTAMP DATETIME NULL COMMENT 'When location was captured';
+
+-- Add geolocation columns to t_trans_tab (Tabrela)
+ALTER TABLE t_trans_tab 
+ADD COLUMN IF NOT EXISTS LATITUDE DECIMAL(10,8) NULL COMMENT 'GPS Latitude',
+ADD COLUMN IF NOT EXISTS LONGITUDE DECIMAL(11,8) NULL COMMENT 'GPS Longitude',
+ADD COLUMN IF NOT EXISTS LOCATION_ACCURACY DECIMAL(10,2) NULL COMMENT 'GPS accuracy in meters',
+ADD COLUMN IF NOT EXISTS LOCATION_TIMESTAMP DATETIME NULL COMMENT 'When location was captured';
+
+-- Add geolocation columns to t_trans_brahmacari
+ALTER TABLE t_trans_brahmacari 
+ADD COLUMN IF NOT EXISTS LATITUDE DECIMAL(10,8) NULL COMMENT 'GPS Latitude',
+ADD COLUMN IF NOT EXISTS LONGITUDE DECIMAL(11,8) NULL COMMENT 'GPS Longitude',
+ADD COLUMN IF NOT EXISTS LOCATION_ACCURACY DECIMAL(10,2) NULL COMMENT 'GPS accuracy in meters',
+ADD COLUMN IF NOT EXISTS LOCATION_TIMESTAMP DATETIME NULL COMMENT 'When location was captured';
+
+-- Add geolocation columns to t_trans_balimesari
+ALTER TABLE t_trans_balimesari 
+ADD COLUMN IF NOT EXISTS LATITUDE DECIMAL(10,8) NULL COMMENT 'GPS Latitude',
+ADD COLUMN IF NOT EXISTS LONGITUDE DECIMAL(11,8) NULL COMMENT 'GPS Longitude',
+ADD COLUMN IF NOT EXISTS LOCATION_ACCURACY DECIMAL(10,2) NULL COMMENT 'GPS accuracy in meters',
+ADD COLUMN IF NOT EXISTS LOCATION_TIMESTAMP DATETIME NULL COMMENT 'When location was captured';
+
+-- Add geolocation columns to t_trans_wanaprasta
+ALTER TABLE t_trans_wanaprasta 
+ADD COLUMN IF NOT EXISTS LATITUDE DECIMAL(10,8) NULL COMMENT 'GPS Latitude',
+ADD COLUMN IF NOT EXISTS LONGITUDE DECIMAL(11,8) NULL COMMENT 'GPS Longitude',
+ADD COLUMN IF NOT EXISTS LOCATION_ACCURACY DECIMAL(10,2) NULL COMMENT 'GPS accuracy in meters',
+ADD COLUMN IF NOT EXISTS LOCATION_TIMESTAMP DATETIME NULL COMMENT 'When location was captured';
+
+-- Add geolocation columns to t_trans_jangka (Deposito)
+ALTER TABLE t_trans_jangka 
+ADD COLUMN IF NOT EXISTS LATITUDE DECIMAL(10,8) NULL COMMENT 'GPS Latitude',
+ADD COLUMN IF NOT EXISTS LONGITUDE DECIMAL(11,8) NULL COMMENT 'GPS Longitude',
+ADD COLUMN IF NOT EXISTS LOCATION_ACCURACY DECIMAL(10,2) NULL COMMENT 'GPS accuracy in meters',
+ADD COLUMN IF NOT EXISTS LOCATION_TIMESTAMP DATETIME NULL COMMENT 'When location was captured';
+
+-- Verification: Show table structures
+SELECT 
+    TABLE_NAME,
+    COLUMN_NAME,
+    DATA_TYPE,
+    COLUMN_COMMENT
+FROM 
+    INFORMATION_SCHEMA.COLUMNS
+WHERE 
+    TABLE_SCHEMA = 'koperasi_system'
+    AND TABLE_NAME IN (
+        't_trans_anggota',
+        't_trans_tab',
+        't_trans_brahmacari',
+        't_trans_balimesari',
+        't_trans_wanaprasta',
+        't_trans_jangka'
+    )
+    AND COLUMN_NAME IN ('LATITUDE', 'LONGITUDE', 'LOCATION_ACCURACY', 'LOCATION_TIMESTAMP')
+ORDER BY 
+    TABLE_NAME, COLUMN_NAME;

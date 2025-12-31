@@ -6,13 +6,51 @@ export declare class MigrationController {
     downloadJournalTemplate(res: Response): Promise<void>;
     uploadJournal(file: Express.Multer.File, journalDate: string, req: any): Promise<{
         success: boolean;
+        message: string;
         journalId: number;
-        journalNumber: string;
-        totalDebit: number;
-        totalCredit: number;
-        itemsCount: number;
+    }>;
+    previewJournal(file: Express.Multer.File, journalDate: string, redenominate: string): Promise<{
+        data: any[];
+        summary: {
+            totalRows: number;
+            totalDebit: number;
+            totalCredit: number;
+            isBalanced: boolean;
+            balanceDiff: number;
+            valid: number;
+            errors: number;
+        };
+    }>;
+    confirmJournal(body: {
+        data: any[];
+        journalDate: string;
+    }, req: any): Promise<{
+        success: boolean;
+        message: string;
+        journalId: number;
     }>;
     downloadNasabahTemplate(res: Response): Promise<void>;
+    previewNasabah(file: Express.Multer.File): Promise<{
+        success: boolean;
+        data: any[];
+        summary: {
+            total: number;
+            valid: number;
+            duplicates: number;
+            errors: number;
+        };
+        existingInDb: {
+            nama: string;
+            noKtp: string | null;
+        }[];
+    }>;
+    confirmNasabah(body: {
+        data: any[];
+    }): Promise<{
+        success: boolean;
+        created: number;
+        message: string;
+    }>;
     uploadNasabah(file: Express.Multer.File): Promise<{
         success: boolean;
         totalProcessed: number;
@@ -26,11 +64,36 @@ export declare class MigrationController {
     downloadAnggotaTransactionTemplate(res: Response): Promise<void>;
     uploadAnggotaTransaction(file: Express.Multer.File): Promise<{
         success: boolean;
-        totalRows: number;
-        successCount: number;
+        total: number;
+        imported: number;
         errors: {
             row: number;
             message: string;
-        }[] | undefined;
+        }[];
+    }>;
+    previewAnggota(file: Express.Multer.File, redenominate: string): Promise<{
+        data: any[];
+        aggregates: {
+            nama: string;
+            noKtp: string;
+            totalPokok: number;
+            totalWajib: number;
+            totalSaldo: number;
+            count: number;
+            nasabahId: number;
+        }[];
+        summary: {
+            totalRows: number;
+            valid: number;
+            errors: number;
+            totalSaldoAll: any;
+        };
+    }>;
+    confirmAnggota(body: {
+        data: any[];
+    }): Promise<{
+        success: boolean;
+        imported: number;
+        errors: any[];
     }>;
 }

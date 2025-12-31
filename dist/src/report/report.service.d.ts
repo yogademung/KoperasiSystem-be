@@ -19,9 +19,11 @@ export declare class ReportService {
             createdAt: Date;
             updatedBy: string | null;
             code: string;
+            parentId: number | null;
+            isDefault: boolean;
             productModule: string;
             category: string;
-            jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+            jsonSchema: string;
             paperSize: string;
             orientation: string;
             customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -31,8 +33,6 @@ export declare class ReportService {
             marginLeft: import("@prisma/client/runtime/library").Decimal;
             marginRight: import("@prisma/client/runtime/library").Decimal;
             version: number;
-            isDefault: boolean;
-            parentId: number | null;
         };
         metadata: import("./interfaces/report.interfaces").ReportMetadata;
     }>;
@@ -51,10 +51,10 @@ export declare class ReportService {
         isActive: boolean;
         createdAt: Date;
         code: string;
+        isDefault: boolean;
         productModule: string;
         category: string;
         version: number;
-        isDefault: boolean;
     }[]>;
     getDefaultTemplates(): Promise<{
         id: number;
@@ -64,9 +64,9 @@ export declare class ReportService {
         isActive: boolean;
         createdAt: Date;
         code: string;
+        isDefault: boolean;
         productModule: string;
         category: string;
         version: number;
-        isDefault: boolean;
     }[]>;
 }

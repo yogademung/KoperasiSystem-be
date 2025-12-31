@@ -41,13 +41,55 @@ let MigrationController = class MigrationController {
         }
         return this.migrationService.uploadJournal(file.buffer, journalDate, userId);
     }
+    async previewJournal(file, journalDate, redenominate) {
+        if (!file) {
+            throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
+        }
+        if (!journalDate) {
+            throw new common_1.HttpException('Journal date is required', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewJournal(file.buffer, journalDate, redenominate === 'true');
+    }
+    async confirmJournal(body, req) {
+        if (!body.data || body.data.length === 0) {
+            throw new common_1.HttpException('No data provided', common_1.HttpStatus.BAD_REQUEST);
+        }
+        if (!body.journalDate) {
+            throw new common_1.HttpException('Journal date is required', common_1.HttpStatus.BAD_REQUEST);
+        }
+        const userId = req.user?.id;
+        if (!userId) {
+            throw new common_1.HttpException('User ID not found in request', common_1.HttpStatus.UNAUTHORIZED);
+        }
+        return this.migrationService.confirmJournal(body.data, body.journalDate, userId);
+    }
     async downloadNasabahTemplate(res) {
         const buffer = await this.migrationService.generateNasabahTemplate();
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', 'attachment; filename=template_nasabah.xlsx');
         res.send(buffer);
     }
+    async previewNasabah(file) {
+        if (!file) {
+            throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewNasabah(file.buffer);
+    }
+    async confirmNasabah(body) {
+        if (!body.data || body.data.length === 0) {
+            throw new common_1.HttpException('No data provided', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.confirmNasabah(body.data);
+    }
     async uploadNasabah(file) {
+        console.log('📥 Controller received file:', {
+            fieldname: file?.fieldname,
+            originalname: file?.originalname,
+            mimetype: file?.mimetype,
+            size: file?.size,
+            bufferType: typeof file?.buffer,
+            hasBuffer: !!file?.buffer
+        });
         if (!file) {
             throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
         }
@@ -64,6 +106,18 @@ let MigrationController = class MigrationController {
             throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
         }
         return this.migrationService.uploadAnggotaTransaction(file.buffer);
+    }
+    async previewAnggota(file, redenominate) {
+        if (!file) {
+            throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewAnggota(file.buffer, redenominate === 'true');
+    }
+    async confirmAnggota(body) {
+        if (!body.data || body.data.length === 0) {
+            throw new common_1.HttpException('No data provided', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.confirmAnggota(body.data);
     }
 };
 exports.MigrationController = MigrationController;
@@ -85,12 +139,45 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MigrationController.prototype, "uploadJournal", null);
 __decorate([
+    (0, common_1.Post)('preview-journal'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.Body)('journalDate')),
+    __param(2, (0, common_1.Body)('redenominate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "previewJournal", null);
+__decorate([
+    (0, common_1.Post)('confirm-journal'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "confirmJournal", null);
+__decorate([
     (0, common_1.Get)('nasabah-template'),
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MigrationController.prototype, "downloadNasabahTemplate", null);
+__decorate([
+    (0, common_1.Post)('preview-nasabah'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "previewNasabah", null);
+__decorate([
+    (0, common_1.Post)('confirm-nasabah'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "confirmNasabah", null);
 __decorate([
     (0, common_1.Post)('upload-nasabah'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
@@ -114,6 +201,22 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MigrationController.prototype, "uploadAnggotaTransaction", null);
+__decorate([
+    (0, common_1.Post)('preview-anggota'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.Body)('redenominate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "previewAnggota", null);
+__decorate([
+    (0, common_1.Post)('confirm-anggota'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "confirmAnggota", null);
 exports.MigrationController = MigrationController = __decorate([
     (0, common_1.Controller)('migration'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

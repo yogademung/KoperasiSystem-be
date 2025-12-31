@@ -10,14 +10,14 @@ export declare class ReportMetadataService {
         description: string | null;
         updatedAt: Date | null;
         createdAt: Date;
-        isArray: boolean;
         productModule: string;
         category: string;
         variableKey: string;
         variableName: string;
         dataType: string;
         sampleValue: string | null;
-        formatOptions: import("@prisma/client/runtime/library").JsonValue | null;
+        isArray: boolean;
+        formatOptions: string | null;
     }[]>;
     createVariable(data: {
         productModule: string;
@@ -34,14 +34,14 @@ export declare class ReportMetadataService {
         description: string | null;
         updatedAt: Date | null;
         createdAt: Date;
-        isArray: boolean;
         productModule: string;
         category: string;
         variableKey: string;
         variableName: string;
         dataType: string;
         sampleValue: string | null;
-        formatOptions: import("@prisma/client/runtime/library").JsonValue | null;
+        isArray: boolean;
+        formatOptions: string | null;
     }>;
     bulkCreateVariables(variables: Array<{
         productModule: string;
@@ -58,13 +58,13 @@ export declare class ReportMetadataService {
         description: string | null;
         updatedAt: Date | null;
         createdAt: Date;
-        isArray: boolean;
         productModule: string;
         category: string;
         variableKey: string;
         variableName: string;
         dataType: string;
         sampleValue: string | null;
-        formatOptions: import("@prisma/client/runtime/library").JsonValue | null;
+        isArray: boolean;
+        formatOptions: string | null;
     }[]>;
 }

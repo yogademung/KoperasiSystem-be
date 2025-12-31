@@ -18,10 +18,10 @@ export declare class ReportController {
             isActive: boolean;
             createdAt: Date;
             code: string;
+            isDefault: boolean;
             productModule: string;
             category: string;
             version: number;
-            isDefault: boolean;
         }[];
         total: number;
     }>;
@@ -47,9 +47,11 @@ export declare class ReportController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -59,8 +61,6 @@ export declare class ReportController {
         marginLeft: import("@prisma/client/runtime/library").Decimal;
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     getTemplateByCode(code: string): Promise<{
         id: number;
@@ -72,9 +72,11 @@ export declare class ReportController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -84,8 +86,6 @@ export declare class ReportController {
         marginLeft: import("@prisma/client/runtime/library").Decimal;
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     createTemplate(dto: CreateTemplateDto, req: any): Promise<{
         id: number;
@@ -97,9 +97,11 @@ export declare class ReportController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -109,8 +111,6 @@ export declare class ReportController {
         marginLeft: import("@prisma/client/runtime/library").Decimal;
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     updateTemplate(id: number, dto: UpdateTemplateDto, req: any): Promise<{
         id: number;
@@ -122,9 +122,11 @@ export declare class ReportController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -134,8 +136,6 @@ export declare class ReportController {
         marginLeft: import("@prisma/client/runtime/library").Decimal;
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     deleteTemplate(id: number, req: any): Promise<{
         id: number;
@@ -147,9 +147,11 @@ export declare class ReportController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -159,8 +161,6 @@ export declare class ReportController {
         marginLeft: import("@prisma/client/runtime/library").Decimal;
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     createTemplateVersion(id: number, name: string, req: any): Promise<{
         id: number;
@@ -172,9 +172,11 @@ export declare class ReportController {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: import("@prisma/client/runtime/library").JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: import("@prisma/client/runtime/library").Decimal | null;
@@ -184,8 +186,6 @@ export declare class ReportController {
         marginLeft: import("@prisma/client/runtime/library").Decimal;
         marginRight: import("@prisma/client/runtime/library").Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     generateReport(dto: GenerateReportDto, req: any): Promise<{
         success: boolean;
@@ -213,7 +213,7 @@ export declare class ReportController {
             status: string;
             format: string;
             recordId: string | null;
-            parameters: import("@prisma/client/runtime/library").JsonValue | null;
+            parameters: string | null;
             templateId: number;
             errorMessage: string | null;
             filePath: string | null;
@@ -236,7 +236,7 @@ export declare class ReportController {
         status: string;
         format: string;
         recordId: string | null;
-        parameters: import("@prisma/client/runtime/library").JsonValue | null;
+        parameters: string | null;
         templateId: number;
         errorMessage: string | null;
         filePath: string | null;

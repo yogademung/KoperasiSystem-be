@@ -5,13 +5,46 @@ export declare class MigrationService {
     generateJournalTemplate(): Promise<Buffer>;
     uploadJournal(fileBuffer: Buffer, journalDate: string, userId: number): Promise<{
         success: boolean;
+        message: string;
         journalId: number;
-        journalNumber: string;
-        totalDebit: number;
-        totalCredit: number;
-        itemsCount: number;
+    }>;
+    previewJournal(fileBuffer: Buffer, journalDate: string, redenominate?: boolean): Promise<{
+        data: any[];
+        summary: {
+            totalRows: number;
+            totalDebit: number;
+            totalCredit: number;
+            isBalanced: boolean;
+            balanceDiff: number;
+            valid: number;
+            errors: number;
+        };
+    }>;
+    confirmJournal(validatedData: any[], journalDate: string, userId: number): Promise<{
+        success: boolean;
+        message: string;
+        journalId: number;
     }>;
     generateNasabahTemplate(): Promise<Buffer>;
+    previewNasabah(fileBuffer: Buffer): Promise<{
+        success: boolean;
+        data: any[];
+        summary: {
+            total: number;
+            valid: number;
+            duplicates: number;
+            errors: number;
+        };
+        existingInDb: {
+            nama: string;
+            noKtp: string | null;
+        }[];
+    }>;
+    confirmNasabah(validatedData: any[]): Promise<{
+        success: boolean;
+        created: number;
+        message: string;
+    }>;
     uploadNasabah(fileBuffer: Buffer): Promise<{
         success: boolean;
         totalProcessed: number;
@@ -25,11 +58,34 @@ export declare class MigrationService {
     generateAnggotaTransactionTemplate(): Promise<Buffer>;
     uploadAnggotaTransaction(fileBuffer: Buffer): Promise<{
         success: boolean;
-        totalRows: number;
-        successCount: number;
+        total: number;
+        imported: number;
         errors: {
             row: number;
             message: string;
-        }[] | undefined;
+        }[];
+    }>;
+    previewAnggota(fileBuffer: Buffer, redenominate?: boolean): Promise<{
+        data: any[];
+        aggregates: {
+            nama: string;
+            noKtp: string;
+            totalPokok: number;
+            totalWajib: number;
+            totalSaldo: number;
+            count: number;
+            nasabahId: number;
+        }[];
+        summary: {
+            totalRows: number;
+            valid: number;
+            errors: number;
+            totalSaldoAll: any;
+        };
+    }>;
+    confirmAnggota(validatedData: any[]): Promise<{
+        success: boolean;
+        imported: number;
+        errors: any[];
     }>;
 }

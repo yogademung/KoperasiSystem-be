@@ -25,6 +25,7 @@ import { DepreciationService } from './month-end/depreciation.service';
 import { LovValueService } from './month-end/lov-value.service';
 import { MonthEndController } from './month-end/month-end.controller';
 import { MigrationModule } from './migration/migration.module';
+import { MenuModule } from './menu/menu.module';
 
 
 
@@ -53,6 +54,7 @@ import { MigrationModule } from './migration/migration.module';
     ReportsModule,
     SettingsModule,
     MigrationModule,
+    MenuModule, // Phase 10: Menu management
   ],
   controllers: [AppController, MonthEndController],
   providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService, LovValueService],

@@ -208,7 +208,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'portrait',
             marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'portrait',
                 margins: { top: 20, right: 20, bottom: 20, left: 20 },
@@ -244,7 +244,7 @@ async function main() {
                         }
                     }
                 ]
-            }
+            }),
         }
     });
 
@@ -260,7 +260,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'portrait',
             marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'portrait',
                 margins: { top: 20, right: 20, bottom: 20, left: 20 },
@@ -290,7 +290,7 @@ async function main() {
                     { type: 'text', content: '({{nama}})', x: 140, y: 170, width: 50, style: { textAlign: 'center', fontWeight: 'bold' } }
                 ]
             }
-        }
+            })
     });
 
     // K04 - Kartu Pinjaman (Passbook Style)
@@ -305,7 +305,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'portrait',
             marginTop: 10, marginBottom: 10, marginLeft: 10, marginRight: 10,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'portrait',
                 margins: { top: 10, right: 10, bottom: 10, left: 10 },
@@ -331,7 +331,7 @@ async function main() {
                     }
                 ]
             }
-        }
+            })
     });
 
     // S02 - Mutasi Harian (Simpanan)
@@ -346,7 +346,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'portrait',
             marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'portrait',
                 margins: { top: 20, right: 20, bottom: 20, left: 20 },
@@ -372,7 +372,7 @@ async function main() {
                     }
                 ]
             }
-        }
+            })
     });
 
     // A01 - Laporan Anggota
@@ -387,7 +387,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'landscape',
             marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'landscape',
                 margins: { top: 20, right: 20, bottom: 20, left: 20 },
@@ -411,7 +411,7 @@ async function main() {
                     }
                 ]
             }
-        }
+            })
     });
 
     // AK01 - Laporan Kas Teller
@@ -426,7 +426,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'portrait',
             marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'portrait',
                 margins: { top: 20, right: 20, bottom: 20, left: 20 },
@@ -443,7 +443,7 @@ async function main() {
                     // Placeholder for denominasi list if needed, usually passed as variable list
                 ]
             }
-        }
+            })
     });
 
     // AK80a - Neraca (Balance Sheet)
@@ -458,7 +458,7 @@ async function main() {
             paperSize: 'A4',
             orientation: 'portrait',
             marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'A4',
                 orientation: 'portrait',
                 margins: { top: 20, right: 20, bottom: 20, left: 20 },
@@ -495,7 +495,7 @@ async function main() {
                     }
                 ]
             }
-        }
+            })
     });
 
     // D02 - Bilyet Deposito
@@ -511,7 +511,7 @@ async function main() {
             customWidth: 210, customHeight: 148, // A5 Landscape roughly
             orientation: 'landscape',
             marginTop: 10, marginBottom: 10, marginLeft: 10, marginRight: 10,
-            jsonSchema: {
+            jsonSchema: JSON.stringify({
                 paperSize: 'Custom',
                 customWidth: 210, customHeight: 148,
                 orientation: 'landscape',
@@ -533,7 +533,7 @@ async function main() {
                     { type: 'text', content: 'Jatuh Tempo:', x: 30, y: 90 },
                     { type: 'text', content: '{{tanggal_jatuh_tempo}}', x: 80, y: 90, style: { fontWeight: 'bold' } },
                 ]
-            }
+            })
         }
     });
 
@@ -548,3 +548,19 @@ main()
     .finally(async () => {
         await prisma.$disconnect();
     });
+
+            })
+    });
+
+console.log('✅ Seeding completed!');
+}
+
+main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
+

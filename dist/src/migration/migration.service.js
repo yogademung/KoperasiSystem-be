@@ -71,6 +71,14 @@ let MigrationService = class MigrationService {
             pattern: 'solid',
             fgColor: { argb: 'FFE0E0E0' },
         };
+        worksheet.addRow({
+            accountCode: '1-100',
+            accountName: 'Contoh: Kas',
+            debit: 1000000,
+            credit: 0,
+            description: 'Contoh deskripsi jurnal',
+        });
+        worksheet.getRow(2).font = { italic: true, color: { argb: 'FF666666' } };
         accounts.forEach((account) => {
             worksheet.addRow({
                 accountCode: account.accountCode,
@@ -93,7 +101,7 @@ let MigrationService = class MigrationService {
         let totalDebit = 0;
         let totalCredit = 0;
         worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber === 1)
+            if (rowNumber <= 2)
                 return;
             const accountCode = row.getCell(1).text;
             const debit = parseFloat(row.getCell(3).text) || 0;
@@ -149,11 +157,113 @@ let MigrationService = class MigrationService {
             });
             return {
                 success: true,
-                journalId: journal.id,
-                journalNumber: journal.journalNumber,
+                message: 'Journal imported successfully',
+                journalId: journal.id
+            };
+        });
+    }
+    async previewJournal(fileBuffer, journalDate, redenominate = false) {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(fileBuffer);
+        const worksheet = workbook.getWorksheet(1);
+        if (!worksheet) {
+            throw new common_1.BadRequestException('Invalid Excel file');
+        }
+        const previewData = [];
+        let totalDebit = 0;
+        let totalCredit = 0;
+        const allAccounts = await this.prisma.journalAccount.findMany({ select: { accountCode: true } });
+        const validAccountCodes = new Set(allAccounts.map(a => a.accountCode));
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber <= 2)
+                return;
+            const accountCode = row.getCell(1).text;
+            const description = row.getCell(5).text;
+            let debit = parseFloat(row.getCell(3).text) || 0;
+            let credit = parseFloat(row.getCell(4).text) || 0;
+            if (redenominate) {
+                debit = debit / 1000;
+                credit = credit / 1000;
+            }
+            if (!accountCode && !debit && !credit)
+                return;
+            const rowData = {
+                rowNumber,
+                accountCode,
+                description,
+                debit,
+                credit,
+                status: 'valid',
+                errors: []
+            };
+            if (!accountCode) {
+                rowData.errors.push('Account Code required');
+            }
+            else if (!validAccountCodes.has(accountCode)) {
+                rowData.errors.push('Account Code not found');
+            }
+            if (rowData.errors.length > 0) {
+                rowData.status = 'error';
+            }
+            else {
+                totalDebit += debit;
+                totalCredit += credit;
+            }
+            previewData.push(rowData);
+        });
+        const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
+        return {
+            data: previewData,
+            summary: {
+                totalRows: previewData.length,
                 totalDebit,
                 totalCredit,
-                itemsCount: journalEntries.length
+                isBalanced,
+                balanceDiff: totalDebit - totalCredit,
+                valid: previewData.filter(d => d.status === 'valid').length,
+                errors: previewData.filter(d => d.status === 'error').length
+            }
+        };
+    }
+    async confirmJournal(validatedData, journalDate, userId) {
+        const entries = validatedData.map(d => ({
+            accountCode: d.accountCode,
+            debit: d.debit,
+            credit: d.credit,
+            description: d.description
+        }));
+        const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
+        const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
+        if (Math.abs(totalDebit - totalCredit) > 0.01) {
+            throw new common_1.BadRequestException(`Journal is not balanced. Debit: ${totalDebit}, Credit: ${totalCredit}`);
+        }
+        const date = new Date(journalDate);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const journalNumber = `MIG/${year}/${month}/${Date.now().toString().slice(-4)}`;
+        return await this.prisma.$transaction(async (tx) => {
+            const journal = await tx.postedJournal.create({
+                data: {
+                    journalNumber,
+                    journalDate: date,
+                    description: 'Initial Balance - Migration',
+                    postingType: 'MANUAL',
+                    status: 'POSTED',
+                    userId: userId,
+                    details: {
+                        create: entries.map(entry => ({
+                            accountCode: entry.accountCode,
+                            debit: entry.debit,
+                            credit: entry.credit,
+                            description: entry.description
+                        }))
+                    }
+                }
+            });
+            return {
+                success: true,
+                message: 'Journal imported successfully',
+                journalId: journal.id
             };
         });
     }
@@ -173,6 +283,18 @@ let MigrationService = class MigrationService {
         ];
         worksheet.getRow(1).font = { bold: true };
         worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+        worksheet.addRow({
+            nama: 'I Made Contoh',
+            noKtp: '1234567890123456',
+            alamat: 'Jl. Contoh No. 123',
+            email: 'contoh@email.com',
+            telepon: '081234567890',
+            tempatLahir: 'Denpasar',
+            tanggalLahir: new Date('1990-01-15'),
+            jenisKelamin: 'L',
+            pekerjaan: 'Wiraswasta',
+        });
+        worksheet.getRow(2).font = { italic: true, color: { argb: 'FF666666' } };
         worksheet.getColumn('H').eachCell((cell, rowNumber) => {
             if (rowNumber > 1) {
                 cell.dataValidation = { type: 'list', allowBlank: true, formulae: ['"L,P"'] };
@@ -180,87 +302,255 @@ let MigrationService = class MigrationService {
         });
         return Buffer.from(await workbook.xlsx.writeBuffer());
     }
-    async uploadNasabah(fileBuffer) {
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(fileBuffer);
-        const worksheet = workbook.getWorksheet(1);
-        if (!worksheet)
-            throw new common_1.BadRequestException('Invalid Excel file');
-        const nasabahList = [];
-        const errors = [];
-        let rowCount = 0;
-        worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber === 1)
-                return;
-            const ktp = row.getCell(2).text;
-            rowCount++;
-            try {
+    async previewNasabah(fileBuffer) {
+        try {
+            console.log('📋 Starting nasabah preview...');
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(fileBuffer);
+            const worksheet = workbook.getWorksheet(1);
+            if (!worksheet) {
+                throw new common_1.BadRequestException('Invalid Excel file');
+            }
+            const previewData = [];
+            const errors = [];
+            let rowNumber = 0;
+            worksheet.eachRow((row, idx) => {
+                if (idx === 1)
+                    return;
+                if (idx === 2)
+                    return;
                 const nama = row.getCell(1).text;
                 const noKtp = row.getCell(2).text;
-                let tanggalLahirVal = row.getCell(7).value;
-                if (!nama || !noKtp)
-                    throw new Error('Nama dan No KTP wajib diisi');
-                let tanggalLahir = null;
-                if (tanggalLahirVal instanceof Date) {
-                    tanggalLahir = tanggalLahirVal;
+                if (!nama && !noKtp)
+                    return;
+                rowNumber++;
+                try {
+                    let tanggalLahirVal = row.getCell(7).value;
+                    let tanggalLahir = null;
+                    if (tanggalLahirVal instanceof Date) {
+                        tanggalLahir = tanggalLahirVal;
+                    }
+                    else if (typeof tanggalLahirVal === 'string') {
+                        const parsed = new Date(tanggalLahirVal);
+                        if (!isNaN(parsed.getTime()))
+                            tanggalLahir = parsed;
+                    }
+                    const nasabahData = {
+                        rowNumber,
+                        excelRow: idx,
+                        nama,
+                        noKtp,
+                        alamat: row.getCell(3).text,
+                        email: row.getCell(4).text,
+                        telepon: row.getCell(5).text,
+                        tempatLahir: row.getCell(6).text,
+                        tanggalLahir,
+                        jenisKelamin: row.getCell(8).text,
+                        pekerjaan: row.getCell(9).text,
+                        status: 'valid',
+                        errors: []
+                    };
+                    if (!nama)
+                        nasabahData.errors.push('Nama wajib diisi');
+                    if (!noKtp)
+                        nasabahData.errors.push('No KTP wajib diisi');
+                    if (noKtp && noKtp.length !== 16)
+                        nasabahData.errors.push('No KTP harus 16 digit');
+                    if (nasabahData.errors.length > 0) {
+                        nasabahData.status = 'error';
+                    }
+                    previewData.push(nasabahData);
                 }
-                else if (typeof tanggalLahirVal === 'string') {
-                    const parsed = new Date(tanggalLahirVal);
-                    if (!isNaN(parsed.getTime()))
-                        tanggalLahir = parsed;
+                catch (e) {
+                    errors.push({ row: idx, message: e.message });
                 }
-                else if (typeof tanggalLahirVal === 'object' && tanggalLahirVal && 'result' in tanggalLahirVal) {
-                    const parsed = new Date(tanggalLahirVal.result);
-                    if (!isNaN(parsed.getTime()))
-                        tanggalLahir = parsed;
-                }
-                nasabahList.push({
-                    nama,
-                    noKtp,
-                    alamat: row.getCell(3).text,
-                    email: row.getCell(4).text,
-                    telepon: row.getCell(5).text,
-                    tempatLahir: row.getCell(6).text,
-                    tanggalLahir,
-                    jenisKelamin: row.getCell(8).text,
-                    pekerjaan: row.getCell(9).text,
-                });
-            }
-            catch (e) {
-                errors.push({ row: rowNumber, message: e.message });
-            }
-        });
-        if (nasabahList.length === 0)
-            throw new common_1.BadRequestException('No valid nasabah data found');
-        const ktpList = nasabahList.map(n => n.noKtp);
-        const existing = await this.prisma.nasabah.findMany({
-            where: { noKtp: { in: ktpList } },
-            select: { noKtp: true }
-        });
-        const existingKtps = new Set(existing.map(e => e.noKtp));
-        const validNasabah = nasabahList.filter(n => !existingKtps.has(n.noKtp));
-        if (validNasabah.length > 0) {
-            await this.prisma.nasabah.createMany({
-                data: validNasabah.map(n => ({
-                    nama: n.nama,
-                    noKtp: n.noKtp,
-                    alamat: n.alamat,
-                    email: n.email,
-                    telepon: n.telepon,
-                    tempatLahir: n.tempatLahir,
-                    tanggalLahir: n.tanggalLahir,
-                    jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P' ? n.jenisKelamin : null,
-                    pekerjaan: n.pekerjaan
-                }))
             });
+            const ktpList = previewData.map(n => n.noKtp).filter(Boolean);
+            const existingNasabah = await this.prisma.nasabah.findMany({
+                where: { noKtp: { in: ktpList } },
+                select: { noKtp: true, nama: true }
+            });
+            const existingKtpSet = new Set(existingNasabah.map(n => n.noKtp));
+            previewData.forEach(item => {
+                if (existingKtpSet.has(item.noKtp)) {
+                    item.status = 'duplicate';
+                    item.errors.push(`KTP sudah terdaftar`);
+                }
+            });
+            const ktpCount = new Map();
+            previewData.forEach(item => {
+                if (item.noKtp) {
+                    ktpCount.set(item.noKtp, (ktpCount.get(item.noKtp) || 0) + 1);
+                }
+            });
+            previewData.forEach(item => {
+                if (item.noKtp && ktpCount.get(item.noKtp) > 1) {
+                    if (item.status !== 'duplicate') {
+                        item.status = 'duplicate';
+                    }
+                    if (!item.errors.includes('Duplicate dalam file')) {
+                        item.errors.push('Duplicate dalam file');
+                    }
+                }
+            });
+            const summary = {
+                total: previewData.length,
+                valid: previewData.filter(d => d.status === 'valid').length,
+                duplicates: previewData.filter(d => d.status === 'duplicate').length,
+                errors: previewData.filter(d => d.status === 'error').length,
+            };
+            console.log(`✅ Preview complete: ${summary.total} rows, ${summary.valid} valid, ${summary.duplicates} duplicates, ${summary.errors} errors`);
+            return {
+                success: true,
+                data: previewData,
+                summary,
+                existingInDb: existingNasabah
+            };
         }
-        return {
-            success: true,
-            totalProcessed: rowCount,
-            created: validNasabah.length,
-            skipped: existing.length,
-            errors: errors.length > 0 ? errors : undefined
-        };
+        catch (error) {
+            console.error('❌ FATAL ERROR in previewNasabah:', error);
+            throw error;
+        }
+    }
+    async confirmNasabah(validatedData) {
+        try {
+            console.log(`💾 Confirming upload of ${validatedData.length} nasabah records...`);
+            const nasabahToCreate = validatedData.map(n => ({
+                nama: n.nama,
+                noKtp: n.noKtp,
+                alamat: n.alamat,
+                email: n.email,
+                telepon: n.telepon,
+                tempatLahir: n.tempatLahir,
+                tanggalLahir: n.tanggalLahir ? new Date(n.tanggalLahir) : null,
+                jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P' ? n.jenisKelamin : null,
+                pekerjaan: n.pekerjaan
+            }));
+            await this.prisma.nasabah.createMany({
+                data: nasabahToCreate
+            });
+            console.log(`✅ Successfully created ${nasabahToCreate.length} nasabah records`);
+            return {
+                success: true,
+                created: nasabahToCreate.length,
+                message: `${nasabahToCreate.length} nasabah berhasil diimpor`
+            };
+        }
+        catch (error) {
+            console.error('❌ FATAL ERROR in confirmNasabah:', error);
+            throw error;
+        }
+    }
+    async uploadNasabah(fileBuffer) {
+        try {
+            console.log('📤 Starting nasabah upload...');
+            console.log('File buffer type:', typeof fileBuffer);
+            console.log('File buffer length:', fileBuffer?.length);
+            console.log('File buffer constructor:', fileBuffer?.constructor?.name);
+            if (!fileBuffer) {
+                throw new common_1.BadRequestException('File buffer is null or undefined');
+            }
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(fileBuffer);
+            const worksheet = workbook.getWorksheet(1);
+            if (!worksheet) {
+                console.error('❌ Invalid Excel file: No worksheet found');
+                throw new common_1.BadRequestException('Invalid Excel file');
+            }
+            const nasabahList = [];
+            const errors = [];
+            let rowCount = 0;
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber <= 2)
+                    return;
+                rowCount++;
+                try {
+                    const nama = row.getCell(1).text;
+                    const noKtp = row.getCell(2).text;
+                    let tanggalLahirVal = row.getCell(7).value;
+                    if (!nama || !noKtp)
+                        throw new Error('Nama dan No KTP wajib diisi');
+                    let tanggalLahir = null;
+                    if (tanggalLahirVal instanceof Date) {
+                        tanggalLahir = tanggalLahirVal;
+                    }
+                    else if (typeof tanggalLahirVal === 'string') {
+                        const parsed = new Date(tanggalLahirVal);
+                        if (!isNaN(parsed.getTime()))
+                            tanggalLahir = parsed;
+                    }
+                    else if (typeof tanggalLahirVal === 'object' && tanggalLahirVal && 'result' in tanggalLahirVal) {
+                        const parsed = new Date(tanggalLahirVal.result);
+                        if (!isNaN(parsed.getTime()))
+                            tanggalLahir = parsed;
+                    }
+                    nasabahList.push({
+                        nama,
+                        noKtp,
+                        alamat: row.getCell(3).text,
+                        email: row.getCell(4).text,
+                        telepon: row.getCell(5).text,
+                        tempatLahir: row.getCell(6).text,
+                        tanggalLahir,
+                        jenisKelamin: row.getCell(8).text,
+                        pekerjaan: row.getCell(9).text,
+                    });
+                }
+                catch (e) {
+                    console.error(`❌ Error parsing row ${rowNumber}:`, e.message);
+                    errors.push({ row: rowNumber, message: e.message });
+                }
+            });
+            console.log(`📊 Parsed ${nasabahList.length} nasabah from ${rowCount} rows`);
+            if (nasabahList.length === 0) {
+                console.error('❌ No valid nasabah data found');
+                throw new common_1.BadRequestException('No valid nasabah data found');
+            }
+            const ktpList = nasabahList.map(n => n.noKtp);
+            console.log('🔍 Checking for existing KTP numbers...');
+            const existing = await this.prisma.nasabah.findMany({
+                where: { noKtp: { in: ktpList } },
+                select: { noKtp: true }
+            });
+            const existingKtps = new Set(existing.map(e => e.noKtp));
+            const validNasabah = nasabahList.filter(n => !existingKtps.has(n.noKtp));
+            console.log(`✅ Found ${existing.length} existing, ${validNasabah.length} new nasabah`);
+            if (validNasabah.length > 0) {
+                console.log('💾 Creating new nasabah records...');
+                await this.prisma.nasabah.createMany({
+                    data: validNasabah.map(n => ({
+                        nama: n.nama,
+                        noKtp: n.noKtp,
+                        alamat: n.alamat,
+                        email: n.email,
+                        telepon: n.telepon,
+                        tempatLahir: n.tempatLahir,
+                        tanggalLahir: n.tanggalLahir,
+                        jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P' ? n.jenisKelamin : null,
+                        pekerjaan: n.pekerjaan
+                    }))
+                });
+                console.log(`✅ Successfully created ${validNasabah.length} nasabah records`);
+            }
+            const result = {
+                success: true,
+                totalProcessed: rowCount,
+                created: validNasabah.length,
+                skipped: existing.length,
+                errors: errors.length > 0 ? errors : undefined
+            };
+            console.log('✅ Upload nasabah completed:', result);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ FATAL ERROR in uploadNasabah:', error);
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
+            throw error;
+        }
     }
     async generateAnggotaTransactionTemplate() {
         const workbook = new ExcelJS.Workbook();
@@ -288,6 +578,15 @@ let MigrationService = class MigrationService {
         ];
         sheet2.getRow(1).font = { bold: true };
         sheet2.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+        sheet2.addRow({
+            nasabahId: 1,
+            noAnggota: 'A001',
+            tglDaftar: new Date('2024-01-15'),
+            pokok: 500000,
+            wajib: 100000,
+            saldo: 600000,
+        });
+        sheet2.getRow(2).font = { italic: true, color: { argb: 'FF666666' } };
         return Buffer.from(await workbook.xlsx.writeBuffer());
     }
     async uploadAnggotaTransaction(fileBuffer) {
@@ -300,7 +599,7 @@ let MigrationService = class MigrationService {
         const errors = [];
         let rowCount = 0;
         worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber === 1)
+            if (rowNumber <= 2)
                 return;
             rowCount++;
             try {
@@ -352,7 +651,8 @@ let MigrationService = class MigrationService {
                         openDate: txn.tglDaftar,
                         principal: txn.pokok,
                         mandatoryInit: txn.wajibAwal,
-                        status: 'A',
+                        balance: txn.saldo,
+                        status: 'ACTIVE',
                         regionCode: 'PUSAT',
                         groupCode: 'UMUM',
                         createdBy: 'MIGRATION',
@@ -361,13 +661,159 @@ let MigrationService = class MigrationService {
                 successCount++;
             }
             catch (e) {
+                console.error(`Error creating anggota account for ${txn.noAnggota}:`, e);
             }
         }
         return {
             success: true,
-            totalRows: rowCount,
-            successCount,
-            errors: errors.length > 0 ? errors : undefined
+            total: txns.length,
+            imported: successCount,
+            errors
+        };
+    }
+    async previewAnggota(fileBuffer, redenominate = false) {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(fileBuffer);
+        const worksheet = workbook.getWorksheet('Transaksi Anggota') || workbook.getWorksheet(2);
+        if (!worksheet) {
+            throw new common_1.BadRequestException('Sheet "Transaksi Anggota" not found');
+        }
+        const previewData = [];
+        const nasabahIds = new Set();
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber <= 2)
+                return;
+            const nasabahId = parseInt(row.getCell(1).text);
+            const noAnggota = row.getCell(2).text;
+            let tglDaftarVal = row.getCell(3).value;
+            let pokok = parseFloat(row.getCell(4).text) || 0;
+            let wajib = parseFloat(row.getCell(5).text) || 0;
+            let saldo = parseFloat(row.getCell(6).text) || 0;
+            if (redenominate) {
+                pokok = pokok / 1000;
+                wajib = wajib / 1000;
+                saldo = saldo / 1000;
+            }
+            if (!nasabahId && !noAnggota)
+                return;
+            if (nasabahId)
+                nasabahIds.add(nasabahId);
+            let tglDaftar = new Date();
+            if (tglDaftarVal instanceof Date) {
+                tglDaftar = tglDaftarVal;
+            }
+            else if (typeof tglDaftarVal === 'string') {
+                const parsed = new Date(tglDaftarVal);
+                if (!isNaN(parsed.getTime()))
+                    tglDaftar = parsed;
+            }
+            previewData.push({
+                rowNumber,
+                nasabahId,
+                noAnggota,
+                tglDaftar,
+                pokok,
+                wajib,
+                saldo,
+                status: 'valid',
+                errors: []
+            });
+        });
+        const existingNasabah = await this.prisma.nasabah.findMany({
+            where: { id: { in: Array.from(nasabahIds) } },
+            select: { id: true, nama: true, noKtp: true }
+        });
+        const nasabahMap = new Map(existingNasabah.map(n => [n.id, n]));
+        const existingAnggota = await this.prisma.anggotaAccount.findMany({
+            where: { accountNumber: { in: previewData.map(d => d.noAnggota).filter(Boolean) } },
+            select: { accountNumber: true }
+        });
+        const existingAnggotaSet = new Set(existingAnggota.map(a => a.accountNumber));
+        const nasabahAggregates = new Map();
+        previewData.forEach(row => {
+            if (!row.nasabahId) {
+                row.status = 'error';
+                row.errors.push('Nasabah ID required');
+            }
+            else if (!nasabahMap.has(row.nasabahId)) {
+                row.status = 'error';
+                row.errors.push('Nasabah ID not found');
+            }
+            else {
+                row.namaNasabah = nasabahMap.get(row.nasabahId)?.nama;
+                row.noKtp = nasabahMap.get(row.nasabahId)?.noKtp;
+                const current = nasabahAggregates.get(row.nasabahId) || {
+                    nama: row.namaNasabah,
+                    noKtp: row.noKtp,
+                    totalPokok: 0,
+                    totalWajib: 0,
+                    totalSaldo: 0,
+                    count: 0
+                };
+                current.totalPokok += row.pokok;
+                current.totalWajib += row.wajib;
+                current.totalSaldo += row.saldo;
+                current.count++;
+                nasabahAggregates.set(row.nasabahId, current);
+            }
+            if (!row.noAnggota) {
+                row.status = 'error';
+                row.errors.push('No Anggota required');
+            }
+            else if (existingAnggotaSet.has(row.noAnggota)) {
+                row.status = 'duplicate';
+                row.errors.push('No Anggota already exists');
+            }
+        });
+        const aggregates = Array.from(nasabahAggregates.entries()).map(([id, stats]) => ({
+            nasabahId: id,
+            ...stats
+        }));
+        return {
+            data: previewData,
+            aggregates,
+            summary: {
+                totalRows: previewData.length,
+                valid: previewData.filter(d => d.status === 'valid').length,
+                errors: previewData.filter(d => d.status === 'error').length,
+                totalSaldoAll: previewData.reduce((sum, d) => sum + d.saldo, 0)
+            }
+        };
+    }
+    async confirmAnggota(validatedData) {
+        let successCount = 0;
+        const errors = [];
+        for (const txn of validatedData) {
+            try {
+                const existing = await this.prisma.anggotaAccount.findUnique({
+                    where: { accountNumber: txn.noAnggota }
+                });
+                if (existing)
+                    continue;
+                await this.prisma.anggotaAccount.create({
+                    data: {
+                        customerId: txn.nasabahId,
+                        accountNumber: txn.noAnggota,
+                        openDate: new Date(txn.tglDaftar),
+                        principal: txn.pokok,
+                        mandatoryInit: txn.wajib,
+                        balance: txn.saldo,
+                        status: 'ACTIVE',
+                        regionCode: 'PUSAT',
+                        groupCode: 'UMUM',
+                        createdBy: 'MIGRATION',
+                    }
+                });
+                successCount++;
+            }
+            catch (e) {
+                errors.push({ noAnggota: txn.noAnggota, message: e.message });
+            }
+        }
+        return {
+            success: true,
+            imported: successCount,
+            errors
         };
     }
 };

@@ -17,13 +17,13 @@ export declare class NasabahController {
         updatedBy: string | null;
         nama: string;
         alamat: string | null;
-        pekerjaan: string | null;
         noKtp: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
         tanggalLahir: Date | null;
         jenisKelamin: string | null;
+        pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
     }>;
@@ -36,13 +36,13 @@ export declare class NasabahController {
         updatedBy: string | null;
         nama: string;
         alamat: string | null;
-        pekerjaan: string | null;
         noKtp: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
         tanggalLahir: Date | null;
         jenisKelamin: string | null;
+        pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
     }[]>;
@@ -55,13 +55,13 @@ export declare class NasabahController {
         updatedBy: string | null;
         nama: string;
         alamat: string | null;
-        pekerjaan: string | null;
         noKtp: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
         tanggalLahir: Date | null;
         jenisKelamin: string | null;
+        pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
     }>;
@@ -75,14 +75,14 @@ export declare class NasabahController {
             status: string;
             nasabahId: number;
             nomorKredit: string | null;
-            noPermohonan: string | null;
             jenisKredit: string;
             tujuanKredit: string | null;
             nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
             tglPengajuan: Date;
+            metodeAngsuran: string | null;
             mohonJangkaWaktu: number | null;
             mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
-            metodeAngsuran: string | null;
+            noPermohonan: string | null;
             sistemBunga: string | null;
         }[];
         anggota: {
@@ -102,32 +102,17 @@ export declare class NasabahController {
             groupCode: string;
             deduction: import("@prisma/client/runtime/library").Decimal;
         }[];
-        tabungan: {
+        balimesari: {
             updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             status: string;
+            nasabahId: number;
+            tglBuka: Date;
             saldo: import("@prisma/client/runtime/library").Decimal;
-            noTab: string;
-            nasabahId: number;
-            tglBuka: Date;
             interestRate: import("@prisma/client/runtime/library").Decimal;
-        }[];
-        deposito: {
-            updatedAt: Date | null;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            status: string;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            nasabahId: number;
-            tglBuka: Date;
-            noJangka: string;
-            tglJatuhTempo: Date;
-            bunga: import("@prisma/client/runtime/library").Decimal;
-            payoutMode: string;
-            targetAccountId: string | null;
+            noBalimesari: string;
         }[];
         brahmacari: {
             updatedAt: Date | null;
@@ -135,23 +120,38 @@ export declare class NasabahController {
             createdAt: Date;
             updatedBy: string | null;
             status: string;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             interestRate: import("@prisma/client/runtime/library").Decimal;
             noBrahmacari: string;
         }[];
-        balimesari: {
+        deposito: {
             updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
             status: string;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
+            noJangka: string;
+            tglJatuhTempo: Date;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            bunga: import("@prisma/client/runtime/library").Decimal;
+            payoutMode: string;
+            targetAccountId: string | null;
+        }[];
+        tabungan: {
+            updatedAt: Date | null;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            status: string;
+            noTab: string;
+            nasabahId: number;
+            tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             interestRate: import("@prisma/client/runtime/library").Decimal;
-            noBalimesari: string;
         }[];
         wanaprasta: {
             updatedAt: Date | null;
@@ -159,9 +159,9 @@ export declare class NasabahController {
             createdAt: Date;
             updatedBy: string | null;
             status: string;
-            saldo: import("@prisma/client/runtime/library").Decimal;
             nasabahId: number;
             tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
             interestRate: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
         }[];
@@ -174,13 +174,13 @@ export declare class NasabahController {
         updatedBy: string | null;
         nama: string;
         alamat: string | null;
-        pekerjaan: string | null;
         noKtp: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
         tanggalLahir: Date | null;
         jenisKelamin: string | null;
+        pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
     }>;
@@ -196,13 +196,13 @@ export declare class NasabahController {
         updatedBy: string | null;
         nama: string;
         alamat: string | null;
-        pekerjaan: string | null;
         noKtp: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
         tanggalLahir: Date | null;
         jenisKelamin: string | null;
+        pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
     }>;
@@ -215,13 +215,13 @@ export declare class NasabahController {
         updatedBy: string | null;
         nama: string;
         alamat: string | null;
-        pekerjaan: string | null;
         noKtp: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
         tanggalLahir: Date | null;
         jenisKelamin: string | null;
+        pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
     }>;

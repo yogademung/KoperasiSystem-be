@@ -16,10 +16,10 @@ export declare class TemplateService {
         isActive: boolean;
         createdAt: Date;
         code: string;
+        isDefault: boolean;
         productModule: string;
         category: string;
         version: number;
-        isDefault: boolean;
     }[]>;
     findOne(id: number): Promise<{
         parent: {
@@ -43,9 +43,11 @@ export declare class TemplateService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: Prisma.JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: Prisma.Decimal | null;
@@ -55,8 +57,6 @@ export declare class TemplateService {
         marginLeft: Prisma.Decimal;
         marginRight: Prisma.Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     findByCode(code: string): Promise<{
         id: number;
@@ -68,9 +68,11 @@ export declare class TemplateService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: Prisma.JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: Prisma.Decimal | null;
@@ -80,8 +82,6 @@ export declare class TemplateService {
         marginLeft: Prisma.Decimal;
         marginRight: Prisma.Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     create(dto: CreateTemplateDto, userId: string): Promise<{
         id: number;
@@ -93,9 +93,11 @@ export declare class TemplateService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: Prisma.JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: Prisma.Decimal | null;
@@ -105,8 +107,6 @@ export declare class TemplateService {
         marginLeft: Prisma.Decimal;
         marginRight: Prisma.Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     update(id: number, dto: UpdateTemplateDto, userId: string): Promise<{
         id: number;
@@ -118,9 +118,11 @@ export declare class TemplateService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: Prisma.JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: Prisma.Decimal | null;
@@ -130,8 +132,6 @@ export declare class TemplateService {
         marginLeft: Prisma.Decimal;
         marginRight: Prisma.Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     delete(id: number, userId: string): Promise<{
         id: number;
@@ -143,9 +143,11 @@ export declare class TemplateService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: Prisma.JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: Prisma.Decimal | null;
@@ -155,8 +157,6 @@ export declare class TemplateService {
         marginLeft: Prisma.Decimal;
         marginRight: Prisma.Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     createVersion(parentId: number, name: string, userId: string): Promise<{
         id: number;
@@ -168,9 +168,11 @@ export declare class TemplateService {
         createdAt: Date;
         updatedBy: string | null;
         code: string;
+        parentId: number | null;
+        isDefault: boolean;
         productModule: string;
         category: string;
-        jsonSchema: Prisma.JsonValue;
+        jsonSchema: string;
         paperSize: string;
         orientation: string;
         customWidth: Prisma.Decimal | null;
@@ -180,8 +182,6 @@ export declare class TemplateService {
         marginLeft: Prisma.Decimal;
         marginRight: Prisma.Decimal;
         version: number;
-        isDefault: boolean;
-        parentId: number | null;
     }>;
     private validateTemplateSchema;
 }

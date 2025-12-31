@@ -1,0 +1,14 @@
+// Menu Module - Phase 10 Role Permission Management
+
+import { Module } from '@nestjs/common';
+import { MenuController } from './menu.controller';
+import { MenuService } from './menu.service';
+import { PrismaModule } from '../database/prisma.module';
+
+@Module({
+    imports: [PrismaModule],
+    controllers: [MenuController],
+    providers: [MenuService],
+    exports: [MenuService],
+})
+export class MenuModule { }

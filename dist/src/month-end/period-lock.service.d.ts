@@ -11,8 +11,8 @@ export declare class PeriodLockService {
     private getPreviousPeriod;
     private validateSequentialClosing;
     closePeriod(period: string, userId: number): Promise<{
-        period: string;
         status: string;
+        period: string;
         reason: string | null;
         lockedAt: Date;
         lockedBy: number;
@@ -22,8 +22,8 @@ export declare class PeriodLockService {
     }>;
     requestUnlock(period: string, userId: number, reason: string): Promise<{
         id: number;
-        period: string;
         status: string;
+        period: string;
         reason: string;
         requestedAt: Date;
         approvedAt: Date | null;
@@ -45,8 +45,8 @@ export declare class PeriodLockService {
             fullName: string;
         };
     } & {
-        period: string;
         status: string;
+        period: string;
         reason: string | null;
         lockedAt: Date;
         lockedBy: number;

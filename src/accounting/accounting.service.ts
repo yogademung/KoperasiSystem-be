@@ -9,6 +9,8 @@ import { TabrelaService } from '../simpanan/tabrela/tabrela.service';
 import { DepositoService } from '../simpanan/deposito/deposito.service';
 import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
 import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
+import { PeriodLockService } from '../month-end/period-lock.service';
+import { formatDate } from 'date-fns'; // Helper if needed, or just use string interpolation
 
 
 @Injectable()
@@ -21,7 +23,10 @@ export class AccountingService {
         private depositoService: DepositoService,
         private brahmacariService: BrahmacariService,
         private balimesariService: BalimesariService,
-        private wanaprastaService: WanaprastaService
+        private brahmacariService: BrahmacariService,
+        private balimesariService: BalimesariService,
+        private wanaprastaService: WanaprastaService,
+        private periodLockService: PeriodLockService
     ) { }
 
     // ============================================
@@ -306,10 +311,22 @@ export class AccountingService {
         userId: number;
         details: { accountCode: string; debit: number; credit: number; description?: string }[];
     }) {
+        // 1. Check Period Lock
+        const period = data.date.toISOString().slice(0, 7); // YYYY-MM
+        const isLocked = await this.periodLockService.isPeriodLocked(period);
+        if (isLocked) {
+            throw new BadRequestException(`Periode ${period} sudah ditutup. Tidak dapat melakukan perubahan jurnal.`);
+        }
         // 1. Check existence and Type
         const existing = await this.prisma.postedJournal.findUnique({ where: { id } });
         if (!existing) throw new NotFoundException('Journal not found');
         if (existing.postingType !== 'MANUAL') throw new BadRequestException('Only Manual Journals can be edited');
+
+        // Check OLD date lock status as well (prevent moving from locked period to open period)
+        const oldPeriod = existing.journalDate.toISOString().slice(0, 7);
+        if (await this.periodLockService.isPeriodLocked(oldPeriod)) {
+            throw new BadRequestException(`Jurnal tersimpan di periode tertutup (${oldPeriod}). Tidak dapat diedit.`);
+        }
 
         // 2. Validate Balance
         await this.validateJournalEntry(data.details);
@@ -512,6 +529,14 @@ export class AccountingService {
             });
 
             if (!journal) throw new NotFoundException('Journal not found');
+
+            // 1b. Check Period Lock for Deletion
+            const period = journal.journalDate.toISOString().slice(0, 7);
+            const isLocked = await this.periodLockService.isPeriodLocked(period);
+            if (isLocked) {
+                // Since we are adding logic, we must throw here to abort transaction
+                throw new BadRequestException(`Periode ${period} sudah ditutup. Jurnal tidak dapat dihapus.`);
+            }
 
             // 2. VOID TRANSACTION LOGIC (For AUTO journals)
             if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {

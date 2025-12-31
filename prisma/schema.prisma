@@ -1,6 +1,3 @@
-// Koperasi System - Prisma Schema
-// Database: kkb_pusat_new (MySQL)
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,84 +7,78 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// SYSTEM TABLES (s_*)
-// ============================================
-
 model User {
-  id         Int       @id @default(autoincrement()) @map("USER_ID")
-  username   String    @unique @map("LOGIN") @db.VarChar(50)
-  password   String    @map("PWD") @db.VarChar(255)
-  fullName   String    @map("NAMA") @db.VarChar(100)
-  staffId    String?   @map("STAFF_ID") @db.VarChar(50)
-  roleId     Int       @map("ROLE_LPD_ID")
-  regionCode String?   @map("WILAYAH_CD") @db.VarChar(20)
-  token      String?   @map("TOKEN") @db.Text
-  isActive   Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy  String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt  DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy  String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt  DateTime? @updatedAt @map("CHANGE_DATE")
-
-  role           Role            @relation(fields: [roleId], references: [id])
-  postedJournals PostedJournal[]
-
-  // Phase 7 Relations
+  id              Int             @id @default(autoincrement()) @map("USER_ID")
+  username        String          @unique @map("LOGIN") @db.VarChar(50)
+  password        String          @map("PWD") @db.VarChar(255)
+  fullName        String          @map("NAMA") @db.VarChar(100)
+  staffId         String?         @map("STAFF_ID") @db.VarChar(50)
+  roleId          Int             @map("ROLE_LPD_ID")
+  regionCode      String?         @map("WILAYAH_CD") @db.VarChar(20)
+  token           String?         @map("TOKEN") @db.Text
+  isActive        Boolean         @default(true) @map("ACTIVE_FLAG")
+  createdBy       String?         @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime        @default(now()) @map("CREATE_DATE")
+  updatedBy       String?         @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime?       @updatedAt @map("CHANGE_DATE")
+  role            Role            @relation(fields: [roleId], references: [id])
+  monthEndLogs    MonthEndLog[]
   periodLocks     PeriodLock[]    @relation("PeriodLocker")
   periodUnlocks   PeriodLock[]    @relation("PeriodUnlocker")
-  unlockRequests  UnlockRequest[] @relation("UnlockRequester")
+  postedJournals  PostedJournal[]
   unlockApprovals UnlockRequest[] @relation("UnlockApprover")
-  monthEndLogs    MonthEndLog[]
+  unlockRequests  UnlockRequest[] @relation("UnlockRequester")
 
+  @@index([roleId], map: "s_user_lpd_ROLE_LPD_ID_fkey")
   @@map("s_user_lpd")
 }
 
 model Role {
-  id          Int       @id @default(autoincrement()) @map("ROLE_LPD_ID")
-  roleName    String    @map("nama_role") @db.VarChar(100)
-  description String?   @map("deskripsi") @db.Text
-  isActive    Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy   String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy   String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
-
-  users     User[]
-  menuRoles MenuRole[]
+  id          Int        @id @default(autoincrement()) @map("ROLE_LPD_ID")
+  roleName    String     @map("nama_role") @db.VarChar(100)
+  description String?    @map("deskripsi") @db.Text
+  isActive    Boolean    @default(true) @map("ACTIVE_FLAG")
+  createdBy   String?    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt   DateTime   @default(now()) @map("CREATE_DATE")
+  updatedBy   String?    @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt   DateTime?  @updatedAt @map("CHANGE_DATE")
+  menuRoles   MenuRole[]
+  users       User[]
 
   @@map("s_role_lpd")
 }
 
-
-
 model Menu {
-  id        Int       @id @default(autoincrement()) @map("menu_lpd_id")
-  menuName  String    @map("nama_menu") @db.VarChar(100)
-  module    String?   @map("modul") @db.VarChar(50)
-  node      String?   @map("node") @db.VarChar(10)
-  parentId  Int?      @map("parent_id")
-  icon      String?   @map("icon") @db.VarChar(50)
-  path      String?   @map("path") @db.VarChar(255)
-  orderNum  Int?      @map("order_num")
-  isActive  Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt DateTime? @updatedAt @map("CHANGE_DATE")
-
+  id        Int        @id @default(autoincrement()) @map("menu_lpd_id")
+  menuName  String     @map("nama_menu") @db.VarChar(100)
+  module    String?    @map("modul") @db.VarChar(50)
+  node      String?    @map("node") @db.VarChar(10)
+  parentId  Int?       @map("parent_id")
+  icon      String?    @map("icon") @db.VarChar(50)
+  path      String?    @map("path") @db.VarChar(255)
+  orderNum  Int?       @map("order_num")
+  isActive  Boolean    @default(true) @map("ACTIVE_FLAG")
+  createdBy String?    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt DateTime   @default(now()) @map("CREATE_DATE")
+  updatedBy String?    @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt DateTime?  @updatedAt @map("CHANGE_DATE")
   menuRoles MenuRole[]
 
   @@map("s_menu_lpd")
 }
 
 model MenuRole {
-  roleId Int @map("ROLE_LPD_ID")
-  menuId Int @map("menu_lpd_id")
-
-  role Role @relation(fields: [roleId], references: [id])
-  menu Menu @relation(fields: [menuId], references: [id])
+  roleId    Int     @map("ROLE_LPD_ID")
+  menuId    Int     @map("menu_lpd_id")
+  canCreate Boolean @default(false) @map("can_create")
+  canRead   Boolean @default(true) @map("can_read")
+  canUpdate Boolean @default(false) @map("can_update")
+  canDelete Boolean @default(false) @map("can_delete")
+  role      Role    @relation(fields: [roleId], references: [id])
+  menu      Menu    @relation(fields: [menuId], references: [id])
 
   @@id([roleId, menuId])
+  @@index([menuId], map: "s_menu_role_lpd_menu_lpd_id_fkey")
   @@map("s_menu_role_lpd")
 }
 
@@ -106,156 +97,151 @@ model LovValue {
   @@map("s_lov_value")
 }
 
-// ============================================
-// MASTER DATA TABLES (m_*)
-// ============================================
-
 model Nasabah {
-  id           Int       @id @default(autoincrement()) @map("NASABAH_ID")
-  nama         String    @map("NAMA") @db.VarChar(255)
-  noKtp        String?   @unique @map("NO_KTP") @db.VarChar(50)
-  alamat       String?   @map("ALAMAT") @db.Text
-  email        String?   @map("EMAIL") @db.VarChar(100)
-  telepon      String?   @map("TELEPON") @db.VarChar(20)
-  tempatLahir  String?   @map("TEMPAT_LAHIR") @db.VarChar(100)
-  tanggalLahir DateTime? @map("TANGGAL_LAHIR") @db.Date
-  jenisKelamin String?   @map("JENIS_KELAMIN") @db.VarChar(1)
-  pekerjaan    String?   @map("PEKERJAAN") @db.VarChar(100)
-  fileKtp      String?   @map("FILE_KTP") @db.VarChar(255)
-  fileKk       String?   @map("FILE_KK") @db.VarChar(255)
-  isActive     Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
-
-  anggota    AnggotaAccount[]
-  tabungan   NasabahTab[]
-  deposito   NasabahJangka[]
-  brahmacari NasabahBrahmacari[]
-  balimesari NasabahBalimesari[]
-  wanaprasta NasabahWanaprasta[]
-  kredit     DebiturKredit[]
-  collaterals Collateral[]
-  waris      NasabahWaris[]
-  modal      NasabahModal[]
+  id           Int                 @id @default(autoincrement()) @map("NASABAH_ID")
+  nama         String              @map("NAMA") @db.VarChar(255)
+  noKtp        String?             @unique @map("NO_KTP") @db.VarChar(50)
+  alamat       String?             @map("ALAMAT") @db.Text
+  email        String?             @map("EMAIL") @db.VarChar(100)
+  telepon      String?             @map("TELEPON") @db.VarChar(20)
+  tempatLahir  String?             @map("TEMPAT_LAHIR") @db.VarChar(100)
+  tanggalLahir DateTime?           @map("TANGGAL_LAHIR") @db.Date
+  jenisKelamin String?             @map("JENIS_KELAMIN") @db.VarChar(1)
+  pekerjaan    String?             @map("PEKERJAAN") @db.VarChar(100)
+  fileKtp      String?             @map("FILE_KTP") @db.VarChar(255)
+  fileKk       String?             @map("FILE_KK") @db.VarChar(255)
+  isActive     Boolean             @default(true) @map("ACTIVE_FLAG")
+  createdBy    String?             @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime            @default(now()) @map("CREATE_DATE")
+  updatedBy    String?             @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime?           @updatedAt @map("CHANGE_DATE")
+  collaterals  Collateral[]
+  kredit       DebiturKredit[]
+  anggota      AnggotaAccount[]
+  balimesari   NasabahBalimesari[]
+  brahmacari   NasabahBrahmacari[]
+  deposito     NasabahJangka[]
+  modal        NasabahModal[]
+  tabungan     NasabahTab[]
+  wanaprasta   NasabahWanaprasta[]
+  waris        NasabahWaris[]
 
   @@map("m_nasabah")
 }
 
 model AnggotaAccount {
-  accountNumber String    @id @map("NO_ANGGOTA") @db.VarChar(20)
-  customerId    Int       @map("NASABAH_ID")
-  customer      Nasabah   @relation(fields: [customerId], references: [id])
-  principal     Decimal   @map("POKOK") @db.Decimal(19, 4)
-  mandatoryInit Decimal   @map("WAJIB_AWAL") @db.Decimal(19, 4)
-  openDate      DateTime  @map("TGL_DAFTAR") @db.Date
-  closeDate     DateTime? @map("TGL_TUTUP") @db.Date
-  balance       Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
-  status        String    @default("D") @map("STATUS") @db.VarChar(2)
-  regionCode    String    @map("WILAYAH_CD") @db.VarChar(45)
-  groupCode     String    @map("GROUP_CD") @db.VarChar(10)
-  remark        String?   @map("REMARK") @db.Text
-  deduction     Decimal   @default(0) @map("POTONGAN") @db.Decimal(19, 4)
-  isActive      Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy     String    @map("CREATE_WHO") @db.VarChar(50)
-  createdAt     DateTime  @default(now()) @map("CREATE_DATE")
+  accountNumber String               @id @map("NO_ANGGOTA") @db.VarChar(20)
+  customerId    Int                  @map("NASABAH_ID")
+  principal     Decimal              @map("POKOK") @db.Decimal(19, 4)
+  mandatoryInit Decimal              @map("WAJIB_AWAL") @db.Decimal(19, 4)
+  openDate      DateTime             @map("TGL_DAFTAR") @db.Date
+  closeDate     DateTime?            @map("TGL_TUTUP") @db.Date
+  balance       Decimal              @default(0.0000) @map("SALDO") @db.Decimal(19, 4)
+  status        String               @default("D") @map("STATUS") @db.VarChar(2)
+  regionCode    String               @map("WILAYAH_CD") @db.VarChar(45)
+  groupCode     String               @map("GROUP_CD") @db.VarChar(10)
+  remark        String?              @map("REMARK") @db.Text
+  deduction     Decimal              @default(0.0000) @map("POTONGAN") @db.Decimal(19, 4)
+  isActive      Boolean              @default(true) @map("ACTIVE_FLAG")
+  createdBy     String               @map("CREATE_WHO") @db.VarChar(50)
+  createdAt     DateTime             @default(now()) @map("CREATE_DATE")
+  customer      Nasabah              @relation(fields: [customerId], references: [id])
+  transactions  AnggotaTransaction[]
 
-  transactions AnggotaTransaction[]
-
+  @@index([customerId], map: "m_nasabah_anggota_NASABAH_ID_fkey")
   @@map("m_nasabah_anggota")
 }
 
 model NasabahTab {
-  noTab        String    @id @map("NO_TAB") @db.VarChar(50)
-  nasabahId    Int       @map("NASABAH_ID")
-  tglBuka      DateTime  @map("TGL_BUKA") @db.Date
-  saldo        Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
-  interestRate Decimal   @default(0) @map("BUNGA_PCT") @db.Decimal(5, 2)
-  status       String    @default("A") @map("STATUS") @db.VarChar(10)
-  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
-
+  noTab        String     @id @map("NO_TAB") @db.VarChar(50)
+  nasabahId    Int        @map("NASABAH_ID")
+  tglBuka      DateTime   @map("TGL_BUKA") @db.Date
+  saldo        Decimal    @default(0.0000) @map("SALDO") @db.Decimal(19, 4)
+  interestRate Decimal    @default(0.00) @map("BUNGA_PCT") @db.Decimal(5, 2)
+  status       String     @default("A") @map("STATUS") @db.VarChar(10)
+  createdBy    String?    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime   @default(now()) @map("CREATE_DATE")
+  updatedBy    String?    @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime?  @updatedAt @map("CHANGE_DATE")
   nasabah      Nasabah    @relation(fields: [nasabahId], references: [id])
   transactions TransTab[]
 
+  @@index([nasabahId], map: "m_nasabah_tab_NASABAH_ID_fkey")
   @@map("m_nasabah_tab")
 }
 
 model NasabahJangka {
-  noJangka        String    @id @map("NO_JANGKA") @db.VarChar(50)
-  nasabahId       Int       @map("NASABAH_ID")
-  tglBuka         DateTime  @map("TGL_BUKA") @db.Date
-  tglJatuhTempo   DateTime  @map("END_DATE") @db.Date
-  nominal         Decimal   @map("NOMINAL") @db.Decimal(19, 4)
-  bunga           Decimal   @map("BUNGA") @db.Decimal(5, 2)
-  payoutMode      String    @default("MATURITY") @map("PAYOUT_MODE") @db.VarChar(20) // MATURITY, ROLLOVER, TRANSFER
-  targetAccountId String?   @map("TARGET_ACCOUNT_ID") @db.VarChar(50) // For TRANSFER mode
-  status          String    @default("A") @map("STATUS") @db.VarChar(10)
-  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+  noJangka        String        @id @map("NO_JANGKA") @db.VarChar(50)
+  nasabahId       Int           @map("NASABAH_ID")
+  tglBuka         DateTime      @map("TGL_BUKA") @db.Date
+  tglJatuhTempo   DateTime      @map("END_DATE") @db.Date
+  nominal         Decimal       @map("NOMINAL") @db.Decimal(19, 4)
+  bunga           Decimal       @map("BUNGA") @db.Decimal(5, 2)
+  payoutMode      String        @default("MATURITY") @map("PAYOUT_MODE") @db.VarChar(20)
+  targetAccountId String?       @map("TARGET_ACCOUNT_ID") @db.VarChar(50)
+  status          String        @default("A") @map("STATUS") @db.VarChar(10)
+  createdBy       String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime      @default(now()) @map("CREATE_DATE")
+  updatedBy       String?       @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime?     @updatedAt @map("CHANGE_DATE")
+  nasabah         Nasabah       @relation(fields: [nasabahId], references: [id])
+  transactions    TransJangka[]
 
-  nasabah      Nasabah       @relation(fields: [nasabahId], references: [id])
-  transactions TransJangka[]
-
+  @@index([nasabahId], map: "m_nasabah_jangka_NASABAH_ID_fkey")
   @@map("m_nasabah_jangka")
 }
 
 model NasabahBrahmacari {
-  noBrahmacari String    @id @map("NO_BRAHMACARI") @db.VarChar(50)
-  nasabahId    Int       @map("NASABAH_ID")
-  tglBuka      DateTime  @map("TGL_BUKA") @db.Date
-  saldo        Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
-  interestRate Decimal   @default(0) @map("BUNGA_PCT") @db.Decimal(5, 2)
-  status       String    @default("A") @map("STATUS") @db.VarChar(10)
-  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
-
+  noBrahmacari String            @id @map("NO_BRAHMACARI") @db.VarChar(50)
+  nasabahId    Int               @map("NASABAH_ID")
+  tglBuka      DateTime          @map("TGL_BUKA") @db.Date
+  saldo        Decimal           @default(0.0000) @map("SALDO") @db.Decimal(19, 4)
+  interestRate Decimal           @default(0.00) @map("BUNGA_PCT") @db.Decimal(5, 2)
+  status       String            @default("A") @map("STATUS") @db.VarChar(10)
+  createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime          @default(now()) @map("CREATE_DATE")
+  updatedBy    String?           @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime?         @updatedAt @map("CHANGE_DATE")
   nasabah      Nasabah           @relation(fields: [nasabahId], references: [id])
   transactions TransBrahmacari[]
 
+  @@index([nasabahId], map: "m_nasabah_brahmacari_NASABAH_ID_fkey")
   @@map("m_nasabah_brahmacari")
 }
 
 model NasabahBalimesari {
-  noBalimesari String    @id @map("NO_BALIMESARI") @db.VarChar(50)
-  nasabahId    Int       @map("NASABAH_ID")
-  tglBuka      DateTime  @map("TGL_BUKA") @db.Date
-  saldo        Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
-  interestRate Decimal   @default(0) @map("BUNGA_PCT") @db.Decimal(5, 2)
-  status       String    @default("A") @map("STATUS") @db.VarChar(10)
-  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
-
+  noBalimesari String            @id @map("NO_BALIMESARI") @db.VarChar(50)
+  nasabahId    Int               @map("NASABAH_ID")
+  tglBuka      DateTime          @map("TGL_BUKA") @db.Date
+  saldo        Decimal           @default(0.0000) @map("SALDO") @db.Decimal(19, 4)
+  interestRate Decimal           @default(0.00) @map("BUNGA_PCT") @db.Decimal(5, 2)
+  status       String            @default("A") @map("STATUS") @db.VarChar(10)
+  createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime          @default(now()) @map("CREATE_DATE")
+  updatedBy    String?           @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime?         @updatedAt @map("CHANGE_DATE")
   nasabah      Nasabah           @relation(fields: [nasabahId], references: [id])
   transactions TransBalimesari[]
 
+  @@index([nasabahId], map: "m_nasabah_balimesari_NASABAH_ID_fkey")
   @@map("m_nasabah_balimesari")
 }
 
 model NasabahWanaprasta {
-  noWanaprasta String    @id @map("NO_WANAPRASTA") @db.VarChar(50)
-  nasabahId    Int       @map("NASABAH_ID")
-  tglBuka      DateTime  @map("TGL_BUKA") @db.Date
-  saldo        Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
-  interestRate Decimal   @default(0) @map("BUNGA_PCT") @db.Decimal(5, 2)
-  status       String    @default("A") @map("STATUS") @db.VarChar(10)
-  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
-
+  noWanaprasta String            @id @map("NO_WANAPRASTA") @db.VarChar(50)
+  nasabahId    Int               @map("NASABAH_ID")
+  tglBuka      DateTime          @map("TGL_BUKA") @db.Date
+  saldo        Decimal           @default(0.0000) @map("SALDO") @db.Decimal(19, 4)
+  interestRate Decimal           @default(0.00) @map("BUNGA_PCT") @db.Decimal(5, 2)
+  status       String            @default("A") @map("STATUS") @db.VarChar(10)
+  createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime          @default(now()) @map("CREATE_DATE")
+  updatedBy    String?           @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime?         @updatedAt @map("CHANGE_DATE")
   nasabah      Nasabah           @relation(fields: [nasabahId], references: [id])
   transactions TransWanaprasta[]
 
+  @@index([nasabahId], map: "m_nasabah_wanaprasta_NASABAH_ID_fkey")
   @@map("m_nasabah_wanaprasta")
 }
 
@@ -270,326 +256,306 @@ model NasabahWaris {
   createdAt DateTime  @default(now()) @map("CREATE_DATE")
   updatedBy String?   @map("CHANGE_WHO") @db.VarChar(50)
   updatedAt DateTime? @updatedAt @map("CHANGE_DATE")
+  nasabah   Nasabah   @relation(fields: [nasabahId], references: [id])
 
-  nasabah Nasabah @relation(fields: [nasabahId], references: [id])
-
+  @@index([nasabahId], map: "m_nasabah_waris_NASABAH_ID_fkey")
   @@map("m_nasabah_waris")
 }
 
 model DebiturKredit {
-  id               Int       @id @default(autoincrement()) @map("DEBITUR_KREDIT_ID")
-  nasabahId        Int       @map("NASABAH_ID")
-  nomorKredit      String?   @unique @map("NOMOR_KREDIT") @db.VarChar(50)
-  noPermohonan     String?   @unique @map("NO_PERMOHONAN") @db.VarChar(50)
-  jenisKredit      String    @map("JENIS_KREDIT") @db.VarChar(50)
-  tujuanKredit     String?   @map("TUJUAN_KREDIT") @db.Text
-  nominalPengajuan Decimal   @map("NOMINAL_PENGAJUAN") @db.Decimal(19, 4)
-  status           String    @default("OPEN") @map("STATUS") @db.VarChar(20)
-  tglPengajuan     DateTime  @map("TGL_PENGAJUAN") @db.Date
-  
-  // New fields for Phase 5
-  mohonJangkaWaktu Int?      @map("MOHON_JANGKA_WAKTU")
-  mohonSukuBunga   Decimal?  @map("MOHON_SUKU_BUNGA") @db.Decimal(5, 2)
-  metodeAngsuran   String?   @map("METODE_ANGSURAN") @db.VarChar(20)
-  sistemBunga      String?   @map("SISTEM_BUNGA") @db.VarChar(20)
-  
-  createdBy        String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt        DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy        String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt        DateTime? @updatedAt @map("CHANGE_DATE")
+  id               Int                @id @default(autoincrement()) @map("DEBITUR_KREDIT_ID")
+  nasabahId        Int                @map("NASABAH_ID")
+  nomorKredit      String?            @unique @map("NOMOR_KREDIT") @db.VarChar(50)
+  jenisKredit      String             @map("JENIS_KREDIT") @db.VarChar(50)
+  tujuanKredit     String?            @map("TUJUAN_KREDIT") @db.Text
+  nominalPengajuan Decimal            @map("NOMINAL_PENGAJUAN") @db.Decimal(19, 4)
+  status           String             @default("OPEN") @map("STATUS") @db.VarChar(20)
+  tglPengajuan     DateTime           @map("TGL_PENGAJUAN") @db.Date
+  createdBy        String?            @map("CREATE_WHO") @db.VarChar(50)
+  createdAt        DateTime           @default(now()) @map("CREATE_DATE")
+  updatedBy        String?            @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt        DateTime?          @updatedAt @map("CHANGE_DATE")
+  metodeAngsuran   String?            @map("METODE_ANGSURAN") @db.VarChar(20)
+  mohonJangkaWaktu Int?               @map("MOHON_JANGKA_WAKTU")
+  mohonSukuBunga   Decimal?           @map("MOHON_SUKU_BUNGA") @db.Decimal(5, 2)
+  noPermohonan     String?            @unique @map("NO_PERMOHONAN") @db.VarChar(50)
+  sistemBunga      String?            @map("SISTEM_BUNGA") @db.VarChar(20)
+  fasilitas        DebiturFasilitas[]
+  jadwal           DebiturJadwal[]
+  nasabah          Nasabah            @relation(fields: [nasabahId], references: [id])
+  realisasi        DebiturRealisasi[]
+  analysis         CreditAnalysis?
+  collaterals      KreditCollateral[]
+  transactions     TransKredit[]
 
-  nasabah      Nasabah            @relation(fields: [nasabahId], references: [id])
-  transactions TransKredit[]
-  fasilitas    DebiturFasilitas[]
-  realisasi    DebiturRealisasi[]
-  jadwal       DebiturJadwal[]
-  analysis     CreditAnalysis?
-  collaterals  KreditCollateral[]
-
+  @@index([nasabahId], map: "m_debitur_kredit_NASABAH_ID_fkey")
   @@map("m_debitur_kredit")
 }
 
 model DebiturFasilitas {
-  id              Int       @id @default(autoincrement()) @map("FASILITAS_ID")
-  debiturKreditId Int       @map("DEBITUR_KREDIT_ID")
-  nominal         Decimal   @map("NOMINAL") @db.Decimal(19, 4)
-  bunga           Decimal   @map("BUNGA") @db.Decimal(5, 2)
-  jangkaWaktu     Int       @map("JANGKA_WAKTU")
-  angsuranPokok   Decimal   @map("ANGSURAN_POKOK") @db.Decimal(19, 4)
-  angsuranBunga   Decimal   @map("ANGSURAN_BUNGA") @db.Decimal(19, 4)
-  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+  id              Int           @id @default(autoincrement()) @map("FASILITAS_ID")
+  debiturKreditId Int           @map("DEBITUR_KREDIT_ID")
+  nominal         Decimal       @map("NOMINAL") @db.Decimal(19, 4)
+  bunga           Decimal       @map("BUNGA") @db.Decimal(5, 2)
+  jangkaWaktu     Int           @map("JANGKA_WAKTU")
+  angsuranPokok   Decimal       @map("ANGSURAN_POKOK") @db.Decimal(19, 4)
+  angsuranBunga   Decimal       @map("ANGSURAN_BUNGA") @db.Decimal(19, 4)
+  createdBy       String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime      @default(now()) @map("CREATE_DATE")
+  updatedBy       String?       @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime?     @updatedAt @map("CHANGE_DATE")
+  debiturKredit   DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
-  debiturKredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
-
+  @@index([debiturKreditId], map: "m_debitur_fasilitas_DEBITUR_KREDIT_ID_fkey")
   @@map("m_debitur_fasilitas")
 }
 
 model DebiturJadwal {
-  id              Int       @id @default(autoincrement()) @map("JADWAL_ID")
-  debiturKreditId Int       @map("DEBITUR_KREDIT_ID")
-  angsuranKe      Int       @map("ANGSURAN_KE")
-  tglJatuhTempo   DateTime  @map("TGL_JATUH_TEMPO") @db.Date
-  pokok           Decimal   @map("POKOK") @db.Decimal(19, 4)
-  bunga           Decimal   @map("BUNGA") @db.Decimal(19, 4)
-  total           Decimal   @map("TOTAL_ANGSURAN") @db.Decimal(19, 4)
-  sisaPokok       Decimal   @map("SISA_POKOK") @db.Decimal(19, 4)
-  sisaBunga       Decimal   @default(0) @map("SISA_BUNGA") @db.Decimal(19, 4) // New field for partial interest
-  status          String    @default("UNPAID") @map("STATUS") @db.VarChar(20) // UNPAID, PARTIAL, PAID, LATE
-  tglBayar        DateTime? @map("TGL_BAYAR") @db.Date // Actual payment date
+  id              Int           @id @default(autoincrement()) @map("JADWAL_ID")
+  debiturKreditId Int           @map("DEBITUR_KREDIT_ID")
+  angsuranKe      Int           @map("ANGSURAN_KE")
+  tglJatuhTempo   DateTime      @map("TGL_JATUH_TEMPO") @db.Date
+  pokok           Decimal       @map("POKOK") @db.Decimal(19, 4)
+  bunga           Decimal       @map("BUNGA") @db.Decimal(19, 4)
+  total           Decimal       @map("TOTAL_ANGSURAN") @db.Decimal(19, 4)
+  sisaPokok       Decimal       @map("SISA_POKOK") @db.Decimal(19, 4)
+  status          String        @default("UNPAID") @map("STATUS") @db.VarChar(20)
+  tglBayar        DateTime?     @map("TGL_BAYAR") @db.Date
+  createdBy       String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime      @default(now()) @map("CREATE_DATE")
+  updatedBy       String?       @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime?     @updatedAt @map("CHANGE_DATE")
+  sisaBunga       Decimal       @default(0.0000) @map("SISA_BUNGA") @db.Decimal(19, 4)
+  debiturKredit   DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
-  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
-
-  debiturKredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
-
+  @@index([debiturKreditId], map: "m_debitur_jadwal_DEBITUR_KREDIT_ID_fkey")
   @@map("m_debitur_jadwal")
 }
 
 model DebiturRealisasi {
-  id               Int       @id @default(autoincrement()) @map("REALISASI_ID")
-  debiturKreditId  Int       @map("DEBITUR_KREDIT_ID")
-  tglRealisasi     DateTime  @map("TGL_REALISASI") @db.Date
-  nominalRealisasi Decimal   @map("NOMINAL_REALISASI") @db.Decimal(19, 4)
-  rekening         String?   @map("REKENING") @db.VarChar(50)
-  createdBy        String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt        DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy        String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt        DateTime? @updatedAt @map("CHANGE_DATE")
+  id               Int           @id @default(autoincrement()) @map("REALISASI_ID")
+  debiturKreditId  Int           @map("DEBITUR_KREDIT_ID")
+  tglRealisasi     DateTime      @map("TGL_REALISASI") @db.Date
+  nominalRealisasi Decimal       @map("NOMINAL_REALISASI") @db.Decimal(19, 4)
+  rekening         String?       @map("REKENING") @db.VarChar(50)
+  createdBy        String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt        DateTime      @default(now()) @map("CREATE_DATE")
+  updatedBy        String?       @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt        DateTime?     @updatedAt @map("CHANGE_DATE")
+  debiturKredit    DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
-  debiturKredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
-
+  @@index([debiturKreditId], map: "m_debitur_realisasi_DEBITUR_KREDIT_ID_fkey")
   @@map("m_debitur_realisasi")
 }
 
-
 model CreditAnalysis {
-  id              Int      @id @default(autoincrement()) @map("ANALISA_ID")
-  debiturKreditId Int      @unique @map("DEBITUR_KREDIT_ID")
-  characterScore  Int      @map("POINT_CHARACTER")
-  characterDesc   String?  @map("URAIAN_CHARACTER") @db.Text
-  capitalScore    Int      @map("POINT_CAPITAL")
-  capitalDesc     String?  @map("URAIAN_CAPITAL") @db.Text
-  capacityScore   Int      @map("POINT_CAPASITY")
-  capacityDesc    String?  @map("URAIAN_CAPASITY") @db.Text
-  conditionScore  Int      @map("POINT_CONDISION")
-  conditionDesc   String?  @map("URAIAN_CONDISION") @db.Text
-  collateralScore Int      @map("POINT_COLATERAL")
-  collateralDesc  String?  @map("URAIAN_COLATERAL") @db.Text
-  totalScore      Int      @map("SCORE")
-  recommendation  String?  @map("REKOMENDASI") @db.Text
-  
-  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
-
+  id              Int           @id @default(autoincrement()) @map("ANALISA_ID")
+  debiturKreditId Int           @unique @map("DEBITUR_KREDIT_ID")
+  characterScore  Int           @map("POINT_CHARACTER")
+  characterDesc   String?       @map("URAIAN_CHARACTER") @db.Text
+  capitalScore    Int           @map("POINT_CAPITAL")
+  capitalDesc     String?       @map("URAIAN_CAPITAL") @db.Text
+  capacityScore   Int           @map("POINT_CAPASITY")
+  capacityDesc    String?       @map("URAIAN_CAPASITY") @db.Text
+  conditionScore  Int           @map("POINT_CONDISION")
+  conditionDesc   String?       @map("URAIAN_CONDISION") @db.Text
+  collateralScore Int           @map("POINT_COLATERAL")
+  collateralDesc  String?       @map("URAIAN_COLATERAL") @db.Text
+  totalScore      Int           @map("SCORE")
+  recommendation  String?       @map("REKOMENDASI") @db.Text
+  createdBy       String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime      @default(now()) @map("CREATE_DATE")
+  updatedBy       String?       @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime?     @updatedAt @map("CHANGE_DATE")
   debiturKredit   DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
   @@map("m_kredit_analisa")
 }
 
 model Collateral {
-  id              Int      @id @default(autoincrement()) @map("COLATERAL_ID")
-  nasabahId       Int      @map("NASABAH_ID")
-  type            String   @map("JENIS_JAMINAN") // TANAH, BANGUNAN, KENDARAAN, DEPOSITO, EMAS
-  description     String?  @map("KETERANGAN") @db.Text
-  marketValue     Decimal  @map("NILAI_PASAR") @db.Decimal(19, 4)
-  assessedValue   Decimal  @map("NILAI_TAKASI") @db.Decimal(19, 4)
-  details         Json?    @map("DETAIL_DATA") // No Sertifikat/BPKB, Luas, Lokasi, Pemilik
-  photos          String?  @map("PHOTOS") @db.Text // JSON array of photo paths
-  status          String   @default("ACTIVE") @map("STATUS") // ACTIVE, SEIZED, RELEASED
-  
-  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy       String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+  id            Int                @id @default(autoincrement()) @map("COLATERAL_ID")
+  nasabahId     Int                @map("NASABAH_ID")
+  type          String             @map("JENIS_JAMINAN")
+  description   String?            @map("KETERANGAN") @db.Text
+  marketValue   Decimal            @map("NILAI_PASAR") @db.Decimal(19, 4)
+  assessedValue Decimal            @map("NILAI_TAKASI") @db.Decimal(19, 4)
+  details       String?            @map("DETAIL_DATA") @db.LongText
+  photos        String?            @map("PHOTOS") @db.Text
+  status        String             @default("ACTIVE") @map("STATUS")
+  createdBy     String?            @map("CREATE_WHO") @db.VarChar(50)
+  createdAt     DateTime           @default(now()) @map("CREATE_DATE")
+  updatedBy     String?            @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt     DateTime?          @updatedAt @map("CHANGE_DATE")
+  nasabah       Nasabah            @relation(fields: [nasabahId], references: [id])
+  links         KreditCollateral[]
 
-  nasabah         Nasabah           @relation(fields: [nasabahId], references: [id])
-  links           KreditCollateral[]
-
+  @@index([nasabahId], map: "m_debitur_colateral_NASABAH_ID_fkey")
   @@map("m_debitur_colateral")
 }
 
 model KreditCollateral {
-  creditId     Int @map("DEBITUR_KREDIT_ID")
-  collateralId Int @map("COLATERAL_ID")
-
-  credit     DebiturKredit @relation(fields: [creditId], references: [id])
-  collateral Collateral    @relation(fields: [collateralId], references: [id])
+  creditId     Int           @map("DEBITUR_KREDIT_ID")
+  collateralId Int           @map("COLATERAL_ID")
+  collateral   Collateral    @relation(fields: [collateralId], references: [id])
+  credit       DebiturKredit @relation(fields: [creditId], references: [id])
 
   @@id([creditId, collateralId])
+  @@index([collateralId], map: "m_kredit_colateral_COLATERAL_ID_fkey")
   @@map("m_kredit_colateral")
 }
 
 model Asset {
-  id                         Int      @id @default(autoincrement()) @map("ASSET_ID")
-  name                       String   @map("NAMA_AKTIVA")
-  code                        String   @unique @map("NO_AKTIVA")
-  type                       String   @map("JENIS_AKTIVA") // GEDUNG, KENDARAAN, INVENTARIS, TANAH
-  acquisitionDate            DateTime @map("TGL_PEROLEHAN")
-  acquisitionCost            Decimal  @map("NILAI_PEROLEHAN") @db.Decimal(19, 4)
-  residualValue              Decimal  @map("NILAI_RESIDU") @db.Decimal(19, 4)
-  usefulLifeYears            Int      @map("MASA_MANFAAT")
-  depreciationRate           Float    @map("PCT_PENYUSUTAN")
-  depreciationMethod         String   @map("METODE_PENYUSUTAN") // STRAIGHT_LINE, DECLINING_BALANCE
-  assetAccountId             String   @map("ACCOUNT_AKTIVA")
-  accumDepreciationAccountId String   @map("ACCOUNT_AKUM_PENY")
-  expenseAccountId           String   @map("ACCOUNT_BIAYA_PENY")
-  status                     String   @default("ACTIVE") @map("STATUS") // ACTIVE, SOLD, DISPOSED, FULLY_DEPRECIATED
-  
-  createdBy                  String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt                  DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy                  String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt                  DateTime? @updatedAt @map("CHANGE_DATE")
-
-  depreciationHistory AssetDepreciationHistory[]
+  id                         Int                        @id @default(autoincrement()) @map("ASSET_ID")
+  name                       String                     @map("NAMA_AKTIVA")
+  code                       String                     @unique @map("NO_AKTIVA")
+  type                       String                     @map("JENIS_AKTIVA")
+  acquisitionDate            DateTime                   @map("TGL_PEROLEHAN")
+  acquisitionCost            Decimal                    @map("NILAI_PEROLEHAN") @db.Decimal(19, 4)
+  residualValue              Decimal                    @map("NILAI_RESIDU") @db.Decimal(19, 4)
+  usefulLifeYears            Int                        @map("MASA_MANFAAT")
+  depreciationRate           Float                      @map("PCT_PENYUSUTAN")
+  depreciationMethod         String                     @map("METODE_PENYUSUTAN")
+  assetAccountId             String                     @map("ACCOUNT_AKTIVA")
+  accumDepreciationAccountId String                     @map("ACCOUNT_AKUM_PENY")
+  expenseAccountId           String                     @map("ACCOUNT_BIAYA_PENY")
+  status                     String                     @default("ACTIVE") @map("STATUS")
+  createdBy                  String?                    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt                  DateTime                   @default(now()) @map("CREATE_DATE")
+  updatedBy                  String?                    @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt                  DateTime?                  @updatedAt @map("CHANGE_DATE")
+  depreciationHistory        AssetDepreciationHistory[]
 
   @@map("m_aktiva")
 }
 
 model AssetDepreciationHistory {
-  id        Int      @id @default(autoincrement()) @map("HISTORY_ID")
-  assetId   Int      @map("ASSET_ID")
-  period    String   @map("PERIODE") // YYYY-MM
-  amount    Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  journalId Int?     @map("JOURNAL_ID")
-  createdAt DateTime @default(now()) @map("CREATE_DATE")
+  id        Int            @id @default(autoincrement()) @map("HISTORY_ID")
+  assetId   Int            @map("ASSET_ID")
+  period    String         @map("PERIODE")
+  amount    Decimal        @map("NOMINAL") @db.Decimal(19, 4)
+  journalId Int?           @map("JOURNAL_ID")
+  createdAt DateTime       @default(now()) @map("CREATE_DATE")
+  asset     Asset          @relation(fields: [assetId], references: [id])
+  journal   PostedJournal? @relation(fields: [journalId], references: [id])
 
-  asset Asset @relation(fields: [assetId], references: [id])
-  journal PostedJournal? @relation(fields: [journalId], references: [id])
-
+  @@index([assetId], map: "t_aktiva_penyusutan_ASSET_ID_fkey")
+  @@index([journalId], map: "t_aktiva_penyusutan_JOURNAL_ID_fkey")
   @@map("t_aktiva_penyusutan")
 }
 
-// ============================================
-// ACCOUNTING TABLES (m_journal_*, t_posted_*)
-// ============================================
-
 model JournalAccount {
-  accountCode   String    @id @map("ACCOUNT_CD") @db.VarChar(20)
-  accountName   String    @map("ACCOUNT_NAME") @db.VarChar(255)
-  accountType   String    @map("ACCOUNT_TYPE") @db.VarChar(50) // AST, LIA, EQT, REV, EXP
-  parentCode    String?   @map("PARENT_CD") @db.VarChar(20)
-  debetPoleFlag Boolean   @default(true) @map("DEBET_POLE_FLAG") // true = Debit Normal, false = Credit Normal
-  remark        String?   @map("REMARK") @db.Text
-  wilayahCd     String?   @map("WILAYAH_CD") @db.VarChar(10)
-  isActive      Boolean   @default(true) @map("ACTIVE_FLAG")
-  createdBy     String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt     DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy     String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt     DateTime? @updatedAt @map("CHANGE_DATE")
-
-  journalDetails PostedJournalDetail[]
-  debitMappings  ProductCoaMapping[]   @relation("DebitMapping")
+  accountCode    String                @id @map("ACCOUNT_CD") @db.VarChar(20)
+  accountName    String                @map("ACCOUNT_NAME") @db.VarChar(255)
+  accountType    String                @map("ACCOUNT_TYPE") @db.VarChar(50)
+  parentCode     String?               @map("PARENT_CD") @db.VarChar(20)
+  debetPoleFlag  Boolean               @default(true) @map("DEBET_POLE_FLAG")
+  remark         String?               @map("REMARK") @db.Text
+  wilayahCd      String?               @map("WILAYAH_CD") @db.VarChar(10)
+  isActive       Boolean               @default(true) @map("ACTIVE_FLAG")
+  createdBy      String?               @map("CREATE_WHO") @db.VarChar(50)
+  createdAt      DateTime              @default(now()) @map("CREATE_DATE")
+  updatedBy      String?               @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt      DateTime?             @updatedAt @map("CHANGE_DATE")
   creditMappings ProductCoaMapping[]   @relation("CreditMapping")
+  debitMappings  ProductCoaMapping[]   @relation("DebitMapping")
+  journalDetails PostedJournalDetail[]
 
   @@map("m_journal_account")
 }
 
 model PostedJournal {
-  id            Int       @id @default(autoincrement()) @map("JOURNAL_ID")
-  journalNumber String    @unique @map("JOURNAL_NO") @db.VarChar(30) // Format: JU/YYYY/MM/XXXX
-  journalDate   DateTime  @map("TGL_POSTING") @db.Date
-  description   String?   @map("KETERANGAN") @db.Text
-  postingType   String    @default("AUTO") @map("POSTING_TYPE") @db.VarChar(10) // MANUAL, AUTO
-  transType     String?   @map("TRANS_TYPE") @db.VarChar(30) // SIMPANAN_SETOR, etc.
-  sourceCode    String?   @map("SOURCE_CODE") @db.VarChar(20) // ANGGOTA, BRAHMACARI, etc.
-  refId         Int?      @map("REF_ID") // Reference to source transaction
-  userId        Int       @map("USER_ID")
-  tellerId      String?   @map("TELLER_ID") @db.VarChar(20)
-  wilayahCd     String?   @map("WILAYAH_CD") @db.VarChar(10)
-  status        String    @default("POSTED") @map("STATUS") @db.VarChar(20)
-  createdBy     String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt     DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy     String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt     DateTime? @updatedAt @map("CHANGE_DATE")
+  id            Int                        @id @default(autoincrement()) @map("JOURNAL_ID")
+  journalNumber String                     @unique @map("JOURNAL_NO") @db.VarChar(30)
+  journalDate   DateTime                   @map("TGL_POSTING") @db.Date
+  description   String?                    @map("KETERANGAN") @db.Text
+  postingType   String                     @default("AUTO") @map("POSTING_TYPE") @db.VarChar(10)
+  transType     String?                    @map("TRANS_TYPE") @db.VarChar(30)
+  refId         Int?                       @map("REF_ID")
+  userId        Int                        @map("USER_ID")
+  tellerId      String?                    @map("TELLER_ID") @db.VarChar(20)
+  wilayahCd     String?                    @map("WILAYAH_CD") @db.VarChar(10)
+  status        String                     @default("POSTED") @map("STATUS") @db.VarChar(20)
+  createdBy     String?                    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt     DateTime                   @default(now()) @map("CREATE_DATE")
+  updatedBy     String?                    @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt     DateTime?                  @updatedAt @map("CHANGE_DATE")
+  sourceCode    String?                    @map("SOURCE_CODE") @db.VarChar(20)
+  assetHistory  AssetDepreciationHistory[]
+  user          User                       @relation(fields: [userId], references: [id])
+  details       PostedJournalDetail[]
 
-  details PostedJournalDetail[]
-  user    User                  @relation(fields: [userId], references: [id])
-  assetHistory AssetDepreciationHistory[]
-
+  @@index([userId], map: "t_posted_journal_USER_ID_fkey")
   @@map("t_posted_journal")
 }
 
 model PostedJournalDetail {
-  id          Int     @id @default(autoincrement()) @map("DETAIL_ID")
-  journalId   Int     @map("JOURNAL_ID")
-  accountCode String  @map("ACCOUNT_CD") @db.VarChar(20)
-  debit       Decimal @default(0) @map("DEBIT") @db.Decimal(19, 4)
-  credit      Decimal @default(0) @map("CREDIT") @db.Decimal(19, 4)
-  description String? @map("KETERANGAN") @db.Text
+  id          Int            @id @default(autoincrement()) @map("DETAIL_ID")
+  journalId   Int            @map("JOURNAL_ID")
+  accountCode String         @map("ACCOUNT_CD") @db.VarChar(20)
+  debit       Decimal        @default(0.0000) @map("DEBIT") @db.Decimal(19, 4)
+  credit      Decimal        @default(0.0000) @map("CREDIT") @db.Decimal(19, 4)
+  description String?        @map("KETERANGAN") @db.Text
+  account     JournalAccount @relation(fields: [accountCode], references: [accountCode])
+  journal     PostedJournal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
 
-  journal PostedJournal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
-  account JournalAccount @relation(fields: [accountCode], references: [accountCode])
-
+  @@index([accountCode], map: "t_posted_journal_detail_ACCOUNT_CD_fkey")
+  @@index([journalId], map: "t_posted_journal_detail_JOURNAL_ID_fkey")
   @@map("t_posted_journal_detail")
 }
 
 model PostedJournalTemp {
-  id            Int      @id @default(autoincrement()) @map("TEMP_ID")
-  originalId    Int      @map("ORIGINAL_JOURNAL_ID")
-  journalNumber String   @map("JOURNAL_NO") @db.VarChar(30)
-  journalDate   DateTime @map("TGL_POSTING") @db.Date
-  description   String?  @map("KETERANGAN") @db.Text
-  postingType   String   @map("POSTING_TYPE") @db.VarChar(10)
-  transType     String?  @map("TRANS_TYPE") @db.VarChar(30)
-  sourceCode    String?  @map("SOURCE_CODE") @db.VarChar(20)
-  refId         Int?     @map("REF_ID")
-  userId        Int      @map("USER_ID")
-  wilayahCd     String?  @map("WILAYAH_CD") @db.VarChar(10)
-  status        String   @map("STATUS") @db.VarChar(20)
-  deletedBy     String?  @map("DELETE_WHO") @db.VarChar(50)
-  deletedAt     DateTime @default(now()) @map("DELETE_DATE")
-  deleteReason  String?  @map("DELETE_REASON") @db.Text
-
-  details PostedJournalDetailTemp[]
+  id            Int                       @id @default(autoincrement()) @map("TEMP_ID")
+  originalId    Int                       @map("ORIGINAL_JOURNAL_ID")
+  journalNumber String                    @map("JOURNAL_NO") @db.VarChar(30)
+  journalDate   DateTime                  @map("TGL_POSTING") @db.Date
+  description   String?                   @map("KETERANGAN") @db.Text
+  postingType   String                    @map("POSTING_TYPE") @db.VarChar(10)
+  transType     String?                   @map("TRANS_TYPE") @db.VarChar(30)
+  sourceCode    String?                   @map("SOURCE_CODE") @db.VarChar(20)
+  refId         Int?                      @map("REF_ID")
+  userId        Int                       @map("USER_ID")
+  wilayahCd     String?                   @map("WILAYAH_CD") @db.VarChar(10)
+  status        String                    @map("STATUS") @db.VarChar(20)
+  deletedBy     String?                   @map("DELETE_WHO") @db.VarChar(50)
+  deletedAt     DateTime                  @default(now()) @map("DELETE_DATE")
+  deleteReason  String?                   @map("DELETE_REASON") @db.Text
+  details       PostedJournalDetailTemp[]
 
   @@map("t_posted_journal_temp")
 }
 
 model PostedJournalDetailTemp {
-  id            Int     @id @default(autoincrement()) @map("TEMP_DETAIL_ID")
-  tempJournalId Int     @map("TEMP_JOURNAL_ID")
-  accountCode   String  @map("ACCOUNT_CD") @db.VarChar(20)
-  debit         Decimal @default(0) @map("DEBIT") @db.Decimal(19, 4)
-  credit        Decimal @default(0) @map("CREDIT") @db.Decimal(19, 4)
-  description   String? @map("KETERANGAN") @db.Text
+  id            Int               @id @default(autoincrement()) @map("TEMP_DETAIL_ID")
+  tempJournalId Int               @map("TEMP_JOURNAL_ID")
+  accountCode   String            @map("ACCOUNT_CD") @db.VarChar(20)
+  debit         Decimal           @default(0.0000) @map("DEBIT") @db.Decimal(19, 4)
+  credit        Decimal           @default(0.0000) @map("CREDIT") @db.Decimal(19, 4)
+  description   String?           @map("KETERANGAN") @db.Text
+  journal       PostedJournalTemp @relation(fields: [tempJournalId], references: [id], onDelete: Cascade)
 
-  journal PostedJournalTemp @relation(fields: [tempJournalId], references: [id], onDelete: Cascade)
-
+  @@index([tempJournalId], map: "t_posted_journal_detail_temp_TEMP_JOURNAL_ID_fkey")
   @@map("t_posted_journal_detail_temp")
 }
 
 model ProductCoaMapping {
-  id          Int    @id @default(autoincrement()) @map("MAPPING_ID")
-  module      String @map("MODULE") @db.VarChar(20) // SIMPANAN, KREDIT
-  transType   String @unique @map("TRANS_TYPE") @db.VarChar(30) // BRAHMACARI_SETOR, etc.
-  description String @map("DESCRIPTION") @db.VarChar(100)
+  id            Int            @id @default(autoincrement()) @map("MAPPING_ID")
+  module        String         @map("MODULE") @db.VarChar(20)
+  transType     String         @unique @map("TRANS_TYPE") @db.VarChar(30)
+  description   String         @map("DESCRIPTION") @db.VarChar(100)
+  debitAccount  String         @map("DEBIT_ACCOUNT_CD") @db.VarChar(20)
+  creditAccount String         @map("CREDIT_ACCOUNT_CD") @db.VarChar(20)
+  updatedAt     DateTime       @updatedAt @map("CHANGE_DATE")
+  creditRef     JournalAccount @relation("CreditMapping", fields: [creditAccount], references: [accountCode])
+  debitRef      JournalAccount @relation("DebitMapping", fields: [debitAccount], references: [accountCode])
 
-  debitAccount  String @map("DEBIT_ACCOUNT_CD") @db.VarChar(20)
-  creditAccount String @map("CREDIT_ACCOUNT_CD") @db.VarChar(20)
-
-  debitRef  JournalAccount @relation("DebitMapping", fields: [debitAccount], references: [accountCode])
-  creditRef JournalAccount @relation("CreditMapping", fields: [creditAccount], references: [accountCode])
-
-  updatedAt DateTime @updatedAt @map("CHANGE_DATE")
-
+  @@index([creditAccount], map: "m_product_coa_mapping_CREDIT_ACCOUNT_CD_fkey")
+  @@index([debitAccount], map: "m_product_coa_mapping_DEBIT_ACCOUNT_CD_fkey")
   @@map("m_product_coa_mapping")
 }
-
-// ============================================
-// TRANSACTION TABLES (t_*)
-// ============================================
 
 model AnggotaTransaction {
   id            Int            @id @default(autoincrement()) @map("TRANS_ID")
   accountNumber String         @map("NO_ANGGOTA") @db.VarChar(20)
-  account       AnggotaAccount @relation(fields: [accountNumber], references: [accountNumber])
   transDate     DateTime       @map("TGL_TRANS")
   transType     String         @map("TIPE_TRANS") @db.VarChar(20)
   amount        Decimal        @map("NOMINAL") @db.Decimal(19, 4)
@@ -597,233 +563,207 @@ model AnggotaTransaction {
   description   String?        @map("KETERANGAN") @db.Text
   userId        Int            @map("USER_ID")
   createdAt     DateTime       @default(now()) @map("CREATE_DATE")
+  account       AnggotaAccount @relation(fields: [accountNumber], references: [accountNumber])
 
+  @@index([accountNumber], map: "t_trans_anggota_NO_ANGGOTA_fkey")
   @@map("t_trans_anggota")
 }
 
 model TransTab {
-  id         Int      @id @default(autoincrement()) @map("TRANS_ID")
-  noTab      String   @map("NO_TAB") @db.VarChar(50)
-  tipeTrans  String   @map("TIPE_TRANS") @db.VarChar(10)
-  nominal    Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  saldoAkhir Decimal  @map("SALDO_AKHIR") @db.Decimal(19, 4)
-  keterangan String?  @map("KETERANGAN") @db.Text
-  createdBy  String?  @map("CREATE_WHO") @db.VarChar(50)
-  createdAt  DateTime @default(now()) @map("CREATE_DATE")
+  id         Int        @id @default(autoincrement()) @map("TRANS_ID")
+  noTab      String     @map("NO_TAB") @db.VarChar(50)
+  tipeTrans  String     @map("TIPE_TRANS") @db.VarChar(10)
+  nominal    Decimal    @map("NOMINAL") @db.Decimal(19, 4)
+  saldoAkhir Decimal    @map("SALDO_AKHIR") @db.Decimal(19, 4)
+  keterangan String?    @map("KETERANGAN") @db.Text
+  createdBy  String?    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt  DateTime   @default(now()) @map("CREATE_DATE")
+  tabungan   NasabahTab @relation(fields: [noTab], references: [noTab])
 
-  tabungan NasabahTab @relation(fields: [noTab], references: [noTab])
-
+  @@index([noTab], map: "t_trans_tab_NO_TAB_fkey")
   @@map("t_trans_tab")
 }
 
 model TransJangka {
-  id         Int      @id @default(autoincrement()) @map("TRANS_ID")
-  noJangka   String   @map("NO_JANGKA") @db.VarChar(50)
-  tipeTrans  String   @map("TIPE_TRANS") @db.VarChar(10)
-  nominal    Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  keterangan String?  @map("KETERANGAN") @db.Text
-  createdBy  String?  @map("CREATE_WHO") @db.VarChar(50)
-  createdAt  DateTime @default(now()) @map("CREATE_DATE")
+  id         Int           @id @default(autoincrement()) @map("TRANS_ID")
+  noJangka   String        @map("NO_JANGKA") @db.VarChar(50)
+  tipeTrans  String        @map("TIPE_TRANS") @db.VarChar(10)
+  nominal    Decimal       @map("NOMINAL") @db.Decimal(19, 4)
+  keterangan String?       @map("KETERANGAN") @db.Text
+  createdBy  String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt  DateTime      @default(now()) @map("CREATE_DATE")
+  deposito   NasabahJangka @relation(fields: [noJangka], references: [noJangka])
 
-  deposito NasabahJangka @relation(fields: [noJangka], references: [noJangka])
-
+  @@index([noJangka], map: "t_trans_jangka_NO_JANGKA_fkey")
   @@map("t_trans_jangka")
 }
 
 model TransBrahmacari {
-  id           Int      @id @default(autoincrement()) @map("TRANS_ID")
-  noBrahmacari String   @map("NO_BRAHMACARI") @db.VarChar(50)
-  tipeTrans    String   @map("TIPE_TRANS") @db.VarChar(10)
-  nominal      Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  saldoAkhir   Decimal  @map("SALDO_AKHIR") @db.Decimal(19, 4)
-  keterangan   String?  @map("KETERANGAN") @db.Text
-  createdBy    String?  @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime @default(now()) @map("CREATE_DATE")
+  id           Int               @id @default(autoincrement()) @map("TRANS_ID")
+  noBrahmacari String            @map("NO_BRAHMACARI") @db.VarChar(50)
+  tipeTrans    String            @map("TIPE_TRANS") @db.VarChar(10)
+  nominal      Decimal           @map("NOMINAL") @db.Decimal(19, 4)
+  saldoAkhir   Decimal           @map("SALDO_AKHIR") @db.Decimal(19, 4)
+  keterangan   String?           @map("KETERANGAN") @db.Text
+  createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime          @default(now()) @map("CREATE_DATE")
+  brahmacari   NasabahBrahmacari @relation(fields: [noBrahmacari], references: [noBrahmacari])
 
-  brahmacari NasabahBrahmacari @relation(fields: [noBrahmacari], references: [noBrahmacari])
-
+  @@index([noBrahmacari], map: "t_trans_brahmacari_NO_BRAHMACARI_fkey")
   @@map("t_trans_brahmacari")
 }
 
 model TransBalimesari {
-  id           Int      @id @default(autoincrement()) @map("TRANS_ID")
-  noBalimesari String   @map("NO_BALIMESARI") @db.VarChar(50)
-  tipeTrans    String   @map("TIPE_TRANS") @db.VarChar(10)
-  nominal      Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  saldoAkhir   Decimal  @map("SALDO_AKHIR") @db.Decimal(19, 4)
-  keterangan   String?  @map("KETERANGAN") @db.Text
-  createdBy    String?  @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime @default(now()) @map("CREATE_DATE")
+  id           Int               @id @default(autoincrement()) @map("TRANS_ID")
+  noBalimesari String            @map("NO_BALIMESARI") @db.VarChar(50)
+  tipeTrans    String            @map("TIPE_TRANS") @db.VarChar(10)
+  nominal      Decimal           @map("NOMINAL") @db.Decimal(19, 4)
+  saldoAkhir   Decimal           @map("SALDO_AKHIR") @db.Decimal(19, 4)
+  keterangan   String?           @map("KETERANGAN") @db.Text
+  createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime          @default(now()) @map("CREATE_DATE")
+  balimesari   NasabahBalimesari @relation(fields: [noBalimesari], references: [noBalimesari])
 
-  balimesari NasabahBalimesari @relation(fields: [noBalimesari], references: [noBalimesari])
-
+  @@index([noBalimesari], map: "t_trans_balimesari_NO_BALIMESARI_fkey")
   @@map("t_trans_balimesari")
 }
 
 model TransWanaprasta {
-  id           Int      @id @default(autoincrement()) @map("TRANS_ID")
-  noWanaprasta String   @map("NO_WANAPRASTA") @db.VarChar(50)
-  tipeTrans    String   @map("TIPE_TRANS") @db.VarChar(10)
-  nominal      Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  saldoAkhir   Decimal  @map("SALDO_AKHIR") @db.Decimal(19, 4)
-  keterangan   String?  @map("KETERANGAN") @db.Text
-  createdBy    String?  @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime @default(now()) @map("CREATE_DATE")
+  id           Int               @id @default(autoincrement()) @map("TRANS_ID")
+  noWanaprasta String            @map("NO_WANAPRASTA") @db.VarChar(50)
+  tipeTrans    String            @map("TIPE_TRANS") @db.VarChar(10)
+  nominal      Decimal           @map("NOMINAL") @db.Decimal(19, 4)
+  saldoAkhir   Decimal           @map("SALDO_AKHIR") @db.Decimal(19, 4)
+  keterangan   String?           @map("KETERANGAN") @db.Text
+  createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime          @default(now()) @map("CREATE_DATE")
+  wanaprasta   NasabahWanaprasta @relation(fields: [noWanaprasta], references: [noWanaprasta])
 
-  wanaprasta NasabahWanaprasta @relation(fields: [noWanaprasta], references: [noWanaprasta])
-
+  @@index([noWanaprasta], map: "t_trans_wanaprasta_NO_WANAPRASTA_fkey")
   @@map("t_trans_wanaprasta")
 }
 
 model TransKredit {
-  id              Int      @id @default(autoincrement()) @map("TRANS_ID")
-  debiturKreditId Int      @map("DEBITUR_KREDIT_ID")
-  tipeTrans       String   @map("TIPE_TRANS") @db.VarChar(10) // PAYMENT, DISBURSEMENT
-  tglTrans        DateTime @default(now()) @map("TGL_TRANS") @db.Date // Transaction date
-  nominal         Decimal  @map("NOMINAL") @db.Decimal(19, 4)
-  
-  // Payment Breakdown (for PAYMENT type)
-  pokokBayar      Decimal? @default(0) @map("POKOK_BAYAR") @db.Decimal(19, 4)
-  bungaBayar      Decimal? @default(0) @map("BUNGA_BAYAR") @db.Decimal(19, 4)
-  dendaBayar      Decimal? @default(0) @map("DENDA_BAYAR") @db.Decimal(19, 4)
-  
-  journalId       Int?     @map("JOURNAL_ID") // Link to auto-posted journal
-  
-  keterangan      String?  @map("KETERANGAN") @db.Text
-  createdBy       String?  @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime @default(now()) @map("CREATE_DATE")
+  id              Int           @id @default(autoincrement()) @map("TRANS_ID")
+  debiturKreditId Int           @map("DEBITUR_KREDIT_ID")
+  tipeTrans       String        @map("TIPE_TRANS") @db.VarChar(10)
+  nominal         Decimal       @map("NOMINAL") @db.Decimal(19, 4)
+  keterangan      String?       @map("KETERANGAN") @db.Text
+  createdBy       String?       @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime      @default(now()) @map("CREATE_DATE")
+  bungaBayar      Decimal?      @default(0.0000) @map("BUNGA_BAYAR") @db.Decimal(19, 4)
+  dendaBayar      Decimal?      @default(0.0000) @map("DENDA_BAYAR") @db.Decimal(19, 4)
+  journalId       Int?          @map("JOURNAL_ID")
+  pokokBayar      Decimal?      @default(0.0000) @map("POKOK_BAYAR") @db.Decimal(19, 4)
+  tglTrans        DateTime      @default(now()) @map("TGL_TRANS") @db.Date
+  kredit          DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
-  kredit DebiturKredit @relation(fields: [debiturKreditId], references: [id])
-
+  @@index([debiturKreditId], map: "t_trans_kredit_DEBITUR_KREDIT_ID_fkey")
   @@map("t_trans_kredit")
 }
 
-// ============================================
-// REPORTING SYSTEM TABLES (Phase 4)
-// ============================================
-
 model ReportTemplate {
-  id            Int     @id @default(autoincrement()) @map("TEMPLATE_ID")
-  code          String  @unique @map("TEMPLATE_CODE") @db.VarChar(20) // S01, K01, AK22, etc.
-  name          String  @map("TEMPLATE_NAME") @db.VarChar(255)
-  description   String? @map("DESCRIPTION") @db.Text
-  productModule String  @map("PRODUCT_MODULE") @db.VarChar(50) // SIMPANAN, KREDIT, ACCOUNTING, ASSET
-  category      String  @map("CATEGORY") @db.VarChar(50) // STATEMENT, CERTIFICATE, FORM, REPORT
-
-  // Template Definition (JSON Schema)
-  jsonSchema Json @map("JSON_SCHEMA") // Complete template structure
-
-  // Paper Settings
-  paperSize    String   @default("A4") @map("PAPER_SIZE") @db.VarChar(20) // A4, LETTER, LEGAL, CUSTOM
-  orientation  String   @default("portrait") @map("ORIENTATION") @db.VarChar(20) // portrait, landscape
-  customWidth  Decimal? @map("CUSTOM_WIDTH") @db.Decimal(10, 2) // in mm
-  customHeight Decimal? @map("CUSTOM_HEIGHT") @db.Decimal(10, 2) // in mm
-  marginTop    Decimal  @default(20) @map("MARGIN_TOP") @db.Decimal(10, 2) // in mm
-  marginBottom Decimal  @default(20) @map("MARGIN_BOTTOM") @db.Decimal(10, 2)
-  marginLeft   Decimal  @default(20) @map("MARGIN_LEFT") @db.Decimal(10, 2)
-  marginRight  Decimal  @default(20) @map("MARGIN_RIGHT") @db.Decimal(10, 2)
-
-  // Versioning
-  version   Int     @default(1) @map("VERSION")
-  isDefault Boolean @default(false) @map("IS_DEFAULT") // System default template
-  isActive  Boolean @default(true) @map("ACTIVE_FLAG")
-  parentId  Int?    @map("PARENT_ID") // For custom versions of default templates
-
-  // Metadata
-  createdBy String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt DateTime? @updatedAt @map("CHANGE_DATE")
-
+  id             Int                   @id @default(autoincrement()) @map("TEMPLATE_ID")
+  code           String                @unique @map("TEMPLATE_CODE") @db.VarChar(20)
+  name           String                @map("TEMPLATE_NAME") @db.VarChar(255)
+  description    String?               @map("DESCRIPTION") @db.Text
+  productModule  String                @map("PRODUCT_MODULE") @db.VarChar(50)
+  category       String                @map("CATEGORY") @db.VarChar(50)
+  jsonSchema     String                @map("JSON_SCHEMA") @db.LongText
+  paperSize      String                @default("A4") @map("PAPER_SIZE") @db.VarChar(20)
+  orientation    String                @default("portrait") @map("ORIENTATION") @db.VarChar(20)
+  customWidth    Decimal?              @map("CUSTOM_WIDTH") @db.Decimal(10, 2)
+  customHeight   Decimal?              @map("CUSTOM_HEIGHT") @db.Decimal(10, 2)
+  marginTop      Decimal               @default(20.00) @map("MARGIN_TOP") @db.Decimal(10, 2)
+  marginBottom   Decimal               @default(20.00) @map("MARGIN_BOTTOM") @db.Decimal(10, 2)
+  marginLeft     Decimal               @default(20.00) @map("MARGIN_LEFT") @db.Decimal(10, 2)
+  marginRight    Decimal               @default(20.00) @map("MARGIN_RIGHT") @db.Decimal(10, 2)
+  version        Int                   @default(1) @map("VERSION")
+  isDefault      Boolean               @default(false) @map("IS_DEFAULT")
+  isActive       Boolean               @default(true) @map("ACTIVE_FLAG")
+  parentId       Int?                  @map("PARENT_ID")
+  createdBy      String?               @map("CREATE_WHO") @db.VarChar(50)
+  createdAt      DateTime              @default(now()) @map("CREATE_DATE")
+  updatedBy      String?               @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt      DateTime?             @updatedAt @map("CHANGE_DATE")
+  generationLogs ReportGenerationLog[]
   parent         ReportTemplate?       @relation("TemplateVersions", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   versions       ReportTemplate[]      @relation("TemplateVersions")
-  generationLogs ReportGenerationLog[]
 
+  @@index([parentId], map: "report_template_PARENT_ID_fkey")
   @@map("report_template")
 }
 
 model ReportVariable {
-  id            Int     @id @default(autoincrement()) @map("VARIABLE_ID")
-  productModule String  @map("PRODUCT_MODULE") @db.VarChar(50) // SIMPANAN, KREDIT, etc.
-  variableKey   String  @map("VARIABLE_KEY") @db.VarChar(100) // nasabah_nama, no_rek, etc.
-  variableName  String  @map("VARIABLE_NAME") @db.VarChar(255) // Display name
-  dataType      String  @map("DATA_TYPE") @db.VarChar(20) // STRING, NUMBER, DATE, CURRENCY, BOOLEAN
-  category      String  @map("CATEGORY") @db.VarChar(50) // HEADER, CUSTOMER, ACCOUNT, TRANSACTION
-  description   String? @map("DESCRIPTION") @db.Text
-  sampleValue   String? @map("SAMPLE_VALUE") @db.VarChar(255) // For preview
-  isArray       Boolean @default(false) @map("IS_ARRAY") // For loop variables
-
-  // Formatting Options (JSON)
-  formatOptions Json? @map("FORMAT_OPTIONS") // { dateFormat: "DD-MM-YYYY", currencySymbol: "Rp" }
-
-  createdAt DateTime  @default(now()) @map("CREATE_DATE")
-  updatedAt DateTime? @updatedAt @map("CHANGE_DATE")
+  id            Int       @id @default(autoincrement()) @map("VARIABLE_ID")
+  productModule String    @map("PRODUCT_MODULE") @db.VarChar(50)
+  variableKey   String    @map("VARIABLE_KEY") @db.VarChar(100)
+  variableName  String    @map("VARIABLE_NAME") @db.VarChar(255)
+  dataType      String    @map("DATA_TYPE") @db.VarChar(20)
+  category      String    @map("CATEGORY") @db.VarChar(50)
+  description   String?   @map("DESCRIPTION") @db.Text
+  sampleValue   String?   @map("SAMPLE_VALUE") @db.VarChar(255)
+  isArray       Boolean   @default(false) @map("IS_ARRAY")
+  formatOptions String?   @map("FORMAT_OPTIONS") @db.LongText
+  createdAt     DateTime  @default(now()) @map("CREATE_DATE")
+  updatedAt     DateTime? @updatedAt @map("CHANGE_DATE")
 
   @@unique([productModule, variableKey])
   @@map("report_variable")
 }
 
 model ReportGenerationLog {
-  id         Int            @id @default(autoincrement()) @map("LOG_ID")
-  templateId Int            @map("TEMPLATE_ID")
-  template   ReportTemplate @relation(fields: [templateId], references: [id])
+  id           Int            @id @default(autoincrement()) @map("LOG_ID")
+  templateId   Int            @map("TEMPLATE_ID")
+  recordId     String?        @map("RECORD_ID") @db.VarChar(100)
+  format       String         @map("FORMAT") @db.VarChar(10)
+  parameters   String?        @map("PARAMETERS") @db.LongText
+  status       String         @map("STATUS") @db.VarChar(20)
+  errorMessage String?        @map("ERROR_MESSAGE") @db.Text
+  filePath     String?        @map("FILE_PATH") @db.VarChar(500)
+  fileSize     Int?           @map("FILE_SIZE")
+  generatedBy  String?        @map("GENERATED_BY") @db.VarChar(50)
+  generatedAt  DateTime       @default(now()) @map("GENERATED_DATE")
+  template     ReportTemplate @relation(fields: [templateId], references: [id])
 
-  recordId   String? @map("RECORD_ID") @db.VarChar(100) // Reference to source record (account no, etc.)
-  format     String  @map("FORMAT") @db.VarChar(10) // PDF, EXCEL
-  parameters Json?   @map("PARAMETERS") // Input parameters used
-
-  status       String  @map("STATUS") @db.VarChar(20) // SUCCESS, FAILED
-  errorMessage String? @map("ERROR_MESSAGE") @db.Text
-  filePath     String? @map("FILE_PATH") @db.VarChar(500) // Generated file path
-  fileSize     Int?    @map("FILE_SIZE") // in bytes
-
-  generatedBy String?  @map("GENERATED_BY") @db.VarChar(50)
-  generatedAt DateTime @default(now()) @map("GENERATED_DATE")
-
+  @@index([templateId], map: "report_generation_log_TEMPLATE_ID_fkey")
   @@map("report_generation_log")
 }
 
-// Passbook Printing State (for continuous printing)
 model PassbookPrintState {
-  id            Int    @id @default(autoincrement()) @map("STATE_ID")
-  accountNumber String @unique @map("ACCOUNT_NUMBER") @db.VarChar(50)
-  productType   String @map("PRODUCT_TYPE") @db.VarChar(50) // ANGGOTA, TABRELA, etc.
-
-  lastPrintedTransId Int? @map("LAST_PRINTED_TRANS_ID") // Last transaction ID printed
-  lastPrintedLine    Int  @default(1) @map("LAST_PRINTED_LINE") // Last line number used (1-based)
-  totalLinesPrinted  Int  @default(0) @map("TOTAL_LINES_PRINTED")
-
-  updatedAt DateTime @updatedAt @map("LAST_PRINT_DATE")
+  id                 Int      @id @default(autoincrement()) @map("STATE_ID")
+  accountNumber      String   @unique @map("ACCOUNT_NUMBER") @db.VarChar(50)
+  productType        String   @map("PRODUCT_TYPE") @db.VarChar(50)
+  lastPrintedTransId Int?     @map("LAST_PRINTED_TRANS_ID")
+  lastPrintedLine    Int      @default(1) @map("LAST_PRINTED_LINE")
+  totalLinesPrinted  Int      @default(0) @map("TOTAL_LINES_PRINTED")
+  updatedAt          DateTime @updatedAt @map("LAST_PRINT_DATE")
 
   @@map("passbook_print_state")
 }
 
-// ============================================
-// CAPITAL MANAGEMENT (Phase 6)
-// ============================================
-
 model NasabahModal {
-  noRekModal   String    @id @map("NO_REK_MODAL") @db.VarChar(50)
-  nasabahId    Int       @map("NASABAH_ID")
-  tglBuka      DateTime  @map("TGL_BUKA") @db.Date
-  saldo        Decimal   @default(0) @map("SALDO") @db.Decimal(19, 4)
-  status       String    @default("A") @map("STATUS") @db.VarChar(10) // A=Active, C=Closed
-  wilayahCd    String?   @map("WILAYAH_CD") @db.VarChar(10)
-  createdBy    String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy    String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
-
-  nasabah      Nasabah   @relation(fields: [nasabahId], references: [id])
+  noRekModal   String       @id @map("NO_REK_MODAL") @db.VarChar(50)
+  nasabahId    Int          @map("NASABAH_ID")
+  tglBuka      DateTime     @map("TGL_BUKA") @db.Date
+  saldo        Decimal      @default(0.0000) @map("SALDO") @db.Decimal(19, 4)
+  status       String       @default("A") @map("STATUS") @db.VarChar(10)
+  wilayahCd    String?      @map("WILAYAH_CD") @db.VarChar(10)
+  createdBy    String?      @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime     @default(now()) @map("CREATE_DATE")
+  updatedBy    String?      @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt    DateTime?    @updatedAt @map("CHANGE_DATE")
+  nasabah      Nasabah      @relation(fields: [nasabahId], references: [id])
   transactions TransModal[]
 
+  @@index([nasabahId], map: "m_nasabah_modal_NASABAH_ID_fkey")
   @@map("m_nasabah_modal")
 }
 
 model TransModal {
   id           Int          @id @default(autoincrement()) @map("TRANS_ID")
   noRekModal   String       @map("NO_REK_MODAL") @db.VarChar(50)
-  tipeTrans    String       @map("TIPE_TRANS") @db.VarChar(10) // SETOR, TARIK, SHU
+  tipeTrans    String       @map("TIPE_TRANS") @db.VarChar(10)
   transDate    DateTime     @default(now()) @map("TGL_TRANS") @db.Date
   nominal      Decimal      @map("NOMINAL") @db.Decimal(19, 4)
   saldoAkhir   Decimal      @map("SALDO_AKHIR") @db.Decimal(19, 4)
@@ -831,33 +771,30 @@ model TransModal {
   journalId    Int?         @map("JOURNAL_ID")
   createdBy    String?      @map("CREATE_WHO") @db.VarChar(50)
   createdAt    DateTime     @default(now()) @map("CREATE_DATE")
-
   nasabahModal NasabahModal @relation(fields: [noRekModal], references: [noRekModal])
 
+  @@index([noRekModal], map: "t_trans_modal_NO_REK_MODAL_fkey")
   @@map("t_trans_modal")
 }
 
 model ExternalLoan {
-  id                Int      @id @default(autoincrement()) @map("LOAN_ID")
-  bankName          String   @map("BANK_NAME") @db.VarChar(100)
-  contractNumber    String   @map("CONTRACT_NUMBER") @db.VarChar(50)
-  loanDate          DateTime @map("LOAN_DATE") @db.Date
-  maturityDate      DateTime @map("MATURITY_DATE") @db.Date
-  principal         Decimal  @map("PRINCIPAL") @db.Decimal(19, 4)
-  interestRate      Decimal  @map("INTEREST_RATE") @db.Decimal(5, 2)
-  termMonths        Int      @map("TERM_MONTHS")
-  installmentType   String   @map("INSTALLMENT_TYPE") @db.VarChar(20) // FLAT, ANUITAS
-  monthlyInstallment Decimal @map("MONTHLY_INSTALLMENT") @db.Decimal(19, 4)
-  outstandingPrincipal Decimal @map("OUTSTANDING_PRINCIPAL") @db.Decimal(19, 4)
-  
-  status            String   @default("ACTIVE") @map("STATUS") @db.VarChar(20)
-  
-  createdBy         String?   @map("CREATE_WHO") @db.VarChar(50)
-  createdAt         DateTime  @default(now()) @map("CREATE_DATE")
-  updatedBy         String?   @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt         DateTime? @updatedAt @map("CHANGE_DATE")
-
-  schedule          InstallmentSchedule[]
+  id                   Int                   @id @default(autoincrement()) @map("LOAN_ID")
+  bankName             String                @map("BANK_NAME") @db.VarChar(100)
+  contractNumber       String                @map("CONTRACT_NUMBER") @db.VarChar(50)
+  loanDate             DateTime              @map("LOAN_DATE") @db.Date
+  maturityDate         DateTime              @map("MATURITY_DATE") @db.Date
+  principal            Decimal               @map("PRINCIPAL") @db.Decimal(19, 4)
+  interestRate         Decimal               @map("INTEREST_RATE") @db.Decimal(5, 2)
+  termMonths           Int                   @map("TERM_MONTHS")
+  installmentType      String                @map("INSTALLMENT_TYPE") @db.VarChar(20)
+  monthlyInstallment   Decimal               @map("MONTHLY_INSTALLMENT") @db.Decimal(19, 4)
+  outstandingPrincipal Decimal               @map("OUTSTANDING_PRINCIPAL") @db.Decimal(19, 4)
+  status               String                @default("ACTIVE") @map("STATUS") @db.VarChar(20)
+  createdBy            String?               @map("CREATE_WHO") @db.VarChar(50)
+  createdAt            DateTime              @default(now()) @map("CREATE_DATE")
+  updatedBy            String?               @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt            DateTime?             @updatedAt @map("CHANGE_DATE")
+  schedule             InstallmentSchedule[]
 
   @@map("m_pinjaman_external")
 }
@@ -870,71 +807,62 @@ model InstallmentSchedule {
   principalDue      Decimal      @map("PRINCIPAL_DUE") @db.Decimal(19, 4)
   interestDue       Decimal      @map("INTEREST_DUE") @db.Decimal(19, 4)
   totalDue          Decimal      @map("TOTAL_DUE") @db.Decimal(19, 4)
-  
-  status            String       @default("DUE") @map("STATUS") @db.VarChar(20) // DUE, PAID, OVERDUE
+  status            String       @default("DUE") @map("STATUS") @db.VarChar(20)
   paidDate          DateTime?    @map("PAID_DATE") @db.Date
-  
   loan              ExternalLoan @relation(fields: [loanId], references: [id])
 
+  @@index([loanId], map: "t_jadwal_pinjaman_external_LOAN_ID_fkey")
   @@map("t_jadwal_pinjaman_external")
 }
 
-// ============================================
-// PHASE 7: MONTHLY CLOSING (Added)
-// ============================================
-
 model PeriodLock {
-  period   String   @id @map("PERIODE") @db.VarChar(7) // YYYY-MM
-  status   String   @map("STATUS") @db.VarChar(20) // LOCKED, UNLOCKED
-  reason   String?  @map("REASON") @db.Text
-  
-  lockedAt DateTime @map("LOCKED_AT")
-  lockedBy Int      @map("LOCKED_BY")
-  
-  unlockedAt DateTime? @map("UNLOCKED_AT")
-  unlockedBy Int?      @map("UNLOCKED_BY")
-  unlockReason String? @map("UNLOCK_REASON") @db.Text
-  
-  creator  User     @relation("PeriodLocker", fields: [lockedBy], references: [id])
-  unlocker User?    @relation("PeriodUnlocker", fields: [unlockedBy], references: [id])
-  
-  requests UnlockRequest[]
+  period       String          @id @map("PERIODE") @db.VarChar(7)
+  status       String          @map("STATUS") @db.VarChar(20)
+  reason       String?         @map("REASON") @db.Text
+  lockedAt     DateTime        @map("LOCKED_AT")
+  lockedBy     Int             @map("LOCKED_BY")
+  unlockedAt   DateTime?       @map("UNLOCKED_AT")
+  unlockedBy   Int?            @map("UNLOCKED_BY")
+  unlockReason String?         @map("UNLOCK_REASON") @db.Text
+  creator      User            @relation("PeriodLocker", fields: [lockedBy], references: [id])
+  unlocker     User?           @relation("PeriodUnlocker", fields: [unlockedBy], references: [id])
+  requests     UnlockRequest[]
 
+  @@index([lockedBy], map: "t_period_lock_LOCKED_BY_fkey")
+  @@index([unlockedBy], map: "t_period_lock_UNLOCKED_BY_fkey")
   @@map("t_period_lock")
 }
 
 model UnlockRequest {
-  id           Int      @id @default(autoincrement()) @map("REQUEST_ID")
-  period       String   @map("PERIODE") @db.VarChar(7)
-  
-  requestedBy  Int      @map("REQUESTED_BY")
-  requestedAt  DateTime @default(now()) @map("REQUESTED_AT")
-  reason       String   @map("REASON") @db.Text
-  
-  status       String   @default("PENDING") @map("STATUS") @db.VarChar(20) // PENDING, APPROVED, REJECTED
-  
-  approvedBy   Int?     @map("APPROVED_BY")
-  approvedAt   DateTime? @map("APPROVED_AT")
-  managerNotes String?  @map("MANAGER_NOTES") @db.Text
-  
+  id           Int        @id @default(autoincrement()) @map("REQUEST_ID")
+  period       String     @map("PERIODE") @db.VarChar(7)
+  requestedBy  Int        @map("REQUESTED_BY")
+  requestedAt  DateTime   @default(now()) @map("REQUESTED_AT")
+  reason       String     @map("REASON") @db.Text
+  status       String     @default("PENDING") @map("STATUS") @db.VarChar(20)
+  approvedBy   Int?       @map("APPROVED_BY")
+  approvedAt   DateTime?  @map("APPROVED_AT")
+  managerNotes String?    @map("MANAGER_NOTES") @db.Text
+  approver     User?      @relation("UnlockApprover", fields: [approvedBy], references: [id])
   periodLock   PeriodLock @relation(fields: [period], references: [period])
   requester    User       @relation("UnlockRequester", fields: [requestedBy], references: [id])
-  approver     User?      @relation("UnlockApprover", fields: [approvedBy], references: [id])
-  
+
+  @@index([approvedBy], map: "t_unlock_request_APPROVED_BY_fkey")
+  @@index([period], map: "t_unlock_request_PERIODE_fkey")
+  @@index([requestedBy], map: "t_unlock_request_REQUESTED_BY_fkey")
   @@map("t_unlock_request")
 }
 
 model MonthEndLog {
-  id        Int      @id @default(autoincrement()) @map("LOG_ID")
-  period    String   @map("PERIODE") @db.VarChar(7)
-  action    String   @map("ACTION") @db.VarChar(50) // DEPRECIATION, INTEREST_ACCRUAL, CLOSING
-  status    String   @map("STATUS") @db.VarChar(20) // SUCCESS, FAILED
-  details   String?  @map("DETAILS") @db.Text
-  
-  performedBy Int    @map("PERFORMED_BY")
+  id          Int      @id @default(autoincrement()) @map("LOG_ID")
+  period      String   @map("PERIODE") @db.VarChar(7)
+  action      String   @map("ACTION") @db.VarChar(50)
+  status      String   @map("STATUS") @db.VarChar(20)
+  details     String?  @map("DETAILS") @db.Text
+  performedBy Int      @map("PERFORMED_BY")
   performedAt DateTime @default(now()) @map("PERFORMED_AT")
-  
-  user      User     @relation(fields: [performedBy], references: [id])
-  
+  user        User     @relation(fields: [performedBy], references: [id])
+
+  @@index([performedBy], map: "t_month_end_log_PERFORMED_BY_fkey")
   @@map("t_month_end_log")
 }

@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { seedAccounting } from './seeds/accounting-seeder';
+import { seedMenus } from './seeds/menu-seeder';
 
 const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ async function main() {
         update: {},
         create: {
             id: 1,
-            roleName: 'ADMIN', // Matches schema @map('nama_role')
+            roleName: 'ADMIN',
             description: 'Administrator',
             isActive: true,
             createdBy: 'SYSTEM',
@@ -28,7 +29,7 @@ async function main() {
     const adminUser = await prisma.user.upsert({
         where: { username: 'admin' },
         update: {
-            password: hashedPassword, // Ensure password is correct if user exists
+            password: hashedPassword,
             isActive: true,
             roleId: 1,
         },
@@ -44,14 +45,13 @@ async function main() {
     console.log({ adminUser });
 
     // 3. Seed Configuration Parameters
-    // Add LAST_CLOSING_MONTH setting (will be updated when first closing happens)
     const lastClosingConfig = await prisma.lovValue.upsert({
         where: { code_codeValue: { code: 'ACCOUNTING', codeValue: 'LAST_CLOSING_MONTH' } },
         update: {},
         create: {
             code: 'ACCOUNTING',
             codeValue: 'LAST_CLOSING_MONTH',
-            description: null, // Will be set to period (e.g., '2024-12') when first closing happens
+            description: null,
             orderNum: 1,
             isActive: true,
             createdBy: 'SYSTEM',
@@ -61,6 +61,9 @@ async function main() {
 
     // 4. Seed Accounting Module
     await seedAccounting();
+
+    // 5. Seed Menus (Phase 10)
+    await seedMenus();
 }
 
 main()

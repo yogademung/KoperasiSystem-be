@@ -102,8 +102,121 @@ export class BalanceSheetService {
         // Formal closing entry involves zeroing P&L accounts.
         // Given the request "nantinya nilai retained earning terproses", we should ensure this step happens or is prepared.
 
-        // For now, we will log the action as a placeholder for the full closing entry implementation,
-        // as determining exact target accounts requires configuration (which we might not have fully).
-        // Assuming 3.99.99 is SHU Tahun Berjalan.
+        // 1. Calculate Revenue & Expense Balances
+        const revenueAccounts = await this.prisma.journalAccount.findMany({ where: { accountType: 'REV' } });
+        const expenseAccounts = await this.prisma.journalAccount.findMany({ where: { accountType: 'EXP' } });
+
+        const revCodes = revenueAccounts.map(a => a.accountCode);
+        const expCodes = expenseAccounts.map(a => a.accountCode);
+        const allPnLCodes = [...revCodes, ...expCodes];
+
+        // Group balances by account
+        const balances = await this.prisma.postedJournalDetail.groupBy({
+            by: ['accountCode'],
+            where: {
+                accountCode: { in: allPnLCodes },
+                journal: {
+                    journalDate: { lte: new Date(`${year}-12-31`) },
+                    status: 'POSTED'
+                }
+            },
+            _sum: { debit: true, credit: true }
+        });
+
+        // 2. Prepare Closing Journal Details
+        const details = [];
+        let totalRevenue = 0;
+        let totalExpense = 0;
+
+        for (const b of balances) {
+            const debit = Number(b._sum.debit || 0);
+            const credit = Number(b._sum.credit || 0);
+            const netBalance = credit - debit; // Normal Credit for Rev, check logic below
+
+            // If Revenue (Credit Balance), we Debit it to zero out
+            // If Expense (Debit Balance), we Credit it to zero out
+            // Since we treat Net = Credit - Debit:
+            // Positive Net = Validation Credit Side > Debit Side (Revenue)
+            // Negative Net = Debit Side > Credit Side (Expense)
+
+            if (revCodes.includes(b.accountCode)) {
+                // REVENUE: Normal Credit. To close, we DEBIT the balance.
+                // Balance = Credit - Debit
+                const balance = credit - debit;
+                if (balance !== 0) {
+                    details.push({
+                        accountCode: b.accountCode,
+                        debit: balance, // Debit the credit balance
+                        credit: 0,
+                        description: `Closing Entry ${year}`
+                    });
+                    totalRevenue += balance;
+                }
+            } else if (expCodes.includes(b.accountCode)) {
+                // EXPENSE: Normal Debit. To close, we CREDIT the balance.
+                // Balance = Debit - Credit
+                const balance = debit - credit;
+                if (balance !== 0) {
+                    details.push({
+                        accountCode: b.accountCode,
+                        debit: 0,
+                        credit: balance, // Credit the debit balance
+                        description: `Closing Entry ${year}`
+                    });
+                    totalExpense += balance;
+                }
+            }
+        }
+
+        // 3. Calculate SHU (Profit/Loss)
+        const currentSHU = totalRevenue - totalExpense;
+
+        // 4. Post Difference to Retained Earnings / Cadangan
+        // Using 3.20.01 (Cadangan Umum) based on script finding. 
+        // Or 3.99.99 (SHU Tahun Berjalan) if we want just to transit. 
+        // Plan said 3.20.01
+        if (currentSHU > 0) {
+            // Profit: Revenue > Expense. Need to CREDIT Equity (Increase it)
+            // Journal is currently: Debited Revenues, Credited Expenses.
+            // Sum Debits = TotalRevenue. Sum Credits = TotalExpense.
+            // Missing Credit = TotalRevenue - TotalExpense = SHU
+            details.push({
+                accountCode: '3.20.01',
+                debit: 0,
+                credit: currentSHU,
+                description: `Allocation of SHU ${year}`
+            });
+        } else if (currentSHU < 0) {
+            // Loss: Expense > Revenue. Need to DEBIT Equity (Decrease it)
+            // Missing Debit = TotalExpense - TotalRevenue = -SHU
+            details.push({
+                accountCode: '3.20.01',
+                debit: Math.abs(currentSHU),
+                credit: 0,
+                description: `Allocation of Loss ${year}`
+            });
+        }
+
+        if (details.length === 0) {
+            this.logger.log(`No P&L activity to close for ${year}`);
+            return;
+        }
+
+        // 5. Create Journal
+        await this.prisma.postedJournal.create({
+            data: {
+                journalNumber: `CL/${year}/12/0001`, // Special Numbering
+                journalDate: new Date(`${year}-12-31`),
+                description: `Year End Closing ${year}`,
+                postingType: 'sys_CLOSING', // Distinct type
+                userId: user_id,
+                status: 'POSTED',
+                details: {
+                    create: details
+                }
+            }
+        });
+
+        this.logger.log(`Year End Closing Journal Created for ${year}. SHU: ${currentSHU}`);
     }
 }

@@ -11,11 +11,11 @@ export declare class DepositoService {
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
         tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
@@ -31,11 +31,11 @@ export declare class DepositoService {
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
         tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
@@ -45,8 +45,8 @@ export declare class DepositoService {
             id: number;
             createdBy: string | null;
             createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
             noJangka: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
         }[];
@@ -58,15 +58,6 @@ export declare class DepositoService {
     voidTransaction(transId: number, txInput?: any): Promise<void>;
     findOne(noJangka: string): Promise<{
         accumulatedInterest: number;
-        transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            noJangka: string;
-            keterangan: string | null;
-            tipeTrans: string;
-        }[];
         nasabah: {
             id: number;
             updatedAt: Date | null;
@@ -76,26 +67,35 @@ export declare class DepositoService {
             updatedBy: string | null;
             nama: string;
             alamat: string | null;
-            pekerjaan: string | null;
             noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
+            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
+        transactions: {
+            id: number;
+            createdBy: string | null;
+            createdAt: Date;
+            noJangka: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
+            tipeTrans: string;
+        }[];
         updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
         tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;
@@ -110,11 +110,11 @@ export declare class DepositoService {
         createdAt: Date;
         updatedBy: string | null;
         status: string;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         nasabahId: number;
         tglBuka: Date;
         noJangka: string;
         tglJatuhTempo: Date;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         bunga: import("@prisma/client/runtime/library").Decimal;
         payoutMode: string;
         targetAccountId: string | null;

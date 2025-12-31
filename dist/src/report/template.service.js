@@ -95,7 +95,7 @@ let TemplateService = class TemplateService {
                 description: dto.description,
                 productModule: dto.productModule,
                 category: dto.category,
-                jsonSchema: dto.jsonSchema,
+                jsonSchema: JSON.stringify(dto.jsonSchema),
                 paperSize: dto.paperSize || 'A4',
                 orientation: dto.orientation || 'portrait',
                 parentId: dto.parentId,
@@ -114,7 +114,7 @@ let TemplateService = class TemplateService {
             data: {
                 ...(dto.name && { name: dto.name }),
                 ...(dto.description !== undefined && { description: dto.description }),
-                ...(dto.jsonSchema && { jsonSchema: dto.jsonSchema }),
+                ...(dto.jsonSchema && { jsonSchema: JSON.stringify(dto.jsonSchema) }),
                 ...(dto.isActive !== undefined && { isActive: dto.isActive }),
                 updatedBy: userId,
             },

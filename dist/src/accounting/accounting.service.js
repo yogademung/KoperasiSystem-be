@@ -19,6 +19,7 @@ const tabrela_service_1 = require("../simpanan/tabrela/tabrela.service");
 const deposito_service_1 = require("../simpanan/deposito/deposito.service");
 const balimesari_service_1 = require("../simpanan/balimesari/balimesari.service");
 const wanaprasta_service_1 = require("../simpanan/wanaprasta/wanaprasta.service");
+const period_lock_service_1 = require("../month-end/period-lock.service");
 let AccountingService = class AccountingService {
     prisma;
     moduleRef;
@@ -27,8 +28,11 @@ let AccountingService = class AccountingService {
     depositoService;
     brahmacariService;
     balimesariService;
+    brahmacariService;
+    balimesariService;
     wanaprastaService;
-    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, wanaprastaService) {
+    periodLockService;
+    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, brahmacariService, balimesariService, wanaprastaService, periodLockService) {
         this.prisma = prisma;
         this.moduleRef = moduleRef;
         this.anggotaService = anggotaService;
@@ -36,7 +40,10 @@ let AccountingService = class AccountingService {
         this.depositoService = depositoService;
         this.brahmacariService = brahmacariService;
         this.balimesariService = balimesariService;
+        this.brahmacariService = brahmacariService;
+        this.balimesariService = balimesariService;
         this.wanaprastaService = wanaprastaService;
+        this.periodLockService = periodLockService;
     }
     async getAccounts(type, page = 1, limit = 10) {
         const where = { isActive: true };
@@ -245,11 +252,20 @@ let AccountingService = class AccountingService {
         });
     }
     async updateManualJournal(id, data) {
+        const period = data.date.toISOString().slice(0, 7);
+        const isLocked = await this.periodLockService.isPeriodLocked(period);
+        if (isLocked) {
+            throw new common_1.BadRequestException(`Periode ${period} sudah ditutup. Tidak dapat melakukan perubahan jurnal.`);
+        }
         const existing = await this.prisma.postedJournal.findUnique({ where: { id } });
         if (!existing)
             throw new common_1.NotFoundException('Journal not found');
         if (existing.postingType !== 'MANUAL')
             throw new common_1.BadRequestException('Only Manual Journals can be edited');
+        const oldPeriod = existing.journalDate.toISOString().slice(0, 7);
+        if (await this.periodLockService.isPeriodLocked(oldPeriod)) {
+            throw new common_1.BadRequestException(`Jurnal tersimpan di periode tertutup (${oldPeriod}). Tidak dapat diedit.`);
+        }
         await this.validateJournalEntry(data.details);
         return this.prisma.$transaction(async (tx) => {
             const updated = await tx.postedJournal.update({
@@ -423,6 +439,11 @@ let AccountingService = class AccountingService {
             });
             if (!journal)
                 throw new common_1.NotFoundException('Journal not found');
+            const period = journal.journalDate.toISOString().slice(0, 7);
+            const isLocked = await this.periodLockService.isPeriodLocked(period);
+            if (isLocked) {
+                throw new common_1.BadRequestException(`Periode ${period} sudah ditutup. Jurnal tidak dapat dihapus.`);
+            }
             if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {
                 try {
                     console.log(`[Accounting] Voiding source transaction: ${journal.sourceCode} #${journal.refId}`);
@@ -633,6 +654,9 @@ exports.AccountingService = AccountingService = __decorate([
         deposito_service_1.DepositoService,
         brahmacari_service_1.BrahmacariService,
         balimesari_service_1.BalimesariService,
-        wanaprasta_service_1.WanaprastaService])
+        brahmacari_service_1.BrahmacariService,
+        balimesari_service_1.BalimesariService,
+        wanaprasta_service_1.WanaprastaService,
+        period_lock_service_1.PeriodLockService])
 ], AccountingService);
 //# sourceMappingURL=accounting.service.js.map

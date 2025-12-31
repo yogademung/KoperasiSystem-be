@@ -4,7 +4,6 @@ import { TemplateService } from './template.service';
 import { DataProviderService } from './data-provider.service';
 import { PdfRendererService } from './pdf-renderer.service';
 import { ExcelRendererService } from './excel-renderer.service';
-import { Prisma } from '@prisma/client';
 export declare class ReportGeneratorService {
     private prisma;
     private templateService;
@@ -38,7 +37,7 @@ export declare class ReportGeneratorService {
             status: string;
             format: string;
             recordId: string | null;
-            parameters: Prisma.JsonValue | null;
+            parameters: string | null;
             templateId: number;
             errorMessage: string | null;
             filePath: string | null;
@@ -61,7 +60,7 @@ export declare class ReportGeneratorService {
         status: string;
         format: string;
         recordId: string | null;
-        parameters: Prisma.JsonValue | null;
+        parameters: string | null;
         templateId: number;
         errorMessage: string | null;
         filePath: string | null;

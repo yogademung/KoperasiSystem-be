@@ -12,6 +12,7 @@ const migration_controller_1 = require("./migration.controller");
 const migration_service_1 = require("./migration.service");
 const prisma_module_1 = require("../database/prisma.module");
 const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
 let MigrationModule = class MigrationModule {
 };
 exports.MigrationModule = MigrationModule;
@@ -20,7 +21,7 @@ exports.MigrationModule = MigrationModule = __decorate([
         imports: [
             prisma_module_1.PrismaModule,
             platform_express_1.MulterModule.register({
-                dest: './uploads/migration',
+                storage: (0, multer_1.memoryStorage)(),
             }),
         ],
         controllers: [migration_controller_1.MigrationController],

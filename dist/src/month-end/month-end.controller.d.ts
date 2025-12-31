@@ -15,8 +15,8 @@ export declare class MonthEndController {
     closePeriod(body: {
         period: string;
     }, req: any): Promise<{
-        period: string;
         status: string;
+        period: string;
         reason: string | null;
         lockedAt: Date;
         lockedBy: number;
@@ -29,8 +29,8 @@ export declare class MonthEndController {
         reason: string;
     }, req: any): Promise<{
         id: number;
-        period: string;
         status: string;
+        period: string;
         reason: string;
         requestedAt: Date;
         approvedAt: Date | null;
@@ -54,13 +54,13 @@ export declare class MonthEndController {
         items: {
             asset: {
                 id: number;
-                updatedAt: Date | null;
-                name: string;
+                status: string;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
+                updatedAt: Date | null;
+                name: string;
                 code: string;
-                status: string;
                 type: string;
                 acquisitionDate: Date;
                 acquisitionCost: import("@prisma/client/runtime/library").Decimal;

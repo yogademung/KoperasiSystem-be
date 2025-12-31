@@ -30,13 +30,46 @@ export class MigrationController {
         if (!journalDate) {
             throw new HttpException('Journal date is required', HttpStatus.BAD_REQUEST);
         }
-        // Assumes req.user is populated by JwtAuthGuard with user object containing id
         const userId = req.user?.id;
         if (!userId) {
             throw new HttpException('User ID not found in request', HttpStatus.UNAUTHORIZED);
         }
 
         return this.migrationService.uploadJournal(file.buffer, journalDate, userId);
+    }
+
+    @Post('preview-journal')
+    @UseInterceptors(FileInterceptor('file'))
+    async previewJournal(
+        @UploadedFile() file: Express.Multer.File,
+        @Body('journalDate') journalDate: string,
+        @Body('redenominate') redenominate: string,
+    ) {
+        if (!file) {
+            throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
+        }
+        if (!journalDate) {
+            throw new HttpException('Journal date is required', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewJournal(file.buffer, journalDate, redenominate === 'true');
+    }
+
+    @Post('confirm-journal')
+    async confirmJournal(
+        @Body() body: { data: any[], journalDate: string },
+        @Req() req,
+    ) {
+        if (!body.data || body.data.length === 0) {
+            throw new HttpException('No data provided', HttpStatus.BAD_REQUEST);
+        }
+        if (!body.journalDate) {
+            throw new HttpException('Journal date is required', HttpStatus.BAD_REQUEST);
+        }
+        const userId = req.user?.id;
+        if (!userId) {
+            throw new HttpException('User ID not found in request', HttpStatus.UNAUTHORIZED);
+        }
+        return this.migrationService.confirmJournal(body.data, body.journalDate, userId);
     }
 
     @Get('nasabah-template')
@@ -47,9 +80,35 @@ export class MigrationController {
         res.send(buffer);
     }
 
+    @Post('preview-nasabah')
+    @UseInterceptors(FileInterceptor('file'))
+    async previewNasabah(@UploadedFile() file: Express.Multer.File) {
+        if (!file) {
+            throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewNasabah(file.buffer);
+    }
+
+    @Post('confirm-nasabah')
+    async confirmNasabah(@Body() body: { data: any[] }) {
+        if (!body.data || body.data.length === 0) {
+            throw new HttpException('No data provided', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.confirmNasabah(body.data);
+    }
+
     @Post('upload-nasabah')
     @UseInterceptors(FileInterceptor('file'))
     async uploadNasabah(@UploadedFile() file: Express.Multer.File) {
+        console.log('📥 Controller received file:', {
+            fieldname: file?.fieldname,
+            originalname: file?.originalname,
+            mimetype: file?.mimetype,
+            size: file?.size,
+            bufferType: typeof file?.buffer,
+            hasBuffer: !!file?.buffer
+        });
+
         if (!file) {
             throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
         }
@@ -71,5 +130,25 @@ export class MigrationController {
             throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
         }
         return this.migrationService.uploadAnggotaTransaction(file.buffer);
+    }
+
+    @Post('preview-anggota')
+    @UseInterceptors(FileInterceptor('file'))
+    async previewAnggota(
+        @UploadedFile() file: Express.Multer.File,
+        @Body('redenominate') redenominate: string,
+    ) {
+        if (!file) {
+            throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewAnggota(file.buffer, redenominate === 'true');
+    }
+
+    @Post('confirm-anggota')
+    async confirmAnggota(@Body() body: { data: any[] }) {
+        if (!body.data || body.data.length === 0) {
+            throw new HttpException('No data provided', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.confirmAnggota(body.data);
     }
 }

@@ -4,61 +4,61 @@ export declare class KreditController {
     constructor(kreditService: KreditService);
     createApplication(user: any, data: any): Promise<{
         id: number;
-        updatedAt: Date | null;
+        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
+        updatedAt: Date | null;
         nasabahId: number;
         nomorKredit: string | null;
-        noPermohonan: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
         nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
         tglPengajuan: Date;
+        metodeAngsuran: string | null;
         mohonJangkaWaktu: number | null;
         mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
-        metodeAngsuran: string | null;
+        noPermohonan: string | null;
         sistemBunga: string | null;
     }>;
     findAll(page?: string, limit?: string, status?: string): Promise<{
         data: ({
             nasabah: {
                 id: number;
-                updatedAt: Date | null;
-                isActive: boolean;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
+                updatedAt: Date | null;
+                isActive: boolean;
                 nama: string;
-                alamat: string | null;
-                pekerjaan: string | null;
                 noKtp: string | null;
+                alamat: string | null;
                 email: string | null;
                 telepon: string | null;
                 tempatLahir: string | null;
                 tanggalLahir: Date | null;
                 jenisKelamin: string | null;
+                pekerjaan: string | null;
                 fileKtp: string | null;
                 fileKk: string | null;
             };
         } & {
             id: number;
-            updatedAt: Date | null;
+            status: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            status: string;
+            updatedAt: Date | null;
             nasabahId: number;
             nomorKredit: string | null;
-            noPermohonan: string | null;
             jenisKredit: string;
             tujuanKredit: string | null;
             nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
             tglPengajuan: Date;
+            metodeAngsuran: string | null;
             mohonJangkaWaktu: number | null;
             mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
-            metodeAngsuran: string | null;
+            noPermohonan: string | null;
             sistemBunga: string | null;
         })[];
         total: number;
@@ -67,65 +67,31 @@ export declare class KreditController {
         totalPages: number;
     }>;
     findOne(id: string): Promise<{
-        transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
-            tipeTrans: string;
-            journalId: number | null;
-            debiturKreditId: number;
-            tglTrans: Date;
-            pokokBayar: import("@prisma/client/runtime/library").Decimal | null;
-            bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
-            dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
-        }[];
         nasabah: {
             id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            isActive: boolean;
             nama: string;
-            alamat: string | null;
-            pekerjaan: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
             tanggalLahir: Date | null;
             jenisKelamin: string | null;
+            pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
         };
-        collaterals: ({
-            collateral: {
-                id: number;
-                description: string | null;
-                updatedAt: Date | null;
-                createdBy: string | null;
-                createdAt: Date;
-                updatedBy: string | null;
-                status: string;
-                type: string;
-                nasabahId: number;
-                details: import("@prisma/client/runtime/library").JsonValue | null;
-                marketValue: import("@prisma/client/runtime/library").Decimal;
-                assessedValue: import("@prisma/client/runtime/library").Decimal;
-                photos: string | null;
-            };
-        } & {
-            creditId: number;
-            collateralId: number;
-        })[];
         fasilitas: {
             id: number;
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nominal: import("@prisma/client/runtime/library").Decimal;
             bunga: import("@prisma/client/runtime/library").Decimal;
             debiturKreditId: number;
@@ -133,40 +99,40 @@ export declare class KreditController {
             angsuranPokok: import("@prisma/client/runtime/library").Decimal;
             angsuranBunga: import("@prisma/client/runtime/library").Decimal;
         }[];
-        realisasi: {
+        jadwal: {
             id: number;
-            updatedAt: Date | null;
+            status: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            bunga: import("@prisma/client/runtime/library").Decimal;
+            debiturKreditId: number;
+            angsuranKe: number;
+            tglJatuhTempo: Date;
+            pokok: import("@prisma/client/runtime/library").Decimal;
+            sisaPokok: import("@prisma/client/runtime/library").Decimal;
+            tglBayar: Date | null;
+            sisaBunga: import("@prisma/client/runtime/library").Decimal;
+        }[];
+        realisasi: {
+            id: number;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
             debiturKreditId: number;
             tglRealisasi: Date;
             nominalRealisasi: import("@prisma/client/runtime/library").Decimal;
             rekening: string | null;
         }[];
-        jadwal: {
-            id: number;
-            updatedAt: Date | null;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            status: string;
-            pokok: import("@prisma/client/runtime/library").Decimal;
-            tglJatuhTempo: Date;
-            bunga: import("@prisma/client/runtime/library").Decimal;
-            total: import("@prisma/client/runtime/library").Decimal;
-            debiturKreditId: number;
-            angsuranKe: number;
-            sisaPokok: import("@prisma/client/runtime/library").Decimal;
-            sisaBunga: import("@prisma/client/runtime/library").Decimal;
-            tglBayar: Date | null;
-        }[];
         analysis: {
             id: number;
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             debiturKreditId: number;
             characterScore: number;
             characterDesc: string | null;
@@ -181,23 +147,57 @@ export declare class KreditController {
             totalScore: number;
             recommendation: string | null;
         } | null;
+        collaterals: ({
+            collateral: {
+                id: number;
+                description: string | null;
+                status: string;
+                createdBy: string | null;
+                createdAt: Date;
+                updatedBy: string | null;
+                updatedAt: Date | null;
+                details: string | null;
+                nasabahId: number;
+                type: string;
+                marketValue: import("@prisma/client/runtime/library").Decimal;
+                assessedValue: import("@prisma/client/runtime/library").Decimal;
+                photos: string | null;
+            };
+        } & {
+            creditId: number;
+            collateralId: number;
+        })[];
+        transactions: {
+            id: number;
+            journalId: number | null;
+            createdBy: string | null;
+            createdAt: Date;
+            tipeTrans: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
+            debiturKreditId: number;
+            bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
+            dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
+            pokokBayar: import("@prisma/client/runtime/library").Decimal | null;
+            tglTrans: Date;
+        }[];
     } & {
         id: number;
-        updatedAt: Date | null;
+        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
+        updatedAt: Date | null;
         nasabahId: number;
         nomorKredit: string | null;
-        noPermohonan: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
         nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
         tglPengajuan: Date;
+        metodeAngsuran: string | null;
         mohonJangkaWaktu: number | null;
         mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
-        metodeAngsuran: string | null;
+        noPermohonan: string | null;
         sistemBunga: string | null;
     }>;
     addCollateral(id: string, user: any, data: any, files: {
@@ -205,24 +205,24 @@ export declare class KreditController {
     }): Promise<{
         id: number;
         description: string | null;
-        updatedAt: Date | null;
+        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
-        type: string;
+        updatedAt: Date | null;
+        details: string | null;
         nasabahId: number;
-        details: import("@prisma/client/runtime/library").JsonValue | null;
+        type: string;
         marketValue: import("@prisma/client/runtime/library").Decimal;
         assessedValue: import("@prisma/client/runtime/library").Decimal;
         photos: string | null;
     }>;
     submitAnalysis(id: string, user: any, data: any): Promise<{
         id: number;
-        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
         debiturKreditId: number;
         characterScore: number;
         characterDesc: string | null;
@@ -239,40 +239,40 @@ export declare class KreditController {
     }>;
     approve(id: string, user: any, decision: any): Promise<{
         id: number;
-        updatedAt: Date | null;
+        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
+        updatedAt: Date | null;
         nasabahId: number;
         nomorKredit: string | null;
-        noPermohonan: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
         nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
         tglPengajuan: Date;
+        metodeAngsuran: string | null;
         mohonJangkaWaktu: number | null;
         mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
-        metodeAngsuran: string | null;
+        noPermohonan: string | null;
         sistemBunga: string | null;
     }>;
     activate(id: string, user: any, data: any): Promise<{
         id: number;
-        updatedAt: Date | null;
+        status: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
+        updatedAt: Date | null;
         nasabahId: number;
         nomorKredit: string | null;
-        noPermohonan: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
         nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
         tglPengajuan: Date;
+        metodeAngsuran: string | null;
         mohonJangkaWaktu: number | null;
         mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
-        metodeAngsuran: string | null;
+        noPermohonan: string | null;
         sistemBunga: string | null;
     }>;
     payInstallment(id: string, user: any, data: any): Promise<{
