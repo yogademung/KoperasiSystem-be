@@ -10,7 +10,7 @@ import { DepositoService } from '../simpanan/deposito/deposito.service';
 import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
 import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
 import { PeriodLockService } from '../month-end/period-lock.service';
-import { formatDate } from 'date-fns'; // Helper if needed, or just use string interpolation
+
 
 
 @Injectable()
@@ -23,8 +23,7 @@ export class AccountingService {
         private depositoService: DepositoService,
         private brahmacariService: BrahmacariService,
         private balimesariService: BalimesariService,
-        private brahmacariService: BrahmacariService,
-        private balimesariService: BalimesariService,
+
         private wanaprastaService: WanaprastaService,
         private periodLockService: PeriodLockService
     ) { }
@@ -272,7 +271,11 @@ export class AccountingService {
         });
 
         if (!journal) throw new NotFoundException('Journal not found');
-        return journal;
+
+        const period = journal.journalDate.toISOString().slice(0, 7);
+        const isLocked = await this.periodLockService.isPeriodLocked(period);
+
+        return { ...journal, isLocked };
     }
 
     async createManualJournal(data: {

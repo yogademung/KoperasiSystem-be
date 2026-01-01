@@ -28,18 +28,14 @@ let AccountingService = class AccountingService {
     depositoService;
     brahmacariService;
     balimesariService;
-    brahmacariService;
-    balimesariService;
     wanaprastaService;
     periodLockService;
-    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, brahmacariService, balimesariService, wanaprastaService, periodLockService) {
+    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, wanaprastaService, periodLockService) {
         this.prisma = prisma;
         this.moduleRef = moduleRef;
         this.anggotaService = anggotaService;
         this.tabrelaService = tabrelaService;
         this.depositoService = depositoService;
-        this.brahmacariService = brahmacariService;
-        this.balimesariService = balimesariService;
         this.brahmacariService = brahmacariService;
         this.balimesariService = balimesariService;
         this.wanaprastaService = wanaprastaService;
@@ -227,7 +223,9 @@ let AccountingService = class AccountingService {
         });
         if (!journal)
             throw new common_1.NotFoundException('Journal not found');
-        return journal;
+        const period = journal.journalDate.toISOString().slice(0, 7);
+        const isLocked = await this.periodLockService.isPeriodLocked(period);
+        return { ...journal, isLocked };
     }
     async createManualJournal(data) {
         await this.validateJournalEntry(data.details);
@@ -652,8 +650,6 @@ exports.AccountingService = AccountingService = __decorate([
         anggota_service_1.AnggotaService,
         tabrela_service_1.TabrelaService,
         deposito_service_1.DepositoService,
-        brahmacari_service_1.BrahmacariService,
-        balimesari_service_1.BalimesariService,
         brahmacari_service_1.BrahmacariService,
         balimesari_service_1.BalimesariService,
         wanaprasta_service_1.WanaprastaService,

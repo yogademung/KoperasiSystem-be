@@ -97,16 +97,16 @@ export declare class ReportsController {
             totalAngsuran: number;
             sisaPinjaman: number;
             id: number;
-            status: string;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            total: import("@prisma/client/runtime/library").Decimal;
+            status: string;
+            tglJatuhTempo: Date;
             bunga: import("@prisma/client/runtime/library").Decimal;
+            total: import("@prisma/client/runtime/library").Decimal;
             debiturKreditId: number;
             angsuranKe: number;
-            tglJatuhTempo: Date;
             pokok: import("@prisma/client/runtime/library").Decimal;
             sisaPokok: import("@prisma/client/runtime/library").Decimal;
             tglBayar: Date | null;
@@ -115,11 +115,13 @@ export declare class ReportsController {
         transaksi: {
             nominal: number;
             id: number;
-            journalId: number | null;
             createdBy: string | null;
             createdAt: Date;
-            tipeTrans: string;
             keterangan: string | null;
+            tipeTrans: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
+            journalId: number | null;
             debiturKreditId: number;
             bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
             dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
@@ -172,14 +174,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -266,14 +268,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -299,14 +301,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -332,14 +334,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -365,14 +367,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;

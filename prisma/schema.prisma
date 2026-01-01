@@ -562,6 +562,8 @@ model AnggotaTransaction {
   balanceAfter  Decimal        @map("SALDO_AKHIR") @db.Decimal(19, 4)
   description   String?        @map("KETERANGAN") @db.Text
   userId        Int            @map("USER_ID")
+  latitude      Decimal?       @map("LATITUDE") @db.Decimal(10, 8)
+  longitude     Decimal?       @map("LONGITUDE") @db.Decimal(10, 8)
   createdAt     DateTime       @default(now()) @map("CREATE_DATE")
   account       AnggotaAccount @relation(fields: [accountNumber], references: [accountNumber])
 
@@ -576,6 +578,8 @@ model TransTab {
   nominal    Decimal    @map("NOMINAL") @db.Decimal(19, 4)
   saldoAkhir Decimal    @map("SALDO_AKHIR") @db.Decimal(19, 4)
   keterangan String?    @map("KETERANGAN") @db.Text
+  latitude   Decimal?   @map("LATITUDE") @db.Decimal(10, 8)
+  longitude  Decimal?   @map("LONGITUDE") @db.Decimal(10, 8)
   createdBy  String?    @map("CREATE_WHO") @db.VarChar(50)
   createdAt  DateTime   @default(now()) @map("CREATE_DATE")
   tabungan   NasabahTab @relation(fields: [noTab], references: [noTab])
@@ -590,6 +594,8 @@ model TransJangka {
   tipeTrans  String        @map("TIPE_TRANS") @db.VarChar(10)
   nominal    Decimal       @map("NOMINAL") @db.Decimal(19, 4)
   keterangan String?       @map("KETERANGAN") @db.Text
+  latitude   Decimal?      @map("LATITUDE") @db.Decimal(10, 8)
+  longitude  Decimal?      @map("LONGITUDE") @db.Decimal(10, 8)
   createdBy  String?       @map("CREATE_WHO") @db.VarChar(50)
   createdAt  DateTime      @default(now()) @map("CREATE_DATE")
   deposito   NasabahJangka @relation(fields: [noJangka], references: [noJangka])
@@ -605,6 +611,8 @@ model TransBrahmacari {
   nominal      Decimal           @map("NOMINAL") @db.Decimal(19, 4)
   saldoAkhir   Decimal           @map("SALDO_AKHIR") @db.Decimal(19, 4)
   keterangan   String?           @map("KETERANGAN") @db.Text
+  latitude     Decimal?          @map("LATITUDE") @db.Decimal(10, 8)
+  longitude    Decimal?          @map("LONGITUDE") @db.Decimal(10, 8)
   createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
   createdAt    DateTime          @default(now()) @map("CREATE_DATE")
   brahmacari   NasabahBrahmacari @relation(fields: [noBrahmacari], references: [noBrahmacari])
@@ -620,6 +628,8 @@ model TransBalimesari {
   nominal      Decimal           @map("NOMINAL") @db.Decimal(19, 4)
   saldoAkhir   Decimal           @map("SALDO_AKHIR") @db.Decimal(19, 4)
   keterangan   String?           @map("KETERANGAN") @db.Text
+  latitude     Decimal?          @map("LATITUDE") @db.Decimal(10, 8)
+  longitude    Decimal?          @map("LONGITUDE") @db.Decimal(10, 8)
   createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
   createdAt    DateTime          @default(now()) @map("CREATE_DATE")
   balimesari   NasabahBalimesari @relation(fields: [noBalimesari], references: [noBalimesari])
@@ -635,6 +645,8 @@ model TransWanaprasta {
   nominal      Decimal           @map("NOMINAL") @db.Decimal(19, 4)
   saldoAkhir   Decimal           @map("SALDO_AKHIR") @db.Decimal(19, 4)
   keterangan   String?           @map("KETERANGAN") @db.Text
+  latitude     Decimal?          @map("LATITUDE") @db.Decimal(10, 8)
+  longitude    Decimal?          @map("LONGITUDE") @db.Decimal(10, 8)
   createdBy    String?           @map("CREATE_WHO") @db.VarChar(50)
   createdAt    DateTime          @default(now()) @map("CREATE_DATE")
   wanaprasta   NasabahWanaprasta @relation(fields: [noWanaprasta], references: [noWanaprasta])
@@ -656,6 +668,8 @@ model TransKredit {
   journalId       Int?          @map("JOURNAL_ID")
   pokokBayar      Decimal?      @default(0.0000) @map("POKOK_BAYAR") @db.Decimal(19, 4)
   tglTrans        DateTime      @default(now()) @map("TGL_TRANS") @db.Date
+  latitude        Decimal?      @map("LATITUDE") @db.Decimal(10, 8)
+  longitude       Decimal?      @map("LONGITUDE") @db.Decimal(10, 8)
   kredit          DebiturKredit @relation(fields: [debiturKreditId], references: [id])
 
   @@index([debiturKreditId], map: "t_trans_kredit_DEBITUR_KREDIT_ID_fkey")
@@ -769,6 +783,8 @@ model TransModal {
   saldoAkhir   Decimal      @map("SALDO_AKHIR") @db.Decimal(19, 4)
   keterangan   String?      @map("KETERANGAN") @db.Text
   journalId    Int?         @map("JOURNAL_ID")
+  latitude     Decimal?     @map("LATITUDE") @db.Decimal(10, 8)
+  longitude    Decimal?     @map("LONGITUDE") @db.Decimal(10, 8)
   createdBy    String?      @map("CREATE_WHO") @db.VarChar(50)
   createdAt    DateTime     @default(now()) @map("CREATE_DATE")
   nasabahModal NasabahModal @relation(fields: [noRekModal], references: [noRekModal])

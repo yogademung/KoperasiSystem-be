@@ -8,12 +8,12 @@ export declare class AssetService {
     create(createAssetDto: any): Promise<{
         asset: {
             id: number;
-            status: string;
+            updatedAt: Date | null;
+            name: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
+            status: string;
             code: string;
             type: string;
             acquisitionDate: Date;
@@ -28,32 +28,32 @@ export declare class AssetService {
         };
         journal: {
             id: number;
-            description: string | null;
-            journalNumber: string;
-            journalDate: Date;
-            postingType: string;
             transType: string | null;
-            refId: number | null;
-            userId: number;
-            tellerId: string | null;
+            description: string | null;
+            updatedAt: Date | null;
             wilayahCd: string | null;
-            status: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            refId: number | null;
+            userId: number;
+            tellerId: string | null;
+            status: string;
             sourceCode: string | null;
         };
     }>;
     findAll(page?: number, limit?: number): Promise<{
         data: {
             id: number;
-            status: string;
+            updatedAt: Date | null;
+            name: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
+            status: string;
             code: string;
             type: string;
             acquisitionDate: Date;
@@ -75,38 +75,38 @@ export declare class AssetService {
         depreciationHistory: ({
             journal: {
                 id: number;
-                description: string | null;
-                journalNumber: string;
-                journalDate: Date;
-                postingType: string;
                 transType: string | null;
-                refId: number | null;
-                userId: number;
-                tellerId: string | null;
+                description: string | null;
+                updatedAt: Date | null;
                 wilayahCd: string | null;
-                status: string;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
+                journalNumber: string;
+                journalDate: Date;
+                postingType: string;
+                refId: number | null;
+                userId: number;
+                tellerId: string | null;
+                status: string;
                 sourceCode: string | null;
             } | null;
         } & {
             id: number;
-            journalId: number | null;
             createdAt: Date;
             period: string;
             amount: Prisma.Decimal;
+            journalId: number | null;
             assetId: number;
         })[];
     } & {
         id: number;
-        status: string;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
+        status: string;
         code: string;
         type: string;
         acquisitionDate: Date;
@@ -121,12 +121,12 @@ export declare class AssetService {
     }>;
     update(id: number, data: any): Promise<{
         id: number;
-        status: string;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
+        status: string;
         code: string;
         type: string;
         acquisitionDate: Date;
@@ -141,12 +141,12 @@ export declare class AssetService {
     }>;
     remove(id: number): Promise<{
         id: number;
-        status: string;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
+        status: string;
         code: string;
         type: string;
         acquisitionDate: Date;

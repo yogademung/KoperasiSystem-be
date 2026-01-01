@@ -62,6 +62,8 @@ export declare class WanaprastaController {
             keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
     } & {
         updatedAt: Date | null;
@@ -84,6 +86,8 @@ export declare class WanaprastaController {
         keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
         id: number;
@@ -94,6 +98,8 @@ export declare class WanaprastaController {
         keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     getTransactions(noWanaprasta: string, page?: string, limit?: string): Promise<{
         data: {
@@ -105,6 +111,8 @@ export declare class WanaprastaController {
             keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
         total: number;
         page: number;

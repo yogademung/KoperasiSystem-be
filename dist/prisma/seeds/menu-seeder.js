@@ -37,6 +37,7 @@ async function seedMenus() {
         { id: 83, menuName: 'Migrasi Data', path: '/settings/migration', module: 'SETTINGS', orderNum: 3, parentId: 8 },
     ];
     for (const menu of menus) {
+        const { icon, ...menuData } = menu;
         await prisma.menu.upsert({
             where: { id: menu.id },
             update: menu,
@@ -49,29 +50,46 @@ async function seedMenus() {
         });
     }
     console.log(`✅ Created/Updated ${menus.length} menus`);
-    const adminRole = await prisma.role.findFirst({
-        where: { roleName: 'ADMIN' }
+    await prisma.menu.deleteMany({
+        where: {
+            id: { in: [9, 91, 92] }
+        }
     });
+    const adminRole = await prisma.role.findFirst({ where: { roleName: 'ADMIN' } });
     if (adminRole) {
         console.log('📋 Assigning menus to ADMIN role...');
-        await prisma.menuRole.deleteMany({
-            where: { roleId: adminRole.id }
-        });
+        await prisma.menuRole.deleteMany({ where: { roleId: adminRole.id } });
         const menuRoles = menus.map(menu => ({
             roleId: adminRole.id,
             menuId: menu.id,
-            canCreate: true,
-            canRead: true,
-            canUpdate: true,
-            canDelete: true,
+            canCreate: true, canRead: true, canUpdate: true, canDelete: true,
         }));
-        await prisma.menuRole.createMany({
-            data: menuRoles
-        });
-        console.log(`✅ Assigned ${menuRoles.length} menus to ADMIN with full CRUD permissions`);
+        await prisma.menuRole.createMany({ data: menuRoles });
+        console.log(`✅ Assigned ${menuRoles.length} menus to ADMIN`);
     }
-    else {
-        console.warn('⚠️  ADMIN role not found, skipping menu assignment');
+    const collectorRole = await prisma.role.upsert({
+        where: { id: 2 },
+        update: {},
+        create: {
+            id: 2,
+            roleName: 'COLLECTOR',
+            description: 'Petugas Pungut',
+            isActive: true,
+            createdBy: 'SYSTEM'
+        }
+    });
+    if (collectorRole) {
+        console.log('📋 Assigning menus to COLLECTOR role...');
+        const collectorMenuIds = [1, 2, 3, 31, 32, 33, 34, 35, 36, 4];
+        const collectorMenus = menus.filter(m => collectorMenuIds.includes(m.id));
+        await prisma.menuRole.deleteMany({ where: { roleId: collectorRole.id } });
+        const menuRoles = collectorMenus.map(menu => ({
+            roleId: collectorRole.id,
+            menuId: menu.id,
+            canCreate: true, canRead: true, canUpdate: true, canDelete: false,
+        }));
+        await prisma.menuRole.createMany({ data: menuRoles });
+        console.log(`✅ Assigned ${menuRoles.length} menus to COLLECTOR`);
     }
 }
 //# sourceMappingURL=menu-seeder.js.map

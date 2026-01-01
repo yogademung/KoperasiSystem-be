@@ -17,6 +17,7 @@ export declare class AuthController {
             username: string;
             fullName: string;
             role: string;
+            menus: any[];
         };
         requiresForceLogin?: undefined;
         message?: undefined;

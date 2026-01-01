@@ -90,8 +90,8 @@ export declare class NasabahController {
             isActive: boolean;
             createdBy: string;
             createdAt: Date;
-            regionCode: string;
             status: string;
+            regionCode: string;
             accountNumber: string;
             customerId: number;
             principal: import("@prisma/client/runtime/library").Decimal;

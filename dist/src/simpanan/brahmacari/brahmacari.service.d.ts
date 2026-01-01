@@ -64,6 +64,8 @@ export declare class BrahmacariService {
             keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
     } & {
         updatedAt: Date | null;
@@ -86,6 +88,8 @@ export declare class BrahmacariService {
         keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
         id: number;
@@ -96,6 +100,8 @@ export declare class BrahmacariService {
         keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     getTransactions(noBrahmacari: string, page?: number, limit?: number): Promise<{
         data: {
@@ -107,6 +113,8 @@ export declare class BrahmacariService {
             keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
         total: number;
         page: number;

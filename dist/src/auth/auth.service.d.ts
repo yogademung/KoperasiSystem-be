@@ -19,10 +19,12 @@ export declare class AuthService {
             username: string;
             fullName: string;
             role: string;
+            menus: any[];
         };
         requiresForceLogin?: undefined;
         message?: undefined;
     }>;
+    private buildMenuTree;
     logout(userId: number): Promise<void>;
     refreshToken(refreshToken: string): Promise<{
         accessToken: string;

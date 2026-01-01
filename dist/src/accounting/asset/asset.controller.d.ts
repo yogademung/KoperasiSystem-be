@@ -5,12 +5,12 @@ export declare class AssetController {
     create(createAssetDto: any): Promise<{
         asset: {
             id: number;
-            status: string;
+            updatedAt: Date | null;
+            name: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
+            status: string;
             code: string;
             type: string;
             acquisitionDate: Date;
@@ -25,32 +25,32 @@ export declare class AssetController {
         };
         journal: {
             id: number;
-            description: string | null;
-            journalNumber: string;
-            journalDate: Date;
-            postingType: string;
             transType: string | null;
-            refId: number | null;
-            userId: number;
-            tellerId: string | null;
+            description: string | null;
+            updatedAt: Date | null;
             wilayahCd: string | null;
-            status: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
+            journalNumber: string;
+            journalDate: Date;
+            postingType: string;
+            refId: number | null;
+            userId: number;
+            tellerId: string | null;
+            status: string;
             sourceCode: string | null;
         };
     }>;
     findAll(page?: string, limit?: string): Promise<{
         data: {
             id: number;
-            status: string;
+            updatedAt: Date | null;
+            name: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
+            status: string;
             code: string;
             type: string;
             acquisitionDate: Date;
@@ -72,38 +72,38 @@ export declare class AssetController {
         depreciationHistory: ({
             journal: {
                 id: number;
-                description: string | null;
-                journalNumber: string;
-                journalDate: Date;
-                postingType: string;
                 transType: string | null;
-                refId: number | null;
-                userId: number;
-                tellerId: string | null;
+                description: string | null;
+                updatedAt: Date | null;
                 wilayahCd: string | null;
-                status: string;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
+                journalNumber: string;
+                journalDate: Date;
+                postingType: string;
+                refId: number | null;
+                userId: number;
+                tellerId: string | null;
+                status: string;
                 sourceCode: string | null;
             } | null;
         } & {
             id: number;
-            journalId: number | null;
             createdAt: Date;
             period: string;
             amount: import("@prisma/client/runtime/library").Decimal;
+            journalId: number | null;
             assetId: number;
         })[];
     } & {
         id: number;
-        status: string;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
+        status: string;
         code: string;
         type: string;
         acquisitionDate: Date;
@@ -118,12 +118,12 @@ export declare class AssetController {
     }>;
     update(id: string, updateAssetDto: any): Promise<{
         id: number;
-        status: string;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
+        status: string;
         code: string;
         type: string;
         acquisitionDate: Date;
@@ -138,12 +138,12 @@ export declare class AssetController {
     }>;
     remove(id: string): Promise<{
         id: number;
-        status: string;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
+        status: string;
         code: string;
         type: string;
         acquisitionDate: Date;

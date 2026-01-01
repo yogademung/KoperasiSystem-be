@@ -41,6 +41,8 @@ let TabrelaService = class TabrelaService {
                         nominal: createDto.setoranAwal,
                         saldoAkhir: createDto.setoranAwal,
                         keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
+                        latitude: createDto.latitude,
+                        longitude: createDto.longitude,
                         createdBy: 'SYSTEM'
                     }
                 });
@@ -97,6 +99,8 @@ let TabrelaService = class TabrelaService {
                     nominal: dto.amount,
                     saldoAkhir: newBalance,
                     keterangan: dto.description,
+                    latitude: dto.latitude,
+                    longitude: dto.longitude,
                     createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
@@ -133,6 +137,8 @@ let TabrelaService = class TabrelaService {
                     nominal: -Math.abs(dto.amount),
                     saldoAkhir: newBalance,
                     keterangan: dto.description,
+                    latitude: dto.latitude,
+                    longitude: dto.longitude,
                     createdBy: userId?.toString() || 'SYSTEM'
                 }
             });

@@ -10,9 +10,9 @@ export declare class LovValueService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        orderNum: number | null;
         code: string;
         codeValue: string;
-        orderNum: number | null;
     }>;
     getLastClosingMonth(): Promise<string | null>;
     setLastClosingMonth(period: string, userId: string): Promise<{
@@ -22,8 +22,8 @@ export declare class LovValueService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        orderNum: number | null;
         code: string;
         codeValue: string;
-        orderNum: number | null;
     }>;
 }

@@ -54,12 +54,12 @@ export declare class MonthEndController {
         items: {
             asset: {
                 id: number;
-                status: string;
+                updatedAt: Date | null;
+                name: string;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
-                name: string;
+                status: string;
                 code: string;
                 type: string;
                 acquisitionDate: Date;

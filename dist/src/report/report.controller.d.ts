@@ -46,8 +46,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        code: string;
         parentId: number | null;
+        code: string;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -71,8 +71,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        code: string;
         parentId: number | null;
+        code: string;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -96,8 +96,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        code: string;
         parentId: number | null;
+        code: string;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -121,8 +121,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        code: string;
         parentId: number | null;
+        code: string;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -146,8 +146,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        code: string;
         parentId: number | null;
+        code: string;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -171,8 +171,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        code: string;
         parentId: number | null;
+        code: string;
         isDefault: boolean;
         productModule: string;
         category: string;

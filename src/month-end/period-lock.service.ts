@@ -25,6 +25,9 @@ export class PeriodLockService {
             if (lock?.status === 'LOCKED') {
                 this.logger.log(`Period ${period} is LOCKED (found in DB)`);
                 return true;
+            } else if (lock?.status === 'UNLOCKED') {
+                this.logger.log(`Period ${period} is UNLOCKED (found in DB, overrides global config)`);
+                return false;
             }
 
             // 2. Check global configuration (Last Closing Month)

@@ -1,5 +1,6 @@
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
@@ -65,4 +66,19 @@ export declare class UsersController {
         updatedBy: string | null;
         roleName: string;
     }[]>;
+    update(id: number, updateUserDto: UpdateUserDto): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        username: string;
+        password: string;
+        fullName: string;
+        staffId: string | null;
+        roleId: number;
+        regionCode: string | null;
+        token: string | null;
+    }>;
 }

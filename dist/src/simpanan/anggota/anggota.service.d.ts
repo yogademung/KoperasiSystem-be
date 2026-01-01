@@ -32,8 +32,8 @@ export declare class AnggotaService {
         isActive: boolean;
         createdBy: string;
         createdAt: Date;
-        regionCode: string;
         status: string;
+        regionCode: string;
         accountNumber: string;
         customerId: number;
         principal: import("@prisma/client/runtime/library").Decimal;
@@ -69,8 +69,8 @@ export declare class AnggotaService {
         isActive: boolean;
         createdBy: string;
         createdAt: Date;
-        regionCode: string;
         status: string;
+        regionCode: string;
         accountNumber: string;
         customerId: number;
         principal: import("@prisma/client/runtime/library").Decimal;
@@ -106,19 +106,21 @@ export declare class AnggotaService {
             transType: string;
             description: string | null;
             createdAt: Date;
+            userId: number;
             accountNumber: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
             amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
-            userId: number;
         }[];
     } & {
         remark: string | null;
         isActive: boolean;
         createdBy: string;
         createdAt: Date;
-        regionCode: string;
         status: string;
+        regionCode: string;
         accountNumber: string;
         customerId: number;
         principal: import("@prisma/client/runtime/library").Decimal;
@@ -146,11 +148,13 @@ export declare class AnggotaService {
             transType: string;
             description: string | null;
             createdAt: Date;
+            userId: number;
             accountNumber: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
             amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
-            userId: number;
         }[];
         total: number;
         page: number;

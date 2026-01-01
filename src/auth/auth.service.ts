@@ -64,6 +64,23 @@ export class AuthService {
             data: { token: refreshToken },
         });
 
+        // 6. Fetch Menus for the Role
+        const menuRoles = await this.prisma.menuRole.findMany({
+            where: {
+                roleId: user.roleId,
+                canRead: true, // Only menus they can read
+                menu: { isActive: true } // Only active menus
+            },
+            include: {
+                menu: true,
+            },
+            orderBy: {
+                menu: { orderNum: 'asc' }
+            }
+        });
+
+        const menus = this.buildMenuTree(menuRoles);
+
         return {
             accessToken,
             refreshToken,
@@ -72,8 +89,43 @@ export class AuthService {
                 username: user.username,
                 fullName: user.fullName,
                 role: user.role.roleName,
+                menus: menus, // Return the structured menu tree
             },
         };
+    }
+
+    private buildMenuTree(menuRoles: any[]) {
+        const menuMap = new Map();
+        const rootMenus: any[] = [];
+
+        // First pass: Create map of all menus
+        menuRoles.forEach(mr => {
+            const menu = {
+                id: mr.menu.id,
+                label: mr.menu.menuName,
+                path: mr.menu.path,
+                icon: mr.menu.icon,
+                module: mr.menu.module, // Include module for section mapping
+                children: [],
+                parentId: mr.menu.parentId,
+                // permissions: { create: mr.canCreate, update: mr.canUpdate, delete: mr.canDelete } // Optional: verify if needed by frontend
+            };
+            menuMap.set(menu.id, menu);
+        });
+
+        // Second pass: Build hierarchy
+        menuMap.forEach(menu => {
+            if (menu.parentId) {
+                const parent = menuMap.get(menu.parentId);
+                if (parent) {
+                    parent.children.push(menu);
+                }
+            } else {
+                rootMenus.push(menu);
+            }
+        });
+
+        return rootMenus;
     }
 
     async logout(userId: number) {

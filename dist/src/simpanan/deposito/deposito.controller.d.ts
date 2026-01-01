@@ -68,6 +68,8 @@ export declare class DepositoController {
             nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
         updatedAt: Date | null;
         createdBy: string | null;

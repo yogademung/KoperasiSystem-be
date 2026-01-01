@@ -49,6 +49,8 @@ export declare class DepositoService {
             nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
         total: number;
         page: number;
@@ -85,6 +87,8 @@ export declare class DepositoService {
             nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
         updatedAt: Date | null;
         createdBy: string | null;

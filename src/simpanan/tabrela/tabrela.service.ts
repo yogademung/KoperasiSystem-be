@@ -36,6 +36,8 @@ export class TabrelaService {
                         nominal: createDto.setoranAwal,
                         saldoAkhir: createDto.setoranAwal,
                         keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
+                        latitude: (createDto as any).latitude,
+                        longitude: (createDto as any).longitude,
                         createdBy: 'SYSTEM' // Should be user ID from auth context
                     }
                 });
@@ -104,6 +106,8 @@ export class TabrelaService {
                     nominal: dto.amount,
                     saldoAkhir: newBalance,
                     keterangan: dto.description,
+                    latitude: (dto as any).latitude,
+                    longitude: (dto as any).longitude,
                     createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
@@ -152,6 +156,8 @@ export class TabrelaService {
                     nominal: -Math.abs(dto.amount), // Negative for withdrawal
                     saldoAkhir: newBalance,
                     keterangan: dto.description,
+                    latitude: (dto as any).latitude,
+                    longitude: (dto as any).longitude,
                     createdBy: userId?.toString() || 'SYSTEM'
                 }
             });

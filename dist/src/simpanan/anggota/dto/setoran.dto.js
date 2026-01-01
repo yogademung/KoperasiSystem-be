@@ -15,6 +15,8 @@ class SetoranDto {
     transType;
     amount;
     description;
+    latitude;
+    longitude;
 }
 exports.SetoranDto = SetoranDto;
 __decorate([
@@ -31,4 +33,14 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], SetoranDto.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], SetoranDto.prototype, "latitude", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], SetoranDto.prototype, "longitude", void 0);
 //# sourceMappingURL=setoran.dto.js.map

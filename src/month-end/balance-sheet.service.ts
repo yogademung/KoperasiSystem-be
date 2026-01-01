@@ -124,7 +124,7 @@ export class BalanceSheetService {
         });
 
         // 2. Prepare Closing Journal Details
-        const details = [];
+        const details: { accountCode: string; debit: number; credit: number; description: string }[] = [];
         let totalRevenue = 0;
         let totalExpense = 0;
 
@@ -172,25 +172,30 @@ export class BalanceSheetService {
         const currentSHU = totalRevenue - totalExpense;
 
         // 4. Post Difference to Retained Earnings / Cadangan
-        // Using 3.20.01 (Cadangan Umum) based on script finding. 
-        // Or 3.99.99 (SHU Tahun Berjalan) if we want just to transit. 
-        // Plan said 3.20.01
+        let retainedEarningsAccount = '3.20.01';
+
+        const mapping = await this.prisma.productCoaMapping.findUnique({
+            where: { transType: 'sys_RETAINED_EARNINGS' }
+        });
+
+        if (mapping) {
+            retainedEarningsAccount = mapping.creditAccount; // Use credit account as reference
+        } else {
+            this.logger.warn('COA Mapping for sys_RETAINED_EARNINGS not found. Using default 3.20.01');
+        }
+
         if (currentSHU > 0) {
             // Profit: Revenue > Expense. Need to CREDIT Equity (Increase it)
-            // Journal is currently: Debited Revenues, Credited Expenses.
-            // Sum Debits = TotalRevenue. Sum Credits = TotalExpense.
-            // Missing Credit = TotalRevenue - TotalExpense = SHU
             details.push({
-                accountCode: '3.20.01',
+                accountCode: retainedEarningsAccount,
                 debit: 0,
                 credit: currentSHU,
                 description: `Allocation of SHU ${year}`
             });
         } else if (currentSHU < 0) {
             // Loss: Expense > Revenue. Need to DEBIT Equity (Decrease it)
-            // Missing Debit = TotalExpense - TotalRevenue = -SHU
             details.push({
-                accountCode: '3.20.01',
+                accountCode: retainedEarningsAccount,
                 debit: Math.abs(currentSHU),
                 credit: 0,
                 description: `Allocation of Loss ${year}`

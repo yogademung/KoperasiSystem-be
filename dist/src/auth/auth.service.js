@@ -83,6 +83,20 @@ let AuthService = class AuthService {
             where: { id: user.id },
             data: { token: refreshToken },
         });
+        const menuRoles = await this.prisma.menuRole.findMany({
+            where: {
+                roleId: user.roleId,
+                canRead: true,
+                menu: { isActive: true }
+            },
+            include: {
+                menu: true,
+            },
+            orderBy: {
+                menu: { orderNum: 'asc' }
+            }
+        });
+        const menus = this.buildMenuTree(menuRoles);
         return {
             accessToken,
             refreshToken,
@@ -91,8 +105,37 @@ let AuthService = class AuthService {
                 username: user.username,
                 fullName: user.fullName,
                 role: user.role.roleName,
+                menus: menus,
             },
         };
+    }
+    buildMenuTree(menuRoles) {
+        const menuMap = new Map();
+        const rootMenus = [];
+        menuRoles.forEach(mr => {
+            const menu = {
+                id: mr.menu.id,
+                label: mr.menu.menuName,
+                path: mr.menu.path,
+                icon: mr.menu.icon,
+                module: mr.menu.module,
+                children: [],
+                parentId: mr.menu.parentId,
+            };
+            menuMap.set(menu.id, menu);
+        });
+        menuMap.forEach(menu => {
+            if (menu.parentId) {
+                const parent = menuMap.get(menu.parentId);
+                if (parent) {
+                    parent.children.push(menu);
+                }
+            }
+            else {
+                rootMenus.push(menu);
+            }
+        });
+        return rootMenus;
     }
     async logout(userId) {
         await this.prisma.user.update({

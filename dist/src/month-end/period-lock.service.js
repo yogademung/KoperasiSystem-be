@@ -36,6 +36,10 @@ let PeriodLockService = PeriodLockService_1 = class PeriodLockService {
                 this.logger.log(`Period ${period} is LOCKED (found in DB)`);
                 return true;
             }
+            else if (lock?.status === 'UNLOCKED') {
+                this.logger.log(`Period ${period} is UNLOCKED (found in DB, overrides global config)`);
+                return false;
+            }
             const lastClosingMonth = await this.lovValueService.getLastClosingMonth();
             this.logger.log(`Last Closing Month from config: ${lastClosingMonth}`);
             if (lastClosingMonth && period <= lastClosingMonth) {

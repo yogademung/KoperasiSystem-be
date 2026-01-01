@@ -15,6 +15,8 @@ class CreateTabrelaDto {
     nasabahId;
     setoranAwal;
     keterangan;
+    latitude;
+    longitude;
 }
 exports.CreateTabrelaDto = CreateTabrelaDto;
 __decorate([
@@ -32,4 +34,14 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateTabrelaDto.prototype, "keterangan", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateTabrelaDto.prototype, "latitude", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateTabrelaDto.prototype, "longitude", void 0);
 //# sourceMappingURL=create-tabrela.dto.js.map

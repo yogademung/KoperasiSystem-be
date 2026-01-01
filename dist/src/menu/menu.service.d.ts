@@ -32,12 +32,12 @@ export declare class MenuService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        orderNum: number | null;
-        icon: string | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
+        icon: string | null;
         path: string | null;
+        orderNum: number | null;
     }>;
     getMenusForRole(roleId: number): Promise<any[]>;
     createMenu(dto: CreateMenuDto, createdBy: string): Promise<{
@@ -48,12 +48,12 @@ export declare class MenuService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        orderNum: number | null;
-        icon: string | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
+        icon: string | null;
         path: string | null;
+        orderNum: number | null;
     }>;
     updateMenu(id: number, dto: UpdateMenuDto, updatedBy: string): Promise<{
         id: number;
@@ -63,12 +63,12 @@ export declare class MenuService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        orderNum: number | null;
-        icon: string | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
+        icon: string | null;
         path: string | null;
+        orderNum: number | null;
     }>;
     deleteMenu(id: number, deletedBy: string): Promise<{
         id: number;
@@ -78,12 +78,12 @@ export declare class MenuService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        orderNum: number | null;
-        icon: string | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
+        icon: string | null;
         path: string | null;
+        orderNum: number | null;
     }>;
     assignMenusToRole(roleId: number, dto: AssignMenusToRoleDto): Promise<{
         success: boolean;
@@ -103,12 +103,12 @@ export declare class MenuService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        orderNum: number | null;
-        icon: string | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
+        icon: string | null;
         path: string | null;
+        orderNum: number | null;
     }[]>;
     copyPermissions(dto: CopyPermissionsDto): Promise<{
         success: boolean;

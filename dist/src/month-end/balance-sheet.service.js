@@ -133,9 +133,19 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
             }
         }
         const currentSHU = totalRevenue - totalExpense;
+        let retainedEarningsAccount = '3.20.01';
+        const mapping = await this.prisma.productCoaMapping.findUnique({
+            where: { transType: 'sys_RETAINED_EARNINGS' }
+        });
+        if (mapping) {
+            retainedEarningsAccount = mapping.creditAccount;
+        }
+        else {
+            this.logger.warn('COA Mapping for sys_RETAINED_EARNINGS not found. Using default 3.20.01');
+        }
         if (currentSHU > 0) {
             details.push({
-                accountCode: '3.20.01',
+                accountCode: retainedEarningsAccount,
                 debit: 0,
                 credit: currentSHU,
                 description: `Allocation of SHU ${year}`
@@ -143,7 +153,7 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
         }
         else if (currentSHU < 0) {
             details.push({
-                accountCode: '3.20.01',
+                accountCode: retainedEarningsAccount,
                 debit: Math.abs(currentSHU),
                 credit: 0,
                 description: `Allocation of Loss ${year}`

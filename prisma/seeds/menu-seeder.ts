@@ -53,6 +53,9 @@ export async function seedMenus() {
 
     // Insert menus
     for (const menu of menus) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { icon, ...menuData } = menu;
+
         await prisma.menu.upsert({
             where: { id: menu.id },
             update: menu,
@@ -67,35 +70,61 @@ export async function seedMenus() {
 
     console.log(`✅ Created/Updated ${menus.length} menus`);
 
-    // Assign all menus to ADMIN role with full CRUD permissions
-    const adminRole = await prisma.role.findFirst({
-        where: { roleName: 'ADMIN' }
+    // Remove deprecated menus if they exist
+    await prisma.menu.deleteMany({
+        where: {
+            id: { in: [9, 91, 92] }
+        }
     });
 
+    // 1. ADMIN ROLE ASSIGNMENT
+    const adminRole = await prisma.role.findFirst({ where: { roleName: 'ADMIN' } });
     if (adminRole) {
         console.log('📋 Assigning menus to ADMIN role...');
-
-        // Delete existing assignments for ADMIN
-        await prisma.menuRole.deleteMany({
-            where: { roleId: adminRole.id }
-        });
-
-        // Create new assignments with full CRUD permissions
+        await prisma.menuRole.deleteMany({ where: { roleId: adminRole.id } });
         const menuRoles = menus.map(menu => ({
             roleId: adminRole.id,
             menuId: menu.id,
-            canCreate: true,
-            canRead: true,
-            canUpdate: true,
-            canDelete: true,
+            canCreate: true, canRead: true, canUpdate: true, canDelete: true,
+        }));
+        await prisma.menuRole.createMany({ data: menuRoles });
+        console.log(`✅ Assigned ${menuRoles.length} menus to ADMIN`);
+    }
+
+    // 2. COLLECTOR ROLE ASSIGNMENT
+    const collectorRole = await prisma.role.upsert({
+        where: { id: 2 },
+        update: {},
+        create: {
+            id: 2,
+            roleName: 'COLLECTOR',
+            description: 'Petugas Pungut',
+            isActive: true,
+            createdBy: 'SYSTEM'
+        }
+    });
+
+    if (collectorRole) {
+        console.log('📋 Assigning menus to COLLECTOR role...');
+        // Grant Collector access to Dashboard, Nasabah, Simpanan, and Kredit
+        // IDs: 1 (Dashboard), 2 (Nasabah)
+        // IDs: 3 (Simpanan), 31-36 (Submenus)
+        // IDs: 4 (Kredit)
+        // IDs: 73 (Laporan Harian - optional/useful)
+
+        const collectorMenuIds = [1, 2, 3, 31, 32, 33, 34, 35, 36, 4]; // Only standard modules
+        const collectorMenus = menus.filter(m => collectorMenuIds.includes(m.id));
+
+        // Delete existing
+        await prisma.menuRole.deleteMany({ where: { roleId: collectorRole.id } });
+
+        const menuRoles = collectorMenus.map(menu => ({
+            roleId: collectorRole.id,
+            menuId: menu.id,
+            canCreate: true, canRead: true, canUpdate: true, canDelete: false,
         }));
 
-        await prisma.menuRole.createMany({
-            data: menuRoles
-        });
-
-        console.log(`✅ Assigned ${menuRoles.length} menus to ADMIN with full CRUD permissions`);
-    } else {
-        console.warn('⚠️  ADMIN role not found, skipping menu assignment');
+        await prisma.menuRole.createMany({ data: menuRoles });
+        console.log(`✅ Assigned ${menuRoles.length} menus to COLLECTOR`);
     }
 }

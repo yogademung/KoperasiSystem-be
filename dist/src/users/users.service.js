@@ -91,6 +91,18 @@ let UsersService = class UsersService {
             orderBy: { roleName: 'asc' },
         });
     }
+    async update(id, updateUserDto) {
+        if (updateUserDto.password) {
+            updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+        }
+        return this.prisma.user.update({
+            where: { id },
+            data: {
+                ...updateUserDto,
+                updatedBy: 'ADMIN',
+            },
+        });
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
