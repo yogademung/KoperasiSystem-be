@@ -64,7 +64,7 @@ let UsersService = class UsersService {
                 username: createUserDto.username,
                 password: hashedPassword,
                 fullName: createUserDto.fullName,
-                roleId: createUserDto.roleId,
+                ...(createUserDto.roleId && { roleId: createUserDto.roleId }),
                 staffId: createUserDto.staffId,
                 regionCode: createUserDto.regionCode,
                 isActive: createUserDto.isActive ?? true,
@@ -89,6 +89,16 @@ let UsersService = class UsersService {
         return this.prisma.role.findMany({
             where: { isActive: true },
             orderBy: { roleName: 'asc' },
+        });
+    }
+    async createRole(data) {
+        return this.prisma.role.create({
+            data: {
+                roleName: data.roleName,
+                description: data.description || null,
+                isActive: data.isActive,
+                createdBy: 'ADMIN',
+            },
         });
     }
     async update(id, updateUserDto) {

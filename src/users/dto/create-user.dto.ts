@@ -15,8 +15,8 @@ export class CreateUserDto {
     fullName: string;
 
     @IsNumber()
-    @IsNotEmpty()
-    roleId: number; // Role ID from s_role_lpd
+    @IsOptional()
+    roleId?: number; // Optional role assignment
 
     @IsString()
     @IsOptional()

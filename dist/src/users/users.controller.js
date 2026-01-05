@@ -34,6 +34,9 @@ let UsersController = class UsersController {
     getRoles() {
         return this.usersService.getRoles();
     }
+    createRole(createRoleDto) {
+        return this.usersService.createRole(createRoleDto);
+    }
     update(id, updateUserDto) {
         return this.usersService.update(id, updateUserDto);
     }
@@ -61,6 +64,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getRoles", null);
+__decorate([
+    (0, common_1.Post)('roles'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "createRole", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, roles_decorator_1.Roles)('ADMIN'),

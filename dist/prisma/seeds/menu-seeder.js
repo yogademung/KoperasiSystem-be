@@ -20,7 +20,6 @@ async function seedMenus() {
         { id: 5, menuName: 'Manajemen Modal', path: '/capital', icon: 'DollarSign', module: 'CAPITAL', orderNum: 5, parentId: null },
         { id: 6, menuName: 'Akuntansi', path: '/accounting', icon: 'PieChart', module: 'ACCOUNTING', orderNum: 6, parentId: null },
         { id: 61, menuName: 'Master Akun', path: '/accounting/accounts', module: 'ACCOUNTING', orderNum: 1, parentId: 6 },
-        { id: 62, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', module: 'ACCOUNTING', orderNum: 2, parentId: 6 },
         { id: 63, menuName: 'Jurnal Umum', path: '/accounting/journals', module: 'ACCOUNTING', orderNum: 3, parentId: 6 },
         { id: 64, menuName: 'Jurnal Terhapus', path: '/accounting/deleted-journals', module: 'ACCOUNTING', orderNum: 4, parentId: 6 },
         { id: 65, menuName: 'Journal List', path: '/accounting/reports', module: 'ACCOUNTING', orderNum: 5, parentId: 6 },
@@ -35,6 +34,7 @@ async function seedMenus() {
         { id: 81, menuName: 'Profil Koperasi', path: '/settings/profile', module: 'SETTINGS', orderNum: 1, parentId: 8 },
         { id: 82, menuName: 'Manajemen User', path: '/users', module: 'SETTINGS', orderNum: 2, parentId: 8 },
         { id: 83, menuName: 'Migrasi Data', path: '/settings/migration', module: 'SETTINGS', orderNum: 3, parentId: 8 },
+        { id: 89, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', icon: 'FileText', module: 'SETTINGS', orderNum: 9, parentId: null },
     ];
     for (const menu of menus) {
         const { icon, ...menuData } = menu;
@@ -50,9 +50,13 @@ async function seedMenus() {
         });
     }
     console.log(`✅ Created/Updated ${menus.length} menus`);
+    const deprecatedIds = [9, 91, 92, 62];
+    await prisma.menuRole.deleteMany({
+        where: { menuId: { in: deprecatedIds } }
+    });
     await prisma.menu.deleteMany({
         where: {
-            id: { in: [9, 91, 92] }
+            id: { in: deprecatedIds }
         }
     });
     const adminRole = await prisma.role.findFirst({ where: { roleName: 'ADMIN' } });

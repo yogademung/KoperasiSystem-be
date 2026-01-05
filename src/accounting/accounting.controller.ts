@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Prisma } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
-@Controller('accounting')
+@Controller('api/accounting')
 export class AccountingController {
     constructor(private readonly accountingService: AccountingService) { }
 

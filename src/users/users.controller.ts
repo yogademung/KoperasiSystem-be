@@ -29,6 +29,12 @@ export class UsersController {
         return this.usersService.getRoles();
     }
 
+    @Post('roles')
+    @Roles('ADMIN')
+    createRole(@Body() createRoleDto: { roleName: string; description?: string; isActive: boolean }) {
+        return this.usersService.createRole(createRoleDto);
+    }
+
     @Patch(':id')
     @Roles('ADMIN')
     update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {

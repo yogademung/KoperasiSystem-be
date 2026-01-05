@@ -13,7 +13,7 @@ model User {
   password        String          @map("PWD") @db.VarChar(255)
   fullName        String          @map("NAMA") @db.VarChar(100)
   staffId         String?         @map("STAFF_ID") @db.VarChar(50)
-  roleId          Int             @map("ROLE_LPD_ID")
+  roleId          Int?            @map("ROLE_LPD_ID")
   regionCode      String?         @map("WILAYAH_CD") @db.VarChar(20)
   token           String?         @map("TOKEN") @db.Text
   isActive        Boolean         @default(true) @map("ACTIVE_FLAG")
@@ -21,7 +21,7 @@ model User {
   createdAt       DateTime        @default(now()) @map("CREATE_DATE")
   updatedBy       String?         @map("CHANGE_WHO") @db.VarChar(50)
   updatedAt       DateTime?       @updatedAt @map("CHANGE_DATE")
-  role            Role            @relation(fields: [roleId], references: [id])
+  role            Role?           @relation(fields: [roleId], references: [id])
   monthEndLogs    MonthEndLog[]
   periodLocks     PeriodLock[]    @relation("PeriodLocker")
   periodUnlocks   PeriodLock[]    @relation("PeriodUnlocker")

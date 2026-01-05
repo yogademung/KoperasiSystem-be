@@ -743,4 +743,119 @@ export class ReportsService {
     private terbilang(nominal: number): string {
         return this.getTerbilangWords(nominal).trim() + " Rupiah";
     }
+
+    // ============================
+    // BUKU BESAR (GENERAL LEDGER)
+    // ============================
+
+    async getBukuBesar(fromAccount: string, toAccount: string, startDate: string, endDate: string) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const endAccount = toAccount || fromAccount;
+
+        // Fetch accounts
+        const accounts = await this.prisma.journalAccount.findMany({
+            where: {
+                accountCode: {
+                    gte: fromAccount,
+                    lte: endAccount
+                }
+            },
+            orderBy: { accountCode: 'asc' }
+        });
+
+        if (accounts.length === 0) {
+            throw new NotFoundException(`No accounts found in range ${fromAccount} - ${endAccount}`);
+        }
+
+        const results: any[] = [];
+
+        for (const account of accounts) {
+            const accountCode = account.accountCode;
+
+
+            // Calculate opening balance
+            const openingEntries = await this.prisma.postedJournalDetail.findMany({
+                where: {
+                    accountCode,
+                    journal: { journalDate: { lt: start } }
+                }
+            });
+
+            let saldoAwal = 0;
+            for (const entry of openingEntries) {
+                const debit = this.normalizeCurrency(entry.debit);
+                const credit = this.normalizeCurrency(entry.credit);
+                saldoAwal += debit - credit;
+            }
+
+            // Get entries in period
+            const periodEntries = await this.prisma.postedJournalDetail.findMany({
+                where: {
+                    accountCode,
+                    journal: { journalDate: { gte: start, lte: end } }
+                },
+                include: { journal: true },
+                orderBy: [{ journal: { journalDate: 'asc' } }, { id: 'asc' }]
+            });
+
+            // Calculate running balance
+            let runningBalance = saldoAwal;
+            const entries = periodEntries.map(entry => {
+                const debit = this.normalizeCurrency(entry.debit);
+                const credit = this.normalizeCurrency(entry.credit);
+                runningBalance += debit - credit;
+
+                return {
+                    tanggal: entry.journal.journalDate,
+                    journalNumber: entry.journal.journalNumber,
+                    keterangan: entry.journal.description || entry.description || '-',
+                    debit,
+                    credit,
+                    saldo: runningBalance
+                };
+            });
+
+            const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
+            const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
+
+            results.push({
+                account: {
+                    accountCode: account.accountCode,
+                    accountName: account.accountName
+                },
+                periodStart: startDate,
+                periodEnd: endDate,
+                saldoAwal,
+                entries,
+                saldoAkhir: runningBalance,
+                totalDebit,
+                totalCredit
+            });
+        }
+
+        return { data: results };
+    }
+
+    async generateBukuBesarPDF(fromAccount: string, toAccount: string, startDate: string, endDate: string) {
+        const data = await this.getBukuBesar(fromAccount, toAccount, startDate, endDate);
+
+        // Return the data for now, PDF generation can be added later
+        // For now, just return the data and let the controller handle it
+        return data;
+    }
+
+    // Simple method to get all accounts for dropdown
+    async getAccountsList() {
+        const accounts = await this.prisma.journalAccount.findMany({
+            select: {
+                accountCode: true,
+                accountName: true
+            },
+            orderBy: { accountCode: 'asc' }
+        });
+
+        console.log('Total accounts found:', accounts.length);
+        return accounts;
+    }
 }

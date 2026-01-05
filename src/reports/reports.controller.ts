@@ -104,4 +104,34 @@ export class ReportsController {
     async getWanaprastaClosure(@Param('id') id: string) {
         return this.reportsService.getWanaprastaClosureData(id);
     }
+
+    // ============================
+    // ACCOUNTING (AKUNTANSI)
+    // ============================
+
+    @Get('accounting/buku-besar')
+    async getBukuBesar(
+        @Query('accountCode') accountCode: string,
+        @Query('toAccount') toAccount: string,
+        @Query('startDate') startDate: string,
+        @Query('endDate') endDate: string,
+    ) {
+        return this.reportsService.getBukuBesar(accountCode, toAccount, startDate, endDate);
+    }
+
+    @Get('accounting/buku-besar/pdf')
+    async getBukuBesarPDF(
+        @Query('accountCode') accountCode: string,
+        @Query('toAccount') toAccount: string,
+        @Query('startDate') startDate: string,
+        @Query('endDate') endDate: string,
+    ) {
+        return this.reportsService.generateBukuBesarPDF(accountCode, toAccount, startDate, endDate);
+    }
+
+    // Simple endpoint for dropdown
+    @Get('accounting/accounts-list')
+    async getAccountsList() {
+        return this.reportsService.getAccountsList();
+    }
 }

@@ -49,7 +49,7 @@ export class AuthService {
         const payload = {
             sub: user.id,
             username: user.username,
-            role: user.role.roleName, // Schema uses roleName
+            role: user.role?.roleName || null, // Schema uses roleName, handle null role
         };
 
         const accessToken = this.jwtService.sign(payload);
@@ -65,7 +65,7 @@ export class AuthService {
         });
 
         // 6. Fetch Menus for the Role
-        const menuRoles = await this.prisma.menuRole.findMany({
+        const menuRoles = user.roleId ? await this.prisma.menuRole.findMany({
             where: {
                 roleId: user.roleId,
                 canRead: true, // Only menus they can read
@@ -77,7 +77,7 @@ export class AuthService {
             orderBy: {
                 menu: { orderNum: 'asc' }
             }
-        });
+        }) : [];
 
         const menus = this.buildMenuTree(menuRoles);
 
@@ -88,7 +88,7 @@ export class AuthService {
                 id: user.id,
                 username: user.username,
                 fullName: user.fullName,
-                role: user.role.roleName,
+                role: user.role?.roleName || null,
                 menus: menus, // Return the structured menu tree
             },
         };

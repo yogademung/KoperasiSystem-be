@@ -65,6 +65,15 @@ let ReportsController = class ReportsController {
     async getWanaprastaClosure(id) {
         return this.reportsService.getWanaprastaClosureData(id);
     }
+    async getBukuBesar(accountCode, toAccount, startDate, endDate) {
+        return this.reportsService.getBukuBesar(accountCode, toAccount, startDate, endDate);
+    }
+    async getBukuBesarPDF(accountCode, toAccount, startDate, endDate) {
+        return this.reportsService.generateBukuBesarPDF(accountCode, toAccount, startDate, endDate);
+    }
+    async getAccountsList() {
+        return this.reportsService.getAccountsList();
+    }
 };
 exports.ReportsController = ReportsController;
 __decorate([
@@ -167,6 +176,32 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getWanaprastaClosure", null);
+__decorate([
+    (0, common_1.Get)('accounting/buku-besar'),
+    __param(0, (0, common_1.Query)('accountCode')),
+    __param(1, (0, common_1.Query)('toAccount')),
+    __param(2, (0, common_1.Query)('startDate')),
+    __param(3, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getBukuBesar", null);
+__decorate([
+    (0, common_1.Get)('accounting/buku-besar/pdf'),
+    __param(0, (0, common_1.Query)('accountCode')),
+    __param(1, (0, common_1.Query)('toAccount')),
+    __param(2, (0, common_1.Query)('startDate')),
+    __param(3, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getBukuBesarPDF", null);
+__decorate([
+    (0, common_1.Get)('accounting/accounts-list'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getAccountsList", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, common_1.Controller)('api/reports'),
     __metadata("design:paramtypes", [reports_service_1.ReportsService,

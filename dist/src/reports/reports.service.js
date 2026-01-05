@@ -649,6 +649,92 @@ let ReportsService = class ReportsService {
     terbilang(nominal) {
         return this.getTerbilangWords(nominal).trim() + " Rupiah";
     }
+    async getBukuBesar(fromAccount, toAccount, startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const endAccount = toAccount || fromAccount;
+        const accounts = await this.prisma.journalAccount.findMany({
+            where: {
+                accountCode: {
+                    gte: fromAccount,
+                    lte: endAccount
+                }
+            },
+            orderBy: { accountCode: 'asc' }
+        });
+        if (accounts.length === 0) {
+            throw new common_1.NotFoundException(`No accounts found in range ${fromAccount} - ${endAccount}`);
+        }
+        const results = [];
+        for (const account of accounts) {
+            const accountCode = account.accountCode;
+            const openingEntries = await this.prisma.postedJournalDetail.findMany({
+                where: {
+                    accountCode,
+                    journal: { journalDate: { lt: start } }
+                }
+            });
+            let saldoAwal = 0;
+            for (const entry of openingEntries) {
+                const debit = this.normalizeCurrency(entry.debit);
+                const credit = this.normalizeCurrency(entry.credit);
+                saldoAwal += debit - credit;
+            }
+            const periodEntries = await this.prisma.postedJournalDetail.findMany({
+                where: {
+                    accountCode,
+                    journal: { journalDate: { gte: start, lte: end } }
+                },
+                include: { journal: true },
+                orderBy: [{ journal: { journalDate: 'asc' } }, { id: 'asc' }]
+            });
+            let runningBalance = saldoAwal;
+            const entries = periodEntries.map(entry => {
+                const debit = this.normalizeCurrency(entry.debit);
+                const credit = this.normalizeCurrency(entry.credit);
+                runningBalance += debit - credit;
+                return {
+                    tanggal: entry.journal.journalDate,
+                    journalNumber: entry.journal.journalNumber,
+                    keterangan: entry.journal.description || entry.description || '-',
+                    debit,
+                    credit,
+                    saldo: runningBalance
+                };
+            });
+            const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
+            const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
+            results.push({
+                account: {
+                    accountCode: account.accountCode,
+                    accountName: account.accountName
+                },
+                periodStart: startDate,
+                periodEnd: endDate,
+                saldoAwal,
+                entries,
+                saldoAkhir: runningBalance,
+                totalDebit,
+                totalCredit
+            });
+        }
+        return { data: results };
+    }
+    async generateBukuBesarPDF(fromAccount, toAccount, startDate, endDate) {
+        const data = await this.getBukuBesar(fromAccount, toAccount, startDate, endDate);
+        return data;
+    }
+    async getAccountsList() {
+        const accounts = await this.prisma.journalAccount.findMany({
+            select: {
+                accountCode: true,
+                accountName: true
+            },
+            orderBy: { accountCode: 'asc' }
+        });
+        console.log('Total accounts found:', accounts.length);
+        return accounts;
+    }
 };
 exports.ReportsService = ReportsService;
 exports.ReportsService = ReportsService = __decorate([

@@ -16,6 +16,12 @@ export class RolesGuard implements CanActivate {
         }
 
         const { user } = context.switchToHttp().getRequest();
+
+        // If user has no role assigned, deny access to role-protected routes
+        if (!user.role) {
+            return false;
+        }
+
         // Assuming user.role is an object with a name property as per Schema and Strategy include
         return requiredRoles.some((role) => user.role?.roleName === role || user.role?.name === role);
         // Note: Schema says `roleName`. Prompt auth service says `user.role.name`.

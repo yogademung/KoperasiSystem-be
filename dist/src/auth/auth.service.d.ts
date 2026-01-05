@@ -18,7 +18,7 @@ export declare class AuthService {
             id: number;
             username: string;
             fullName: string;
-            role: string;
+            role: string | null;
             menus: any[];
         };
         requiresForceLogin?: undefined;

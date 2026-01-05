@@ -75,7 +75,7 @@ let AuthService = class AuthService {
         const payload = {
             sub: user.id,
             username: user.username,
-            role: user.role.roleName,
+            role: user.role?.roleName || null,
         };
         const accessToken = this.jwtService.sign(payload);
         const refreshToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '7d' });
@@ -83,7 +83,7 @@ let AuthService = class AuthService {
             where: { id: user.id },
             data: { token: refreshToken },
         });
-        const menuRoles = await this.prisma.menuRole.findMany({
+        const menuRoles = user.roleId ? await this.prisma.menuRole.findMany({
             where: {
                 roleId: user.roleId,
                 canRead: true,
@@ -95,7 +95,7 @@ let AuthService = class AuthService {
             orderBy: {
                 menu: { orderNum: 'asc' }
             }
-        });
+        }) : [];
         const menus = this.buildMenuTree(menuRoles);
         return {
             accessToken,
@@ -104,7 +104,7 @@ let AuthService = class AuthService {
                 id: user.id,
                 username: user.username,
                 fullName: user.fullName,
-                role: user.role.roleName,
+                role: user.role?.roleName || null,
                 menus: menus,
             },
         };

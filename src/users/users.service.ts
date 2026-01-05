@@ -25,7 +25,7 @@ export class UsersService {
                 username: createUserDto.username,
                 password: hashedPassword,
                 fullName: createUserDto.fullName,
-                roleId: createUserDto.roleId,
+                ...(createUserDto.roleId && { roleId: createUserDto.roleId }), // Optional role assignment
                 staffId: createUserDto.staffId,
                 regionCode: createUserDto.regionCode,
                 isActive: createUserDto.isActive ?? true,
@@ -54,6 +54,18 @@ export class UsersService {
             orderBy: { roleName: 'asc' },
         });
     }
+
+    async createRole(data: { roleName: string; description?: string; isActive: boolean }) {
+        return this.prisma.role.create({
+            data: {
+                roleName: data.roleName,
+                description: data.description || null,
+                isActive: data.isActive,
+                createdBy: 'ADMIN', // Should come from CurrentUser
+            },
+        });
+    }
+
     async update(id: number, updateUserDto: UpdateUserDto) {
         if (updateUserDto.password) {
             updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);

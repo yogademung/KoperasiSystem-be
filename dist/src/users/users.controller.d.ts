@@ -14,7 +14,7 @@ export declare class UsersController {
             createdAt: Date;
             updatedBy: string | null;
             roleName: string;
-        };
+        } | null;
     } & {
         id: number;
         updatedAt: Date | null;
@@ -26,7 +26,7 @@ export declare class UsersController {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number;
+        roleId: number | null;
         regionCode: string | null;
         token: string | null;
     }>;
@@ -40,7 +40,7 @@ export declare class UsersController {
             createdAt: Date;
             updatedBy: string | null;
             roleName: string;
-        };
+        } | null;
     } & {
         id: number;
         updatedAt: Date | null;
@@ -52,7 +52,7 @@ export declare class UsersController {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number;
+        roleId: number | null;
         regionCode: string | null;
         token: string | null;
     })[]>;
@@ -66,6 +66,20 @@ export declare class UsersController {
         updatedBy: string | null;
         roleName: string;
     }[]>;
+    createRole(createRoleDto: {
+        roleName: string;
+        description?: string;
+        isActive: boolean;
+    }): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        roleName: string;
+    }>;
     update(id: number, updateUserDto: UpdateUserDto): Promise<{
         id: number;
         updatedAt: Date | null;
@@ -77,7 +91,7 @@ export declare class UsersController {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number;
+        roleId: number | null;
         regionCode: string | null;
         token: string | null;
     }>;

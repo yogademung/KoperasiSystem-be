@@ -219,7 +219,7 @@ __decorate([
 ], AccountingController.prototype, "getDailyReport", null);
 exports.AccountingController = AccountingController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Controller)('accounting'),
+    (0, common_1.Controller)('api/accounting'),
     __metadata("design:paramtypes", [accounting_service_1.AccountingService])
 ], AccountingController);
 //# sourceMappingURL=accounting.controller.js.map

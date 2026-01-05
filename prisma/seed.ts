@@ -60,7 +60,7 @@ async function main() {
     console.log('Configuration parameter seeded:', lastClosingConfig);
 
     // 4. Seed Accounting Module
-    // await seedAccounting();
+    await seedAccounting();
 
     // 5. Seed Menus (Phase 10)
     await seedMenus();

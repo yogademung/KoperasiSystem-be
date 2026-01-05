@@ -16,7 +16,7 @@ export declare class JwtStrategy extends JwtStrategy_base {
             createdAt: Date;
             updatedBy: string | null;
             roleName: string;
-        };
+        } | null;
     } & {
         id: number;
         updatedAt: Date | null;
@@ -28,7 +28,7 @@ export declare class JwtStrategy extends JwtStrategy_base {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number;
+        roleId: number | null;
         regionCode: string | null;
         token: string | null;
     }>;

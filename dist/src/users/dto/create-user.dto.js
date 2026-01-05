@@ -39,7 +39,7 @@ __decorate([
 ], CreateUserDto.prototype, "fullName", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateUserDto.prototype, "roleId", void 0);
 __decorate([
