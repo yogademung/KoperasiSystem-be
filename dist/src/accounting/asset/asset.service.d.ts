@@ -5,7 +5,7 @@ export declare class AssetService {
     private prisma;
     private accountingService;
     constructor(prisma: PrismaService, accountingService: AccountingService);
-    create(createAssetDto: any): Promise<{
+    create(createAssetDto: any, userId: number): Promise<{
         asset: {
             id: number;
             updatedAt: Date | null;

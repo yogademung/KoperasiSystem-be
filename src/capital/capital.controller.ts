@@ -6,7 +6,7 @@ import { TransModalDto } from './dto/trans-modal.dto';
 import { CreateExternalLoanDto } from './dto/create-loan.dto';
 import { RepayExternalLoanDto } from './dto/repay-loan.dto';
 
-@Controller('capital')
+@Controller('api/capital')
 @UseGuards(JwtAuthGuard)
 export class CapitalController {
     constructor(private readonly capitalService: CapitalService) { }

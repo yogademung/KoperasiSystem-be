@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const deposito_service_1 = require("./deposito.service");
 const create_deposito_dto_1 = require("./dto/create-deposito.dto");
 const simpanan_interest_service_1 = require("../simpanan-interest.service");
+const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 let DepositoController = class DepositoController {
     depositoService;
     interestService;
@@ -92,6 +93,7 @@ __decorate([
 ], DepositoController.prototype, "withdraw", null);
 exports.DepositoController = DepositoController = __decorate([
     (0, common_1.Controller)('api/simpanan/deposito'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [deposito_service_1.DepositoService,
         simpanan_interest_service_1.SimpananInterestService])
 ], DepositoController);

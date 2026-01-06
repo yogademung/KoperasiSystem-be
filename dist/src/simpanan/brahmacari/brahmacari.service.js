@@ -87,7 +87,7 @@ let BrahmacariService = class BrahmacariService {
         }
         return account;
     }
-    async setoran(noBrahmacari, dto) {
+    async setoran(noBrahmacari, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBrahmacari.findUnique({
                 where: { noBrahmacari }
@@ -106,7 +106,7 @@ let BrahmacariService = class BrahmacariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Setoran Brahmacari',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
             await tx.nasabahBrahmacari.update({
@@ -118,7 +118,7 @@ let BrahmacariService = class BrahmacariService {
                     transType: 'BRAHMACARI_SETOR',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -129,7 +129,7 @@ let BrahmacariService = class BrahmacariService {
             return transaction;
         });
     }
-    async penarikan(noBrahmacari, dto) {
+    async penarikan(noBrahmacari, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBrahmacari.findUnique({
                 where: { noBrahmacari }
@@ -151,7 +151,7 @@ let BrahmacariService = class BrahmacariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Penarikan Brahmacari',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
             await tx.nasabahBrahmacari.update({
@@ -163,7 +163,7 @@ let BrahmacariService = class BrahmacariService {
                     transType: 'BRAHMACARI_TARIK',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -244,9 +244,8 @@ let BrahmacariService = class BrahmacariService {
             return this.prisma.$transaction(executeLogic);
         }
     }
-    async closeAccount(noBrahmacari, dto) {
+    async closeAccount(noBrahmacari, dto, userId) {
         const { reason, penalty = 0, adminFee = 0 } = dto;
-        const userId = 1;
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBrahmacari.findUnique({ where: { noBrahmacari } });
             if (!account)
@@ -281,7 +280,7 @@ let BrahmacariService = class BrahmacariService {
                 });
             }
             if (currentBalance > 0) {
-                await tx.transBrahmacari.create({
+                const closeTx = await tx.transBrahmacari.create({
                     data: {
                         noBrahmacari,
                         tipeTrans: 'TUTUP',
@@ -290,6 +289,14 @@ let BrahmacariService = class BrahmacariService {
                         keterangan: `Penutupan Rekening: ${reason}`,
                         createdBy: userId?.toString() || 'SYSTEM'
                     }
+                });
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BRAHMACARI_TUTUP',
+                    amount: currentBalance,
+                    description: `Penutupan Rekening ${noBrahmacari}`,
+                    userId: userId || 1,
+                    refId: closeTx.id,
+                    branchCode: '001'
                 });
             }
             await tx.nasabahBrahmacari.update({

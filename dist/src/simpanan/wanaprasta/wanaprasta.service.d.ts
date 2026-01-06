@@ -79,7 +79,7 @@ export declare class WanaprastaService {
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
     }>;
-    setoran(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
+    setoran(noWanaprasta: string, dto: WanaprastaTransactionDto, userId: number): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -91,7 +91,7 @@ export declare class WanaprastaService {
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
-    penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
+    penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto, userId: number): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -126,7 +126,7 @@ export declare class WanaprastaService {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }): Promise<{
+    }, userId: number): Promise<{
         success: boolean;
         refund: number;
     }>;

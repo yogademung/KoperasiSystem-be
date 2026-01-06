@@ -15,6 +15,7 @@ export class AccountingListener {
         refId?: number;
         wilayahCd?: string;
         branchCode?: string;
+        useTransitAccount?: boolean;
     }) {
         console.log('Accounting Listener: Received transaction.created', payload);
         try {

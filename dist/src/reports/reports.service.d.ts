@@ -387,4 +387,100 @@ export declare class ReportsService {
         accountCode: string;
         accountName: string;
     }[]>;
+    private getGenericReceiptData;
+    getAnggotaReceiptData(accountNumber: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: string;
+        };
+        data: {
+            date: Date;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: string;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getTabrelaReceiptData(accountNumber: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getBrahmacariReceiptData(accountNumber: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getBalimesariReceiptData(accountNumber: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getWanasprastaReceiptData(accountNumber: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
 }

@@ -79,7 +79,7 @@ export declare class BrahmacariService {
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
     }>;
-    setoran(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+    setoran(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -91,7 +91,7 @@ export declare class BrahmacariService {
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
-    penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+    penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -126,7 +126,7 @@ export declare class BrahmacariService {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }): Promise<{
+    }, userId: number): Promise<{
         success: boolean;
         refund: number;
     }>;

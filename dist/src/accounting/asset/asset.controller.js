@@ -22,8 +22,8 @@ let AssetController = class AssetController {
     constructor(assetService) {
         this.assetService = assetService;
     }
-    create(createAssetDto) {
-        return this.assetService.create(createAssetDto);
+    create(user, createAssetDto) {
+        return this.assetService.create(createAssetDto, user.id);
     }
     findAll(page = '1', limit = '10') {
         return this.assetService.findAll(+page, +limit);
@@ -50,9 +50,10 @@ let AssetController = class AssetController {
 exports.AssetController = AssetController;
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], AssetController.prototype, "create", null);
 __decorate([
@@ -102,7 +103,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AssetController.prototype, "calculateDepreciation", null);
 exports.AssetController = AssetController = __decorate([
-    (0, common_1.Controller)('accounting/assets'),
+    (0, common_1.Controller)('api/accounting/assets'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [asset_service_1.AssetService])
 ], AssetController);

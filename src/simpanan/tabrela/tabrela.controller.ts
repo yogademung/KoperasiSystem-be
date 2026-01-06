@@ -4,7 +4,7 @@ import { CreateTabrelaDto } from './dto/create-tabrela.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('api/simpanan/tabrela')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class TabrelaController {
     constructor(private readonly tabrelaService: TabrelaService) { }
 

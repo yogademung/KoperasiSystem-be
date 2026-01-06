@@ -385,10 +385,15 @@ export class AccountingService {
         });
 
         if (!mapping) {
-            throw new Error(`COA Mapping not found for transaction type: ${data.transType}`);
+            throw new BadRequestException(`Konfigurasi Akuntansi (COA Mapping) tidak ditemukan untuk transaksi: ${data.transType}. Silakan hubungi Admin untuk menambahkan mapping.`);
         }
 
-        // 2. ENHANCE DESCRIPTION WITH ACCOUNT & SEQUENCE
+        // 2. TRANSIT ACCOUNT LOGIC
+        // Removed as part of revert to Phase 10
+        const debitAccount = mapping.debitAccount;
+        const creditAccount = mapping.creditAccount;
+
+        // 3. ENHANCE DESCRIPTION WITH ACCOUNT & SEQUENCE
         let detailedDescription = data.description || mapping.description;
         if (data.refId) {
             try {
@@ -401,10 +406,10 @@ export class AccountingService {
             }
         }
 
-        // 3. GENERATE JOURNAL NO
+        // 4. GENERATE JOURNAL NO
         const journalNo = await this.generateJournalNumber();
 
-        // 4. CREATE JOURNAL
+        // 5. CREATE JOURNAL
         return prisma.postedJournal.create({
             data: {
                 journalNumber: journalNo,
@@ -420,13 +425,13 @@ export class AccountingService {
                 details: {
                     create: [
                         {
-                            accountCode: mapping.debitAccount,
+                            accountCode: debitAccount,
                             debit: data.amount,
                             credit: 0,
                             description: detailedDescription
                         },
                         {
-                            accountCode: mapping.creditAccount,
+                            accountCode: creditAccount,
                             debit: 0,
                             credit: data.amount,
                             description: detailedDescription

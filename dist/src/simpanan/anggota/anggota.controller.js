@@ -18,6 +18,7 @@ const anggota_service_1 = require("./anggota.service");
 const create_anggota_dto_1 = require("./dto/create-anggota.dto");
 const setoran_dto_1 = require("./dto/setoran.dto");
 const tutup_anggota_dto_1 = require("./dto/tutup-anggota.dto");
+const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 let AnggotaController = class AnggotaController {
     anggotaService;
     constructor(anggotaService) {
@@ -109,6 +110,7 @@ __decorate([
 ], AnggotaController.prototype, "tutup", null);
 exports.AnggotaController = AnggotaController = __decorate([
     (0, common_1.Controller)('api/simpanan/anggota'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [anggota_service_1.AnggotaService])
 ], AnggotaController);
 //# sourceMappingURL=anggota.controller.js.map

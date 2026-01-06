@@ -123,7 +123,9 @@ let AnggotaService = class AnggotaService {
             await this.createTransaction(tx, accountNumber, {
                 transType: 'PENARIKAN',
                 amount: -Math.abs(dto.amount),
-                description: dto.description
+                description: dto.description,
+                latitude: dto.latitude,
+                longitude: dto.longitude
             }, userId);
             return { success: true };
             return { success: true };
@@ -213,6 +215,8 @@ let AnggotaService = class AnggotaService {
                 balanceAfter: newBalance,
                 description: dto.description || '',
                 userId,
+                latitude: dto.latitude,
+                longitude: dto.longitude
             }
         });
         const updateData = {
@@ -312,6 +316,8 @@ let AnggotaService = class AnggotaService {
                     balanceAfter: newBalance,
                     description: `VOID/REVERSAL of Trans #${original.id}: ${original.description || ''}`,
                     userId: original.userId,
+                    latitude: original.latitude,
+                    longitude: original.longitude
                 }
             });
         };

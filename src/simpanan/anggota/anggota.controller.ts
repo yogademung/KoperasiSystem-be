@@ -3,13 +3,10 @@ import { AnggotaService } from './anggota.service';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
 import { TutupAnggotaDto } from './dto/tutup-anggota.dto';
-// Assumed Guards - using mock or standard names if not found. Prompt suggests these guards.
-// import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-// import { RolesGuard } from '@/common/guards/roles.guard';
-// import { Roles } from '@/common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('api/simpanan/anggota')
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class AnggotaController {
     constructor(private readonly anggotaService: AnggotaService) { }
 

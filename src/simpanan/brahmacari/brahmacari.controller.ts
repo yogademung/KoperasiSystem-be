@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { BrahmacariService } from './brahmacari.service';
 import { CreateBrahmacariDto } from './dto/create-brahmacari.dto';
 import { BrahmacariTransactionDto } from './dto/transaction.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('api/simpanan/brahmacari')
+@UseGuards(JwtAuthGuard)
 export class BrahmacariController {
     constructor(private readonly brahmacariService: BrahmacariService) { }
 
     @Post()
-    create(@Body() createDto: CreateBrahmacariDto) {
+    create(@Body() createDto: CreateBrahmacariDto, @Req() req) {
+        const userId = req.user?.id || 1;
         return this.brahmacariService.create(createDto);
     }
 
@@ -25,17 +28,21 @@ export class BrahmacariController {
     @Post(':noBrahmacari/setoran')
     setoran(
         @Param('noBrahmacari') noBrahmacari: string,
-        @Body() dto: BrahmacariTransactionDto
+        @Body() dto: BrahmacariTransactionDto,
+        @Req() req
     ) {
-        return this.brahmacariService.setoran(noBrahmacari, dto);
+        const userId = req.user?.id || 1;
+        return this.brahmacariService.setoran(noBrahmacari, dto, userId);
     }
 
     @Post(':noBrahmacari/penarikan')
     penarikan(
         @Param('noBrahmacari') noBrahmacari: string,
-        @Body() dto: BrahmacariTransactionDto
+        @Body() dto: BrahmacariTransactionDto,
+        @Req() req
     ) {
-        return this.brahmacariService.penarikan(noBrahmacari, dto);
+        const userId = req.user?.id || 1;
+        return this.brahmacariService.penarikan(noBrahmacari, dto, userId);
     }
 
     @Get(':noBrahmacari/transactions')
@@ -51,7 +58,8 @@ export class BrahmacariController {
         );
     }
     @Post(':noBrahmacari/tutup')
-    close(@Param('noBrahmacari') noBrahmacari: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
-        return this.brahmacariService.closeAccount(noBrahmacari, body);
+    close(@Param('noBrahmacari') noBrahmacari: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }, @Req() req) {
+        const userId = req.user?.id || 1;
+        return this.brahmacariService.closeAccount(noBrahmacari, body, userId);
     }
 }

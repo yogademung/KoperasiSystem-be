@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { BalimesariService } from './balimesari.service';
 import { CreateBalimesariDto } from './dto/create-balimesari.dto';
 import { BalimesariTransactionDto } from './dto/transaction.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('api/simpanan/balimesari')
+@UseGuards(JwtAuthGuard)
 export class BalimesariController {
     constructor(private readonly balimesariService: BalimesariService) { }
 
     @Post()
-    create(@Body() createDto: CreateBalimesariDto) {
+    create(@Body() createDto: CreateBalimesariDto, @Req() req) {
+        const userId = req.user?.id || 1;
         return this.balimesariService.create(createDto);
     }
 
@@ -25,17 +28,21 @@ export class BalimesariController {
     @Post(':noBalimesari/setoran')
     setoran(
         @Param('noBalimesari') noBalimesari: string,
-        @Body() dto: BalimesariTransactionDto
+        @Body() dto: BalimesariTransactionDto,
+        @Req() req
     ) {
-        return this.balimesariService.setoran(noBalimesari, dto);
+        const userId = req.user?.id || 1;
+        return this.balimesariService.setoran(noBalimesari, dto, userId);
     }
 
     @Post(':noBalimesari/penarikan')
     penarikan(
         @Param('noBalimesari') noBalimesari: string,
-        @Body() dto: BalimesariTransactionDto
+        @Body() dto: BalimesariTransactionDto,
+        @Req() req
     ) {
-        return this.balimesariService.penarikan(noBalimesari, dto);
+        const userId = req.user?.id || 1;
+        return this.balimesariService.penarikan(noBalimesari, dto, userId);
     }
 
     @Get(':noBalimesari/transactions')
@@ -51,7 +58,8 @@ export class BalimesariController {
         );
     }
     @Post(':noBalimesari/tutup')
-    close(@Param('noBalimesari') noBalimesari: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
-        return this.balimesariService.closeAccount(noBalimesari, body);
+    close(@Param('noBalimesari') noBalimesari: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }, @Req() req) {
+        const userId = req.user?.id || 1;
+        return this.balimesariService.closeAccount(noBalimesari, body, userId);
     }
 }

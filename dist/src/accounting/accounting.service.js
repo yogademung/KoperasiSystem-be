@@ -295,8 +295,10 @@ let AccountingService = class AccountingService {
             where: { transType: data.transType }
         });
         if (!mapping) {
-            throw new Error(`COA Mapping not found for transaction type: ${data.transType}`);
+            throw new common_1.BadRequestException(`Konfigurasi Akuntansi (COA Mapping) tidak ditemukan untuk transaksi: ${data.transType}. Silakan hubungi Admin untuk menambahkan mapping.`);
         }
+        const debitAccount = mapping.debitAccount;
+        const creditAccount = mapping.creditAccount;
         let detailedDescription = data.description || mapping.description;
         if (data.refId) {
             try {
@@ -325,13 +327,13 @@ let AccountingService = class AccountingService {
                 details: {
                     create: [
                         {
-                            accountCode: mapping.debitAccount,
+                            accountCode: debitAccount,
                             debit: data.amount,
                             credit: 0,
                             description: detailedDescription
                         },
                         {
-                            accountCode: mapping.creditAccount,
+                            accountCode: creditAccount,
                             debit: 0,
                             credit: data.amount,
                             description: detailedDescription

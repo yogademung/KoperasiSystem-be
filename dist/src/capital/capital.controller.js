@@ -112,7 +112,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CapitalController.prototype, "repayLoan", null);
 exports.CapitalController = CapitalController = __decorate([
-    (0, common_1.Controller)('capital'),
+    (0, common_1.Controller)('api/capital'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [capital_service_1.CapitalService])
 ], CapitalController);

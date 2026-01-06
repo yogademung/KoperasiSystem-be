@@ -24,7 +24,7 @@ let AssetService = class AssetService {
         this.prisma = prisma;
         this.accountingService = accountingService;
     }
-    async create(createAssetDto) {
+    async create(createAssetDto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const sourceAccount = createAssetDto.sourceAccountId || '10100';
             const accountCodesToValidate = [
@@ -56,7 +56,7 @@ let AssetService = class AssetService {
                     accumDepreciationAccountId: createAssetDto.accumDepreciationAccountId,
                     expenseAccountId: createAssetDto.expenseAccountId,
                     status: 'ACTIVE',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId.toString()
                 }
             });
             const date = new Date(createAssetDto.acquisitionDate);
@@ -80,7 +80,7 @@ let AssetService = class AssetService {
                     postingType: 'AUTO',
                     sourceCode: 'ASSET',
                     refId: asset.id,
-                    userId: 1,
+                    userId: userId,
                     status: 'POSTED',
                     transType: 'ASSET_ACQUISITION',
                     details: {

@@ -3,14 +3,14 @@ import { AssetService } from './asset.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
-@Controller('accounting/assets')
+@Controller('api/accounting/assets')
 @UseGuards(JwtAuthGuard)
 export class AssetController {
     constructor(private readonly assetService: AssetService) { }
 
     @Post()
-    create(@Body() createAssetDto: any) {
-        return this.assetService.create(createAssetDto);
+    create(@CurrentUser() user: any, @Body() createAssetDto: any) {
+        return this.assetService.create(createAssetDto, user.id);
     }
 
     @Get()

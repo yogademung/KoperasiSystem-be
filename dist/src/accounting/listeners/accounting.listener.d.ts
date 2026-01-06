@@ -10,5 +10,6 @@ export declare class AccountingListener {
         refId?: number;
         wilayahCd?: string;
         branchCode?: string;
+        useTransitAccount?: boolean;
     }): Promise<void>;
 }

@@ -94,7 +94,7 @@ export class WanaprastaService {
         return account;
     }
 
-    async setoran(noWanaprasta: string, dto: WanaprastaTransactionDto) {
+    async setoran(noWanaprasta: string, dto: WanaprastaTransactionDto, userId: number) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahWanaprasta.findUnique({
                 where: { noWanaprasta }
@@ -117,7 +117,7 @@ export class WanaprastaService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Setoran Wanaprasta',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
 
@@ -132,7 +132,7 @@ export class WanaprastaService {
                     transType: 'WANAPRASTA_SETOR',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -144,7 +144,7 @@ export class WanaprastaService {
         });
     }
 
-    async penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto) {
+    async penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto, userId: number) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahWanaprasta.findUnique({
                 where: { noWanaprasta }
@@ -171,7 +171,7 @@ export class WanaprastaService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Penarikan Wanaprasta',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
 
@@ -186,7 +186,7 @@ export class WanaprastaService {
                     transType: 'WANAPRASTA_TARIK',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -272,9 +272,8 @@ export class WanaprastaService {
     /**
      * Close Account
      */
-    async closeAccount(noWanaprasta: string, dto: { reason: string, penalty?: number, adminFee?: number }) {
+    async closeAccount(noWanaprasta: string, dto: { reason: string, penalty?: number, adminFee?: number }, userId: number) {
         const { reason, penalty = 0, adminFee = 0 } = dto;
-        const userId = 1; // Default System User
 
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahWanaprasta.findUnique({ where: { noWanaprasta } });
@@ -315,7 +314,7 @@ export class WanaprastaService {
 
             // 3. Final Withdrawal (TUTUP) if balance > 0
             if (currentBalance > 0) {
-                await tx.transWanaprasta.create({
+                const closeTx = await tx.transWanaprasta.create({
                     data: {
                         noWanaprasta,
                         tipeTrans: 'TUTUP',
@@ -324,6 +323,15 @@ export class WanaprastaService {
                         keterangan: `Penutupan Rekening: ${reason}`,
                         createdBy: userId?.toString() || 'SYSTEM'
                     }
+                });
+
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'WANAPRASTA_TUTUP',
+                    amount: currentBalance,
+                    description: `Penutupan Rekening ${noWanaprasta}`,
+                    userId: userId || 1,
+                    refId: closeTx.id,
+                    branchCode: '001'
                 });
             }
 

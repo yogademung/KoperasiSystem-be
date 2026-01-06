@@ -5,13 +5,7 @@ import { SimpananInterestService } from '../simpanan-interest.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('api/simpanan/deposito')
-// @UseGuards(JwtAuthGuard) // Commented out temporarily for consistency with other modules during dev if needed, but Plan says Protected.
-// User requirement says "lanjutkan... referensi standar". 
-// I will enable Guard as per best practice, but if it causes issues I'll revert.
-// Wait, Tabrela had guard issues. I'll uncomment to be safe on "Unauthorized" bug, 
-// BUT Anggota has it? No, Anggota does NOT have @UseGuards at class level in my memory? 
-// Actually AnggotaController DOES have guards.
-// I will apply it.
+@UseGuards(JwtAuthGuard)
 export class DepositoController {
     constructor(
         private readonly depositoService: DepositoService,

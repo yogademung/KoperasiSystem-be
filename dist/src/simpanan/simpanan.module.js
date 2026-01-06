@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SimpananModule = void 0;
 const common_1 = require("@nestjs/common");
+const prisma_module_1 = require("../database/prisma.module");
+const event_emitter_1 = require("@nestjs/event-emitter");
+const month_end_module_1 = require("../month-end/month-end.module");
 const anggota_controller_1 = require("./anggota/anggota.controller");
 const anggota_service_1 = require("./anggota/anggota.service");
 const tabrela_controller_1 = require("./tabrela/tabrela.controller");
@@ -26,6 +29,7 @@ let SimpananModule = class SimpananModule {
 exports.SimpananModule = SimpananModule;
 exports.SimpananModule = SimpananModule = __decorate([
     (0, common_1.Module)({
+        imports: [prisma_module_1.PrismaModule, event_emitter_1.EventEmitterModule.forRoot(), month_end_module_1.MonthEndModule],
         controllers: [
             anggota_controller_1.AnggotaController,
             tabrela_controller_1.TabrelaController,

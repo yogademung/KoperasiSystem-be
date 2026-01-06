@@ -2,7 +2,7 @@ import { AssetService } from './asset.service';
 export declare class AssetController {
     private readonly assetService;
     constructor(assetService: AssetService);
-    create(createAssetDto: any): Promise<{
+    create(user: any, createAssetDto: any): Promise<{
         asset: {
             id: number;
             updatedAt: Date | null;

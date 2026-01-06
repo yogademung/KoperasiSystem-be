@@ -946,4 +946,147 @@ export class ReportsService {
         console.log('Total accounts found:', accounts.length);
         return accounts;
     }
+
+    // ============================
+    // TRANSACTION RECEIPTS (ALL PRODUCTS)
+    // ============================
+
+    private async getGenericReceiptData(
+        tableName: string,
+        accountField: string,
+        accountNumber: string,
+        productDisplayName: string
+    ) {
+        const prismaModel = (this.prisma as any)[tableName];
+
+        const account = await prismaModel.findUnique({
+            where: { [accountField]: accountNumber },
+            include: {
+                nasabah: true,
+                transactions: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 1
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+        if (!account.transactions || account.transactions.length === 0) {
+            throw new NotFoundException('No transactions found');
+        }
+
+        const lastTransaction = account.transactions[0];
+        const companyProfile = await this.settingsService.getProfile();
+
+        // Fetch user who performed the transaction
+        let userName = 'Petugas';
+
+        // Try to find user by ID first
+        if (lastTransaction.userId) {
+            try {
+                const user = await this.prisma.user.findUnique({
+                    where: { id: lastTransaction.userId },
+                    select: { fullName: true, username: true }
+                });
+                if (user) {
+                    userName = `${user.fullName} (${user.username})`;
+                }
+            } catch (e) {
+                console.error('Error fetching user:', e);
+            }
+        }
+
+        // Fallback to createdBy if it's a string
+        if (userName === 'Petugas' && lastTransaction.createdBy) {
+            userName = lastTransaction.createdBy;
+        }
+
+        // Handle different field names across models
+        const txAmount = Number(lastTransaction.nominal || lastTransaction.amount);
+        const tipeTrans = lastTransaction.tipeTrans || lastTransaction.transType;
+
+        return {
+            header: {
+                noRekening: accountNumber,
+                nama: account.nasabah.nama,
+            },
+            data: [{
+                date: lastTransaction.createdAt || lastTransaction.transDate,
+                debit: txAmount < 0 ? Math.abs(txAmount) : (tipeTrans === 'T' ? txAmount : 0),
+                credit: txAmount > 0 ? txAmount : (tipeTrans === 'S' ? txAmount : 0),
+                balance: Number(lastTransaction.saldoAkhir || lastTransaction.balanceAfter || account.saldo),
+                description: lastTransaction.keterangan || lastTransaction.description || tipeTrans
+            }],
+            companyProfile: {
+                name: companyProfile.name,
+                address: companyProfile.address,
+                phone: companyProfile.phone
+            },
+            currentUser: userName
+        };
+    }
+
+    async getAnggotaReceiptData(accountNumber: string) {
+        const account = await this.prisma.anggotaAccount.findUnique({
+            where: { accountNumber },
+            include: {
+                customer: true,
+                transactions: {
+                    orderBy: { transDate: 'desc' },
+                    take: 1
+                }
+            }
+        });
+
+        if (!account) throw new NotFoundException('Account not found');
+        if (!account.transactions || account.transactions.length === 0) {
+            throw new NotFoundException('No transactions found');
+        }
+
+        const lastTransaction = account.transactions[0];
+        const companyProfile = await this.settingsService.getProfile();
+
+        const user = await this.prisma.user.findUnique({
+            where: { id: lastTransaction.userId },
+            select: { fullName: true, username: true }
+        });
+
+        const txAmount = Number(lastTransaction.amount);
+
+        return {
+            header: {
+                noRekening: account.accountNumber,
+                nama: account.customer.nama,
+            },
+            data: [{
+                date: lastTransaction.transDate,
+                debit: txAmount < 0 ? Math.abs(txAmount) : 0,
+                credit: txAmount > 0 ? txAmount : 0,
+                balance: Number(lastTransaction.balanceAfter),
+                description: lastTransaction.description || lastTransaction.transType
+            }],
+            companyProfile: {
+                name: companyProfile.name,
+                address: companyProfile.address,
+                phone: companyProfile.phone
+            },
+            currentUser: user ? `${user.fullName} (${user.username})` : 'Petugas'
+        };
+    }
+
+    async getTabrelaReceiptData(accountNumber: string) {
+        return this.getGenericReceiptData('nasabahTab', 'noTab', accountNumber, 'Tabrela');
+    }
+
+    async getBrahmacariReceiptData(accountNumber: string) {
+        return this.getGenericReceiptData('nasabahBrahmacari', 'noBrahmacari', accountNumber, 'Brahmacari');
+    }
+
+    async getBalimesariReceiptData(accountNumber: string) {
+        return this.getGenericReceiptData('nasabahBalimesari', 'noBalimesari', accountNumber, 'Balimesari');
+    }
+
+    async getWanasprastaReceiptData(accountNumber: string) {
+        return this.getGenericReceiptData('nasabahWanaprasta', 'noWanaprasta', accountNumber, 'Wanaprasta');
+    }
 }

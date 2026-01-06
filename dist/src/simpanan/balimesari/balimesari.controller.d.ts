@@ -4,7 +4,7 @@ import { BalimesariTransactionDto } from './dto/transaction.dto';
 export declare class BalimesariController {
     private readonly balimesariService;
     constructor(balimesariService: BalimesariService);
-    create(createDto: CreateBalimesariDto): Promise<{
+    create(createDto: CreateBalimesariDto, req: any): Promise<{
         updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
@@ -77,7 +77,7 @@ export declare class BalimesariController {
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
     }>;
-    setoran(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
+    setoran(noBalimesari: string, dto: BalimesariTransactionDto, req: any): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -89,7 +89,7 @@ export declare class BalimesariController {
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
-    penarikan(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
+    penarikan(noBalimesari: string, dto: BalimesariTransactionDto, req: any): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -123,7 +123,7 @@ export declare class BalimesariController {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }): Promise<{
+    }, req: any): Promise<{
         success: boolean;
         refund: number;
     }>;

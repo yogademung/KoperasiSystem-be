@@ -85,6 +85,31 @@ export class ReportsController {
         return this.reportsService.getAnggotaClosureData(id);
     }
 
+    @Get('savings/ANGGOTA/:id/receipt')
+    async getAnggotaReceipt(@Param('id') id: string) {
+        return this.reportsService.getAnggotaReceiptData(id);
+    }
+
+    @Get('savings/TABRELA/:id/receipt')
+    async getTabrelaReceipt(@Param('id') id: string) {
+        return this.reportsService.getTabrelaReceiptData(id);
+    }
+
+    @Get('savings/BRAHMACARI/:id/receipt')
+    async getBrahmacariReceipt(@Param('id') id: string) {
+        return this.reportsService.getBrahmacariReceiptData(id);
+    }
+
+    @Get('savings/BALIMESARI/:id/receipt')
+    async getBalimesariReceipt(@Param('id') id: string) {
+        return this.reportsService.getBalimesariReceiptData(id);
+    }
+
+    @Get('savings/WANAPRASTA/:id/receipt')
+    async getWanasprastaReceipt(@Param('id') id: string) {
+        return this.reportsService.getWanasprastaReceiptData(id);
+    }
+
     @Get('savings/TABRELA/:id/closure')
     async getTabrelaClosure(@Param('id') id: string) {
         return this.reportsService.getTabrelaClosureData(id);

@@ -103,7 +103,7 @@ export class BrahmacariService {
     /**
      * Deposit transaction
      */
-    async setoran(noBrahmacari: string, dto: BrahmacariTransactionDto) {
+    async setoran(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number) {
         return this.prisma.$transaction(async (tx) => {
             // Get current account
             const account = await tx.nasabahBrahmacari.findUnique({
@@ -129,7 +129,7 @@ export class BrahmacariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Setoran Brahmacari',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
 
@@ -145,9 +145,9 @@ export class BrahmacariService {
                     transType: 'BRAHMACARI_SETOR',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1, // TODO: Get actual user ID from request context if possible, or leave 1 for system
+                    userId: userId || 1,
                     refId: transaction.id,
-                    branchCode: '001' // Default
+                    branchCode: '001'
                 });
             } catch (error) {
                 console.error('Failed to emit transaction event:', error);
@@ -160,7 +160,7 @@ export class BrahmacariService {
     /**
      * Withdrawal transaction
      */
-    async penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto) {
+    async penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number) {
         return this.prisma.$transaction(async (tx) => {
             // Get current account
             const account = await tx.nasabahBrahmacari.findUnique({
@@ -191,7 +191,7 @@ export class BrahmacariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Penarikan Brahmacari',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
 
@@ -207,7 +207,7 @@ export class BrahmacariService {
                     transType: 'BRAHMACARI_TARIK',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -321,9 +321,8 @@ export class BrahmacariService {
     /**
      * Close Account
      */
-    async closeAccount(noBrahmacari: string, dto: { reason: string, penalty?: number, adminFee?: number }) {
+    async closeAccount(noBrahmacari: string, dto: { reason: string, penalty?: number, adminFee?: number }, userId: number) {
         const { reason, penalty = 0, adminFee = 0 } = dto;
-        const userId = 1; // Default System User
 
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBrahmacari.findUnique({ where: { noBrahmacari } });
@@ -364,7 +363,7 @@ export class BrahmacariService {
 
             // 3. Final Withdrawal (TUTUP) if balance > 0
             if (currentBalance > 0) {
-                await tx.transBrahmacari.create({
+                const closeTx = await tx.transBrahmacari.create({
                     data: {
                         noBrahmacari,
                         tipeTrans: 'TUTUP',
@@ -373,6 +372,16 @@ export class BrahmacariService {
                         keterangan: `Penutupan Rekening: ${reason}`,
                         createdBy: userId?.toString() || 'SYSTEM'
                     }
+                });
+
+                // Emit event
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BRAHMACARI_TUTUP',
+                    amount: currentBalance,
+                    description: `Penutupan Rekening ${noBrahmacari}`,
+                    userId: userId || 1,
+                    refId: closeTx.id,
+                    branchCode: '001'
                 });
             }
 

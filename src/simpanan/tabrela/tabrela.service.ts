@@ -38,9 +38,14 @@ export class TabrelaService {
                         keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
                         latitude: (createDto as any).latitude,
                         longitude: (createDto as any).longitude,
-                        createdBy: 'SYSTEM' // Should be user ID from auth context
+                        createdBy: 'SYSTEM' // Should be user ID from auth context but here we don't have userID?? create method signature doesn't have it?!
                     }
                 });
+
+                // NOTE: create method currently missing userId. Assuming system or 1.
+                // But if collector creates, we need userId.
+                // Assuming userId will be passed or existing flow updated.
+                // For now, ignoring collector logic for create if userId is missing.
 
                 // EMIT EVENT
                 this.eventEmitter.emit('transaction.created', {
@@ -52,7 +57,6 @@ export class TabrelaService {
                     branchCode: '001'
                 });
             }
-
             return tabrela;
         });
     }

@@ -272,6 +272,101 @@ export declare class ReportsController {
             phone: string | null;
         };
     }>;
+    getAnggotaReceipt(id: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: string;
+        };
+        data: {
+            date: Date;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: string;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getTabrelaReceipt(id: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getBrahmacariReceipt(id: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getBalimesariReceipt(id: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
+    getWanasprastaReceipt(id: string): Promise<{
+        header: {
+            noRekening: string;
+            nama: any;
+        };
+        data: {
+            date: any;
+            debit: number;
+            credit: number;
+            balance: number;
+            description: any;
+        }[];
+        companyProfile: {
+            name: string;
+            address: string;
+            phone: string;
+        };
+        currentUser: string;
+    }>;
     getTabrelaClosure(id: string): Promise<{
         template: string;
         companyProfile: Record<string, string>;

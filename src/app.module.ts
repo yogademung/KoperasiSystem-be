@@ -26,7 +26,7 @@ import { LovValueService } from './month-end/lov-value.service';
 import { MonthEndController } from './month-end/month-end.controller';
 import { MigrationModule } from './migration/migration.module';
 import { MenuModule } from './menu/menu.module';
-
+import { CollectorModule } from './collector/collector.module';
 
 
 @Module({
@@ -54,10 +54,10 @@ import { MenuModule } from './menu/menu.module';
     ReportsModule,
     SettingsModule,
     MigrationModule,
-    MenuModule, // Phase 10: Menu management
+    MenuModule,
+    CollectorModule,
   ],
   controllers: [AppController, MonthEndController],
   providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService, LovValueService],
 })
 export class AppModule { }
-

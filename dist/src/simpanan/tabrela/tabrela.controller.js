@@ -16,6 +16,7 @@ exports.TabrelaController = void 0;
 const common_1 = require("@nestjs/common");
 const tabrela_service_1 = require("./tabrela.service");
 const create_tabrela_dto_1 = require("./dto/create-tabrela.dto");
+const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 let TabrelaController = class TabrelaController {
     tabrelaService;
     constructor(tabrelaService) {
@@ -87,6 +88,7 @@ __decorate([
 ], TabrelaController.prototype, "close", null);
 exports.TabrelaController = TabrelaController = __decorate([
     (0, common_1.Controller)('api/simpanan/tabrela'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [tabrela_service_1.TabrelaService])
 ], TabrelaController);
 //# sourceMappingURL=tabrela.controller.js.map

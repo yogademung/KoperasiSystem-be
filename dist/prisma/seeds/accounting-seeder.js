@@ -9,6 +9,7 @@ const accountData = [
     { accountCode: "1.01.02", accountName: "KAS TELLER 1", accountType: "AST", debetPoleFlag: true },
     { accountCode: "1.01.03", accountName: "KAS TELLER 2", accountType: "AST", debetPoleFlag: true },
     { accountCode: "1.01.04", accountName: "KAS PERJALANAN DINAS", accountType: "AST", debetPoleFlag: true },
+    { accountCode: "1.01.05", accountName: "KAS TRANSIT KOLEKTOR", accountType: "AST", debetPoleFlag: true },
     { accountCode: "1.02.00", accountName: "BANK", accountType: "AST", debetPoleFlag: true },
     { accountCode: "1.02.01", accountName: "BANK BPD BALI", accountType: "AST", debetPoleFlag: true },
     { accountCode: "1.02.02", accountName: "BANK BRI", accountType: "AST", debetPoleFlag: true },
@@ -33,6 +34,8 @@ const accountData = [
     { accountCode: "2.20.01", accountName: "TITIPAN DANA SOSIAL", accountType: "LIA", debetPoleFlag: false },
     { accountCode: "2.20.02", accountName: "HUTANG SHU ANGGOTA", accountType: "LIA", debetPoleFlag: false },
     { accountCode: "2.20.03", accountName: "HUTANG PAJAK", accountType: "LIA", debetPoleFlag: false },
+    { accountCode: "2.30.00", accountName: "HUTANG PINJAMAN", accountType: "LIA", debetPoleFlag: false },
+    { accountCode: "2.30.01", accountName: "HUTANG PINJAMAN EXTERNAL", accountType: "LIA", debetPoleFlag: false },
     { accountCode: "3.10.00", accountName: "MODAL SENDIRI", accountType: "EQT", debetPoleFlag: false },
     { accountCode: "3.10.01", accountName: "SIMPANAN POKOK", accountType: "EQT", debetPoleFlag: false },
     { accountCode: "3.10.02", accountName: "SIMPANAN WAJIB", accountType: "EQT", debetPoleFlag: false },
@@ -61,6 +64,7 @@ const accountData = [
     { accountCode: "5.20.04", accountName: "BUNGA BRAHMACARI", accountType: "EXP", debetPoleFlag: true },
     { accountCode: "5.20.05", accountName: "BUNGA BALI MESARI", accountType: "EXP", debetPoleFlag: true },
     { accountCode: "5.20.06", accountName: "BUNGA WANAPRASTA", accountType: "EXP", debetPoleFlag: true },
+    { accountCode: "5.20.10", accountName: "BIAYA BUNGA PINJAMAN EXTERNAL", accountType: "EXP", debetPoleFlag: true },
     { accountCode: "5.30.00", accountName: "BIAYA PENYUSUTAN", accountType: "EXP", debetPoleFlag: true },
     { accountCode: "5.30.01", accountName: "PENYUSUTAN GEDUNG", accountType: "EXP", debetPoleFlag: true },
     { accountCode: "5.30.02", accountName: "PENYUSUTAN PERALATAN", accountType: "EXP", debetPoleFlag: true }
@@ -88,6 +92,7 @@ const mappingData = [
     { module: 'CAPITAL', transType: 'MODAL_SETOR', description: 'Setoran Modal Penyertaan', debit: '1.01.01', credit: '3.10.03' },
     { module: 'CAPITAL', transType: 'MODAL_TARIK', description: 'Penarikan Modal Penyertaan', debit: '3.10.03', credit: '1.01.01' },
     { module: 'CAPITAL', transType: 'MODAL_SHU', description: 'Distribusi SHU ke Modal Penyertaan', debit: '3.99.99', credit: '3.10.03' },
+    { module: 'CAPITAL', transType: 'LOAN_DISBURSE', description: 'Pencairan Pinjaman External', debit: '1.02.01', credit: '2.30.01' },
 ];
 async function seedAccounting() {
     console.log('🌱 Seeding Journal Accounts...');

@@ -79,7 +79,7 @@ export declare class BalimesariService {
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
     }>;
-    setoran(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
+    setoran(noBalimesari: string, dto: BalimesariTransactionDto, userId: number): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -91,7 +91,7 @@ export declare class BalimesariService {
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
-    penarikan(noBalimesari: string, dto: BalimesariTransactionDto): Promise<{
+    penarikan(noBalimesari: string, dto: BalimesariTransactionDto, userId: number): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -126,7 +126,7 @@ export declare class BalimesariService {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }): Promise<{
+    }, userId: number): Promise<{
         success: boolean;
         refund: number;
     }>;

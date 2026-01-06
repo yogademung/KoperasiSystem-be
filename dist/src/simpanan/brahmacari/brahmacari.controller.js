@@ -17,12 +17,14 @@ const common_1 = require("@nestjs/common");
 const brahmacari_service_1 = require("./brahmacari.service");
 const create_brahmacari_dto_1 = require("./dto/create-brahmacari.dto");
 const transaction_dto_1 = require("./dto/transaction.dto");
+const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 let BrahmacariController = class BrahmacariController {
     brahmacariService;
     constructor(brahmacariService) {
         this.brahmacariService = brahmacariService;
     }
-    create(createDto) {
+    create(createDto, req) {
+        const userId = req.user?.id || 1;
         return this.brahmacariService.create(createDto);
     }
     findAll() {
@@ -31,25 +33,29 @@ let BrahmacariController = class BrahmacariController {
     findOne(noBrahmacari) {
         return this.brahmacariService.findOne(noBrahmacari);
     }
-    setoran(noBrahmacari, dto) {
-        return this.brahmacariService.setoran(noBrahmacari, dto);
+    setoran(noBrahmacari, dto, req) {
+        const userId = req.user?.id || 1;
+        return this.brahmacariService.setoran(noBrahmacari, dto, userId);
     }
-    penarikan(noBrahmacari, dto) {
-        return this.brahmacariService.penarikan(noBrahmacari, dto);
+    penarikan(noBrahmacari, dto, req) {
+        const userId = req.user?.id || 1;
+        return this.brahmacariService.penarikan(noBrahmacari, dto, userId);
     }
     getTransactions(noBrahmacari, page = '1', limit = '10') {
         return this.brahmacariService.getTransactions(noBrahmacari, parseInt(page), parseInt(limit));
     }
-    close(noBrahmacari, body) {
-        return this.brahmacariService.closeAccount(noBrahmacari, body);
+    close(noBrahmacari, body, req) {
+        const userId = req.user?.id || 1;
+        return this.brahmacariService.closeAccount(noBrahmacari, body, userId);
     }
 };
 exports.BrahmacariController = BrahmacariController;
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_brahmacari_dto_1.CreateBrahmacariDto]),
+    __metadata("design:paramtypes", [create_brahmacari_dto_1.CreateBrahmacariDto, Object]),
     __metadata("design:returntype", void 0)
 ], BrahmacariController.prototype, "create", null);
 __decorate([
@@ -69,16 +75,18 @@ __decorate([
     (0, common_1.Post)(':noBrahmacari/setoran'),
     __param(0, (0, common_1.Param)('noBrahmacari')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, transaction_dto_1.BrahmacariTransactionDto]),
+    __metadata("design:paramtypes", [String, transaction_dto_1.BrahmacariTransactionDto, Object]),
     __metadata("design:returntype", void 0)
 ], BrahmacariController.prototype, "setoran", null);
 __decorate([
     (0, common_1.Post)(':noBrahmacari/penarikan'),
     __param(0, (0, common_1.Param)('noBrahmacari')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, transaction_dto_1.BrahmacariTransactionDto]),
+    __metadata("design:paramtypes", [String, transaction_dto_1.BrahmacariTransactionDto, Object]),
     __metadata("design:returntype", void 0)
 ], BrahmacariController.prototype, "penarikan", null);
 __decorate([
@@ -94,12 +102,14 @@ __decorate([
     (0, common_1.Post)(':noBrahmacari/tutup'),
     __param(0, (0, common_1.Param)('noBrahmacari')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", void 0)
 ], BrahmacariController.prototype, "close", null);
 exports.BrahmacariController = BrahmacariController = __decorate([
     (0, common_1.Controller)('api/simpanan/brahmacari'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [brahmacari_service_1.BrahmacariService])
 ], BrahmacariController);
 //# sourceMappingURL=brahmacari.controller.js.map

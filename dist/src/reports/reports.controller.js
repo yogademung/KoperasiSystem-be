@@ -53,6 +53,21 @@ let ReportsController = class ReportsController {
     async getAnggotaClosure(id) {
         return this.reportsService.getAnggotaClosureData(id);
     }
+    async getAnggotaReceipt(id) {
+        return this.reportsService.getAnggotaReceiptData(id);
+    }
+    async getTabrelaReceipt(id) {
+        return this.reportsService.getTabrelaReceiptData(id);
+    }
+    async getBrahmacariReceipt(id) {
+        return this.reportsService.getBrahmacariReceiptData(id);
+    }
+    async getBalimesariReceipt(id) {
+        return this.reportsService.getBalimesariReceiptData(id);
+    }
+    async getWanasprastaReceipt(id) {
+        return this.reportsService.getWanasprastaReceiptData(id);
+    }
     async getTabrelaClosure(id) {
         return this.reportsService.getTabrelaClosureData(id);
     }
@@ -148,6 +163,41 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getAnggotaClosure", null);
+__decorate([
+    (0, common_1.Get)('savings/ANGGOTA/:id/receipt'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getAnggotaReceipt", null);
+__decorate([
+    (0, common_1.Get)('savings/TABRELA/:id/receipt'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getTabrelaReceipt", null);
+__decorate([
+    (0, common_1.Get)('savings/BRAHMACARI/:id/receipt'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getBrahmacariReceipt", null);
+__decorate([
+    (0, common_1.Get)('savings/BALIMESARI/:id/receipt'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getBalimesariReceipt", null);
+__decorate([
+    (0, common_1.Get)('savings/WANAPRASTA/:id/receipt'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getWanasprastaReceipt", null);
 __decorate([
     (0, common_1.Get)('savings/TABRELA/:id/closure'),
     __param(0, (0, common_1.Param)('id')),

@@ -30,6 +30,7 @@ model User {
   postedJournals  PostedJournal[]
   unlockApprovals UnlockRequest[] @relation("UnlockApprover")
   unlockRequests  UnlockRequest[] @relation("UnlockRequester")
+  collectorShifts CollectorShift[]
 
   @@index([roleId], map: "s_user_lpd_ROLE_LPD_ID_fkey")
   @@map("s_user_lpd")
@@ -883,4 +884,56 @@ model MonthEndLog {
 
   @@index([performedBy], map: "t_month_end_log_PERFORMED_BY_fkey")
   @@map("t_month_end_log")
+}
+
+model CollectorShift {
+  id              Int       @id @default(autoincrement()) @map("SHIFT_ID")
+  userId          Int       @map("USER_ID")
+  shiftDate       DateTime  @default(now()) @map("SHIFT_DATE")
+  startTime       DateTime  @default(now()) @map("START_TIME")
+  endTime         DateTime? @map("END_TIME")
+  status          String    @default("ACTIVE") @map("STATUS") @db.VarChar(20)
+  
+  // Starting cash (float for change)
+  startingCash    Decimal   @map("STARTING_CASH") @db.Decimal(19, 4)
+  startDenom100k  Int       @default(0) @map("START_100K")
+  startDenom50k   Int       @default(0) @map("START_50K")
+  startDenom20k   Int       @default(0) @map("START_20K")
+  startDenom10k   Int       @default(0) @map("START_10K")
+  startDenom5k    Int       @default(0) @map("START_5K")
+  startDenom2k    Int       @default(0) @map("START_2K")
+  startDenom1k    Int       @default(0) @map("START_1K")
+  startDenom500   Int       @default(0) @map("START_500")
+  startDenom200   Int       @default(0) @map("START_200")
+  startDenom100   Int       @default(0) @map("START_100")
+  
+  // Ending cash (at shift close)
+  endingCash      Decimal?  @map("ENDING_CASH") @db.Decimal(19, 4)
+  endDenom100k    Int?      @map("END_100K")
+  endDenom50k     Int?      @map("END_50K")
+  endDenom20k     Int?      @map("END_20K")
+  endDenom10k     Int?      @map("END_10K")
+  endDenom5k      Int?      @map("END_5K")
+  endDenom2k      Int?      @map("END_2K")
+  endDenom1k      Int?      @map("END_1K")
+  endDenom500     Int?      @map("END_500")
+  endDenom200     Int?      @map("END_200")
+  endDenom100     Int?      @map("END_100")
+  
+  // Transaction summary during shift
+  totalDeposits   Decimal   @default(0) @map("TOTAL_DEPOSITS") @db.Decimal(19, 4)
+  totalWithdrawals Decimal  @default(0) @map("TOTAL_WITHDRAWALS") @db.Decimal(19, 4)
+  transactionCount Int      @default(0) @map("TRANS_COUNT")
+  
+  // Closing journal reference
+  closingJournalId Int?     @map("CLOSING_JOURNAL_ID")
+  
+  createdAt       DateTime  @default(now()) @map("CREATED_AT")
+  updatedAt       DateTime  @updatedAt @map("UPDATED_AT")
+
+  user            User      @relation(fields: [userId], references: [id])
+  
+  @@index([userId, status], map: "idx_shift_user_status")
+  @@index([shiftDate], map: "idx_shift_date")
+  @@map("t_collector_shift")
 }

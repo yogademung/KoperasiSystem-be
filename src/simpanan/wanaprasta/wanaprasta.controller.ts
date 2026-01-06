@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { WanaprastaService } from './wanaprasta.service';
 import { CreateWanaprastaDto } from './dto/create-wanaprasta.dto';
 import { WanaprastaTransactionDto } from './dto/transaction.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('api/simpanan/wanaprasta')
+@UseGuards(JwtAuthGuard)
 export class WanaprastaController {
     constructor(private readonly wanaprastaService: WanaprastaService) { }
 
     @Post()
-    create(@Body() createDto: CreateWanaprastaDto) {
+    create(@Body() createDto: CreateWanaprastaDto, @Req() req) {
+        const userId = req.user?.id || 1;
         return this.wanaprastaService.create(createDto);
     }
 
@@ -25,17 +28,21 @@ export class WanaprastaController {
     @Post(':noWanaprasta/setoran')
     setoran(
         @Param('noWanaprasta') noWanaprasta: string,
-        @Body() dto: WanaprastaTransactionDto
+        @Body() dto: WanaprastaTransactionDto,
+        @Req() req
     ) {
-        return this.wanaprastaService.setoran(noWanaprasta, dto);
+        const userId = req.user?.id || 1;
+        return this.wanaprastaService.setoran(noWanaprasta, dto, userId);
     }
 
     @Post(':noWanaprasta/penarikan')
     penarikan(
         @Param('noWanaprasta') noWanaprasta: string,
-        @Body() dto: WanaprastaTransactionDto
+        @Body() dto: WanaprastaTransactionDto,
+        @Req() req
     ) {
-        return this.wanaprastaService.penarikan(noWanaprasta, dto);
+        const userId = req.user?.id || 1;
+        return this.wanaprastaService.penarikan(noWanaprasta, dto, userId);
     }
 
     @Get(':noWanaprasta/transactions')
@@ -51,7 +58,8 @@ export class WanaprastaController {
         );
     }
     @Post(':noWanaprasta/tutup')
-    close(@Param('noWanaprasta') noWanaprasta: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }) {
-        return this.wanaprastaService.closeAccount(noWanaprasta, body);
+    close(@Param('noWanaprasta') noWanaprasta: string, @Body() body: { reason: string; penalty?: number; adminFee?: number }, @Req() req) {
+        const userId = req.user?.id || 1;
+        return this.wanaprastaService.closeAccount(noWanaprasta, body, userId);
     }
 }

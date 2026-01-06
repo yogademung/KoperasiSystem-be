@@ -4,7 +4,7 @@ import { WanaprastaTransactionDto } from './dto/transaction.dto';
 export declare class WanaprastaController {
     private readonly wanaprastaService;
     constructor(wanaprastaService: WanaprastaService);
-    create(createDto: CreateWanaprastaDto): Promise<{
+    create(createDto: CreateWanaprastaDto, req: any): Promise<{
         updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
@@ -77,7 +77,7 @@ export declare class WanaprastaController {
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
     }>;
-    setoran(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
+    setoran(noWanaprasta: string, dto: WanaprastaTransactionDto, req: any): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -89,7 +89,7 @@ export declare class WanaprastaController {
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
-    penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto): Promise<{
+    penarikan(noWanaprasta: string, dto: WanaprastaTransactionDto, req: any): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -123,7 +123,7 @@ export declare class WanaprastaController {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }): Promise<{
+    }, req: any): Promise<{
         success: boolean;
         refund: number;
     }>;

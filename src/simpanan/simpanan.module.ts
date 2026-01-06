@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule } from '../database/prisma.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { MonthEndModule } from '../month-end/month-end.module';
 import { AnggotaController } from './anggota/anggota.controller';
 import { AnggotaService } from './anggota/anggota.service';
 import { TabrelaController } from './tabrela/tabrela.controller';
@@ -14,6 +17,7 @@ import { WanaprastaService } from './wanaprasta/wanaprasta.service';
 import { SimpananInterestService } from './simpanan-interest.service';
 
 @Module({
+    imports: [PrismaModule, EventEmitterModule.forRoot(), MonthEndModule],
     controllers: [
         AnggotaController,
         TabrelaController,

@@ -11,7 +11,7 @@ export class AssetService {
         private accountingService: AccountingService
     ) { }
 
-    async create(createAssetDto: any) {
+    async create(createAssetDto: any, userId: number) {
         return this.prisma.$transaction(async (tx) => {
             // VALIDATION: Check if all required account codes exist in COA
             const sourceAccount = createAssetDto.sourceAccountId || '10100';
@@ -48,7 +48,7 @@ export class AssetService {
                     accumDepreciationAccountId: createAssetDto.accumDepreciationAccountId,
                     expenseAccountId: createAssetDto.expenseAccountId,
                     status: 'ACTIVE',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId.toString()
                 }
             });
 
@@ -76,7 +76,7 @@ export class AssetService {
                     postingType: 'AUTO',
                     sourceCode: 'ASSET',
                     refId: asset.id,
-                    userId: 1,
+                    userId: userId,
                     status: 'POSTED',
                     transType: 'ASSET_ACQUISITION',
                     details: {

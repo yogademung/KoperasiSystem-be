@@ -161,7 +161,9 @@ export class AnggotaService {
             await this.createTransaction(tx, accountNumber, {
                 transType: 'PENARIKAN',
                 amount: -Math.abs(dto.amount), // Ensure negative
-                description: dto.description
+                description: dto.description,
+                latitude: dto.latitude,
+                longitude: dto.longitude
             }, userId);
 
             return { success: true };
@@ -269,7 +271,7 @@ export class AnggotaService {
     }
 
     // Helper to create transaction and update balance
-    private async createTransaction(tx: any, accountNumber: string, dto: { transType: string, amount: number, description?: string }, userId: number) {
+    private async createTransaction(tx: any, accountNumber: string, dto: { transType: string, amount: number, description?: string, latitude?: number, longitude?: number }, userId: number) {
         const account = await tx.anggotaAccount.findUnique({ where: { accountNumber } });
         const newBalance = Number(account.balance) + dto.amount;
 
@@ -282,6 +284,8 @@ export class AnggotaService {
                 balanceAfter: newBalance,
                 description: dto.description || '',
                 userId,
+                latitude: dto.latitude,
+                longitude: dto.longitude
             }
         });
 
@@ -412,6 +416,8 @@ export class AnggotaService {
                     balanceAfter: newBalance,
                     description: `VOID/REVERSAL of Trans #${original.id}: ${original.description || ''}`,
                     userId: original.userId,
+                    latitude: original.latitude, // Keep original geo if you want, or null
+                    longitude: original.longitude
                 }
             });
         };

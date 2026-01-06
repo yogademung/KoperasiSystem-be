@@ -87,7 +87,7 @@ let BalimesariService = class BalimesariService {
         }
         return account;
     }
-    async setoran(noBalimesari, dto) {
+    async setoran(noBalimesari, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBalimesari.findUnique({
                 where: { noBalimesari }
@@ -106,7 +106,7 @@ let BalimesariService = class BalimesariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Setoran Bali Mesari',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
             await tx.nasabahBalimesari.update({
@@ -118,7 +118,7 @@ let BalimesariService = class BalimesariService {
                     transType: 'BALIMESARI_SETOR',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -129,7 +129,7 @@ let BalimesariService = class BalimesariService {
             return transaction;
         });
     }
-    async penarikan(noBalimesari, dto) {
+    async penarikan(noBalimesari, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBalimesari.findUnique({
                 where: { noBalimesari }
@@ -151,7 +151,7 @@ let BalimesariService = class BalimesariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Penarikan Bali Mesari',
-                    createdBy: 'SYSTEM'
+                    createdBy: userId?.toString() || 'SYSTEM'
                 }
             });
             await tx.nasabahBalimesari.update({
@@ -163,7 +163,7 @@ let BalimesariService = class BalimesariService {
                     transType: 'BALIMESARI_TARIK',
                     amount: dto.nominal,
                     description: transaction.keterangan,
-                    userId: 1,
+                    userId: userId || 1,
                     refId: transaction.id,
                     branchCode: '001'
                 });
@@ -240,9 +240,8 @@ let BalimesariService = class BalimesariService {
             return this.prisma.$transaction(executeLogic);
         }
     }
-    async closeAccount(noBalimesari, dto) {
+    async closeAccount(noBalimesari, dto, userId) {
         const { reason, penalty = 0, adminFee = 0 } = dto;
-        const userId = 1;
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBalimesari.findUnique({ where: { noBalimesari } });
             if (!account)
@@ -277,7 +276,7 @@ let BalimesariService = class BalimesariService {
                 });
             }
             if (currentBalance > 0) {
-                await tx.transBalimesari.create({
+                const closeTx = await tx.transBalimesari.create({
                     data: {
                         noBalimesari,
                         tipeTrans: 'TUTUP',
@@ -286,6 +285,14 @@ let BalimesariService = class BalimesariService {
                         keterangan: `Penutupan Rekening: ${reason}`,
                         createdBy: userId?.toString() || 'SYSTEM'
                     }
+                });
+                this.eventEmitter.emit('transaction.created', {
+                    transType: 'BALIMESARI_TUTUP',
+                    amount: currentBalance,
+                    description: `Penutupan Rekening ${noBalimesari}`,
+                    userId: userId || 1,
+                    refId: closeTx.id,
+                    branchCode: '001'
                 });
             }
             await tx.nasabahBalimesari.update({

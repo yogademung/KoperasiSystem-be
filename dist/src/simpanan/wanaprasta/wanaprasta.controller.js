@@ -17,12 +17,14 @@ const common_1 = require("@nestjs/common");
 const wanaprasta_service_1 = require("./wanaprasta.service");
 const create_wanaprasta_dto_1 = require("./dto/create-wanaprasta.dto");
 const transaction_dto_1 = require("./dto/transaction.dto");
+const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 let WanaprastaController = class WanaprastaController {
     wanaprastaService;
     constructor(wanaprastaService) {
         this.wanaprastaService = wanaprastaService;
     }
-    create(createDto) {
+    create(createDto, req) {
+        const userId = req.user?.id || 1;
         return this.wanaprastaService.create(createDto);
     }
     findAll() {
@@ -31,25 +33,29 @@ let WanaprastaController = class WanaprastaController {
     findOne(noWanaprasta) {
         return this.wanaprastaService.findOne(noWanaprasta);
     }
-    setoran(noWanaprasta, dto) {
-        return this.wanaprastaService.setoran(noWanaprasta, dto);
+    setoran(noWanaprasta, dto, req) {
+        const userId = req.user?.id || 1;
+        return this.wanaprastaService.setoran(noWanaprasta, dto, userId);
     }
-    penarikan(noWanaprasta, dto) {
-        return this.wanaprastaService.penarikan(noWanaprasta, dto);
+    penarikan(noWanaprasta, dto, req) {
+        const userId = req.user?.id || 1;
+        return this.wanaprastaService.penarikan(noWanaprasta, dto, userId);
     }
     getTransactions(noWanaprasta, page = '1', limit = '10') {
         return this.wanaprastaService.getTransactions(noWanaprasta, parseInt(page), parseInt(limit));
     }
-    close(noWanaprasta, body) {
-        return this.wanaprastaService.closeAccount(noWanaprasta, body);
+    close(noWanaprasta, body, req) {
+        const userId = req.user?.id || 1;
+        return this.wanaprastaService.closeAccount(noWanaprasta, body, userId);
     }
 };
 exports.WanaprastaController = WanaprastaController;
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_wanaprasta_dto_1.CreateWanaprastaDto]),
+    __metadata("design:paramtypes", [create_wanaprasta_dto_1.CreateWanaprastaDto, Object]),
     __metadata("design:returntype", void 0)
 ], WanaprastaController.prototype, "create", null);
 __decorate([
@@ -69,16 +75,18 @@ __decorate([
     (0, common_1.Post)(':noWanaprasta/setoran'),
     __param(0, (0, common_1.Param)('noWanaprasta')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, transaction_dto_1.WanaprastaTransactionDto]),
+    __metadata("design:paramtypes", [String, transaction_dto_1.WanaprastaTransactionDto, Object]),
     __metadata("design:returntype", void 0)
 ], WanaprastaController.prototype, "setoran", null);
 __decorate([
     (0, common_1.Post)(':noWanaprasta/penarikan'),
     __param(0, (0, common_1.Param)('noWanaprasta')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, transaction_dto_1.WanaprastaTransactionDto]),
+    __metadata("design:paramtypes", [String, transaction_dto_1.WanaprastaTransactionDto, Object]),
     __metadata("design:returntype", void 0)
 ], WanaprastaController.prototype, "penarikan", null);
 __decorate([
@@ -94,12 +102,14 @@ __decorate([
     (0, common_1.Post)(':noWanaprasta/tutup'),
     __param(0, (0, common_1.Param)('noWanaprasta')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", void 0)
 ], WanaprastaController.prototype, "close", null);
 exports.WanaprastaController = WanaprastaController = __decorate([
     (0, common_1.Controller)('api/simpanan/wanaprasta'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [wanaprasta_service_1.WanaprastaService])
 ], WanaprastaController);
 //# sourceMappingURL=wanaprasta.controller.js.map

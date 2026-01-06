@@ -1,0 +1,87 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CollectorController = void 0;
+const common_1 = require("@nestjs/common");
+const collector_shift_dto_1 = require("./dto/collector-shift.dto");
+const collector_service_1 = require("./collector.service");
+let CollectorController = class CollectorController {
+    collectorService;
+    constructor(collectorService) {
+        this.collectorService = collectorService;
+    }
+    async getStats(req) {
+        const userId = req.user?.id || 1;
+        return this.collectorService.getDailyStats(userId);
+    }
+    async getTransactions(req) {
+        const userId = req.user?.id || 1;
+        return this.collectorService.getDailyTransactions(userId);
+    }
+    async getActiveShift(req) {
+        const userId = req.user?.id || 1;
+        return this.collectorService.getActiveShift(userId);
+    }
+    async startShift(req, dto) {
+        const userId = req.user?.id || 1;
+        return this.collectorService.startShift(userId, dto);
+    }
+    async endShift(req, dto) {
+        const userId = req.user?.id || 1;
+        return this.collectorService.endShift(userId, dto);
+    }
+};
+exports.CollectorController = CollectorController;
+__decorate([
+    (0, common_1.Get)('stats'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CollectorController.prototype, "getStats", null);
+__decorate([
+    (0, common_1.Get)('transactions'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CollectorController.prototype, "getTransactions", null);
+__decorate([
+    (0, common_1.Get)('shift/active'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CollectorController.prototype, "getActiveShift", null);
+__decorate([
+    (0, common_1.Post)('shift/start'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, collector_shift_dto_1.StartShiftDto]),
+    __metadata("design:returntype", Promise)
+], CollectorController.prototype, "startShift", null);
+__decorate([
+    (0, common_1.Post)('shift/end'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, collector_shift_dto_1.EndShiftDto]),
+    __metadata("design:returntype", Promise)
+], CollectorController.prototype, "endShift", null);
+exports.CollectorController = CollectorController = __decorate([
+    (0, common_1.Controller)('api/collector'),
+    __metadata("design:paramtypes", [collector_service_1.CollectorService])
+], CollectorController);
+//# sourceMappingURL=collector.controller.js.map

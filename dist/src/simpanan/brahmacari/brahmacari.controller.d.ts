@@ -4,7 +4,7 @@ import { BrahmacariTransactionDto } from './dto/transaction.dto';
 export declare class BrahmacariController {
     private readonly brahmacariService;
     constructor(brahmacariService: BrahmacariService);
-    create(createDto: CreateBrahmacariDto): Promise<{
+    create(createDto: CreateBrahmacariDto, req: any): Promise<{
         updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
@@ -77,7 +77,7 @@ export declare class BrahmacariController {
         interestRate: import("@prisma/client/runtime/library").Decimal;
         noBrahmacari: string;
     }>;
-    setoran(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+    setoran(noBrahmacari: string, dto: BrahmacariTransactionDto, req: any): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -89,7 +89,7 @@ export declare class BrahmacariController {
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
-    penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto): Promise<{
+    penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto, req: any): Promise<{
         id: number;
         createdBy: string | null;
         createdAt: Date;
@@ -123,7 +123,7 @@ export declare class BrahmacariController {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }): Promise<{
+    }, req: any): Promise<{
         success: boolean;
         refund: number;
     }>;
