@@ -29,4 +29,9 @@ export class AuthController {
     async getProfile(@CurrentUser() user) {
         return user;
     }
+
+    @Post('2fa/confirm')
+    async confirm2FA(@Body() body: { userId: number; secret: string; code: string }) {
+        return this.authService.confirmTotpSetup(body.userId, body.secret, body.code);
+    }
 }

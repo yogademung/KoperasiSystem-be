@@ -15,6 +15,7 @@ class LoginDto {
     username;
     password;
     forceLogin;
+    twoFactorCode;
 }
 exports.LoginDto = LoginDto;
 __decorate([
@@ -32,4 +33,9 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], LoginDto.prototype, "forceLogin", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], LoginDto.prototype, "twoFactorCode", void 0);
 //# sourceMappingURL=login.dto.js.map

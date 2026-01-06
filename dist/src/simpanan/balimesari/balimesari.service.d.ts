@@ -59,8 +59,8 @@ export declare class BalimesariService {
             id: number;
             createdBy: string | null;
             createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
             noBalimesari: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
@@ -83,8 +83,8 @@ export declare class BalimesariService {
         id: number;
         createdBy: string | null;
         createdAt: Date;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
@@ -95,8 +95,8 @@ export declare class BalimesariService {
         id: number;
         createdBy: string | null;
         createdAt: Date;
-        nominal: import("@prisma/client/runtime/library").Decimal;
         noBalimesari: string;
+        nominal: import("@prisma/client/runtime/library").Decimal;
         keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
@@ -108,8 +108,8 @@ export declare class BalimesariService {
             id: number;
             createdBy: string | null;
             createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
             noBalimesari: string;
+            nominal: import("@prisma/client/runtime/library").Decimal;
             keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;

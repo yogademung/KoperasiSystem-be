@@ -29,6 +29,7 @@ export class UsersService {
                 staffId: createUserDto.staffId,
                 regionCode: createUserDto.regionCode,
                 isActive: createUserDto.isActive ?? true,
+                isTotpEnabled: createUserDto.isTotpEnabled ?? false,
                 createdBy: 'ADMIN', // Should strictly come from CurrentUser but simplifying for now
             },
             include: {

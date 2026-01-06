@@ -80,6 +80,19 @@ export declare class AnggotaController {
         deduction: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     findOne(accountNumber: string): Promise<{
+        transactions: {
+            id: number;
+            transType: string;
+            description: string | null;
+            createdAt: Date;
+            userId: number;
+            accountNumber: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
+            balanceAfter: import("@prisma/client/runtime/library").Decimal;
+        }[];
         customer: {
             id: number;
             updatedAt: Date | null;
@@ -99,19 +112,6 @@ export declare class AnggotaController {
             fileKtp: string | null;
             fileKk: string | null;
         };
-        transactions: {
-            id: number;
-            transType: string;
-            description: string | null;
-            createdAt: Date;
-            userId: number;
-            accountNumber: string;
-            latitude: import("@prisma/client/runtime/library").Decimal | null;
-            longitude: import("@prisma/client/runtime/library").Decimal | null;
-            amount: import("@prisma/client/runtime/library").Decimal;
-            transDate: Date;
-            balanceAfter: import("@prisma/client/runtime/library").Decimal;
-        }[];
     } & {
         remark: string | null;
         isActive: boolean;

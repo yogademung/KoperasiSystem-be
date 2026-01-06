@@ -21,6 +21,8 @@ model User {
   createdAt       DateTime        @default(now()) @map("CREATE_DATE")
   updatedBy       String?         @map("CHANGE_WHO") @db.VarChar(50)
   updatedAt       DateTime?       @updatedAt @map("CHANGE_DATE")
+  isTotpEnabled   Boolean         @default(false) @map("IS_TOTP_ENABLED")
+  totpSecret      String?         @map("TOTP_SECRET") @db.VarChar(100)
   role            Role?           @relation(fields: [roleId], references: [id])
   monthEndLogs    MonthEndLog[]
   periodLocks     PeriodLock[]    @relation("PeriodLocker")

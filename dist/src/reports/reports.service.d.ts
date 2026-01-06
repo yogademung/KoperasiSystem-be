@@ -21,6 +21,25 @@ export declare class ReportsService {
             jangkaWaktu: number | null;
             tujuan: string | null;
             jenis: string;
+            collaterals: {
+                collateral: {
+                    assessedValue: number;
+                    id: number;
+                    description: string | null;
+                    updatedAt: Date | null;
+                    createdBy: string | null;
+                    createdAt: Date;
+                    updatedBy: string | null;
+                    status: string;
+                    details: string | null;
+                    nasabahId: number;
+                    type: string;
+                    marketValue: import("@prisma/client/runtime/library").Decimal;
+                    photos: string | null;
+                };
+                creditId: number;
+                collateralId: number;
+            }[];
         };
     }>;
     getCreditAgreementData(id: number): Promise<{
@@ -99,7 +118,7 @@ export declare class ReportsService {
             tglTrans: Date;
         }[];
     }>;
-    getSavingsPassbookData(type: 'TABUNGAN' | 'BRAHMACARI' | 'BALIMESARI' | 'WANAPRASTA' | 'ANGGOTA', accountNumber: string): Promise<{
+    getSavingsPassbookData(type: 'TABUNGAN' | 'BRAHMACARI' | 'BALIMESARI' | 'WANAPRASTA' | 'ANGGOTA' | 'KREDIT', accountNumber: string): Promise<{
         template: string;
         title: string;
         companyProfile: Record<string, string>;

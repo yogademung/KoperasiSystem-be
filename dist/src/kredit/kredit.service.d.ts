@@ -173,6 +173,22 @@ export declare class KreditService {
             fileKtp: string | null;
             fileKk: string | null;
         };
+        transactions: {
+            id: number;
+            createdBy: string | null;
+            createdAt: Date;
+            nominal: Prisma.Decimal;
+            keterangan: string | null;
+            tipeTrans: string;
+            latitude: Prisma.Decimal | null;
+            longitude: Prisma.Decimal | null;
+            journalId: number | null;
+            debiturKreditId: number;
+            bungaBayar: Prisma.Decimal | null;
+            dendaBayar: Prisma.Decimal | null;
+            pokokBayar: Prisma.Decimal | null;
+            tglTrans: Date;
+        }[];
         collaterals: ({
             collateral: {
                 id: number;
@@ -193,22 +209,6 @@ export declare class KreditService {
             creditId: number;
             collateralId: number;
         })[];
-        transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: Prisma.Decimal;
-            keterangan: string | null;
-            tipeTrans: string;
-            latitude: Prisma.Decimal | null;
-            longitude: Prisma.Decimal | null;
-            journalId: number | null;
-            debiturKreditId: number;
-            bungaBayar: Prisma.Decimal | null;
-            dendaBayar: Prisma.Decimal | null;
-            pokokBayar: Prisma.Decimal | null;
-            tglTrans: Date;
-        }[];
         fasilitas: {
             id: number;
             updatedAt: Date | null;

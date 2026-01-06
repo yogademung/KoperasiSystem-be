@@ -47,6 +47,8 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const prisma_service_1 = require("../database/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
+const otplib_1 = require("otplib");
+const qrcode_1 = require("qrcode");
 let AuthService = class AuthService {
     prisma;
     jwtService;
@@ -55,6 +57,8 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     async login(loginDto) {
+        console.log('Login Attempt Payload:', JSON.stringify(loginDto, null, 2));
+        otplib_1.authenticator.options = { window: 1 };
         const user = await this.prisma.user.findUnique({
             where: { username: loginDto.username },
             include: { role: true },
@@ -72,13 +76,41 @@ let AuthService = class AuthService {
                 message: 'Account is already logged in on another device',
             };
         }
+        if (user.isTotpEnabled) {
+            if (!user.totpSecret) {
+                const secret = otplib_1.authenticator.generateSecret();
+                const otpauthUrl = otplib_1.authenticator.keyuri(user.username, 'Koperasi System', secret);
+                const qrCodeUrl = await (0, qrcode_1.toDataURL)(otpauthUrl);
+                return {
+                    requiresSetup2FA: true,
+                    userId: user.id,
+                    qrCodeUrl,
+                    secret,
+                    message: 'Please setup Two-Factor Authentication',
+                };
+            }
+            if (!loginDto.twoFactorCode) {
+                return {
+                    requires2FA: true,
+                    message: 'Enter 2FA Code',
+                };
+            }
+            const isValid = otplib_1.authenticator.verify({
+                token: loginDto.twoFactorCode,
+                secret: user.totpSecret
+            });
+            if (!isValid) {
+                throw new common_1.UnauthorizedException('Invalid 2FA Code');
+            }
+        }
+        const refreshToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '7d' });
         const payload = {
             sub: user.id,
             username: user.username,
             role: user.role?.roleName || null,
+            rt_hash: refreshToken.slice(-10)
         };
         const accessToken = this.jwtService.sign(payload);
-        const refreshToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '7d' });
         await this.prisma.user.update({
             where: { id: user.id },
             data: { token: refreshToken },
@@ -108,6 +140,19 @@ let AuthService = class AuthService {
                 menus: menus,
             },
         };
+    }
+    async confirmTotpSetup(userId, secret, code) {
+        const isValid = otplib_1.authenticator.verify({
+            token: code,
+            secret: secret
+        });
+        if (!isValid)
+            throw new common_1.UnauthorizedException('Invalid Code');
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { totpSecret: secret }
+        });
+        return { success: true };
     }
     buildMenuTree(menuRoles) {
         const menuMap = new Map();

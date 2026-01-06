@@ -89,7 +89,7 @@ export class KreditService {
                         description: data.description || '',
                         marketValue: new Prisma.Decimal(marketVal),
                         assessedValue: new Prisma.Decimal(assessedVal),
-                        details: detailsObj ?? Prisma.JsonNull,
+                        details: detailsObj ? JSON.stringify(detailsObj) : null,
                         photos: data.photos || null,
                         status: 'ACTIVE',
                         createdBy: userId.toString(),
@@ -334,8 +334,7 @@ export class KreditService {
                     tglTrans: paymentDate,
                     nominal: new Prisma.Decimal(paymentAmount),
                     keterangan: data.description || 'Pembayaran Angsuran Kredit',
-                    createdBy: userId.toString(),
-                    createdAt: paymentDate
+                    createdBy: userId.toString()
                 }
             });
 
@@ -431,6 +430,8 @@ export class KreditService {
                 }
             }
 
+            let journalId: number | null = null;
+
             // 3. Journal Entires
             // Cash Debit
             if (totalPrincipalPaid + totalInterestPaid > 0) {
@@ -467,7 +468,7 @@ export class KreditService {
                     });
                 }
 
-                await tx.postedJournal.create({
+                const journal = await tx.postedJournal.create({
                     data: {
                         journalNumber: journalNo,
                         journalDate: paymentDate,
@@ -483,7 +484,19 @@ export class KreditService {
                         }
                     }
                 });
+
+                journalId = journal.id;
             }
+
+            // 4. Update Transaction with Payment Breakdown and Journal Reference
+            await tx.transKredit.update({
+                where: { id: trans.id },
+                data: {
+                    pokokBayar: new Prisma.Decimal(totalPrincipalPaid),
+                    bungaBayar: new Prisma.Decimal(totalInterestPaid),
+                    journalId: journalId
+                }
+            });
 
             return {
                 message: 'Payment recorded successfully',

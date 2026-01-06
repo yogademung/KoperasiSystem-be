@@ -141,6 +141,11 @@ const mappingData = [
     { module: 'ASSET', transType: 'ASSET_ACQUISITION', description: 'Perolehan Aset Tetap', debit: '1.30.00', credit: '1.01.01' },
     // Penyusutan -> Biaya Penyusutan (D) / Akumulasi Penyusutan (K)
     { module: 'ASSET', transType: 'ASSET_DEPRECIATION', description: 'Penyusutan Aset Tetap', debit: '5.30.00', credit: '1.30.99' },
+
+    // 9. Modal Penyertaan
+    { module: 'CAPITAL', transType: 'MODAL_SETOR', description: 'Setoran Modal Penyertaan', debit: '1.01.01', credit: '3.10.03' },
+    { module: 'CAPITAL', transType: 'MODAL_TARIK', description: 'Penarikan Modal Penyertaan', debit: '3.10.03', credit: '1.01.01' },
+    { module: 'CAPITAL', transType: 'MODAL_SHU', description: 'Distribusi SHU ke Modal Penyertaan', debit: '3.99.99', credit: '3.10.03' },
 ];
 
 export async function seedAccounting() {

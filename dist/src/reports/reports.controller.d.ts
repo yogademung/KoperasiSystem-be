@@ -51,6 +51,25 @@ export declare class ReportsController {
             jangkaWaktu: number | null;
             tujuan: string | null;
             jenis: string;
+            collaterals: {
+                collateral: {
+                    assessedValue: number;
+                    id: number;
+                    description: string | null;
+                    updatedAt: Date | null;
+                    createdBy: string | null;
+                    createdAt: Date;
+                    updatedBy: string | null;
+                    status: string;
+                    details: string | null;
+                    nasabahId: number;
+                    type: string;
+                    marketValue: import("@prisma/client/runtime/library").Decimal;
+                    photos: string | null;
+                };
+                creditId: number;
+                collateralId: number;
+            }[];
         };
     }>;
     getCreditAgreement(id: string): Promise<{

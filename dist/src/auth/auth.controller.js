@@ -35,6 +35,9 @@ let AuthController = class AuthController {
     async getProfile(user) {
         return user;
     }
+    async confirm2FA(body) {
+        return this.authService.confirmTotpSetup(body.userId, body.secret, body.code);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -67,6 +70,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Post)('2fa/confirm'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "confirm2FA", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('api/auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

@@ -50,6 +50,13 @@ let ReportsService = class ReportsService {
                 jangkaWaktu: credit.mohonJangkaWaktu,
                 tujuan: credit.tujuanKredit,
                 jenis: credit.jenisKredit,
+                collaterals: credit.collaterals.map(c => ({
+                    ...c,
+                    collateral: {
+                        ...c.collateral,
+                        assessedValue: this.normalizeCurrency(c.collateral.assessedValue)
+                    }
+                }))
             }
         };
     }
@@ -206,17 +213,80 @@ let ReportsService = class ReportsService {
             }));
             title = 'SIMPANAN ANGGOTA';
         }
+        else if (type === 'KREDIT') {
+            const acc = await this.prisma.debiturKredit.findUnique({
+                where: { nomorKredit: accountNumber },
+                include: {
+                    nasabah: true,
+                    realisasi: true,
+                    transactions: { orderBy: { createdAt: 'asc' } }
+                }
+            });
+            if (!acc)
+                throw new common_1.NotFoundException('Credit Account not found');
+            accountData = acc;
+            title = 'KARTU PINJAMAN';
+            let runningBalance = 0;
+            const fullTransactions = [];
+            if (acc.realisasi && acc.realisasi.length > 0) {
+                const real = acc.realisasi[0];
+                const nominalReal = Number(real.nominalRealisasi);
+                runningBalance = nominalReal;
+                fullTransactions.push({
+                    createdAt: real.tglRealisasi,
+                    tipeTrans: 'REALISASI',
+                    nominal: nominalReal,
+                    saldoAkhir: runningBalance,
+                    keterangan: 'Pencairan Kredit'
+                });
+            }
+            if (acc.transactions) {
+                for (const t of acc.transactions) {
+                    const pokok = Number(t.pokokBayar || 0);
+                    runningBalance -= pokok;
+                    fullTransactions.push({
+                        createdAt: t.createdAt,
+                        tipeTrans: 'ANGSURAN',
+                        nominal: Number(t.nominal),
+                        pokok: pokok,
+                        bunga: Number(t.bungaBayar || 0),
+                        saldoAkhir: runningBalance,
+                        keterangan: t.keterangan || 'Angsuran'
+                    });
+                }
+            }
+            transactions = fullTransactions.map(t => ({
+                ...t,
+                isCredit: true
+            }));
+        }
         else {
             throw new common_1.BadRequestException('Invalid savings type');
         }
-        const normalizedTransactions = transactions.map(t => ({
-            date: t.createdAt,
-            code: t.tipeTrans,
-            debit: t.tipeTrans.includes('TARIK') || t.tipeTrans.includes('DEBIT') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0,
-            credit: t.tipeTrans.includes('SETOR') || t.tipeTrans.includes('CREDIT') || t.tipeTrans.includes('BUNGA') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0,
-            balance: this.normalizeCurrency(t.saldoAkhir),
-            description: t.keterangan
-        }));
+        const normalizedTransactions = transactions.map(t => {
+            let debit = 0;
+            let credit = 0;
+            if (t.isCredit) {
+                if (t.tipeTrans === 'REALISASI') {
+                    debit = this.normalizeCurrency(t.nominal);
+                }
+                else if (t.tipeTrans === 'ANGSURAN') {
+                    credit = this.normalizeCurrency(t.pokok);
+                }
+            }
+            else {
+                debit = t.tipeTrans.includes('TARIK') || t.tipeTrans.includes('DEBIT') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0;
+                credit = t.tipeTrans.includes('SETOR') || t.tipeTrans.includes('CREDIT') || t.tipeTrans.includes('BUNGA') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0;
+            }
+            return {
+                date: t.createdAt,
+                code: t.tipeTrans,
+                debit: debit,
+                credit: credit,
+                balance: this.normalizeCurrency(t.saldoAkhir),
+                description: t.keterangan
+            };
+        });
         return {
             template: 'PASSBOOK',
             title: title,

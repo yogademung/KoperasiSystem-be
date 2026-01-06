@@ -6,4 +6,5 @@ export declare class CreateUserDto {
     staffId?: string;
     regionCode?: string;
     isActive?: boolean;
+    isTotpEnabled?: boolean;
 }

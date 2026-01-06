@@ -31,7 +31,11 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         if (!user || !user.isActive) {
             throw new common_1.UnauthorizedException();
         }
-        if (user.token && payload.refreshToken && user.token !== payload.refreshToken) {
+        if (payload.rt_hash && user.token) {
+            const currentHash = user.token.slice(-10);
+            if (payload.rt_hash !== currentHash) {
+                throw new common_1.UnauthorizedException('Session expired due to login on another device');
+            }
         }
         return user;
     }

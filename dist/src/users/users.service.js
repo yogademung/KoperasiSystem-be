@@ -68,6 +68,7 @@ let UsersService = class UsersService {
                 staffId: createUserDto.staffId,
                 regionCode: createUserDto.regionCode,
                 isActive: createUserDto.isActive ?? true,
+                isTotpEnabled: createUserDto.isTotpEnabled ?? false,
                 createdBy: 'ADMIN',
             },
             include: {

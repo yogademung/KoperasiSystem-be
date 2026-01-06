@@ -84,7 +84,7 @@ let KreditService = class KreditService {
                         description: data.description || '',
                         marketValue: new client_1.Prisma.Decimal(marketVal),
                         assessedValue: new client_1.Prisma.Decimal(assessedVal),
-                        details: detailsObj ?? client_1.Prisma.JsonNull,
+                        details: detailsObj ? JSON.stringify(detailsObj) : null,
                         photos: data.photos || null,
                         status: 'ACTIVE',
                         createdBy: userId.toString(),
@@ -278,8 +278,7 @@ let KreditService = class KreditService {
                     tglTrans: paymentDate,
                     nominal: new client_1.Prisma.Decimal(paymentAmount),
                     keterangan: data.description || 'Pembayaran Angsuran Kredit',
-                    createdBy: userId.toString(),
-                    createdAt: paymentDate
+                    createdBy: userId.toString()
                 }
             });
             const schedules = await tx.debiturJadwal.findMany({
@@ -339,6 +338,7 @@ let KreditService = class KreditService {
                     });
                 }
             }
+            let journalId = null;
             if (totalPrincipalPaid + totalInterestPaid > 0) {
                 const journalNo = await this.accountingService.generateJournalNumber(paymentDate);
                 const journalDetails = [
@@ -365,7 +365,7 @@ let KreditService = class KreditService {
                         description: `Angsuran Bunga ${credit.nomorKredit}`
                     });
                 }
-                await tx.postedJournal.create({
+                const journal = await tx.postedJournal.create({
                     data: {
                         journalNumber: journalNo,
                         journalDate: paymentDate,
@@ -381,7 +381,16 @@ let KreditService = class KreditService {
                         }
                     }
                 });
+                journalId = journal.id;
             }
+            await tx.transKredit.update({
+                where: { id: trans.id },
+                data: {
+                    pokokBayar: new client_1.Prisma.Decimal(totalPrincipalPaid),
+                    bungaBayar: new client_1.Prisma.Decimal(totalInterestPaid),
+                    journalId: journalId
+                }
+            });
             return {
                 message: 'Payment recorded successfully',
                 allocatedPrincipal: totalPrincipalPaid,

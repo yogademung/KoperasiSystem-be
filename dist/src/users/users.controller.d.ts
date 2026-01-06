@@ -29,6 +29,8 @@ export declare class UsersController {
         roleId: number | null;
         regionCode: string | null;
         token: string | null;
+        isTotpEnabled: boolean;
+        totpSecret: string | null;
     }>;
     findAll(): Promise<({
         role: {
@@ -55,6 +57,8 @@ export declare class UsersController {
         roleId: number | null;
         regionCode: string | null;
         token: string | null;
+        isTotpEnabled: boolean;
+        totpSecret: string | null;
     })[]>;
     getRoles(): Promise<{
         id: number;
@@ -94,5 +98,7 @@ export declare class UsersController {
         roleId: number | null;
         regionCode: string | null;
         token: string | null;
+        isTotpEnabled: boolean;
+        totpSecret: string | null;
     }>;
 }

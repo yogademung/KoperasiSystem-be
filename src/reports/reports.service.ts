@@ -44,6 +44,13 @@ export class ReportsService {
                 jangkaWaktu: credit.mohonJangkaWaktu,
                 tujuan: credit.tujuanKredit,
                 jenis: credit.jenisKredit,
+                collaterals: credit.collaterals.map(c => ({
+                    ...c,
+                    collateral: {
+                        ...c.collateral,
+                        assessedValue: this.normalizeCurrency(c.collateral.assessedValue)
+                    }
+                }))
             }
         };
     }
@@ -142,7 +149,7 @@ export class ReportsService {
     // SAVINGS PASSBOOK (BUKU TABUNGAN)
     // ============================
 
-    async getSavingsPassbookData(type: 'TABUNGAN' | 'BRAHMACARI' | 'BALIMESARI' | 'WANAPRASTA' | 'ANGGOTA', accountNumber: string) {
+    async getSavingsPassbookData(type: 'TABUNGAN' | 'BRAHMACARI' | 'BALIMESARI' | 'WANAPRASTA' | 'ANGGOTA' | 'KREDIT', accountNumber: string) {
         const companyProfile = await this.settingsService.getProfile();
         let accountData: any = null;
         let transactions: any[] = [];
@@ -205,6 +212,66 @@ export class ReportsService {
                 nominal: t.amount // Map to nominal
             }));
             title = 'SIMPANAN ANGGOTA';
+        } else if (type === 'KREDIT') {
+            const acc = await this.prisma.debiturKredit.findUnique({
+                where: { nomorKredit: accountNumber }, // accountNumber here is nomorKredit
+                include: {
+                    nasabah: true,
+                    realisasi: true,
+                    transactions: { orderBy: { createdAt: 'asc' } }
+                }
+            });
+            if (!acc) throw new NotFoundException('Credit Account not found');
+
+            accountData = acc;
+            title = 'KARTU PINJAMAN';
+
+            // Construct transactions for Passbook (Realisasi + Payments)
+            // 1. Initial Realization (Disbursement)
+            let runningBalance = 0;
+            const fullTransactions: any[] = [];
+
+            if (acc.realisasi && acc.realisasi.length > 0) {
+                const real = acc.realisasi[0]; // Assume single realization
+                const nominalReal = Number(real.nominalRealisasi);
+                runningBalance = nominalReal;
+
+                fullTransactions.push({
+                    createdAt: real.tglRealisasi,
+                    tipeTrans: 'REALISASI',
+                    nominal: nominalReal, // This is principal added
+                    saldoAkhir: runningBalance,
+                    keterangan: 'Pencairan Kredit'
+                });
+            }
+
+            // 2. Installments
+            if (acc.transactions) {
+                for (const t of acc.transactions) {
+                    const pokok = Number(t.pokokBayar || 0);
+                    // Only Principal Payment affects Principal Balance
+                    runningBalance -= pokok;
+
+                    fullTransactions.push({
+                        createdAt: t.createdAt, // or tglTrans
+                        tipeTrans: 'ANGSURAN',
+                        nominal: Number(t.nominal), // Total Pay
+                        pokok: pokok,
+                        bunga: Number(t.bungaBayar || 0),
+                        saldoAkhir: runningBalance,
+                        keterangan: t.keterangan || 'Angsuran'
+                    });
+                }
+            }
+
+            // Map to standardized format
+            // For Loan: Debit = Increase Loan (Realization), Credit = Decrease Loan (Principal Payment)
+            transactions = fullTransactions.map(t => ({
+                ...t,
+                // Custom mapping for normalization below
+                isCredit: true
+            }));
+
         } else {
             throw new BadRequestException('Invalid savings type');
         }
@@ -223,14 +290,35 @@ export class ReportsService {
         // I will apply normalizeCurrency for now to be safe with the "System uses Kilo" hypothesis.
         // If wrong, user will report "Saldo kebesaran".
 
-        const normalizedTransactions = transactions.map(t => ({
-            date: t.createdAt,
-            code: t.tipeTrans,
-            debit: t.tipeTrans.includes('TARIK') || t.tipeTrans.includes('DEBIT') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0,
-            credit: t.tipeTrans.includes('SETOR') || t.tipeTrans.includes('CREDIT') || t.tipeTrans.includes('BUNGA') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0,
-            balance: this.normalizeCurrency(t.saldoAkhir),
-            description: t.keterangan
-        }));
+        const normalizedTransactions = transactions.map(t => {
+            let debit = 0;
+            let credit = 0;
+
+            if (t.isCredit) {
+                // KREDIT Logic
+                if (t.tipeTrans === 'REALISASI') {
+                    debit = this.normalizeCurrency(t.nominal); // Loan Disbursed = Debit (Asset for Bank, but Liability for User... Passbook is User View? 
+                    // Savings Passbook: Debit = Out, Credit = In.
+                    // Loan Passbook: Debit = Loan Taken?, Credit = Loan Paid? 
+                    // Let's stick to standard bank loan statement: Debit = Charge (Principal), Credit = Payment.
+                } else if (t.tipeTrans === 'ANGSURAN') {
+                    credit = this.normalizeCurrency(t.pokok); // Only Principal reduces balance
+                }
+            } else {
+                // SAVINGS Logic
+                debit = t.tipeTrans.includes('TARIK') || t.tipeTrans.includes('DEBIT') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0;
+                credit = t.tipeTrans.includes('SETOR') || t.tipeTrans.includes('CREDIT') || t.tipeTrans.includes('BUNGA') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0;
+            }
+
+            return {
+                date: t.createdAt,
+                code: t.tipeTrans,
+                debit: debit,
+                credit: credit,
+                balance: this.normalizeCurrency(t.saldoAkhir),
+                description: t.keterangan
+            };
+        });
 
         return {
             template: 'PASSBOOK',

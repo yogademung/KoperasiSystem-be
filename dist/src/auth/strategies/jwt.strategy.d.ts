@@ -31,6 +31,8 @@ export declare class JwtStrategy extends JwtStrategy_base {
         roleId: number | null;
         regionCode: string | null;
         token: string | null;
+        isTotpEnabled: boolean;
+        totpSecret: string | null;
     }>;
 }
 export {};

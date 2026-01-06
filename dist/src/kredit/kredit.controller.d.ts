@@ -86,6 +86,22 @@ export declare class KreditController {
             fileKtp: string | null;
             fileKk: string | null;
         };
+        transactions: {
+            id: number;
+            createdBy: string | null;
+            createdAt: Date;
+            nominal: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
+            tipeTrans: string;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
+            journalId: number | null;
+            debiturKreditId: number;
+            bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
+            dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
+            pokokBayar: import("@prisma/client/runtime/library").Decimal | null;
+            tglTrans: Date;
+        }[];
         collaterals: ({
             collateral: {
                 id: number;
@@ -106,22 +122,6 @@ export declare class KreditController {
             creditId: number;
             collateralId: number;
         })[];
-        transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
-            tipeTrans: string;
-            latitude: import("@prisma/client/runtime/library").Decimal | null;
-            longitude: import("@prisma/client/runtime/library").Decimal | null;
-            journalId: number | null;
-            debiturKreditId: number;
-            bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
-            dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
-            pokokBayar: import("@prisma/client/runtime/library").Decimal | null;
-            tglTrans: Date;
-        }[];
         fasilitas: {
             id: number;
             updatedAt: Date | null;

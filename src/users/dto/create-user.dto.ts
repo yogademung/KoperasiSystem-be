@@ -29,4 +29,8 @@ export class CreateUserDto {
     @IsBoolean()
     @IsOptional()
     isActive?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    isTotpEnabled?: boolean;
 }

@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,10 @@ export class AuthService {
     ) { }
 
     async login(loginDto: LoginDto) {
+        console.log('Login Attempt Payload:', JSON.stringify(loginDto, null, 2)); // DEBUG LOG
+
+        authenticator.options = { window: 1 }; // Allow 30s drift
+
         // 1. Find user
         const user = await this.prisma.user.findUnique({
             where: { username: loginDto.username },
@@ -34,42 +40,76 @@ export class AuthService {
 
         // 3. Check existing session (multi-device prevention)
         if (user.token && !loginDto.forceLogin) {
-            // If strict session is required, we return a flag.
-            // But if user just closed browser and re-opened, token in DB is still there.
-            // Unless logout cleared it.
-            // So this might be annoying for users if they didn't logout.
-            // But I will follow the prompt's requirement.
             return {
                 requiresForceLogin: true,
                 message: 'Account is already logged in on another device',
             };
         }
 
-        // 4. Generate tokens
-        const payload = {
-            sub: user.id,
-            username: user.username,
-            role: user.role?.roleName || null, // Schema uses roleName, handle null role
-        };
+        // 4. TOTP Check
+        if (user.isTotpEnabled) {
+            // Need to setup?
+            if (!user.totpSecret) {
+                // Generate secret and QR code for setup
+                const secret = authenticator.generateSecret();
+                const otpauthUrl = authenticator.keyuri(user.username, 'Koperasi System', secret);
+                const qrCodeUrl = await toDataURL(otpauthUrl);
 
-        const accessToken = this.jwtService.sign(payload);
+                return {
+                    requiresSetup2FA: true,
+                    userId: user.id,
+                    qrCodeUrl,
+                    secret, // Frontend sends this back with code for verification
+                    message: 'Please setup Two-Factor Authentication',
+                };
+            }
+
+            // Already setup, requires code
+            if (!loginDto.twoFactorCode) {
+                return {
+                    requires2FA: true,
+                    message: 'Enter 2FA Code',
+                };
+            }
+
+            // Verify Code
+            const isValid = authenticator.verify({
+                token: loginDto.twoFactorCode,
+                secret: user.totpSecret
+            });
+
+            if (!isValid) {
+                throw new UnauthorizedException('Invalid 2FA Code');
+            }
+        }
+
+        // 5. Generate tokens
         const refreshToken = this.jwtService.sign(
             { sub: user.id },
             { expiresIn: '7d' },
         );
 
-        // 5. Update token in database
+        const payload = {
+            sub: user.id,
+            username: user.username,
+            role: user.role?.roleName || null,
+            rt_hash: refreshToken.slice(-10)
+        };
+
+        const accessToken = this.jwtService.sign(payload);
+
+        // 6. Update token in database (finalize login)
         await this.prisma.user.update({
             where: { id: user.id },
             data: { token: refreshToken },
         });
 
-        // 6. Fetch Menus for the Role
+        // 7. Fetch Menus
         const menuRoles = user.roleId ? await this.prisma.menuRole.findMany({
             where: {
                 roleId: user.roleId,
-                canRead: true, // Only menus they can read
-                menu: { isActive: true } // Only active menus
+                canRead: true,
+                menu: { isActive: true }
             },
             include: {
                 menu: true,
@@ -89,9 +129,25 @@ export class AuthService {
                 username: user.username,
                 fullName: user.fullName,
                 role: user.role?.roleName || null,
-                menus: menus, // Return the structured menu tree
+                menus: menus,
             },
         };
+    }
+
+    async confirmTotpSetup(userId: number, secret: string, code: string) {
+        const isValid = authenticator.verify({
+            token: code,
+            secret: secret
+        });
+
+        if (!isValid) throw new UnauthorizedException('Invalid Code');
+
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { totpSecret: secret }
+        });
+
+        return { success: true };
     }
 
     private buildMenuTree(menuRoles: any[]) {
@@ -108,7 +164,6 @@ export class AuthService {
                 module: mr.menu.module, // Include module for section mapping
                 children: [],
                 parentId: mr.menu.parentId,
-                // permissions: { create: mr.canCreate, update: mr.canUpdate, delete: mr.canDelete } // Optional: verify if needed by frontend
             };
             menuMap.set(menu.id, menu);
         });

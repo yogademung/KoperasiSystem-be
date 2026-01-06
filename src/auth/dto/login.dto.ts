@@ -12,4 +12,8 @@ export class LoginDto {
     @IsBoolean()
     @IsOptional()
     forceLogin?: boolean;
+
+    @IsString()
+    @IsOptional()
+    twoFactorCode?: string;
 }
