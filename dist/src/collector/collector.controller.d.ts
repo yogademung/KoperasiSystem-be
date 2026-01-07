@@ -130,6 +130,19 @@ export declare class CollectorController {
             name: string;
             cashInHand: number;
             shiftStartTime: Date;
+            deposits: number;
+            withdrawals: number;
+            transactions: number;
+        }[];
+        closedShifts: {
+            name: string;
+            startTime: Date;
+            endTime: Date | null;
+            startingCash: number;
+            endingCash: number;
+            totalDeposits: number;
+            totalWithdrawals: number;
+            transactionCount: number;
         }[];
     }>;
 }

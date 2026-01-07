@@ -84,6 +84,19 @@ async function main() {
         },
     });
     console.log('Configuration parameter seeded:', lastClosingConfig);
+    const businessDateConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'SYSTEM', codeValue: 'CURRENT_BUSINESS_DATE' } },
+        update: {},
+        create: {
+            code: 'SYSTEM',
+            codeValue: 'CURRENT_BUSINESS_DATE',
+            description: new Date().toISOString().split('T')[0],
+            orderNum: 1,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Business date configuration seeded:', businessDateConfig);
     await (0, accounting_seeder_1.seedAccounting)();
     await (0, menu_seeder_1.seedMenus)();
 }

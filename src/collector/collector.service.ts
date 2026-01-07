@@ -2,14 +2,16 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { StartShiftDto, EndShiftDto, DenominationDto } from './dto/collector-shift.dto';
 import { PrismaService } from '../database/prisma.service';
-import { AccountingService } from '../accounting/accounting.service'; // Added Import
+import { AccountingService } from '../accounting/accounting.service';
+import { SystemDateService } from '../system/system-date.service';
 import { startOfDay, endOfDay } from 'date-fns';
 
 @Injectable()
 export class CollectorService {
     constructor(
         private prisma: PrismaService,
-        private accountingService: AccountingService // Injected
+        private accountingService: AccountingService,
+        private systemDateService: SystemDateService
     ) { }
 
     async getDailyStats(userId: number, shiftStartTime?: Date) {
@@ -234,6 +236,17 @@ export class CollectorService {
             }
         }
 
+        // Auto-advance business date if all shifts are now closed
+        try {
+            const advanceResult = await this.systemDateService.advanceBusinessDate();
+            if (advanceResult.success) {
+                console.log(`📅 ${advanceResult.message}`);
+            }
+        } catch (error) {
+            console.error('Failed to auto-advance business date:', error);
+            // Non-blocking: Date advancement failure doesn't affect shift closure
+        }
+
         return closedShift;
     }
 
@@ -253,7 +266,10 @@ export class CollectorService {
     }
 
     async getFlashSummary() {
-        // Get all active shifts today
+        const todayStart = startOfDay(new Date());
+        const todayEnd = endOfDay(new Date());
+
+        // Get all active shifts
         const activeShifts = await this.prisma.collectorShift.findMany({
             where: {
                 status: 'ACTIVE'
@@ -268,6 +284,25 @@ export class CollectorService {
             }
         });
 
+        // Get closed shifts from today
+        const closedShifts = await this.prisma.collectorShift.findMany({
+            where: {
+                status: 'CLOSED',
+                startTime: { gte: todayStart, lte: todayEnd }
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullName: true
+                    }
+                }
+            },
+            orderBy: {
+                endTime: 'desc'
+            }
+        });
+
         // Calculate total cash in circulation
         const totalCashInHand = activeShifts.reduce((sum, shift) => {
             return sum + Number(shift.startingCash || 0);
@@ -278,12 +313,42 @@ export class CollectorService {
         let totalWithdrawals = 0;
         let totalTransactions = 0;
 
+        const collectorsWithStats: Array<{
+            name: string;
+            cashInHand: number;
+            shiftStartTime: Date;
+            deposits: number;
+            withdrawals: number;
+            transactions: number;
+        }> = [];
+
         for (const shift of activeShifts) {
             const stats = await this.getDailyStats(shift.userId, shift.startTime);
             totalDeposits += stats.todayDeposits;
             totalWithdrawals += stats.todayWithdrawals;
             totalTransactions += stats.todayTransactions;
+
+            collectorsWithStats.push({
+                name: shift.user.fullName,
+                cashInHand: Number(shift.startingCash || 0),
+                shiftStartTime: shift.startTime,
+                deposits: stats.todayDeposits,
+                withdrawals: stats.todayWithdrawals,
+                transactions: stats.todayTransactions
+            });
         }
+
+        // Format closed shifts history
+        const closedShiftsHistory = closedShifts.map(shift => ({
+            name: shift.user.fullName,
+            startTime: shift.startTime,
+            endTime: shift.endTime,
+            startingCash: Number(shift.startingCash || 0),
+            endingCash: Number(shift.endingCash || 0),
+            totalDeposits: Number(shift.totalDeposits || 0),
+            totalWithdrawals: Number(shift.totalWithdrawals || 0),
+            transactionCount: shift.transactionCount || 0
+        }));
 
         return {
             activeCollectors: activeShifts.length,
@@ -291,11 +356,8 @@ export class CollectorService {
             totalDeposits,
             totalWithdrawals,
             totalTransactions,
-            collectors: activeShifts.map(shift => ({
-                name: shift.user.fullName,
-                cashInHand: Number(shift.startingCash || 0),
-                shiftStartTime: shift.startTime
-            }))
+            collectors: collectorsWithStats,
+            closedShifts: closedShiftsHistory
         };
     }
 }

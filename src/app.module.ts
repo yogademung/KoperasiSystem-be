@@ -27,6 +27,7 @@ import { MonthEndController } from './month-end/month-end.controller';
 import { MigrationModule } from './migration/migration.module';
 import { MenuModule } from './menu/menu.module';
 import { CollectorModule } from './collector/collector.module';
+import { SystemModule } from './system/system.module';
 
 
 
@@ -57,6 +58,7 @@ import { CollectorModule } from './collector/collector.module';
     MigrationModule,
     MenuModule,
     CollectorModule,
+    SystemModule,
 
   ],
   controllers: [AppController, MonthEndController],

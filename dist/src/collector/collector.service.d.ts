@@ -1,10 +1,12 @@
 import { StartShiftDto, EndShiftDto } from './dto/collector-shift.dto';
 import { PrismaService } from '../database/prisma.service';
 import { AccountingService } from '../accounting/accounting.service';
+import { SystemDateService } from '../system/system-date.service';
 export declare class CollectorService {
     private prisma;
     private accountingService;
-    constructor(prisma: PrismaService, accountingService: AccountingService);
+    private systemDateService;
+    constructor(prisma: PrismaService, accountingService: AccountingService, systemDateService: SystemDateService);
     getDailyStats(userId: number, shiftStartTime?: Date): Promise<{
         todayTransactions: any;
         todayDeposits: number;
@@ -134,6 +136,19 @@ export declare class CollectorService {
             name: string;
             cashInHand: number;
             shiftStartTime: Date;
+            deposits: number;
+            withdrawals: number;
+            transactions: number;
+        }[];
+        closedShifts: {
+            name: string;
+            startTime: Date;
+            endTime: Date | null;
+            startingCash: number;
+            endingCash: number;
+            totalDeposits: number;
+            totalWithdrawals: number;
+            transactionCount: number;
         }[];
     }>;
 }

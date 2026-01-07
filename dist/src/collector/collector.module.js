@@ -12,12 +12,13 @@ const collector_service_1 = require("./collector.service");
 const collector_controller_1 = require("./collector.controller");
 const prisma_service_1 = require("../database/prisma.service");
 const accounting_module_1 = require("../accounting/accounting.module");
+const system_module_1 = require("../system/system.module");
 let CollectorModule = class CollectorModule {
 };
 exports.CollectorModule = CollectorModule;
 exports.CollectorModule = CollectorModule = __decorate([
     (0, common_1.Module)({
-        imports: [accounting_module_1.AccountingModule],
+        imports: [accounting_module_1.AccountingModule, system_module_1.SystemModule],
         controllers: [collector_controller_1.CollectorController],
         providers: [collector_service_1.CollectorService, prisma_service_1.PrismaService],
         exports: [collector_service_1.CollectorService]

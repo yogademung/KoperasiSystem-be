@@ -13,13 +13,16 @@ exports.CollectorService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const accounting_service_1 = require("../accounting/accounting.service");
+const system_date_service_1 = require("../system/system-date.service");
 const date_fns_1 = require("date-fns");
 let CollectorService = class CollectorService {
     prisma;
     accountingService;
-    constructor(prisma, accountingService) {
+    systemDateService;
+    constructor(prisma, accountingService, systemDateService) {
         this.prisma = prisma;
         this.accountingService = accountingService;
+        this.systemDateService = systemDateService;
     }
     async getDailyStats(userId, shiftStartTime) {
         const startTime = shiftStartTime || (0, date_fns_1.startOfDay)(new Date());
@@ -187,6 +190,15 @@ let CollectorService = class CollectorService {
                 console.error('Failed to post end shift journal:', error);
             }
         }
+        try {
+            const advanceResult = await this.systemDateService.advanceBusinessDate();
+            if (advanceResult.success) {
+                console.log(`📅 ${advanceResult.message}`);
+            }
+        }
+        catch (error) {
+            console.error('Failed to auto-advance business date:', error);
+        }
         return closedShift;
     }
     calculateDenominationTotal(d) {
@@ -202,6 +214,8 @@ let CollectorService = class CollectorService {
             (d.denom100 || 0) * 100);
     }
     async getFlashSummary() {
+        const todayStart = (0, date_fns_1.startOfDay)(new Date());
+        const todayEnd = (0, date_fns_1.endOfDay)(new Date());
         const activeShifts = await this.prisma.collectorShift.findMany({
             where: {
                 status: 'ACTIVE'
@@ -215,29 +229,62 @@ let CollectorService = class CollectorService {
                 }
             }
         });
+        const closedShifts = await this.prisma.collectorShift.findMany({
+            where: {
+                status: 'CLOSED',
+                startTime: { gte: todayStart, lte: todayEnd }
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullName: true
+                    }
+                }
+            },
+            orderBy: {
+                endTime: 'desc'
+            }
+        });
         const totalCashInHand = activeShifts.reduce((sum, shift) => {
             return sum + Number(shift.startingCash || 0);
         }, 0);
         let totalDeposits = 0;
         let totalWithdrawals = 0;
         let totalTransactions = 0;
+        const collectorsWithStats = [];
         for (const shift of activeShifts) {
             const stats = await this.getDailyStats(shift.userId, shift.startTime);
             totalDeposits += stats.todayDeposits;
             totalWithdrawals += stats.todayWithdrawals;
             totalTransactions += stats.todayTransactions;
+            collectorsWithStats.push({
+                name: shift.user.fullName,
+                cashInHand: Number(shift.startingCash || 0),
+                shiftStartTime: shift.startTime,
+                deposits: stats.todayDeposits,
+                withdrawals: stats.todayWithdrawals,
+                transactions: stats.todayTransactions
+            });
         }
+        const closedShiftsHistory = closedShifts.map(shift => ({
+            name: shift.user.fullName,
+            startTime: shift.startTime,
+            endTime: shift.endTime,
+            startingCash: Number(shift.startingCash || 0),
+            endingCash: Number(shift.endingCash || 0),
+            totalDeposits: Number(shift.totalDeposits || 0),
+            totalWithdrawals: Number(shift.totalWithdrawals || 0),
+            transactionCount: shift.transactionCount || 0
+        }));
         return {
             activeCollectors: activeShifts.length,
             totalCashInHand,
             totalDeposits,
             totalWithdrawals,
             totalTransactions,
-            collectors: activeShifts.map(shift => ({
-                name: shift.user.fullName,
-                cashInHand: Number(shift.startingCash || 0),
-                shiftStartTime: shift.startTime
-            }))
+            collectors: collectorsWithStats,
+            closedShifts: closedShiftsHistory
         };
     }
 };
@@ -245,6 +292,7 @@ exports.CollectorService = CollectorService;
 exports.CollectorService = CollectorService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        accounting_service_1.AccountingService])
+        accounting_service_1.AccountingService,
+        system_date_service_1.SystemDateService])
 ], CollectorService);
 //# sourceMappingURL=collector.service.js.map

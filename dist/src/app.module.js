@@ -36,6 +36,7 @@ const month_end_controller_1 = require("./month-end/month-end.controller");
 const migration_module_1 = require("./migration/migration.module");
 const menu_module_1 = require("./menu/menu.module");
 const collector_module_1 = require("./collector/collector.module");
+const system_module_1 = require("./system/system.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -67,6 +68,7 @@ exports.AppModule = AppModule = __decorate([
             migration_module_1.MigrationModule,
             menu_module_1.MenuModule,
             collector_module_1.CollectorModule,
+            system_module_1.SystemModule,
         ],
         controllers: [app_controller_1.AppController, month_end_controller_1.MonthEndController],
         providers: [app_service_1.AppService, period_lock_service_1.PeriodLockService, balance_sheet_service_1.BalanceSheetService, depreciation_service_1.DepreciationService, lov_value_service_1.LovValueService],
