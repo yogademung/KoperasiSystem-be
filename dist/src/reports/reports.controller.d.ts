@@ -54,12 +54,12 @@ export declare class ReportsController {
             collaterals: {
                 collateral: {
                     assessedValue: number;
-                    id: number;
-                    description: string | null;
-                    updatedAt: Date | null;
                     createdBy: string | null;
                     createdAt: Date;
                     updatedBy: string | null;
+                    updatedAt: Date | null;
+                    description: string | null;
+                    id: number;
                     status: string;
                     details: string | null;
                     nasabahId: number;
@@ -115,17 +115,17 @@ export declare class ReportsController {
             angsuranBunga: number;
             totalAngsuran: number;
             sisaPinjaman: number;
-            id: number;
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             status: string;
-            tglJatuhTempo: Date;
-            bunga: import("@prisma/client/runtime/library").Decimal;
             total: import("@prisma/client/runtime/library").Decimal;
+            bunga: import("@prisma/client/runtime/library").Decimal;
             debiturKreditId: number;
             angsuranKe: number;
+            tglJatuhTempo: Date;
             pokok: import("@prisma/client/runtime/library").Decimal;
             sisaPokok: import("@prisma/client/runtime/library").Decimal;
             tglBayar: Date | null;
@@ -133,14 +133,14 @@ export declare class ReportsController {
         }[];
         transaksi: {
             nominal: number;
-            id: number;
             createdBy: string | null;
             createdAt: Date;
-            keterangan: string | null;
-            tipeTrans: string;
+            id: number;
+            journalId: number | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            journalId: number | null;
+            tipeTrans: string;
+            keterangan: string | null;
             debiturKreditId: number;
             bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
             dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
@@ -192,15 +192,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
-            id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -381,15 +381,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
-            id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -414,15 +414,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
-            id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -447,15 +447,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
-            id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -480,15 +480,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
-            id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;

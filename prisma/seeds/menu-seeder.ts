@@ -24,6 +24,9 @@ export async function seedMenus() {
         // Kredit
         { id: 4, menuName: 'Kredit', path: '/kredit', icon: 'CreditCard', module: 'KREDIT', orderNum: 4, parentId: null },
 
+        // Shift Harian (Collector)
+        { id: 9, menuName: 'Shift Harian', path: '/dashboard', icon: 'Clock', module: 'COLLECTOR', orderNum: 4.5, parentId: null },
+
         // Modal
         { id: 5, menuName: 'Manajemen Modal', path: '/capital', icon: 'DollarSign', module: 'CAPITAL', orderNum: 5, parentId: null },
 
@@ -72,7 +75,7 @@ export async function seedMenus() {
     console.log(`✅ Created/Updated ${menus.length} menus`);
 
     // Remove deprecated menus if they exist
-    const deprecatedIds = [9, 91, 92, 62];
+    const deprecatedIds = [62, 91, 92];
 
     // cleanup dependants
     await prisma.menuRole.deleteMany({
@@ -114,13 +117,14 @@ export async function seedMenus() {
 
     if (collectorRole) {
         console.log('📋 Assigning menus to COLLECTOR role...');
-        // Grant Collector access to Dashboard, Nasabah, Simpanan, and Kredit
+        // Grant Collector access to Dashboard, Nasabah, Simpanan, Kredit, and Shift Harian
         // IDs: 1 (Dashboard), 2 (Nasabah)
         // IDs: 3 (Simpanan), 31-36 (Submenus)
         // IDs: 4 (Kredit)
+        // IDs: 9 (Shift Harian)
         // IDs: 73 (Laporan Harian - optional/useful)
 
-        const collectorMenuIds = [1, 2, 3, 31, 32, 33, 34, 35, 36, 4]; // Only standard modules
+        const collectorMenuIds = [1, 2, 3, 31, 32, 33, 34, 35, 36, 4, 9]; // Include Shift Harian (ID 9)
         const collectorMenus = menus.filter(m => collectorMenuIds.includes(m.id));
 
         // Delete existing

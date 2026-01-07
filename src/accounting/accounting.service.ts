@@ -283,7 +283,9 @@ export class AccountingService {
         description: string;
         userId: number;
         details: { accountCode: string; debit: number; credit: number; description?: string }[];
+        postingType?: 'MANUAL' | 'AUTO'; // Optional, defaults to MANUAL
     }) {
+        // Validate balancing
         await this.validateJournalEntry(data.details);
 
         const journalNo = await this.generateJournalNumber(data.date);
@@ -293,7 +295,7 @@ export class AccountingService {
                 journalNumber: journalNo,
                 journalDate: data.date,
                 description: data.description,
-                postingType: 'MANUAL',
+                postingType: data.postingType || 'MANUAL', // Use provided type or default to MANUAL
                 userId: data.userId,
                 status: 'POSTED',
                 details: {

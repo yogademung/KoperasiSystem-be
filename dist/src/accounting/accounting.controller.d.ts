@@ -5,7 +5,6 @@ export declare class AccountingController {
     constructor(accountingService: AccountingService);
     getAccounts(type?: string, page?: string, limit?: string): Promise<{
         data: {
-            updatedAt: Date | null;
             accountCode: string;
             accountName: string;
             accountType: string;
@@ -17,6 +16,7 @@ export declare class AccountingController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
         }[];
         total: number;
         page: number;
@@ -24,7 +24,6 @@ export declare class AccountingController {
         totalPages: number;
     }>;
     getParentAccounts(): Promise<{
-        updatedAt: Date | null;
         accountCode: string;
         accountName: string;
         accountType: string;
@@ -36,10 +35,10 @@ export declare class AccountingController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
     }[]>;
     getNextCode(parentCode: string): Promise<string>;
     createAccount(data: Prisma.JournalAccountCreateInput): Promise<{
-        updatedAt: Date | null;
         accountCode: string;
         accountName: string;
         accountType: string;
@@ -51,9 +50,9 @@ export declare class AccountingController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
     }>;
     updateAccount(code: string, data: Prisma.JournalAccountUpdateInput): Promise<{
-        updatedAt: Date | null;
         accountCode: string;
         accountName: string;
         accountType: string;
@@ -65,24 +64,10 @@ export declare class AccountingController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
     }>;
     getMappings(module?: string): Promise<({
-        creditRef: {
-            updatedAt: Date | null;
-            accountCode: string;
-            accountName: string;
-            accountType: string;
-            parentCode: string | null;
-            debetPoleFlag: boolean;
-            remark: string | null;
-            wilayahCd: string | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-        };
         debitRef: {
-            updatedAt: Date | null;
             accountCode: string;
             accountName: string;
             accountType: string;
@@ -94,27 +79,42 @@ export declare class AccountingController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+        };
+        creditRef: {
+            accountCode: string;
+            accountName: string;
+            accountType: string;
+            parentCode: string | null;
+            debetPoleFlag: boolean;
+            remark: string | null;
+            wilayahCd: string | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
         };
     } & {
-        id: number;
-        transType: string;
+        updatedAt: Date;
         module: string;
+        transType: string;
         description: string;
+        id: number;
         debitAccount: string;
         creditAccount: string;
-        updatedAt: Date;
     })[]>;
     updateMapping(transType: string, body: {
         debitAccount: string;
         creditAccount: string;
     }): Promise<{
-        id: number;
-        transType: string;
+        updatedAt: Date;
         module: string;
+        transType: string;
         description: string;
+        id: number;
         debitAccount: string;
         creditAccount: string;
-        updatedAt: Date;
     }>;
     getJournals(startDate?: string, endDate?: string, status?: string, sourceCode?: string, fromAccount?: string, toAccount?: string, page?: string, limit?: string): Promise<{
         data: ({
@@ -122,14 +122,14 @@ export declare class AccountingController {
                 fullName: string;
             };
         } & {
-            id: number;
-            transType: string | null;
-            description: string | null;
-            updatedAt: Date | null;
             wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            transType: string | null;
+            description: string | null;
+            id: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
@@ -147,10 +147,10 @@ export declare class AccountingController {
     getDeletedJournals(startDate?: string, endDate?: string, page?: string, limit?: string): Promise<{
         data: {
             deletedByName: string | null;
-            id: number;
+            wilayahCd: string | null;
             transType: string | null;
             description: string | null;
-            wilayahCd: string | null;
+            id: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
@@ -175,7 +175,6 @@ export declare class AccountingController {
         };
         details: ({
             account: {
-                updatedAt: Date | null;
                 accountCode: string;
                 accountName: string;
                 accountType: string;
@@ -187,23 +186,24 @@ export declare class AccountingController {
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
+                updatedAt: Date | null;
             };
         } & {
-            id: number;
-            description: string | null;
             accountCode: string;
-            journalId: number;
+            description: string | null;
+            id: number;
             debit: Prisma.Decimal;
             credit: Prisma.Decimal;
+            journalId: number;
         })[];
-        id: number;
-        transType: string | null;
-        description: string | null;
-        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
+        transType: string | null;
+        description: string | null;
+        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -223,14 +223,14 @@ export declare class AccountingController {
             description?: string;
         }[];
     }): Promise<{
-        id: number;
-        transType: string | null;
-        description: string | null;
-        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
+        transType: string | null;
+        description: string | null;
+        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -241,14 +241,14 @@ export declare class AccountingController {
         sourceCode: string | null;
     }>;
     updateManualJournal(id: string, body: any, req: any): Promise<{
-        id: number;
-        transType: string | null;
-        description: string | null;
-        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        updatedAt: Date | null;
+        transType: string | null;
+        description: string | null;
+        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -279,22 +279,22 @@ export declare class AccountingController {
         }[];
         journals: ({
             details: {
-                id: number;
-                description: string | null;
                 accountCode: string;
-                journalId: number;
+                description: string | null;
+                id: number;
                 debit: Prisma.Decimal;
                 credit: Prisma.Decimal;
+                journalId: number;
             }[];
         } & {
-            id: number;
-            transType: string | null;
-            description: string | null;
-            updatedAt: Date | null;
             wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            transType: string | null;
+            description: string | null;
+            id: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;

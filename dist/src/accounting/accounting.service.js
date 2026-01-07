@@ -235,7 +235,7 @@ let AccountingService = class AccountingService {
                 journalNumber: journalNo,
                 journalDate: data.date,
                 description: data.description,
-                postingType: 'MANUAL',
+                postingType: data.postingType || 'MANUAL',
                 userId: data.userId,
                 status: 'POSTED',
                 details: {

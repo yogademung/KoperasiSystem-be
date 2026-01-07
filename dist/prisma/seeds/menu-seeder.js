@@ -17,6 +17,7 @@ async function seedMenus() {
         { id: 36, menuName: 'Wanaprasta', path: '/simpanan/wanaprasta', module: 'SIMPANAN', orderNum: 6, parentId: 3 },
         { id: 37, menuName: 'Simulasi & Tools', path: '/simpanan/simulasi', module: 'SIMPANAN', orderNum: 7, parentId: 3 },
         { id: 4, menuName: 'Kredit', path: '/kredit', icon: 'CreditCard', module: 'KREDIT', orderNum: 4, parentId: null },
+        { id: 9, menuName: 'Shift Harian', path: '/dashboard', icon: 'Clock', module: 'COLLECTOR', orderNum: 4.5, parentId: null },
         { id: 5, menuName: 'Manajemen Modal', path: '/capital', icon: 'DollarSign', module: 'CAPITAL', orderNum: 5, parentId: null },
         { id: 6, menuName: 'Akuntansi', path: '/accounting', icon: 'PieChart', module: 'ACCOUNTING', orderNum: 6, parentId: null },
         { id: 61, menuName: 'Master Akun', path: '/accounting/accounts', module: 'ACCOUNTING', orderNum: 1, parentId: 6 },
@@ -50,7 +51,7 @@ async function seedMenus() {
         });
     }
     console.log(`✅ Created/Updated ${menus.length} menus`);
-    const deprecatedIds = [9, 91, 92, 62];
+    const deprecatedIds = [62, 91, 92];
     await prisma.menuRole.deleteMany({
         where: { menuId: { in: deprecatedIds } }
     });
@@ -84,7 +85,7 @@ async function seedMenus() {
     });
     if (collectorRole) {
         console.log('📋 Assigning menus to COLLECTOR role...');
-        const collectorMenuIds = [1, 2, 3, 31, 32, 33, 34, 35, 36, 4];
+        const collectorMenuIds = [1, 2, 3, 31, 32, 33, 34, 35, 36, 4, 9];
         const collectorMenus = menus.filter(m => collectorMenuIds.includes(m.id));
         await prisma.menuRole.deleteMany({ where: { roleId: collectorRole.id } });
         const menuRoles = collectorMenus.map(menu => ({
