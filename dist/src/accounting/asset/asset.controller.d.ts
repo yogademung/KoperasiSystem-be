@@ -10,8 +10,8 @@ export declare class AssetController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            status: string;
             code: string;
+            status: string;
             type: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -50,8 +50,8 @@ export declare class AssetController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            status: string;
             code: string;
+            status: string;
             type: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -103,8 +103,8 @@ export declare class AssetController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -123,8 +123,8 @@ export declare class AssetController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -143,8 +143,8 @@ export declare class AssetController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
