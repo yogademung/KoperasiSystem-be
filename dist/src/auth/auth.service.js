@@ -57,13 +57,13 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     async login(loginDto) {
-        console.log('Login Attempt Payload:', JSON.stringify(loginDto, null, 2));
+        console.log('Login attempt for user:', loginDto.username);
         otplib_1.authenticator.options = { window: 1 };
         const user = await this.prisma.user.findUnique({
             where: { username: loginDto.username },
             include: { role: true },
         });
-        if (!user || !user.isActive) {
+        if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);

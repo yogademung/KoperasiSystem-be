@@ -14,7 +14,8 @@ export class AuthService {
     ) { }
 
     async login(loginDto: LoginDto) {
-        console.log('Login Attempt Payload:', JSON.stringify(loginDto, null, 2)); // DEBUG LOG
+        // Security: Log username only, never log passwords
+        console.log('Login attempt for user:', loginDto.username);
 
         authenticator.options = { window: 1 }; // Allow 30s drift
 
@@ -24,7 +25,7 @@ export class AuthService {
             include: { role: true },
         });
 
-        if (!user || !user.isActive) {
+        if (!user) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
