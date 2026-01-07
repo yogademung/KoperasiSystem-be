@@ -483,4 +483,17 @@ export declare class ReportsService {
         };
         currentUser: string;
     }>;
+    getCollectorKPI(startDate: Date, endDate: Date): Promise<{
+        period: {
+            startDate: Date;
+            endDate: Date;
+        };
+        collectors: any[];
+        summary: {
+            totalCollectors: number;
+            totalMembersRegistered: any;
+            totalTransactions: any;
+            totalAmount: any;
+        };
+    }>;
 }

@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseInterceptors, UploadedFiles, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseInterceptors, UploadedFiles, BadRequestException, UseGuards, Query } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { extname, join } from 'path';
@@ -139,6 +139,15 @@ export class NasabahController {
     @Get()
     findAll() {
         return this.nasabahService.findAll();
+    }
+
+    @Get('search')
+    @UseGuards(JwtAuthGuard)
+    async searchNasabah(
+        @Query('q') query: string,
+        @Query('type') savingsType?: string,
+    ) {
+        return this.nasabahService.searchNasabah(query, savingsType);
     }
 
     @Get(':id')

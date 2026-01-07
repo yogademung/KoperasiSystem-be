@@ -23,6 +23,9 @@ let ReportsController = class ReportsController {
         this.reportsService = reportsService;
         this.assetService = assetService;
     }
+    async getCollectorKPI(startDate, endDate) {
+        return this.reportsService.getCollectorKPI(startDate ? new Date(startDate) : new Date(), endDate ? new Date(endDate) : new Date());
+    }
     async getBalanceSheet(date) {
         return this.assetService.getBalanceSheet(date ? new Date(date) : new Date());
     }
@@ -31,12 +34,6 @@ let ReportsController = class ReportsController {
     }
     async getCreditApplication(id) {
         return this.reportsService.getCreditApplicationData(Number(id));
-    }
-    async getCreditAgreement(id) {
-        return this.reportsService.getCreditAgreementData(Number(id));
-    }
-    async getCreditStatement(id) {
-        return this.reportsService.getCreditStatementData(Number(id));
     }
     async getDepositoCertificate(id) {
         return this.reportsService.getDepositoCertificateData(id);
@@ -92,6 +89,14 @@ let ReportsController = class ReportsController {
 };
 exports.ReportsController = ReportsController;
 __decorate([
+    (0, common_1.Get)('collector/kpi'),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getCollectorKPI", null);
+__decorate([
     (0, common_1.Get)('assets/balance-sheet'),
     __param(0, (0, common_1.Query)('date')),
     __metadata("design:type", Function),
@@ -113,20 +118,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getCreditApplication", null);
-__decorate([
-    (0, common_1.Get)('credit/:id/agreement'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], ReportsController.prototype, "getCreditAgreement", null);
-__decorate([
-    (0, common_1.Get)('credit/:id/statement'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], ReportsController.prototype, "getCreditStatement", null);
 __decorate([
     (0, common_1.Get)('deposito/:id/certificate'),
     __param(0, (0, common_1.Param)('id')),

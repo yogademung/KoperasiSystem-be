@@ -919,6 +919,74 @@ let ReportsService = class ReportsService {
     async getWanasprastaReceiptData(accountNumber) {
         return this.getGenericReceiptData('nasabahWanaprasta', 'noWanaprasta', accountNumber, 'Wanaprasta');
     }
+    async getCollectorKPI(startDate, endDate) {
+        const collectors = await this.prisma.user.findMany({
+            where: {
+                role: {
+                    roleName: 'COLLECTOR'
+                }
+            },
+            select: {
+                id: true,
+                fullName: true,
+                username: true
+            }
+        });
+        const kpiData = [];
+        for (const collector of collectors) {
+            const membersRegistered = await this.prisma.nasabah.count({
+                where: {
+                    createdBy: collector.username,
+                    createdAt: {
+                        gte: startDate,
+                        lte: endDate
+                    }
+                }
+            });
+            const totalTransactions = 0;
+            const totalAmount = 0;
+            const collectibility = {
+                lancar: { count: 0, percentage: '0' },
+                kurangLancar: { count: 0, percentage: '0' },
+                diragukan: { count: 0, percentage: '0' },
+                macet: { count: 0, percentage: '0' }
+            };
+            kpiData.push({
+                collectorId: collector.id,
+                collectorName: collector.fullName,
+                collectorUsername: collector.username,
+                period: {
+                    startDate,
+                    endDate
+                },
+                metrics: {
+                    membersRegistered,
+                    transactionStats: {
+                        totalTransactions,
+                        totalAmount,
+                        avgTransactionAmount: '0'
+                    },
+                    creditStats: {
+                        totalActiveCredits: 0,
+                        collectibility
+                    }
+                }
+            });
+        }
+        return {
+            period: {
+                startDate,
+                endDate
+            },
+            collectors: kpiData,
+            summary: {
+                totalCollectors: collectors.length,
+                totalMembersRegistered: kpiData.reduce((sum, c) => sum + c.metrics.membersRegistered, 0),
+                totalTransactions: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalTransactions, 0),
+                totalAmount: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalAmount, 0)
+            }
+        };
+    }
 };
 exports.ReportsService = ReportsService;
 exports.ReportsService = ReportsService = __decorate([

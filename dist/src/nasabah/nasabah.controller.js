@@ -150,6 +150,9 @@ let NasabahController = class NasabahController {
     findAll() {
         return this.nasabahService.findAll();
     }
+    async searchNasabah(query, savingsType) {
+        return this.nasabahService.searchNasabah(query, savingsType);
+    }
     findOne(id) {
         return this.nasabahService.findOne(+id);
     }
@@ -202,6 +205,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], NasabahController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('search'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)('type')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], NasabahController.prototype, "searchNasabah", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

@@ -12,11 +12,13 @@ export declare class SystemDateService {
         };
     } & {
         id: number;
+        updatedAt: Date;
+        createdAt: Date;
         userId: number;
+        status: string;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -43,8 +45,6 @@ export declare class SystemDateService {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     })[]>;
     canAdvanceDate(): Promise<boolean>;
     advanceBusinessDate(): Promise<{

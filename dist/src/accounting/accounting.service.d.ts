@@ -21,6 +21,7 @@ export declare class AccountingService {
     constructor(prisma: PrismaService, moduleRef: ModuleRef, anggotaService: AnggotaService, tabrelaService: TabrelaService, depositoService: DepositoService, brahmacariService: BrahmacariService, balimesariService: BalimesariService, wanaprastaService: WanaprastaService, periodLockService: PeriodLockService);
     getAccounts(type?: string, page?: number, limit?: number): Promise<{
         data: {
+            updatedAt: Date | null;
             accountCode: string;
             accountName: string;
             accountType: string;
@@ -32,7 +33,6 @@ export declare class AccountingService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
         }[];
         total: number;
         page: number;
@@ -40,6 +40,7 @@ export declare class AccountingService {
         totalPages: number;
     }>;
     getParentAccounts(): Promise<{
+        updatedAt: Date | null;
         accountCode: string;
         accountName: string;
         accountType: string;
@@ -51,10 +52,10 @@ export declare class AccountingService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
     }[]>;
     generateNextCode(parentCode: string): Promise<string>;
     createAccount(data: Prisma.JournalAccountCreateInput): Promise<{
+        updatedAt: Date | null;
         accountCode: string;
         accountName: string;
         accountType: string;
@@ -66,9 +67,9 @@ export declare class AccountingService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     updateAccount(code: string, data: Prisma.JournalAccountUpdateInput): Promise<{
+        updatedAt: Date | null;
         accountCode: string;
         accountName: string;
         accountType: string;
@@ -80,24 +81,10 @@ export declare class AccountingService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
     }>;
     getMappings(module?: string): Promise<({
-        debitRef: {
-            accountCode: string;
-            accountName: string;
-            accountType: string;
-            parentCode: string | null;
-            debetPoleFlag: boolean;
-            remark: string | null;
-            wilayahCd: string | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            updatedAt: Date | null;
-        };
         creditRef: {
+            updatedAt: Date | null;
             accountCode: string;
             accountName: string;
             accountType: string;
@@ -109,25 +96,38 @@ export declare class AccountingService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+        };
+        debitRef: {
             updatedAt: Date | null;
+            accountCode: string;
+            accountName: string;
+            accountType: string;
+            parentCode: string | null;
+            debetPoleFlag: boolean;
+            remark: string | null;
+            wilayahCd: string | null;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
         };
     } & {
-        updatedAt: Date;
-        module: string;
-        transType: string;
-        description: string;
         id: number;
+        transType: string;
+        module: string;
+        description: string;
         debitAccount: string;
         creditAccount: string;
+        updatedAt: Date;
     })[]>;
     updateMapping(transType: string, debitAccount: string, creditAccount: string): Promise<{
-        updatedAt: Date;
-        module: string;
-        transType: string;
-        description: string;
         id: number;
+        transType: string;
+        module: string;
+        description: string;
         debitAccount: string;
         creditAccount: string;
+        updatedAt: Date;
     }>;
     generateJournalNumber(date?: Date): Promise<string>;
     validateJournalEntry(details: {
@@ -149,14 +149,14 @@ export declare class AccountingService {
                 fullName: string;
             };
         } & {
+            id: number;
+            transType: string | null;
+            description: string | null;
+            updatedAt: Date | null;
             wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            transType: string | null;
-            description: string | null;
-            id: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
@@ -178,6 +178,7 @@ export declare class AccountingService {
         };
         details: ({
             account: {
+                updatedAt: Date | null;
                 accountCode: string;
                 accountName: string;
                 accountType: string;
@@ -189,24 +190,23 @@ export declare class AccountingService {
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
             };
         } & {
-            accountCode: string;
-            description: string | null;
             id: number;
+            description: string | null;
+            accountCode: string;
+            journalId: number;
             debit: Prisma.Decimal;
             credit: Prisma.Decimal;
-            journalId: number;
         })[];
+        id: number;
+        transType: string | null;
+        description: string | null;
+        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        transType: string | null;
-        description: string | null;
-        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -228,14 +228,14 @@ export declare class AccountingService {
         }[];
         postingType?: 'MANUAL' | 'AUTO';
     }): Promise<{
+        id: number;
+        transType: string | null;
+        description: string | null;
+        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        transType: string | null;
-        description: string | null;
-        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -256,14 +256,14 @@ export declare class AccountingService {
             description?: string;
         }[];
     }): Promise<{
+        id: number;
+        transType: string | null;
+        description: string | null;
+        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        transType: string | null;
-        description: string | null;
-        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -282,14 +282,14 @@ export declare class AccountingService {
         branchCode?: string;
         wilayahCd?: string;
     }, tx?: Prisma.TransactionClient): Promise<{
+        id: number;
+        transType: string | null;
+        description: string | null;
+        updatedAt: Date | null;
         wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        transType: string | null;
-        description: string | null;
-        id: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
@@ -312,10 +312,10 @@ export declare class AccountingService {
     }): Promise<{
         data: {
             deletedByName: string | null;
-            wilayahCd: string | null;
+            id: number;
             transType: string | null;
             description: string | null;
-            id: number;
+            wilayahCd: string | null;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
@@ -350,22 +350,22 @@ export declare class AccountingService {
         }[];
         journals: ({
             details: {
-                accountCode: string;
-                description: string | null;
                 id: number;
+                description: string | null;
+                accountCode: string;
+                journalId: number;
                 debit: Prisma.Decimal;
                 credit: Prisma.Decimal;
-                journalId: number;
             }[];
         } & {
+            id: number;
+            transType: string | null;
+            description: string | null;
+            updatedAt: Date | null;
             wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            transType: string | null;
-            description: string | null;
-            id: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;

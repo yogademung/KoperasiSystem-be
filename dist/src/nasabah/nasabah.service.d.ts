@@ -5,15 +5,9 @@ export declare class NasabahService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createNasabahDto: CreateNasabahDto): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -22,17 +16,17 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
     findAll(): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -41,17 +35,17 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }[]>;
     findOne(id: number): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -60,17 +54,17 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
     update(id: number, updateNasabahDto: UpdateNasabahDto): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -79,14 +73,20 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
-    getPortfolio(id: number): Promise<{
+    searchNasabah(query: string, type?: string): Promise<({
         kredit: {
-            id: number;
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
             status: string;
             nasabahId: number;
             nomorKredit: string | null;
@@ -101,12 +101,10 @@ export declare class NasabahService {
             sistemBunga: string | null;
         }[];
         anggota: {
-            remark: string | null;
             isActive: boolean;
             createdBy: string;
             createdAt: Date;
             status: string;
-            regionCode: string;
             accountNumber: string;
             customerId: number;
             principal: import("@prisma/client/runtime/library").Decimal;
@@ -114,26 +112,132 @@ export declare class NasabahService {
             openDate: Date;
             closeDate: Date | null;
             balance: import("@prisma/client/runtime/library").Decimal;
+            regionCode: string;
             groupCode: string;
+            remark: string | null;
             deduction: import("@prisma/client/runtime/library").Decimal;
         }[];
         balimesari: {
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            status: string;
+            nasabahId: number;
+            noBalimesari: string;
+            tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
+            interestRate: import("@prisma/client/runtime/library").Decimal;
+        }[];
+        brahmacari: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
             status: string;
             nasabahId: number;
             tglBuka: Date;
             saldo: import("@prisma/client/runtime/library").Decimal;
             interestRate: import("@prisma/client/runtime/library").Decimal;
-            noBalimesari: string;
+            noBrahmacari: string;
         }[];
-        brahmacari: {
-            updatedAt: Date | null;
+        tabungan: {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
+            status: string;
+            nasabahId: number;
+            tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
+            interestRate: import("@prisma/client/runtime/library").Decimal;
+            noTab: string;
+        }[];
+        wanaprasta: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            status: string;
+            nasabahId: number;
+            tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
+            interestRate: import("@prisma/client/runtime/library").Decimal;
+            noWanaprasta: string;
+        }[];
+    } & {
+        nama: string;
+        noKtp: string | null;
+        alamat: string | null;
+        email: string | null;
+        telepon: string | null;
+        tempatLahir: string | null;
+        tanggalLahir: Date | null;
+        jenisKelamin: string | null;
+        pekerjaan: string | null;
+        fileKtp: string | null;
+        fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
+    })[]>;
+    getPortfolio(id: number): Promise<{
+        kredit: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            status: string;
+            nasabahId: number;
+            nomorKredit: string | null;
+            jenisKredit: string;
+            tujuanKredit: string | null;
+            nominalPengajuan: import("@prisma/client/runtime/library").Decimal;
+            tglPengajuan: Date;
+            metodeAngsuran: string | null;
+            mohonJangkaWaktu: number | null;
+            mohonSukuBunga: import("@prisma/client/runtime/library").Decimal | null;
+            noPermohonan: string | null;
+            sistemBunga: string | null;
+        }[];
+        anggota: {
+            isActive: boolean;
+            createdBy: string;
+            createdAt: Date;
+            status: string;
+            accountNumber: string;
+            customerId: number;
+            principal: import("@prisma/client/runtime/library").Decimal;
+            mandatoryInit: import("@prisma/client/runtime/library").Decimal;
+            openDate: Date;
+            closeDate: Date | null;
+            balance: import("@prisma/client/runtime/library").Decimal;
+            regionCode: string;
+            groupCode: string;
+            remark: string | null;
+            deduction: import("@prisma/client/runtime/library").Decimal;
+        }[];
+        balimesari: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            status: string;
+            nasabahId: number;
+            noBalimesari: string;
+            tglBuka: Date;
+            saldo: import("@prisma/client/runtime/library").Decimal;
+            interestRate: import("@prisma/client/runtime/library").Decimal;
+        }[];
+        brahmacari: {
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
             status: string;
             nasabahId: number;
             tglBuka: Date;
@@ -142,10 +246,10 @@ export declare class NasabahService {
             noBrahmacari: string;
         }[];
         deposito: {
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             status: string;
             nasabahId: number;
             tglBuka: Date;
@@ -157,22 +261,22 @@ export declare class NasabahService {
             targetAccountId: string | null;
         }[];
         tabungan: {
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             status: string;
-            noTab: string;
             nasabahId: number;
             tglBuka: Date;
             saldo: import("@prisma/client/runtime/library").Decimal;
             interestRate: import("@prisma/client/runtime/library").Decimal;
+            noTab: string;
         }[];
         wanaprasta: {
-            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             status: string;
             nasabahId: number;
             tglBuka: Date;
@@ -181,15 +285,9 @@ export declare class NasabahService {
             noWanaprasta: string;
         }[];
     } & {
-        id: number;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -198,17 +296,17 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
     remove(id: number): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -217,5 +315,11 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
 }

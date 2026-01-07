@@ -40,6 +40,43 @@ export class NasabahService {
         });
     }
 
+    async searchNasabah(query: string, type?: string) {
+        if (!query) return [];
+
+        // Search condition for member fields
+        const whereInput: any = {
+            isActive: true,
+            OR: [
+                { nama: { contains: query } },
+                { noKtp: { contains: query } },
+                // Check in account numbers
+                { anggota: { some: { accountNumber: { contains: query } } } },
+                { tabungan: { some: { noTab: { contains: query } } } },
+                { brahmacari: { some: { noBrahmacari: { contains: query } } } },
+                { balimesari: { some: { noBalimesari: { contains: query } } } },
+                { wanaprasta: { some: { noWanaprasta: { contains: query } } } },
+                { kredit: { some: { nomorKredit: { contains: query } } } },
+            ]
+        };
+
+        const results = await this.prisma.nasabah.findMany({
+            where: whereInput,
+            take: 10,
+            include: {
+                anggota: { where: { status: 'A' } },
+                tabungan: { where: { status: 'A' } },
+                brahmacari: { where: { status: 'A' } },
+                balimesari: { where: { status: 'A' } },
+                wanaprasta: { where: { status: 'A' } },
+                kredit: { where: { status: 'A' } }, // Match getPortfolio convention
+            }
+        });
+
+        // If specific type filter requested, we can filter the *accounts* in the response
+        // But for now, returning full portfolio for context is better
+        return results;
+    }
+
     async getPortfolio(id: number) {
         const nasabah = await this.prisma.nasabah.findUnique({
             where: { id },

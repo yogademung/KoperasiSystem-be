@@ -4,15 +4,15 @@ export declare class AssetController {
     constructor(assetService: AssetService);
     create(user: any, createAssetDto: any): Promise<{
         asset: {
+            id: number;
+            updatedAt: Date | null;
+            name: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
-            id: number;
+            code: string;
             status: string;
             type: string;
-            code: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
             residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -24,14 +24,14 @@ export declare class AssetController {
             expenseAccountId: string;
         };
         journal: {
+            id: number;
+            transType: string | null;
+            description: string | null;
+            updatedAt: Date | null;
             wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            transType: string | null;
-            description: string | null;
-            id: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
@@ -44,15 +44,15 @@ export declare class AssetController {
     }>;
     findAll(page?: string, limit?: string): Promise<{
         data: {
+            id: number;
+            updatedAt: Date | null;
+            name: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            name: string;
-            id: number;
+            code: string;
             status: string;
             type: string;
-            code: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
             residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -71,14 +71,14 @@ export declare class AssetController {
     findOne(id: string): Promise<{
         depreciationHistory: ({
             journal: {
+                id: number;
+                transType: string | null;
+                description: string | null;
+                updatedAt: Date | null;
                 wilayahCd: string | null;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
-                transType: string | null;
-                description: string | null;
-                id: number;
                 journalNumber: string;
                 journalDate: Date;
                 postingType: string;
@@ -89,23 +89,23 @@ export declare class AssetController {
                 sourceCode: string | null;
             } | null;
         } & {
-            createdAt: Date;
             id: number;
-            journalId: number | null;
-            amount: import("@prisma/client/runtime/library").Decimal;
+            createdAt: Date;
             period: string;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            journalId: number | null;
             assetId: number;
         })[];
     } & {
+        id: number;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
+        code: string;
         status: string;
         type: string;
-        code: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
         residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -117,15 +117,15 @@ export declare class AssetController {
         expenseAccountId: string;
     }>;
     update(id: string, updateAssetDto: any): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
+        code: string;
         status: string;
         type: string;
-        code: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
         residualValue: import("@prisma/client/runtime/library").Decimal;
@@ -137,15 +137,15 @@ export declare class AssetController {
         expenseAccountId: string;
     }>;
     remove(id: string): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        name: string;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        name: string;
-        id: number;
+        code: string;
         status: string;
         type: string;
-        code: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
         residualValue: import("@prisma/client/runtime/library").Decimal;

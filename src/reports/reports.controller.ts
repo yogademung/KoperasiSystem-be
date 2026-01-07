@@ -10,6 +10,21 @@ export class ReportsController {
     ) { }
 
     // ============================
+    // COLLECTOR KPI
+    // ============================
+
+    @Get('collector/kpi')
+    async getCollectorKPI(
+        @Query('startDate') startDate: string,
+        @Query('endDate') endDate: string,
+    ) {
+        return this.reportsService.getCollectorKPI(
+            startDate ? new Date(startDate) : new Date(),
+            endDate ? new Date(endDate) : new Date(),
+        );
+    }
+
+    // ============================
     // ASSETS (AKTIVA)
     // ============================
 
@@ -36,16 +51,6 @@ export class ReportsController {
     @Get('credit/:id/application') // K01
     async getCreditApplication(@Param('id') id: string) {
         return this.reportsService.getCreditApplicationData(Number(id));
-    }
-
-    @Get('credit/:id/agreement') // SPK
-    async getCreditAgreement(@Param('id') id: string) {
-        return this.reportsService.getCreditAgreementData(Number(id));
-    }
-
-    @Get('credit/:id/statement') // K04 (Kartu Pinjaman)
-    async getCreditStatement(@Param('id') id: string) {
-        return this.reportsService.getCreditStatementData(Number(id));
     }
 
     // ============================

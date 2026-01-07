@@ -44,6 +44,36 @@ let NasabahService = class NasabahService {
             data: updateNasabahDto
         });
     }
+    async searchNasabah(query, type) {
+        if (!query)
+            return [];
+        const whereInput = {
+            isActive: true,
+            OR: [
+                { nama: { contains: query } },
+                { noKtp: { contains: query } },
+                { anggota: { some: { accountNumber: { contains: query } } } },
+                { tabungan: { some: { noTab: { contains: query } } } },
+                { brahmacari: { some: { noBrahmacari: { contains: query } } } },
+                { balimesari: { some: { noBalimesari: { contains: query } } } },
+                { wanaprasta: { some: { noWanaprasta: { contains: query } } } },
+                { kredit: { some: { nomorKredit: { contains: query } } } },
+            ]
+        };
+        const results = await this.prisma.nasabah.findMany({
+            where: whereInput,
+            take: 10,
+            include: {
+                anggota: { where: { status: 'A' } },
+                tabungan: { where: { status: 'A' } },
+                brahmacari: { where: { status: 'A' } },
+                balimesari: { where: { status: 'A' } },
+                wanaprasta: { where: { status: 'A' } },
+                kredit: { where: { status: 'A' } },
+            }
+        });
+        return results;
+    }
     async getPortfolio(id) {
         const nasabah = await this.prisma.nasabah.findUnique({
             where: { id },

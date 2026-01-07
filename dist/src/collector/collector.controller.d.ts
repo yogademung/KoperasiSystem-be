@@ -14,11 +14,13 @@ export declare class CollectorController {
         };
     } & {
         id: number;
+        updatedAt: Date;
+        createdAt: Date;
         userId: number;
+        status: string;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -45,16 +47,16 @@ export declare class CollectorController {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }) | null>;
     startShift(req: any, dto: StartShiftDto): Promise<{
         id: number;
+        updatedAt: Date;
+        createdAt: Date;
         userId: number;
+        status: string;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -81,16 +83,16 @@ export declare class CollectorController {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     endShift(req: any, dto: EndShiftDto): Promise<{
         id: number;
+        updatedAt: Date;
+        createdAt: Date;
         userId: number;
+        status: string;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -117,8 +119,6 @@ export declare class CollectorController {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     getFlashSummary(): Promise<{
         activeCollectors: number;

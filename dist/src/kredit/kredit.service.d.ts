@@ -6,11 +6,11 @@ export declare class KreditService {
     private accountingService;
     constructor(prisma: PrismaService, accountingService: AccountingService);
     createApplication(data: any, userId: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         status: string;
         nasabahId: number;
         nomorKredit: string | null;
@@ -26,12 +26,12 @@ export declare class KreditService {
     }>;
     private generatePermohonanNumber;
     addCollateral(creditId: number, data: any, userId: number): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        description: string | null;
-        id: number;
         status: string;
         details: string | null;
         nasabahId: number;
@@ -41,11 +41,11 @@ export declare class KreditService {
         photos: string | null;
     }>;
     submitAnalysis(creditId: number, data: any, userId: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         debiturKreditId: number;
         characterScore: number;
         characterDesc: string | null;
@@ -61,11 +61,11 @@ export declare class KreditService {
         recommendation: string | null;
     }>;
     approveCredit(creditId: number, decision: any, userId: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         status: string;
         nasabahId: number;
         nomorKredit: string | null;
@@ -80,11 +80,11 @@ export declare class KreditService {
         sistemBunga: string | null;
     }>;
     activateCredit(creditId: number, data: any, userId: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         status: string;
         nasabahId: number;
         nomorKredit: string | null;
@@ -111,15 +111,15 @@ export declare class KreditService {
     findAll(page?: number, limit?: number, status?: string): Promise<{
         data: ({
             nasabah: {
+                id: number;
+                updatedAt: Date | null;
                 isActive: boolean;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
-                id: number;
                 nama: string;
-                noKtp: string | null;
                 alamat: string | null;
+                noKtp: string | null;
                 email: string | null;
                 telepon: string | null;
                 tempatLahir: string | null;
@@ -130,11 +130,11 @@ export declare class KreditService {
                 fileKk: string | null;
             };
         } & {
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             status: string;
             nasabahId: number;
             nomorKredit: string | null;
@@ -155,15 +155,15 @@ export declare class KreditService {
     }>;
     findOne(id: number): Promise<{
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -173,12 +173,48 @@ export declare class KreditService {
             fileKtp: string | null;
             fileKk: string | null;
         };
+        transactions: {
+            id: number;
+            createdBy: string | null;
+            createdAt: Date;
+            nominal: Prisma.Decimal;
+            keterangan: string | null;
+            tipeTrans: string;
+            latitude: Prisma.Decimal | null;
+            longitude: Prisma.Decimal | null;
+            journalId: number | null;
+            debiturKreditId: number;
+            bungaBayar: Prisma.Decimal | null;
+            dendaBayar: Prisma.Decimal | null;
+            pokokBayar: Prisma.Decimal | null;
+            tglTrans: Date;
+        }[];
+        collaterals: ({
+            collateral: {
+                id: number;
+                description: string | null;
+                updatedAt: Date | null;
+                createdBy: string | null;
+                createdAt: Date;
+                updatedBy: string | null;
+                status: string;
+                details: string | null;
+                nasabahId: number;
+                type: string;
+                marketValue: Prisma.Decimal;
+                assessedValue: Prisma.Decimal;
+                photos: string | null;
+            };
+        } & {
+            creditId: number;
+            collateralId: number;
+        })[];
         fasilitas: {
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             nominal: Prisma.Decimal;
             bunga: Prisma.Decimal;
             debiturKreditId: number;
@@ -187,39 +223,39 @@ export declare class KreditService {
             angsuranBunga: Prisma.Decimal;
         }[];
         jadwal: {
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             status: string;
-            total: Prisma.Decimal;
+            tglJatuhTempo: Date;
             bunga: Prisma.Decimal;
+            total: Prisma.Decimal;
             debiturKreditId: number;
             angsuranKe: number;
-            tglJatuhTempo: Date;
             pokok: Prisma.Decimal;
             sisaPokok: Prisma.Decimal;
             tglBayar: Date | null;
             sisaBunga: Prisma.Decimal;
         }[];
         realisasi: {
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             debiturKreditId: number;
             tglRealisasi: Date;
             nominalRealisasi: Prisma.Decimal;
             rekening: string | null;
         }[];
         analysis: {
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
             debiturKreditId: number;
             characterScore: number;
             characterDesc: string | null;
@@ -234,48 +270,12 @@ export declare class KreditService {
             totalScore: number;
             recommendation: string | null;
         } | null;
-        collaterals: ({
-            collateral: {
-                createdBy: string | null;
-                createdAt: Date;
-                updatedBy: string | null;
-                updatedAt: Date | null;
-                description: string | null;
-                id: number;
-                status: string;
-                details: string | null;
-                nasabahId: number;
-                type: string;
-                marketValue: Prisma.Decimal;
-                assessedValue: Prisma.Decimal;
-                photos: string | null;
-            };
-        } & {
-            creditId: number;
-            collateralId: number;
-        })[];
-        transactions: {
-            createdBy: string | null;
-            createdAt: Date;
-            id: number;
-            journalId: number | null;
-            latitude: Prisma.Decimal | null;
-            longitude: Prisma.Decimal | null;
-            tipeTrans: string;
-            nominal: Prisma.Decimal;
-            keterangan: string | null;
-            debiturKreditId: number;
-            bungaBayar: Prisma.Decimal | null;
-            dendaBayar: Prisma.Decimal | null;
-            pokokBayar: Prisma.Decimal | null;
-            tglTrans: Date;
-        }[];
     } & {
+        id: number;
+        updatedAt: Date | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
         status: string;
         nasabahId: number;
         nomorKredit: string | null;
