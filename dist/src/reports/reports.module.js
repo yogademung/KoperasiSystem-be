@@ -16,12 +16,13 @@ const prisma_module_1 = require("../database/prisma.module");
 const asset_module_1 = require("../accounting/asset/asset.module");
 const accounting_module_1 = require("../accounting/accounting.module");
 const settings_module_1 = require("../settings/settings.module");
+const product_config_module_1 = require("../product-config/product-config.module");
 let ReportsModule = class ReportsModule {
 };
 exports.ReportsModule = ReportsModule;
 exports.ReportsModule = ReportsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, asset_module_1.AssetModule, accounting_module_1.AccountingModule, settings_module_1.SettingsModule],
+        imports: [prisma_module_1.PrismaModule, asset_module_1.AssetModule, accounting_module_1.AccountingModule, settings_module_1.SettingsModule, product_config_module_1.ProductConfigModule],
         controllers: [reports_controller_1.ReportsController, kredit_report_controller_1.KreditReportController],
         providers: [reports_service_1.ReportsService, kredit_report_service_1.KreditReportService],
     })

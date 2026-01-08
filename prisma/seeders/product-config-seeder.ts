@@ -18,6 +18,7 @@ async function main() {
             defaultInterestRate: null, // Anggota typically has no interest
             minInterestRate: null,
             maxInterestRate: null,
+            interestPeriod: null, // No interest calculation
         },
         {
             productCode: 'TABRELA',
@@ -31,6 +32,7 @@ async function main() {
             defaultInterestRate: 2.5,
             minInterestRate: 1.0,
             maxInterestRate: 5.0,
+            interestPeriod: 'DAILY', // Daily interest for savings
         },
         {
             productCode: 'DEPOSITO',
@@ -44,6 +46,7 @@ async function main() {
             defaultInterestRate: 4.0,
             minInterestRate: 3.0,
             maxInterestRate: 7.0,
+            interestPeriod: 'MONTHLY', // Monthly interest for time deposits
         },
         {
             productCode: 'BRAHMACARI',
@@ -57,6 +60,7 @@ async function main() {
             defaultInterestRate: 3.0,
             minInterestRate: 2.0,
             maxInterestRate: 6.0,
+            interestPeriod: 'MONTHLY',
         },
         {
             productCode: 'BALIMESARI',
@@ -70,6 +74,7 @@ async function main() {
             defaultInterestRate: 3.5,
             minInterestRate: 2.5,
             maxInterestRate: 6.5,
+            interestPeriod: 'MONTHLY',
         },
         {
             productCode: 'WANAPRASTA',
@@ -83,6 +88,7 @@ async function main() {
             defaultInterestRate: 4.5,
             minInterestRate: 3.5,
             maxInterestRate: 7.5,
+            interestPeriod: 'YEARLY', // Annual interest for retirement savings
         },
     ];
 

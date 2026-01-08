@@ -1,9 +1,11 @@
 import { PrismaService } from '../database/prisma.service';
 import { SettingsService } from '../settings/settings.service';
+import { ProductConfigService } from '../product-config/product-config.service';
 export declare class ReportsService {
     private prisma;
     private settingsService;
-    constructor(prisma: PrismaService, settingsService: SettingsService);
+    private productConfigService;
+    constructor(prisma: PrismaService, settingsService: SettingsService, productConfigService: ProductConfigService);
     getCreditApplicationData(id: number): Promise<{
         template: string;
         companyProfile: Record<string, string>;
@@ -25,16 +27,16 @@ export declare class ReportsService {
                 collateral: {
                     assessedValue: number;
                     id: number;
-                    description: string | null;
-                    updatedAt: Date | null;
+                    nasabahId: number;
+                    status: string;
                     createdBy: string | null;
                     createdAt: Date;
                     updatedBy: string | null;
-                    nasabahId: number;
-                    status: string;
+                    updatedAt: Date | null;
                     type: string;
-                    details: string | null;
+                    description: string | null;
                     marketValue: import("@prisma/client/runtime/library").Decimal;
+                    details: string | null;
                     photos: string | null;
                 };
                 creditId: number;
@@ -86,17 +88,17 @@ export declare class ReportsService {
             totalAngsuran: number;
             sisaPinjaman: number;
             id: number;
-            updatedAt: Date | null;
+            status: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            status: string;
-            tglJatuhTempo: Date;
-            bunga: import("@prisma/client/runtime/library").Decimal;
-            total: import("@prisma/client/runtime/library").Decimal;
+            updatedAt: Date | null;
             debiturKreditId: number;
             angsuranKe: number;
+            tglJatuhTempo: Date;
             pokok: import("@prisma/client/runtime/library").Decimal;
+            bunga: import("@prisma/client/runtime/library").Decimal;
+            total: import("@prisma/client/runtime/library").Decimal;
             sisaPokok: import("@prisma/client/runtime/library").Decimal;
             tglBayar: Date | null;
             sisaBunga: import("@prisma/client/runtime/library").Decimal;
@@ -106,16 +108,16 @@ export declare class ReportsService {
             id: number;
             createdBy: string | null;
             createdAt: Date;
+            debiturKreditId: number;
             tipeTrans: string;
             keterangan: string | null;
-            latitude: import("@prisma/client/runtime/library").Decimal | null;
-            longitude: import("@prisma/client/runtime/library").Decimal | null;
-            journalId: number | null;
-            debiturKreditId: number;
             bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
             dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
+            journalId: number | null;
             pokokBayar: import("@prisma/client/runtime/library").Decimal | null;
             tglTrans: Date;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
     }>;
     getSavingsPassbookData(type: 'TABUNGAN' | 'BRAHMACARI' | 'BALIMESARI' | 'WANAPRASTA' | 'ANGGOTA' | 'KREDIT', accountNumber: string): Promise<{
@@ -189,6 +191,7 @@ export declare class ReportsService {
     }>;
     getAnggotaClosureData(accountNumber: string): Promise<{
         template: string;
+        title: string;
         companyProfile: Record<string, string>;
         account: {
             noRekening: string;
@@ -210,6 +213,7 @@ export declare class ReportsService {
     }>;
     getTabrelaClosureData(noTab: string): Promise<{
         template: string;
+        title: string;
         companyProfile: Record<string, string>;
         account: {
             noRekening: string;
@@ -223,11 +227,10 @@ export declare class ReportsService {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
             noKtp: string | null;
             alamat: string | null;
@@ -239,10 +242,12 @@ export declare class ReportsService {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
+            isActive: boolean;
         };
     }>;
     getBrahmacariClosureData(noBrahmacari: string): Promise<{
         template: string;
+        title: string;
         companyProfile: Record<string, string>;
         account: {
             noRekening: string;
@@ -256,11 +261,10 @@ export declare class ReportsService {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
             noKtp: string | null;
             alamat: string | null;
@@ -272,10 +276,12 @@ export declare class ReportsService {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
+            isActive: boolean;
         };
     }>;
     getBalimesariClosureData(noBalimesari: string): Promise<{
         template: string;
+        title: string;
         companyProfile: Record<string, string>;
         account: {
             noRekening: string;
@@ -289,11 +295,10 @@ export declare class ReportsService {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
             noKtp: string | null;
             alamat: string | null;
@@ -305,10 +310,12 @@ export declare class ReportsService {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
+            isActive: boolean;
         };
     }>;
     getWanaprastaClosureData(noWanaprasta: string): Promise<{
         template: string;
+        title: string;
         companyProfile: Record<string, string>;
         account: {
             noRekening: string;
@@ -322,11 +329,10 @@ export declare class ReportsService {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
             noKtp: string | null;
             alamat: string | null;
@@ -338,6 +344,7 @@ export declare class ReportsService {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
+            isActive: boolean;
         };
     }>;
     getDepositoClosureData(noJangka: string): Promise<{
@@ -356,11 +363,10 @@ export declare class ReportsService {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
             noKtp: string | null;
             alamat: string | null;
@@ -372,6 +378,7 @@ export declare class ReportsService {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
+            isActive: boolean;
         };
     }>;
     private normalizeCurrency;

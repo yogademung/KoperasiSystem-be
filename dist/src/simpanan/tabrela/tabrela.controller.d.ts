@@ -41,8 +41,8 @@ export declare class TabrelaController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -58,9 +58,9 @@ export declare class TabrelaController {
             createdAt: Date;
             noTab: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];

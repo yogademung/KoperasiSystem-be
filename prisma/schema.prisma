@@ -116,6 +116,7 @@ model ProductConfig {
   defaultInterestRate Decimal? @map("default_interest_rate") @db.Decimal(5, 2)
   minInterestRate     Decimal? @map("min_interest_rate") @db.Decimal(5, 2)
   maxInterestRate     Decimal? @map("max_interest_rate") @db.Decimal(5, 2)
+  interestPeriod      String?  @default("MONTHLY") @map("interest_period") @db.VarChar(20)
   
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")

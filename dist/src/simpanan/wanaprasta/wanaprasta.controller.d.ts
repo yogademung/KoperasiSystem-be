@@ -42,8 +42,8 @@ export declare class WanaprastaController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -59,9 +59,9 @@ export declare class WanaprastaController {
             createdAt: Date;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
+            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
@@ -83,9 +83,9 @@ export declare class WanaprastaController {
         createdAt: Date;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
+        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
@@ -95,9 +95,9 @@ export declare class WanaprastaController {
         createdAt: Date;
         nominal: import("@prisma/client/runtime/library").Decimal;
         noWanaprasta: string;
+        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
@@ -108,9 +108,9 @@ export declare class WanaprastaController {
             createdAt: Date;
             nominal: import("@prisma/client/runtime/library").Decimal;
             noWanaprasta: string;
+            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];

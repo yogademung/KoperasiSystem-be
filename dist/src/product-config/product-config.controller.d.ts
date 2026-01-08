@@ -18,6 +18,7 @@ export declare class ProductConfigController {
         defaultInterestRate: Prisma.Decimal | null;
         minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
     }[]>;
     getEnabledProducts(): Promise<{
         id: number;
@@ -34,6 +35,7 @@ export declare class ProductConfigController {
         defaultInterestRate: Prisma.Decimal | null;
         minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
     }[]>;
     getProductByCode(code: string): Promise<{
         id: number;
@@ -50,6 +52,7 @@ export declare class ProductConfigController {
         defaultInterestRate: Prisma.Decimal | null;
         minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
     }>;
     hasExistingAccounts(code: string): Promise<{
         hasAccounts: boolean;
@@ -71,6 +74,7 @@ export declare class ProductConfigController {
         defaultInterestRate: Prisma.Decimal | null;
         minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
     }>;
     updateProduct(code: string, data: Prisma.ProductConfigUpdateInput): Promise<{
         id: number;
@@ -87,6 +91,7 @@ export declare class ProductConfigController {
         defaultInterestRate: Prisma.Decimal | null;
         minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
     }>;
     reorderProducts(body: {
         order: {
@@ -108,5 +113,6 @@ export declare class ProductConfigController {
         defaultInterestRate: Prisma.Decimal | null;
         minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
     }[]>;
 }

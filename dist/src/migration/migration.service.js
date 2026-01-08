@@ -860,10 +860,38 @@ let MigrationService = class MigrationService {
             regexPattern = '^' + coaFormat.replace(/[.-]/g, '\\$&').replace(/x/gi, '\\d') + '$';
         }
         const coaRegex = new RegExp(regexPattern);
+        const formatAccountCode = (rawCode, format) => {
+            if (!rawCode)
+                return rawCode;
+            const digitsOnly = rawCode.replace(/[.-]/g, '');
+            const formatLength = format.length;
+            if (rawCode.length === formatLength && /^[\d.-]+$/.test(rawCode)) {
+                return rawCode;
+            }
+            const separators = [];
+            for (let i = 0; i < format.length; i++) {
+                if (format[i] === '.' || format[i] === '-') {
+                    separators.push({ pos: i, char: format[i] });
+                }
+            }
+            let formatted = '';
+            let digitIndex = 0;
+            for (let i = 0; i < format.length; i++) {
+                const separator = separators.find(s => s.pos === i);
+                if (separator) {
+                    formatted += separator.char;
+                }
+                else {
+                    formatted += digitsOnly[digitIndex] || '0';
+                    digitIndex++;
+                }
+            }
+            return formatted;
+        };
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber <= 2)
                 return;
-            const accountCode = row.getCell(1).text?.toString().trim();
+            let accountCode = row.getCell(1).text?.toString().trim();
             const accountName = row.getCell(2).text?.toString().trim();
             const accountType = row.getCell(3).text?.toString().trim();
             const parentCode = row.getCell(4).text?.toString().trim();
@@ -871,6 +899,9 @@ let MigrationService = class MigrationService {
             const remark = row.getCell(6).text?.toString().trim();
             if (!accountCode && !accountName)
                 return;
+            if (accountCode && /^\d+$/.test(accountCode)) {
+                accountCode = formatAccountCode(accountCode, coaFormat);
+            }
             const rowData = {
                 rowNumber,
                 accountCode,

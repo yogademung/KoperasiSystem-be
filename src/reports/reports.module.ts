@@ -7,9 +7,10 @@ import { PrismaModule } from '../database/prisma.module';
 import { AssetModule } from '../accounting/asset/asset.module';
 import { AccountingModule } from '../accounting/accounting.module';
 import { SettingsModule } from '../settings/settings.module';
+import { ProductConfigModule } from '../product-config/product-config.module';
 
 @Module({
-    imports: [PrismaModule, AssetModule, AccountingModule, SettingsModule],
+    imports: [PrismaModule, AssetModule, AccountingModule, SettingsModule, ProductConfigModule],
     controllers: [ReportsController, KreditReportController],
     providers: [ReportsService, KreditReportService],
 })

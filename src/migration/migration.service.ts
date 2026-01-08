@@ -976,10 +976,48 @@ export class MigrationService {
         }
         const coaRegex = new RegExp(regexPattern);
 
+        // Helper function to auto-format plain numbers to COA format
+        const formatAccountCode = (rawCode: string, format: string): string => {
+            if (!rawCode) return rawCode;
+
+            // Remove any existing separators
+            const digitsOnly = rawCode.replace(/[.-]/g, '');
+
+            // If already properly formatted, return as is
+            const formatLength = format.length;
+            if (rawCode.length === formatLength && /^[\d.-]+$/.test(rawCode)) {
+                return rawCode;
+            }
+
+            // Extract separator positions from format
+            const separators: { pos: number; char: string }[] = [];
+            for (let i = 0; i < format.length; i++) {
+                if (format[i] === '.' || format[i] === '-') {
+                    separators.push({ pos: i, char: format[i] });
+                }
+            }
+
+            // Build formatted code
+            let formatted = '';
+            let digitIndex = 0;
+
+            for (let i = 0; i < format.length; i++) {
+                const separator = separators.find(s => s.pos === i);
+                if (separator) {
+                    formatted += separator.char;
+                } else {
+                    formatted += digitsOnly[digitIndex] || '0';
+                    digitIndex++;
+                }
+            }
+
+            return formatted;
+        };
+
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber <= 2) return;
 
-            const accountCode = row.getCell(1).text?.toString().trim();
+            let accountCode = row.getCell(1).text?.toString().trim();
             const accountName = row.getCell(2).text?.toString().trim();
             const accountType = row.getCell(3).text?.toString().trim();
             const parentCode = row.getCell(4).text?.toString().trim();
@@ -987,6 +1025,11 @@ export class MigrationService {
             const remark = row.getCell(6).text?.toString().trim();
 
             if (!accountCode && !accountName) return;
+
+            // Auto-format account code if it's plain digits
+            if (accountCode && /^\d+$/.test(accountCode)) {
+                accountCode = formatAccountCode(accountCode, coaFormat);
+            }
 
             const rowData: any = {
                 rowNumber,

@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { SettingsService } from '../settings/settings.service'; // Import SettingsService
+import { ProductConfigService } from '../product-config/product-config.service';
 
 @Injectable()
 export class ReportsService {
     constructor(
         private prisma: PrismaService,
         private settingsService: SettingsService, // Inject
+        private productConfigService: ProductConfigService, // Inject for dynamic names
     ) { }
 
     // ============================
@@ -164,7 +166,9 @@ export class ReportsService {
             if (!acc) throw new NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN RELA';
+            // Fetch dynamic product name
+            const productConfig = await this.productConfigService.getProductByCode('TABRELA');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN RELA';
         } else if (type === 'BRAHMACARI') {
             const acc = await this.prisma.nasabahBrahmacari.findUnique({
                 where: { noBrahmacari: accountNumber },
@@ -173,7 +177,9 @@ export class ReportsService {
             if (!acc) throw new NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN BRAHMACARI';
+            // Fetch dynamic product name
+            const productConfig = await this.productConfigService.getProductByCode('BRAHMACARI');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN BRAHMACARI';
         } else if (type === 'BALIMESARI') {
             const acc = await this.prisma.nasabahBalimesari.findUnique({
                 where: { noBalimesari: accountNumber },
@@ -182,7 +188,9 @@ export class ReportsService {
             if (!acc) throw new NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN BALIMESARI';
+            // Fetch dynamic product name
+            const productConfig = await this.productConfigService.getProductByCode('BALIMESARI');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN BALIMESARI';
         } else if (type === 'WANAPRASTA') {
             const acc = await this.prisma.nasabahWanaprasta.findUnique({
                 where: { noWanaprasta: accountNumber },
@@ -191,7 +199,9 @@ export class ReportsService {
             if (!acc) throw new NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN WANAPRASTA';
+            // Fetch dynamic product name
+            const productConfig = await this.productConfigService.getProductByCode('WANAPRASTA');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN WANAPRASTA';
         } else if (type === 'ANGGOTA') {
             const acc = await this.prisma.anggotaAccount.findUnique({
                 where: { accountNumber },
@@ -211,7 +221,9 @@ export class ReportsService {
                 keterangan: t.description, // Map to keterangan
                 nominal: t.amount // Map to nominal
             }));
-            title = 'SIMPANAN ANGGOTA';
+            // Fetch dynamic product name
+            const productConfig = await this.productConfigService.getProductByCode('ANGGOTA');
+            title = productConfig?.productName?.toUpperCase() || 'SIMPANAN ANGGOTA';
         } else if (type === 'KREDIT') {
             const acc = await this.prisma.debiturKredit.findUnique({
                 where: { nomorKredit: accountNumber }, // accountNumber here is nomorKredit
@@ -455,8 +467,13 @@ export class ReportsService {
             refundAmount = closeBalance;
         }
 
+        // Fetch product config
+        const productConfig = await this.productConfigService.getProductByCode('ANGGOTA');
+        const productName = productConfig?.productName?.toUpperCase() || 'SIMPANAN ANGGOTA';
+
         return {
             template: 'FORM_TUTUP_ANGGOTA',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.accountNumber,
@@ -520,8 +537,13 @@ export class ReportsService {
             refundAmount = closeBalance;
         }
 
+        // Fetch product config
+        const productConfig = await this.productConfigService.getProductByCode('TABRELA');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN RELA';
+
         return {
             template: 'FORM_TUTUP_TABRELA',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noTab,
@@ -580,8 +602,13 @@ export class ReportsService {
             refundAmount = closeBalance;
         }
 
+        // Fetch product config
+        const productConfig = await this.productConfigService.getProductByCode('BRAHMACARI');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN BRAHMACARI';
+
         return {
             template: 'FORM_TUTUP_BRAHMACARI',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noBrahmacari,
@@ -638,8 +665,13 @@ export class ReportsService {
             refundAmount = closeBalance;
         }
 
+        // Fetch product config
+        const productConfig = await this.productConfigService.getProductByCode('BALIMESARI');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN BALIMESARI';
+
         return {
             template: 'FORM_TUTUP_BALIMESARI',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noBalimesari,
@@ -696,8 +728,13 @@ export class ReportsService {
             refundAmount = closeBalance;
         }
 
+        // Fetch product config
+        const productConfig = await this.productConfigService.getProductByCode('WANAPRASTA');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN WANAPRASTA';
+
         return {
             template: 'FORM_TUTUP_WANAPRASTA',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noWanaprasta,

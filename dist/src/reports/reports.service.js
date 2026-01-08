@@ -13,12 +13,15 @@ exports.ReportsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const settings_service_1 = require("../settings/settings.service");
+const product_config_service_1 = require("../product-config/product-config.service");
 let ReportsService = class ReportsService {
     prisma;
     settingsService;
-    constructor(prisma, settingsService) {
+    productConfigService;
+    constructor(prisma, settingsService, productConfigService) {
         this.prisma = prisma;
         this.settingsService = settingsService;
+        this.productConfigService = productConfigService;
     }
     async getCreditApplicationData(id) {
         const credit = await this.prisma.debiturKredit.findUnique({
@@ -156,7 +159,8 @@ let ReportsService = class ReportsService {
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN RELA';
+            const productConfig = await this.productConfigService.getProductByCode('TABRELA');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN RELA';
         }
         else if (type === 'BRAHMACARI') {
             const acc = await this.prisma.nasabahBrahmacari.findUnique({
@@ -167,7 +171,8 @@ let ReportsService = class ReportsService {
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN BRAHMACARI';
+            const productConfig = await this.productConfigService.getProductByCode('BRAHMACARI');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN BRAHMACARI';
         }
         else if (type === 'BALIMESARI') {
             const acc = await this.prisma.nasabahBalimesari.findUnique({
@@ -178,7 +183,8 @@ let ReportsService = class ReportsService {
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN BALIMESARI';
+            const productConfig = await this.productConfigService.getProductByCode('BALIMESARI');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN BALIMESARI';
         }
         else if (type === 'WANAPRASTA') {
             const acc = await this.prisma.nasabahWanaprasta.findUnique({
@@ -189,7 +195,8 @@ let ReportsService = class ReportsService {
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
-            title = 'TABUNGAN WANAPRASTA';
+            const productConfig = await this.productConfigService.getProductByCode('WANAPRASTA');
+            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN WANAPRASTA';
         }
         else if (type === 'ANGGOTA') {
             const acc = await this.prisma.anggotaAccount.findUnique({
@@ -211,7 +218,8 @@ let ReportsService = class ReportsService {
                 keterangan: t.description,
                 nominal: t.amount
             }));
-            title = 'SIMPANAN ANGGOTA';
+            const productConfig = await this.productConfigService.getProductByCode('ANGGOTA');
+            title = productConfig?.productName?.toUpperCase() || 'SIMPANAN ANGGOTA';
         }
         else if (type === 'KREDIT') {
             const acc = await this.prisma.debiturKredit.findUnique({
@@ -404,8 +412,11 @@ let ReportsService = class ReportsService {
             closeBalance = this.normalizeCurrency(account.balance);
             refundAmount = closeBalance;
         }
+        const productConfig = await this.productConfigService.getProductByCode('ANGGOTA');
+        const productName = productConfig?.productName?.toUpperCase() || 'SIMPANAN ANGGOTA';
         return {
             template: 'FORM_TUTUP_ANGGOTA',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.accountNumber,
@@ -460,8 +471,11 @@ let ReportsService = class ReportsService {
             closeBalance = Number(account.saldo);
             refundAmount = closeBalance;
         }
+        const productConfig = await this.productConfigService.getProductByCode('TABRELA');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN RELA';
         return {
             template: 'FORM_TUTUP_TABRELA',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noTab,
@@ -510,8 +524,11 @@ let ReportsService = class ReportsService {
             closeBalance = Number(account.saldo);
             refundAmount = closeBalance;
         }
+        const productConfig = await this.productConfigService.getProductByCode('BRAHMACARI');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN BRAHMACARI';
         return {
             template: 'FORM_TUTUP_BRAHMACARI',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noBrahmacari,
@@ -560,8 +577,11 @@ let ReportsService = class ReportsService {
             closeBalance = Number(account.saldo);
             refundAmount = closeBalance;
         }
+        const productConfig = await this.productConfigService.getProductByCode('BALIMESARI');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN BALIMESARI';
         return {
             template: 'FORM_TUTUP_BALIMESARI',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noBalimesari,
@@ -610,8 +630,11 @@ let ReportsService = class ReportsService {
             closeBalance = Number(account.saldo);
             refundAmount = closeBalance;
         }
+        const productConfig = await this.productConfigService.getProductByCode('WANAPRASTA');
+        const productName = productConfig?.productName?.toUpperCase() || 'TABUNGAN WANAPRASTA';
         return {
             template: 'FORM_TUTUP_WANAPRASTA',
+            title: `FORMULIR PENUTUPAN REKENING ${productName}`,
             companyProfile,
             account: {
                 noRekening: account.noWanaprasta,
@@ -992,6 +1015,7 @@ exports.ReportsService = ReportsService;
 exports.ReportsService = ReportsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        settings_service_1.SettingsService])
+        settings_service_1.SettingsService,
+        product_config_service_1.ProductConfigService])
 ], ReportsService);
 //# sourceMappingURL=reports.service.js.map
