@@ -11,8 +11,8 @@ export declare class KreditService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
+        status: string;
         nomorKredit: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
@@ -32,10 +32,10 @@ export declare class KreditService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
-        details: string | null;
         nasabahId: number;
+        status: string;
         type: string;
+        details: string | null;
         marketValue: Prisma.Decimal;
         assessedValue: Prisma.Decimal;
         photos: string | null;
@@ -66,8 +66,8 @@ export declare class KreditService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
+        status: string;
         nomorKredit: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
@@ -85,8 +85,8 @@ export declare class KreditService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
+        status: string;
         nomorKredit: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;
@@ -118,8 +118,8 @@ export declare class KreditService {
                 createdAt: Date;
                 updatedBy: string | null;
                 nama: string;
-                alamat: string | null;
                 noKtp: string | null;
+                alamat: string | null;
                 email: string | null;
                 telepon: string | null;
                 tempatLahir: string | null;
@@ -135,8 +135,8 @@ export declare class KreditService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            status: string;
             nasabahId: number;
+            status: string;
             nomorKredit: string | null;
             jenisKredit: string;
             tujuanKredit: string | null;
@@ -162,8 +162,8 @@ export declare class KreditService {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -178,8 +178,8 @@ export declare class KreditService {
             createdBy: string | null;
             createdAt: Date;
             nominal: Prisma.Decimal;
-            keterangan: string | null;
             tipeTrans: string;
+            keterangan: string | null;
             latitude: Prisma.Decimal | null;
             longitude: Prisma.Decimal | null;
             journalId: number | null;
@@ -197,10 +197,10 @@ export declare class KreditService {
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                status: string;
-                details: string | null;
                 nasabahId: number;
+                status: string;
                 type: string;
+                details: string | null;
                 marketValue: Prisma.Decimal;
                 assessedValue: Prisma.Decimal;
                 photos: string | null;
@@ -276,8 +276,8 @@ export declare class KreditService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
+        status: string;
         nomorKredit: string | null;
         jenisKredit: string;
         tujuanKredit: string | null;

@@ -88,4 +88,19 @@ export declare class MigrationService {
         imported: number;
         errors: any[];
     }>;
+    generateCoaTemplate(): Promise<Buffer>;
+    previewCoa(fileBuffer: Buffer): Promise<{
+        data: any[];
+        summary: {
+            totalRows: number;
+            valid: number;
+            duplicates: number;
+            errors: number;
+        };
+    }>;
+    confirmCoa(validatedData: any[]): Promise<{
+        success: boolean;
+        imported: number;
+        errors: any[];
+    }>;
 }

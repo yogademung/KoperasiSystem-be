@@ -13,7 +13,7 @@ exports.SettingsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const PROFILE_CODE = 'COMPANY_PROFILE';
-const KEYS = ['NAME', 'ADDRESS', 'PHONE', 'EMAIL', 'WEBSITE', 'LOGO', 'THEME_COLOR', 'FONT_COLOR', 'LAST_CLOSING_MONTH'];
+const KEYS = ['NAME', 'ADDRESS', 'PHONE', 'EMAIL', 'WEBSITE', 'LOGO', 'THEME_COLOR', 'FONT_COLOR', 'LAST_CLOSING_MONTH', 'COA_FORMAT'];
 let SettingsService = class SettingsService {
     prisma;
     constructor(prisma) {
@@ -35,6 +35,7 @@ let SettingsService = class SettingsService {
                 { codeValue: 'THEME_COLOR', description: 'oklch(0.208 0.042 265.755)' },
                 { codeValue: 'FONT_COLOR', description: 'oklch(0.985 0 0)' },
                 { codeValue: 'LAST_CLOSING_MONTH', description: '' },
+                { codeValue: 'COA_FORMAT', description: 'xxx-xxx-xxx' },
             ];
             for (const d of defaults) {
                 await this.prisma.lovValue.create({

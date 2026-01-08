@@ -14,8 +14,8 @@ export declare class AnggotaController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -51,8 +51,8 @@ export declare class AnggotaController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -85,13 +85,13 @@ export declare class AnggotaController {
             transType: string;
             description: string | null;
             createdAt: Date;
-            userId: number;
             accountNumber: string;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
+            amount: import("@prisma/client/runtime/library").Decimal;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
+            userId: number;
         }[];
         customer: {
             id: number;
@@ -101,8 +101,8 @@ export declare class AnggotaController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -141,13 +141,13 @@ export declare class AnggotaController {
             transType: string;
             description: string | null;
             createdAt: Date;
-            userId: number;
             accountNumber: string;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            amount: import("@prisma/client/runtime/library").Decimal;
             transDate: Date;
+            amount: import("@prisma/client/runtime/library").Decimal;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
+            userId: number;
         }[];
         total: number;
         page: number;

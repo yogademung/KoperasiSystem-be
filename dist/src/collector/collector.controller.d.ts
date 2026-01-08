@@ -16,8 +16,8 @@ export declare class CollectorController {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        userId: number;
         status: string;
+        userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
@@ -52,8 +52,8 @@ export declare class CollectorController {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        userId: number;
         status: string;
+        userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
@@ -88,8 +88,8 @@ export declare class CollectorController {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        userId: number;
         status: string;
+        userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;

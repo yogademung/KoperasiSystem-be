@@ -130,13 +130,13 @@ export declare class AccountingController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            status: string;
+            userId: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
             refId: number | null;
-            userId: number;
             tellerId: string | null;
-            status: string;
             sourceCode: string | null;
         })[];
         total: number;
@@ -151,12 +151,12 @@ export declare class AccountingController {
             transType: string | null;
             description: string | null;
             wilayahCd: string | null;
+            status: string;
+            userId: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
             refId: number | null;
-            userId: number;
-            status: string;
             sourceCode: string | null;
             originalId: number;
             deletedBy: string | null;
@@ -204,13 +204,13 @@ export declare class AccountingController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        status: string;
+        userId: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
         refId: number | null;
-        userId: number;
         tellerId: string | null;
-        status: string;
         sourceCode: string | null;
     }>;
     createManualJournal(req: any, body: {
@@ -231,13 +231,13 @@ export declare class AccountingController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        status: string;
+        userId: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
         refId: number | null;
-        userId: number;
         tellerId: string | null;
-        status: string;
         sourceCode: string | null;
     }>;
     updateManualJournal(id: string, body: any, req: any): Promise<{
@@ -249,13 +249,13 @@ export declare class AccountingController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        status: string;
+        userId: number;
         journalNumber: string;
         journalDate: Date;
         postingType: string;
         refId: number | null;
-        userId: number;
         tellerId: string | null;
-        status: string;
         sourceCode: string | null;
     }>;
     deleteJournal(id: string, reason: string, req: any): Promise<{
@@ -295,13 +295,13 @@ export declare class AccountingController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            status: string;
+            userId: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
             refId: number | null;
-            userId: number;
             tellerId: string | null;
-            status: string;
             sourceCode: string | null;
         })[];
     }>;

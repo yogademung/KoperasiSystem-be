@@ -73,10 +73,10 @@ export declare class ReportsController {
                     createdBy: string | null;
                     createdAt: Date;
                     updatedBy: string | null;
-                    status: string;
-                    details: string | null;
                     nasabahId: number;
+                    status: string;
                     type: string;
+                    details: string | null;
                     marketValue: import("@prisma/client/runtime/library").Decimal;
                     photos: string | null;
                 };
@@ -136,8 +136,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -325,8 +325,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -358,8 +358,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -391,8 +391,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -424,8 +424,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;

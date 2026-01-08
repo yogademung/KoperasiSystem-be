@@ -28,6 +28,7 @@ import { MigrationModule } from './migration/migration.module';
 import { MenuModule } from './menu/menu.module';
 import { CollectorModule } from './collector/collector.module';
 import { SystemModule } from './system/system.module';
+import { ProductConfigModule } from './product-config/product-config.module';
 
 
 
@@ -59,6 +60,7 @@ import { SystemModule } from './system/system.module';
     MenuModule,
     CollectorModule,
     SystemModule,
+    ProductConfigModule,
 
   ],
   controllers: [AppController, MonthEndController],

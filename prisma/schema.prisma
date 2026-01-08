@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+  binaryTargets = ["native","windows","debian-openssl-1.0.x","debian-openssl-1.1.x","debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -99,6 +99,28 @@ model LovValue {
 
   @@id([code, codeValue])
   @@map("s_lov_value")
+}
+
+model ProductConfig {
+  id                  Int      @id @default(autoincrement())
+  productCode         String   @unique @map("product_code") @db.VarChar(50)
+  productName         String   @map("product_name") @db.VarChar(100)
+  tableName           String   @map("table_name") @db.VarChar(100)
+  isEnabled           Boolean  @default(true) @map("is_enabled")
+  isCore              Boolean  @default(false) @map("is_core")
+  displayOrder        Int      @map("display_order")
+  routePath           String   @map("route_path") @db.VarChar(255)
+  icon                String?  @db.VarChar(50)
+  
+  // Interest Rate Configuration
+  defaultInterestRate Decimal? @map("default_interest_rate") @db.Decimal(5, 2)
+  minInterestRate     Decimal? @map("min_interest_rate") @db.Decimal(5, 2)
+  maxInterestRate     Decimal? @map("max_interest_rate") @db.Decimal(5, 2)
+  
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("s_product_config")
 }
 
 model Nasabah {

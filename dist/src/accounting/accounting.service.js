@@ -77,25 +77,26 @@ let AccountingService = class AccountingService {
         const parent = await this.prisma.journalAccount.findUnique({ where: { accountCode: parentCode } });
         if (!parent)
             throw new common_1.NotFoundException('Parent Account not found');
-        const prefix = parentCode.substring(0, 5);
         const lastChild = await this.prisma.journalAccount.findFirst({
             where: {
-                accountCode: {
-                    startsWith: prefix,
-                    not: parentCode
-                },
                 parentCode: parentCode
             },
             orderBy: { accountCode: 'desc' }
         });
-        let nextSequence = 1;
         if (lastChild) {
-            const parts = lastChild.accountCode.split('.');
-            if (parts.length === 3) {
-                nextSequence = parseInt(parts[2]) + 1;
+            const parts = lastChild.accountCode.split(/[-.]/);
+            const lastPart = parts[parts.length - 1];
+            if (/^\d+$/.test(lastPart)) {
+                const nextNum = parseInt(lastPart) + 1;
+                const nextStr = String(nextNum).padStart(lastPart.length, '0');
+                const lastIndex = lastChild.accountCode.lastIndexOf(lastPart);
+                if (lastIndex !== -1) {
+                    return lastChild.accountCode.substring(0, lastIndex) + nextStr;
+                }
             }
         }
-        return `${prefix}${String(nextSequence).padStart(2, '0')}`;
+        const separator = parentCode.includes('-') ? '-' : '.';
+        return `${parentCode}${separator}01`;
     }
     async createAccount(data) {
         const existing = await this.prisma.journalAccount.findUnique({

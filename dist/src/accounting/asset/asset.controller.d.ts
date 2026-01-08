@@ -32,13 +32,13 @@ export declare class AssetController {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            status: string;
+            userId: number;
             journalNumber: string;
             journalDate: Date;
             postingType: string;
             refId: number | null;
-            userId: number;
             tellerId: string | null;
-            status: string;
             sourceCode: string | null;
         };
     }>;
@@ -79,13 +79,13 @@ export declare class AssetController {
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
+                status: string;
+                userId: number;
                 journalNumber: string;
                 journalDate: Date;
                 postingType: string;
                 refId: number | null;
-                userId: number;
                 tellerId: string | null;
-                status: string;
                 sourceCode: string | null;
             } | null;
         } & {

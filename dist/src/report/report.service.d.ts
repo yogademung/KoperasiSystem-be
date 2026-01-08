@@ -18,8 +18,8 @@ export declare class ReportService {
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            parentId: number | null;
             code: string;
+            parentId: number | null;
             isDefault: boolean;
             productModule: string;
             category: string;

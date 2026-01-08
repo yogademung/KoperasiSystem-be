@@ -46,8 +46,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        parentId: number | null;
         code: string;
+        parentId: number | null;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -71,8 +71,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        parentId: number | null;
         code: string;
+        parentId: number | null;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -96,8 +96,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        parentId: number | null;
         code: string;
+        parentId: number | null;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -121,8 +121,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        parentId: number | null;
         code: string;
+        parentId: number | null;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -146,8 +146,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        parentId: number | null;
         code: string;
+        parentId: number | null;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -171,8 +171,8 @@ export declare class ReportController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        parentId: number | null;
         code: string;
+        parentId: number | null;
         isDefault: boolean;
         productModule: string;
         category: string;
@@ -211,15 +211,15 @@ export declare class ReportController {
         } & {
             id: number;
             status: string;
-            format: string;
             recordId: string | null;
             parameters: string | null;
-            templateId: number;
+            format: string;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
             generatedBy: string | null;
             generatedAt: Date;
+            templateId: number;
         })[];
         total: number;
         limit: number;
@@ -234,14 +234,14 @@ export declare class ReportController {
     } & {
         id: number;
         status: string;
-        format: string;
         recordId: string | null;
         parameters: string | null;
-        templateId: number;
+        format: string;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;
         generatedBy: string | null;
         generatedAt: Date;
+        templateId: number;
     }>;
 }

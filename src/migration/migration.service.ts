@@ -909,4 +909,177 @@ export class MigrationService {
             errors
         };
     }
+    async generateCoaTemplate(): Promise<Buffer> {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Template COA');
+
+        worksheet.columns = [
+            { header: 'Account Code', key: 'accountCode', width: 15 },
+            { header: 'Account Name', key: 'accountName', width: 30 },
+            { header: 'Account Type', key: 'accountType', width: 20 },
+            { header: 'Parent Code', key: 'parentCode', width: 15 },
+            { header: 'D/C (Debet/Credit)', key: 'dbOrCr', width: 8 },
+            { header: 'Remark', key: 'remark', width: 30 },
+        ];
+
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+
+        worksheet.addRow({
+            accountCode: '1-000',
+            accountName: 'AKTIVA',
+            accountType: 'ASSET',
+            parentCode: '',
+            dbOrCr: 'D',
+            remark: 'Header Aktiva',
+        });
+        worksheet.getRow(2).font = { italic: true, color: { argb: 'FF666666' } };
+
+        return Buffer.from(await workbook.xlsx.writeBuffer()) as Buffer;
+    }
+
+    async previewCoa(fileBuffer: Buffer) {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(fileBuffer as any);
+        const worksheet = workbook.getWorksheet(1);
+
+        if (!worksheet) {
+            throw new BadRequestException('Invalid Excel file');
+        }
+
+        const previewData: any[] = [];
+        const accountCodes = new Set<string>();
+
+        // Get existing accounts for duplicate checking
+        const existingAccounts = await this.prisma.journalAccount.findMany({ select: { accountCode: true } });
+        const existingAccountSet = new Set(existingAccounts.map(a => a.accountCode));
+
+        // Get COA Format
+        const coaFormatSetting = await this.prisma.lovValue.findFirst({
+            where: { code: 'COMPANY_PROFILE', codeValue: 'COA_FORMAT' }
+        });
+        const coaFormat = coaFormatSetting?.description || 'xxx-xxx-xxx'; // Default if not set
+
+        // Convert format to regex
+        // Escape special chars except 'x' and '#' which represent digits/chars
+        // Assuming 'x' means digit or char? User said "xxx-xxx-xxx" or "xxx.xxx.xxx"
+        // Let's assume 'x' matches a digit \d. Or any character. Standard is usually digits for COA.
+        // Let's treat 'x' as \d for now or alphanumeric. 'x' is ambiguous. Usually COA is digits.
+        // If user wants flexibility, maybe they just want to define the separator and lengths.
+        // Let's strictly interpret the user's "format flexible" request.
+        // If they enter 'xxx.xxx.xxx', we expect 3 digits dot 3 digits dot 3 digits.
+        // If they enter 'x-xx-xxx', 1 digit dash 2 digits dash 3 digits.
+
+        let regexPattern = '';
+        if (coaFormat) {
+            regexPattern = '^' + coaFormat.replace(/[.-]/g, '\\$&').replace(/x/gi, '\\d') + '$';
+        }
+        const coaRegex = new RegExp(regexPattern);
+
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber <= 2) return;
+
+            const accountCode = row.getCell(1).text?.toString().trim();
+            const accountName = row.getCell(2).text?.toString().trim();
+            const accountType = row.getCell(3).text?.toString().trim();
+            const parentCode = row.getCell(4).text?.toString().trim();
+            const dbOrCr = row.getCell(5).text?.toString().trim().toUpperCase();
+            const remark = row.getCell(6).text?.toString().trim();
+
+            if (!accountCode && !accountName) return;
+
+            const rowData: any = {
+                rowNumber,
+                accountCode,
+                accountName,
+                accountType,
+                parentCode,
+                dbOrCr,
+                remark,
+                status: 'valid',
+                errors: []
+            };
+
+            // Validation
+            if (!accountCode) {
+                rowData.errors.push('Account Code required');
+            } else {
+                if (accountCode.length !== coaFormat.length) {
+                    rowData.status = 'error';
+                    rowData.errors.push(`Panjang kode keliru (Exp: ${coaFormat.length} char, Act: ${accountCode.length})`);
+                } else if (!coaRegex.test(accountCode)) {
+                    rowData.status = 'error';
+                    rowData.errors.push(`Format must match ${coaFormat}`);
+                }
+            }
+
+            if (!accountName) rowData.errors.push('Account Name required');
+            if (existingAccountSet.has(accountCode)) {
+                rowData.status = 'duplicate';
+                rowData.errors.push('Account Code already exists in DB');
+            }
+            if (accountCodes.has(accountCode)) {
+                rowData.status = 'duplicate';
+                rowData.errors.push('Duplicate in file');
+            }
+            if (dbOrCr && !['D', 'C'].includes(dbOrCr)) {
+                rowData.errors.push('D/C must be D or C');
+            }
+
+            accountCodes.add(accountCode);
+
+            if (rowData.errors.length > 0 && rowData.status !== 'duplicate') {
+                rowData.status = 'error';
+            }
+
+            previewData.push(rowData);
+        });
+
+        return {
+            data: previewData,
+            summary: {
+                totalRows: previewData.length,
+                valid: previewData.filter(d => d.status === 'valid').length,
+                duplicates: previewData.filter(d => d.status === 'duplicate').length,
+                errors: previewData.filter(d => d.status === 'error').length
+            }
+        };
+    }
+
+    async confirmCoa(validatedData: any[]) {
+        let successCount = 0;
+        const errors: any[] = [];
+
+        for (const row of validatedData) {
+            try {
+                // Double check existence
+                const existing = await this.prisma.journalAccount.findUnique({
+                    where: { accountCode: row.accountCode }
+                });
+                if (existing) continue;
+
+                await this.prisma.journalAccount.create({
+                    data: {
+                        accountCode: row.accountCode,
+                        accountName: row.accountName,
+                        accountType: row.accountType || 'OTHER',
+                        parentCode: row.parentCode || null,
+                        debetPoleFlag: row.dbOrCr === 'D',
+                        remark: row.remark,
+                        isActive: true,
+                        createdBy: 'MIGRATION'
+                    }
+                });
+                successCount++;
+            } catch (e) {
+                errors.push({ accountCode: row.accountCode, message: e.message });
+            }
+        }
+
+        return {
+            success: true,
+            imported: successCount,
+            errors
+        };
+    }
 }

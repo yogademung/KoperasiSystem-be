@@ -96,4 +96,21 @@ export declare class MigrationController {
         imported: number;
         errors: any[];
     }>;
+    downloadCoaTemplate(res: Response): Promise<void>;
+    previewCoa(file: Express.Multer.File): Promise<{
+        data: any[];
+        summary: {
+            totalRows: number;
+            valid: number;
+            duplicates: number;
+            errors: number;
+        };
+    }>;
+    confirmCoa(body: {
+        data: any[];
+    }): Promise<{
+        success: boolean;
+        imported: number;
+        errors: any[];
+    }>;
 }

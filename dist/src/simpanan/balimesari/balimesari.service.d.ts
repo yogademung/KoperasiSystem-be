@@ -11,11 +11,11 @@ export declare class BalimesariService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
         tglBuka: Date;
         saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
+        status: string;
         noBalimesari: string;
     }>;
     findAll(): Promise<({
@@ -28,11 +28,11 @@ export declare class BalimesariService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
         tglBuka: Date;
         saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
+        status: string;
         noBalimesari: string;
     })[]>;
     findOne(noBalimesari: string): Promise<{
@@ -44,8 +44,8 @@ export declare class BalimesariService {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -61,9 +61,9 @@ export declare class BalimesariService {
             createdAt: Date;
             noBalimesari: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];
@@ -72,11 +72,11 @@ export declare class BalimesariService {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        status: string;
         nasabahId: number;
         tglBuka: Date;
         saldo: import("@prisma/client/runtime/library").Decimal;
         interestRate: import("@prisma/client/runtime/library").Decimal;
+        status: string;
         noBalimesari: string;
     }>;
     setoran(noBalimesari: string, dto: BalimesariTransactionDto, userId: number): Promise<{
@@ -85,9 +85,9 @@ export declare class BalimesariService {
         createdAt: Date;
         noBalimesari: string;
         nominal: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
@@ -97,9 +97,9 @@ export declare class BalimesariService {
         createdAt: Date;
         noBalimesari: string;
         nominal: import("@prisma/client/runtime/library").Decimal;
-        keterangan: string | null;
         tipeTrans: string;
         saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+        keterangan: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
     }>;
@@ -110,9 +110,9 @@ export declare class BalimesariService {
             createdAt: Date;
             noBalimesari: string;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            keterangan: string | null;
             tipeTrans: string;
             saldoAkhir: import("@prisma/client/runtime/library").Decimal;
+            keterangan: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
         }[];

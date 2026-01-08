@@ -14,8 +14,8 @@ export declare class SystemDateService {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        userId: number;
         status: string;
+        userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;

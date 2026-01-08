@@ -71,36 +71,54 @@ export class AccountingService {
     }
 
     async generateNextCode(parentCode: string) {
-        // Parent code format: 1.01.00
-        // Children format: 1.01.XX
-
         // 1. Get Parent to verify
         const parent = await this.prisma.journalAccount.findUnique({ where: { accountCode: parentCode } });
         if (!parent) throw new NotFoundException('Parent Account not found');
 
-        // 2. Find last child
-        const prefix = parentCode.substring(0, 5); // "1.01."
+        // 2. Find siblings (children of same parent)
+        // We look for direct children where parentCode matches. 
+        // Note: The previous logic assumed a naming convention. If we strictly rely on `parentCode` column in DB,
+        // we can just count children or find the last one.
 
         const lastChild = await this.prisma.journalAccount.findFirst({
             where: {
-                accountCode: {
-                    startsWith: prefix,
-                    not: parentCode // Exclude parent itself
-                },
-                parentCode: parentCode // Ensure it's a direct child
+                parentCode: parentCode
             },
             orderBy: { accountCode: 'desc' }
         });
 
-        let nextSequence = 1;
+        // 3. Determine next sequence
+        // If we have a format setting, we could try to obey it. 
+        // For now, let's try to infer from the Parent.
+        // If Parent is "1.01", Child should likely be "1.01.01".
+        // If Parent is "1-100", Child could be "1-100-001".
+        // If Last Child exists, we try to increment its last segment.
+
         if (lastChild) {
-            const parts = lastChild.accountCode.split('.');
-            if (parts.length === 3) {
-                nextSequence = parseInt(parts[2]) + 1;
+            // Try to find the last numeric segment
+            const parts = lastChild.accountCode.split(/[-.]/); // Split by common separators
+            const lastPart = parts[parts.length - 1];
+            if (/^\d+$/.test(lastPart)) {
+                // It's numeric
+                const nextNum = parseInt(lastPart) + 1;
+                // Pad with leading zeros to match length
+                const nextStr = String(nextNum).padStart(lastPart.length, '0');
+
+                // Reconstruct is tricky without knowing exact separator position.
+                // Simpler: Replace the last occurrence of the numeric part in string?
+                // Or just slice and append.
+                const lastIndex = lastChild.accountCode.lastIndexOf(lastPart);
+                if (lastIndex !== -1) {
+                    return lastChild.accountCode.substring(0, lastIndex) + nextStr;
+                }
             }
         }
 
-        return `${prefix}${String(nextSequence).padStart(2, '0')}`;
+        // If no child yet, append "01" or "001" with a separator.
+        // Check for separator in parent.
+        const separator = parentCode.includes('-') ? '-' : '.';
+        // Default to .01 or -01
+        return `${parentCode}${separator}01`;
     }
 
     async createAccount(data: Prisma.JournalAccountCreateInput) {

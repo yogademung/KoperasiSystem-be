@@ -119,6 +119,24 @@ let MigrationController = class MigrationController {
         }
         return this.migrationService.confirmAnggota(body.data);
     }
+    async downloadCoaTemplate(res) {
+        const buffer = await this.migrationService.generateCoaTemplate();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=template_coa.xlsx');
+        res.send(buffer);
+    }
+    async previewCoa(file) {
+        if (!file) {
+            throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewCoa(file.buffer);
+    }
+    async confirmCoa(body) {
+        if (!body.data || body.data.length === 0) {
+            throw new common_1.HttpException('No data provided', common_1.HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.confirmCoa(body.data);
+    }
 };
 exports.MigrationController = MigrationController;
 __decorate([
@@ -217,6 +235,28 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MigrationController.prototype, "confirmAnggota", null);
+__decorate([
+    (0, common_1.Get)('coa-template'),
+    __param(0, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "downloadCoaTemplate", null);
+__decorate([
+    (0, common_1.Post)('preview-coa'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "previewCoa", null);
+__decorate([
+    (0, common_1.Post)('confirm-coa'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MigrationController.prototype, "confirmCoa", null);
 exports.MigrationController = MigrationController = __decorate([
     (0, common_1.Controller)('migration'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

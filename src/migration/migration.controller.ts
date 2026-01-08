@@ -151,4 +151,28 @@ export class MigrationController {
         }
         return this.migrationService.confirmAnggota(body.data);
     }
+    @Get('coa-template')
+    async downloadCoaTemplate(@Res() res: Response) {
+        const buffer = await this.migrationService.generateCoaTemplate();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=template_coa.xlsx');
+        res.send(buffer);
+    }
+
+    @Post('preview-coa')
+    @UseInterceptors(FileInterceptor('file'))
+    async previewCoa(@UploadedFile() file: Express.Multer.File) {
+        if (!file) {
+            throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.previewCoa(file.buffer);
+    }
+
+    @Post('confirm-coa')
+    async confirmCoa(@Body() body: { data: any[] }) {
+        if (!body.data || body.data.length === 0) {
+            throw new HttpException('No data provided', HttpStatus.BAD_REQUEST);
+        }
+        return this.migrationService.confirmCoa(body.data);
+    }
 }

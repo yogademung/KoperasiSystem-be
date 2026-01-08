@@ -26,11 +26,11 @@ export declare class UsersService {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number | null;
         regionCode: string | null;
         token: string | null;
         isTotpEnabled: boolean;
         totpSecret: string | null;
+        roleId: number | null;
     }>;
     findAll(): Promise<({
         role: {
@@ -54,11 +54,11 @@ export declare class UsersService {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number | null;
         regionCode: string | null;
         token: string | null;
         isTotpEnabled: boolean;
         totpSecret: string | null;
+        roleId: number | null;
     })[]>;
     getRoles(): Promise<{
         id: number;
@@ -95,10 +95,10 @@ export declare class UsersService {
         password: string;
         fullName: string;
         staffId: string | null;
-        roleId: number | null;
         regionCode: string | null;
         token: string | null;
         isTotpEnabled: boolean;
         totpSecret: string | null;
+        roleId: number | null;
     }>;
 }
