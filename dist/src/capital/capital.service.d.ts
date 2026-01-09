@@ -17,9 +17,6 @@ export declare class CapitalService {
     createExternalLoan(dto: CreateExternalLoanDto, userId: number): Promise<any>;
     findAllExternalLoans(): Promise<any>;
     findOneExternalLoan(id: number): Promise<any>;
-    repayExternalLoan(id: number, dto: RepayExternalLoanDto, userId: number): Promise<{
-        loan: any;
-        journal: any;
-    }>;
+    repayExternalLoan(id: number, dto: RepayExternalLoanDto, userId: number): Promise<any>;
     private ensureExternalLoanAccounts;
 }

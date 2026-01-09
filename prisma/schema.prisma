@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native","windows","debian-openssl-1.0.x","debian-openssl-1.1.x","debian-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows", "debian-openssl-1.0.x", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -9,29 +9,38 @@ datasource db {
 }
 
 model User {
-  id              Int             @id @default(autoincrement()) @map("USER_ID")
-  username        String          @unique @map("LOGIN") @db.VarChar(50)
-  password        String          @map("PWD") @db.VarChar(255)
-  fullName        String          @map("NAMA") @db.VarChar(100)
-  staffId         String?         @map("STAFF_ID") @db.VarChar(50)
-  roleId          Int?            @map("ROLE_LPD_ID")
-  regionCode      String?         @map("WILAYAH_CD") @db.VarChar(20)
-  token           String?         @map("TOKEN") @db.Text
-  isActive        Boolean         @default(true) @map("ACTIVE_FLAG")
-  createdBy       String?         @map("CREATE_WHO") @db.VarChar(50)
-  createdAt       DateTime        @default(now()) @map("CREATE_DATE")
-  updatedBy       String?         @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt       DateTime?       @updatedAt @map("CHANGE_DATE")
-  isTotpEnabled   Boolean         @default(false) @map("IS_TOTP_ENABLED")
-  totpSecret      String?         @map("TOTP_SECRET") @db.VarChar(100)
-  role            Role?           @relation(fields: [roleId], references: [id])
+  id              Int              @id @default(autoincrement()) @map("USER_ID")
+  username        String           @unique @map("LOGIN") @db.VarChar(50)
+  password        String           @map("PWD") @db.VarChar(255)
+  fullName        String           @map("NAMA") @db.VarChar(100)
+  staffId         String?          @map("STAFF_ID") @db.VarChar(50)
+  roleId          Int?             @map("ROLE_LPD_ID")
+  regionCode      String?          @map("WILAYAH_CD") @db.VarChar(20)
+  token           String?          @map("TOKEN") @db.Text
+  isActive        Boolean          @default(true) @map("ACTIVE_FLAG")
+  createdBy       String?          @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime         @default(now()) @map("CREATE_DATE")
+  updatedBy       String?          @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt       DateTime?        @updatedAt @map("CHANGE_DATE")
+  isTotpEnabled   Boolean          @default(false) @map("IS_TOTP_ENABLED")
+  totpSecret      String?          @map("TOTP_SECRET") @db.VarChar(100)
+  role            Role?            @relation(fields: [roleId], references: [id])
   monthEndLogs    MonthEndLog[]
-  periodLocks     PeriodLock[]    @relation("PeriodLocker")
-  periodUnlocks   PeriodLock[]    @relation("PeriodUnlocker")
+  periodLocks     PeriodLock[]     @relation("PeriodLocker")
+  periodUnlocks   PeriodLock[]     @relation("PeriodUnlocker")
   postedJournals  PostedJournal[]
-  unlockApprovals UnlockRequest[] @relation("UnlockApprover")
-  unlockRequests  UnlockRequest[] @relation("UnlockRequester")
+  unlockApprovals UnlockRequest[]  @relation("UnlockApprover")
+  unlockRequests  UnlockRequest[]  @relation("UnlockRequester")
   collectorShifts CollectorShift[]
+
+  // Phase 13: Inter-Unit Transactions
+  interUnitTransactionsCreated  InterUnitTransaction[] @relation("InterUnitCreator")
+  interUnitTransactionsApproved InterUnitTransaction[] @relation("InterUnitApprover")
+  eliminationsProcessed         InterUnitElimination[] @relation("EliminationProcessor")
+
+  // Phase 13: Cost Centers
+  managedCostCenters  CostCenter[] @relation("CostCenterManager")
+  createdCostCenters  CostCenter[] @relation("CostCenterCreator")
 
   @@index([roleId], map: "s_user_lpd_ROLE_LPD_ID_fkey")
   @@map("s_user_lpd")
@@ -102,24 +111,24 @@ model LovValue {
 }
 
 model ProductConfig {
-  id                  Int      @id @default(autoincrement())
-  productCode         String   @unique @map("product_code") @db.VarChar(50)
-  productName         String   @map("product_name") @db.VarChar(100)
-  tableName           String   @map("table_name") @db.VarChar(100)
-  isEnabled           Boolean  @default(true) @map("is_enabled")
-  isCore              Boolean  @default(false) @map("is_core")
-  displayOrder        Int      @map("display_order")
-  routePath           String   @map("route_path") @db.VarChar(255)
-  icon                String?  @db.VarChar(50)
-  
+  id           Int     @id @default(autoincrement())
+  productCode  String  @unique @map("product_code") @db.VarChar(50)
+  productName  String  @map("product_name") @db.VarChar(100)
+  tableName    String  @map("table_name") @db.VarChar(100)
+  isEnabled    Boolean @default(true) @map("is_enabled")
+  isCore       Boolean @default(false) @map("is_core")
+  displayOrder Int     @map("display_order")
+  routePath    String  @map("route_path") @db.VarChar(255)
+  icon         String? @db.VarChar(50)
+
   // Interest Rate Configuration
   defaultInterestRate Decimal? @map("default_interest_rate") @db.Decimal(5, 2)
   minInterestRate     Decimal? @map("min_interest_rate") @db.Decimal(5, 2)
   maxInterestRate     Decimal? @map("max_interest_rate") @db.Decimal(5, 2)
   interestPeriod      String?  @default("MONTHLY") @map("interest_period") @db.VarChar(20)
-  
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("s_product_config")
 }
@@ -911,53 +920,171 @@ model MonthEndLog {
 }
 
 model CollectorShift {
-  id              Int       @id @default(autoincrement()) @map("SHIFT_ID")
-  userId          Int       @map("USER_ID")
-  shiftDate       DateTime  @default(now()) @map("SHIFT_DATE")
-  startTime       DateTime  @default(now()) @map("START_TIME")
-  endTime         DateTime? @map("END_TIME")
-  status          String    @default("ACTIVE") @map("STATUS") @db.VarChar(20)
-  
-  // Starting cash (float for change)
-  startingCash    Decimal   @map("STARTING_CASH") @db.Decimal(19, 4)
-  startDenom100k  Int       @default(0) @map("START_100K")
-  startDenom50k   Int       @default(0) @map("START_50K")
-  startDenom20k   Int       @default(0) @map("START_20K")
-  startDenom10k   Int       @default(0) @map("START_10K")
-  startDenom5k    Int       @default(0) @map("START_5K")
-  startDenom2k    Int       @default(0) @map("START_2K")
-  startDenom1k    Int       @default(0) @map("START_1K")
-  startDenom500   Int       @default(0) @map("START_500")
-  startDenom200   Int       @default(0) @map("START_200")
-  startDenom100   Int       @default(0) @map("START_100")
-  
-  // Ending cash (at shift close)
-  endingCash      Decimal?  @map("ENDING_CASH") @db.Decimal(19, 4)
-  endDenom100k    Int?      @map("END_100K")
-  endDenom50k     Int?      @map("END_50K")
-  endDenom20k     Int?      @map("END_20K")
-  endDenom10k     Int?      @map("END_10K")
-  endDenom5k      Int?      @map("END_5K")
-  endDenom2k      Int?      @map("END_2K")
-  endDenom1k      Int?      @map("END_1K")
-  endDenom500     Int?      @map("END_500")
-  endDenom200     Int?      @map("END_200")
-  endDenom100     Int?      @map("END_100")
-  
-  // Transaction summary during shift
-  totalDeposits   Decimal   @default(0) @map("TOTAL_DEPOSITS") @db.Decimal(19, 4)
-  totalWithdrawals Decimal  @default(0) @map("TOTAL_WITHDRAWALS") @db.Decimal(19, 4)
-  transactionCount Int      @default(0) @map("TRANS_COUNT")
-  
-  // Closing journal reference
-  closingJournalId Int?     @map("CLOSING_JOURNAL_ID")
-  
-  createdAt       DateTime  @default(now()) @map("CREATED_AT")
-  updatedAt       DateTime  @updatedAt @map("UPDATED_AT")
+  id        Int       @id @default(autoincrement()) @map("SHIFT_ID")
+  userId    Int       @map("USER_ID")
+  shiftDate DateTime  @default(now()) @map("SHIFT_DATE")
+  startTime DateTime  @default(now()) @map("START_TIME")
+  endTime   DateTime? @map("END_TIME")
+  status    String    @default("ACTIVE") @map("STATUS") @db.VarChar(20)
 
-  user            User      @relation(fields: [userId], references: [id])
-  
+  // Starting cash (float for change)
+  startingCash   Decimal @map("STARTING_CASH") @db.Decimal(19, 4)
+  startDenom100k Int     @default(0) @map("START_100K")
+  startDenom50k  Int     @default(0) @map("START_50K")
+  startDenom20k  Int     @default(0) @map("START_20K")
+  startDenom10k  Int     @default(0) @map("START_10K")
+  startDenom5k   Int     @default(0) @map("START_5K")
+  startDenom2k   Int     @default(0) @map("START_2K")
+  startDenom1k   Int     @default(0) @map("START_1K")
+  startDenom500  Int     @default(0) @map("START_500")
+  startDenom200  Int     @default(0) @map("START_200")
+  startDenom100  Int     @default(0) @map("START_100")
+
+  // Ending cash (at shift close)
+  endingCash   Decimal? @map("ENDING_CASH") @db.Decimal(19, 4)
+  endDenom100k Int?     @map("END_100K")
+  endDenom50k  Int?     @map("END_50K")
+  endDenom20k  Int?     @map("END_20K")
+  endDenom10k  Int?     @map("END_10K")
+  endDenom5k   Int?     @map("END_5K")
+  endDenom2k   Int?     @map("END_2K")
+  endDenom1k   Int?     @map("END_1K")
+  endDenom500  Int?     @map("END_500")
+  endDenom200  Int?     @map("END_200")
+  endDenom100  Int?     @map("END_100")
+
+  // Transaction summary during shift
+  totalDeposits    Decimal @default(0) @map("TOTAL_DEPOSITS") @db.Decimal(19, 4)
+  totalWithdrawals Decimal @default(0) @map("TOTAL_WITHDRAWALS") @db.Decimal(19, 4)
+  transactionCount Int     @default(0) @map("TRANS_COUNT")
+
+  // Closing journal reference
+  closingJournalId Int? @map("CLOSING_JOURNAL_ID")
+
+  createdAt DateTime @default(now()) @map("CREATED_AT")
+  updatedAt DateTime @updatedAt @map("UPDATED_AT")
+
+  user User @relation(fields: [userId], references: [id])
+
   @@index([userId, status], map: "idx_shift_user_status")
   @@index([shiftDate], map: "idx_shift_date")
   @@map("t_collector_shift")
+}
+
+// ====================================
+// PHASE 13: Inter-Unit Transactions
+// ====================================
+
+model InterUnitTransaction {
+  id                   Int                        @id @default(autoincrement()) @map("id")
+  transactionDate      DateTime                   @map("transaction_date")
+  sourceUnitId         Int                        @map("source_unit_id")
+  destUnitId           Int                        @map("dest_unit_id")
+  amount               Decimal                    @db.Decimal(15, 2)
+  description          String?                    @db.VarChar(500)
+  transactionType      InterUnitTransactionType   @map("transaction_type")
+  status               InterUnitTransactionStatus @default(PENDING)
+  referenceNo          String?                    @unique @map("reference_no") @db.VarChar(50)
+  journalId            Int?                       @map("journal_id")
+  eliminationJournalId Int?                       @map("elimination_journal_id")
+  createdBy            Int                        @map("created_by")
+  approvedBy           Int?                       @map("approved_by")
+  createdAt            DateTime                   @default(now()) @map("created_at")
+
+  creator  User  @relation("InterUnitCreator", fields: [createdBy], references: [id])
+  approver User? @relation("InterUnitApprover", fields: [approvedBy], references: [id])
+
+  @@index([transactionDate])
+  @@index([status])
+  @@index([sourceUnitId])
+  @@index([destUnitId])
+  @@index([createdBy])
+  @@index([approvedBy])
+  @@map("inter_unit_transaction")
+}
+
+enum InterUnitTransactionType {
+  TRANSFER
+  SERVICE
+  ALLOCATION
+}
+
+enum InterUnitTransactionStatus {
+  PENDING
+  APPROVED
+  POSTED
+  ELIMINATED
+}
+
+model InterUnitElimination {
+  id              Int       @id @default(autoincrement())
+  periodYear      Int       @map("period_year")
+  periodMonth     Int       @map("period_month")
+  totalEliminated Decimal   @map("total_eliminated") @db.Decimal(15, 2)
+  journalId       Int?      @map("journal_id")
+  processedDate   DateTime? @map("processed_date")
+  processedBy     Int?      @map("processed_by")
+
+  processor User? @relation("EliminationProcessor", fields: [processedBy], references: [id])
+
+  @@unique([periodYear, periodMonth])
+  @@index([journalId])
+  @@index([processedBy])
+  @@map("inter_unit_elimination")
+}
+
+// ====================================
+// PHASE 12: Product Configuration
+// ====================================
+
+model ProductConfig {
+  id                   Int      @id @default(autoincrement()) @map("product_id")
+  productCode          String   @unique @map("product_code") @db.VarChar(50)
+  productName          String   @map("product_name") @db.VarChar(100)
+  tableName            String   @map("table_name") @db.VarChar(100)
+  isEnabled            Boolean  @default(true) @map("is_enabled")
+  isCore               Boolean  @default(false) @map("is_core")
+  displayOrder         Int      @default(0) @map("display_order")
+  routePath            String?  @map("route_path") @db.VarChar(255)
+  icon                 String?  @map("icon") @db.VarChar(50)
+  defaultInterestRate  Decimal? @default(0) @map("default_interest_rate") @db.Decimal(5, 2)
+  minInterestRate      Decimal? @map("min_interest_rate") @db.Decimal(5, 2)
+  maxInterestRate      Decimal? @map("max_interest_rate") @db.Decimal(5, 2)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@index([isEnabled])
+  @@index([displayOrder])
+  @@map("s_product_config")
+}
+
+// ====================================
+// PHASE 13: Week 3 - Cost Centers
+// ====================================
+
+model CostCenter {
+  id              Int      @id @default(autoincrement()) @map("cost_center_id")
+  code            String   @unique @db.VarChar(20)
+  name            String   @db.VarChar(100)
+  description     String?  @db.Text
+  parentId        Int?     @map("parent_id")
+  businessUnitId  Int?     @map("business_unit_id")
+  managerId       Int?     @map("manager_id")
+  budget          Decimal? @db.Decimal(15, 2)
+  isActive        Boolean  @default(true) @map("is_active")
+  createdBy       Int      @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  parent   CostCenter?  @relation("CostCenterHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children CostCenter[] @relation("CostCenterHierarchy")
+  manager  User?        @relation("CostCenterManager", fields: [managerId], references: [id])
+  creator  User         @relation("CostCenterCreator", fields: [createdBy], references: [id])
+
+  @@index([parentId])
+  @@index([businessUnitId])
+  @@index([managerId])
+  @@index([isActive])
+  @@map("cost_center")
 }

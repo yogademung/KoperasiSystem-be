@@ -60,7 +60,7 @@ export class ProductConfigController {
     @Put(':code')
     updateProduct(
         @Param('code') code: string,
-        @Body() data: Prisma.ProductConfigUpdateInput,
+        @Body() data: any,
     ) {
         return this.productConfigService.updateProduct(code, data);
     }

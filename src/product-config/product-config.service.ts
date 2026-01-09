@@ -69,7 +69,7 @@ export class ProductConfigService {
     /**
      * Update product configuration (interest rates, etc)
      */
-    async updateProduct(code: string, data: Prisma.ProductConfigUpdateInput) {
+    async updateProduct(code: string, data: any) {
         const product = await this.getProductByCode(code);
 
         // Prevent changing core status

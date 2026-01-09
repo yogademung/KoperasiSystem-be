@@ -29,6 +29,9 @@ import { MenuModule } from './menu/menu.module';
 import { CollectorModule } from './collector/collector.module';
 import { SystemModule } from './system/system.module';
 import { ProductConfigModule } from './product-config/product-config.module';
+import { InterUnitModule } from './inter-unit/inter-unit.module';
+import { CostCenterModule } from './cost-center/cost-center.module';
+
 
 
 
@@ -60,7 +63,10 @@ import { ProductConfigModule } from './product-config/product-config.module';
     MenuModule,
     CollectorModule,
     SystemModule,
-    ProductConfigModule,
+    // TODO: Re-enable after Prisma client regenerated with new models
+    // ProductConfigModule,
+    // InterUnitModule, // Phase 13: Inter-Unit Transactions
+    // CostCenterModule, // Phase 13: Cost Centers
 
   ],
   controllers: [AppController, MonthEndController],

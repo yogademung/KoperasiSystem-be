@@ -13,61 +13,26 @@ export declare class ReportGeneratorService {
     constructor(prisma: PrismaService, templateService: TemplateService, dataProvider: DataProviderService, pdfRenderer: PdfRendererService, excelRenderer: ExcelRendererService);
     generate(dto: GenerateReportDto, userId: string): Promise<{
         success: boolean;
-        logId: number;
+        logId: any;
         fileUrl: string;
-        fileSize: number;
-        generatedAt: Date;
+        fileSize: any;
+        generatedAt: any;
     }>;
     generatePreview(templateId: number, format: 'PDF' | 'EXCEL'): Promise<{
         success: boolean;
-        logId: number;
+        logId: any;
         fileUrl: string;
-        fileSize: number;
-        generatedAt: Date;
+        fileSize: any;
+        generatedAt: any;
         message: string;
     }>;
     getGenerationLogs(limit?: number, offset?: number): Promise<{
-        logs: ({
-            template: {
-                name: string;
-                code: string;
-            };
-        } & {
-            id: number;
-            status: string;
-            format: string;
-            recordId: string | null;
-            parameters: string | null;
-            templateId: number;
-            errorMessage: string | null;
-            filePath: string | null;
-            fileSize: number | null;
-            generatedBy: string | null;
-            generatedAt: Date;
-        })[];
-        total: number;
+        logs: any;
+        total: any;
         limit: number;
         offset: number;
     }>;
-    getGenerationLog(id: number): Promise<{
-        template: {
-            name: string;
-            code: string;
-            productModule: string;
-        };
-    } & {
-        id: number;
-        status: string;
-        format: string;
-        recordId: string | null;
-        parameters: string | null;
-        templateId: number;
-        errorMessage: string | null;
-        filePath: string | null;
-        fileSize: number | null;
-        generatedBy: string | null;
-        generatedAt: Date;
-    }>;
+    getGenerationLog(id: number): Promise<any>;
     printPassbook(options: {
         accountNumber: string;
         productType: string;
@@ -77,29 +42,13 @@ export declare class ReportGeneratorService {
         rangeEnd?: number;
     }): Promise<{
         success: boolean;
-        logId: number;
+        logId: any;
         fileUrl: string;
-        fileSize: number;
-        generatedAt: Date;
+        fileSize: any;
+        generatedAt: any;
     }>;
-    getPassbookState(accountNumber: string): Promise<{
-        id: number;
-        updatedAt: Date;
-        accountNumber: string;
-        productType: string;
-        lastPrintedTransId: number | null;
-        lastPrintedLine: number;
-        totalLinesPrinted: number;
-    } | null>;
-    updatePassbookState(accountNumber: string, productType: string, lastPrintedTransId: number, lastPrintedLine: number): Promise<{
-        id: number;
-        updatedAt: Date;
-        accountNumber: string;
-        productType: string;
-        lastPrintedTransId: number | null;
-        lastPrintedLine: number;
-        totalLinesPrinted: number;
-    }>;
+    getPassbookState(accountNumber: string): Promise<any>;
+    updatePassbookState(accountNumber: string, productType: string, lastPrintedTransId: number, lastPrintedLine: number): Promise<any>;
     private getNewTransactions;
     private getAllTransactions;
     private getTransactionRange;

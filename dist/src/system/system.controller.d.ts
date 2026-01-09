@@ -6,11 +6,8 @@ export declare class SystemController {
         businessDate: string;
         serverDate: string;
         isDateMismatch: boolean;
-        unclosedShifts: {
-            collectorName: string;
-            startTime: Date;
-        }[];
-        unclosedShiftCount: number;
+        unclosedShifts: any;
+        unclosedShiftCount: any;
         canAdvanceDate: boolean;
     }>;
     advanceDate(): Promise<{

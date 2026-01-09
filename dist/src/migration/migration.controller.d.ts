@@ -4,11 +4,7 @@ export declare class MigrationController {
     private readonly migrationService;
     constructor(migrationService: MigrationService);
     downloadJournalTemplate(res: Response): Promise<void>;
-    uploadJournal(file: Express.Multer.File, journalDate: string, req: any): Promise<{
-        success: boolean;
-        message: string;
-        journalId: number;
-    }>;
+    uploadJournal(file: Express.Multer.File, journalDate: string, req: any): Promise<any>;
     previewJournal(file: Express.Multer.File, journalDate: string, redenominate: string): Promise<{
         data: any[];
         summary: {
@@ -24,11 +20,7 @@ export declare class MigrationController {
     confirmJournal(body: {
         data: any[];
         journalDate: string;
-    }, req: any): Promise<{
-        success: boolean;
-        message: string;
-        journalId: number;
-    }>;
+    }, req: any): Promise<any>;
     downloadNasabahTemplate(res: Response): Promise<void>;
     previewNasabah(file: Express.Multer.File): Promise<{
         success: boolean;
@@ -39,10 +31,7 @@ export declare class MigrationController {
             duplicates: number;
             errors: number;
         };
-        existingInDb: {
-            nama: string;
-            noKtp: string | null;
-        }[];
+        existingInDb: any;
     }>;
     confirmNasabah(body: {
         data: any[];
@@ -55,7 +44,7 @@ export declare class MigrationController {
         success: boolean;
         totalProcessed: number;
         created: number;
-        skipped: number;
+        skipped: any;
         errors: {
             row: number;
             message: string;

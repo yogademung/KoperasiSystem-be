@@ -6,117 +6,14 @@ export declare class BrahmacariService {
     private prisma;
     private eventEmitter;
     constructor(prisma: PrismaService, eventEmitter: EventEmitter2);
-    create(createDto: CreateBrahmacariDto): Promise<{
-        updatedAt: Date | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        nasabahId: number;
-        tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
-        status: string;
-        noBrahmacari: string;
-    }>;
-    findAll(): Promise<({
-        nasabah: {
-            nama: string;
-            noKtp: string | null;
-        };
-    } & {
-        updatedAt: Date | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        nasabahId: number;
-        tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
-        status: string;
-        noBrahmacari: string;
-    })[]>;
-    findOne(noBrahmacari: string): Promise<{
-        nasabah: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            pekerjaan: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
-        transactions: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            noBrahmacari: string;
-            keterangan: string | null;
-            tipeTrans: string;
-            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            latitude: import("@prisma/client/runtime/library").Decimal | null;
-            longitude: import("@prisma/client/runtime/library").Decimal | null;
-        }[];
-    } & {
-        updatedAt: Date | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        nasabahId: number;
-        tglBuka: Date;
-        saldo: import("@prisma/client/runtime/library").Decimal;
-        interestRate: import("@prisma/client/runtime/library").Decimal;
-        status: string;
-        noBrahmacari: string;
-    }>;
-    setoran(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number): Promise<{
-        id: number;
-        createdBy: string | null;
-        createdAt: Date;
-        nominal: import("@prisma/client/runtime/library").Decimal;
-        noBrahmacari: string;
-        keterangan: string | null;
-        tipeTrans: string;
-        saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        latitude: import("@prisma/client/runtime/library").Decimal | null;
-        longitude: import("@prisma/client/runtime/library").Decimal | null;
-    }>;
-    penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number): Promise<{
-        id: number;
-        createdBy: string | null;
-        createdAt: Date;
-        nominal: import("@prisma/client/runtime/library").Decimal;
-        noBrahmacari: string;
-        keterangan: string | null;
-        tipeTrans: string;
-        saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-        latitude: import("@prisma/client/runtime/library").Decimal | null;
-        longitude: import("@prisma/client/runtime/library").Decimal | null;
-    }>;
+    create(createDto: CreateBrahmacariDto): Promise<any>;
+    findAll(): Promise<any>;
+    findOne(noBrahmacari: string): Promise<any>;
+    setoran(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number): Promise<any>;
+    penarikan(noBrahmacari: string, dto: BrahmacariTransactionDto, userId: number): Promise<any>;
     getTransactions(noBrahmacari: string, page?: number, limit?: number): Promise<{
-        data: {
-            id: number;
-            createdBy: string | null;
-            createdAt: Date;
-            nominal: import("@prisma/client/runtime/library").Decimal;
-            noBrahmacari: string;
-            keterangan: string | null;
-            tipeTrans: string;
-            saldoAkhir: import("@prisma/client/runtime/library").Decimal;
-            latitude: import("@prisma/client/runtime/library").Decimal | null;
-            longitude: import("@prisma/client/runtime/library").Decimal | null;
-        }[];
-        total: number;
+        data: any;
+        total: any;
         page: number;
         limit: number;
         totalPages: number;
@@ -126,8 +23,5 @@ export declare class BrahmacariService {
         reason: string;
         penalty?: number;
         adminFee?: number;
-    }, userId: number): Promise<{
-        success: boolean;
-        refund: number;
-    }>;
+    }, userId: number): Promise<any>;
 }

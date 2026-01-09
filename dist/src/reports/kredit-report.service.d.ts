@@ -3,7 +3,7 @@ export declare class KreditReportService {
     private prisma;
     constructor(prisma: PrismaService);
     getKolektibilitas(period: string): Promise<{
-        totalKredit: number;
+        totalKredit: any;
         totalOutstanding: number;
         lancar: {
             count: number;
@@ -23,27 +23,8 @@ export declare class KreditReportService {
         };
     }>;
     generateKolektibilitasPDF(period: string): Promise<Buffer>;
-    getDaftarKredit(status?: string): Promise<{
-        nomorKredit: string | null;
-        namaDebitur: string;
-        jenisKredit: string;
-        tglRealisasi: Date;
-        nominal: number;
-        sisaPokok: number;
-        sisaBunga: number;
-        status: string;
-    }[]>;
+    getDaftarKredit(status?: string): Promise<any>;
     generateDaftarKreditExcel(status?: string): Promise<any>;
-    getTunggakan(asOf: string): Promise<{
-        nomorKredit: string | null;
-        namaDebitur: string;
-        angsuranKe: number;
-        tglJatuhTempo: Date;
-        hariTerlambat: number;
-        pokokTunggakan: number;
-        bungaTunggakan: number;
-        denda: number;
-        totalTunggakan: number;
-    }[]>;
+    getTunggakan(asOf: string): Promise<any>;
     generateTunggakanPDF(asOf: string): Promise<Buffer>;
 }

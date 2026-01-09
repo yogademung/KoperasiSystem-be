@@ -4,215 +4,36 @@ export declare class AccountingController {
     private readonly accountingService;
     constructor(accountingService: AccountingService);
     getAccounts(type?: string, page?: string, limit?: string): Promise<{
-        data: {
-            updatedAt: Date | null;
-            accountCode: string;
-            accountName: string;
-            accountType: string;
-            parentCode: string | null;
-            debetPoleFlag: boolean;
-            remark: string | null;
-            wilayahCd: string | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-        }[];
-        total: number;
+        data: any;
+        total: any;
         page: number;
         limit: number;
         totalPages: number;
     }>;
-    getParentAccounts(): Promise<{
-        updatedAt: Date | null;
-        accountCode: string;
-        accountName: string;
-        accountType: string;
-        parentCode: string | null;
-        debetPoleFlag: boolean;
-        remark: string | null;
-        wilayahCd: string | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-    }[]>;
+    getParentAccounts(): Promise<any>;
     getNextCode(parentCode: string): Promise<string>;
-    createAccount(data: Prisma.JournalAccountCreateInput): Promise<{
-        updatedAt: Date | null;
-        accountCode: string;
-        accountName: string;
-        accountType: string;
-        parentCode: string | null;
-        debetPoleFlag: boolean;
-        remark: string | null;
-        wilayahCd: string | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-    }>;
-    updateAccount(code: string, data: Prisma.JournalAccountUpdateInput): Promise<{
-        updatedAt: Date | null;
-        accountCode: string;
-        accountName: string;
-        accountType: string;
-        parentCode: string | null;
-        debetPoleFlag: boolean;
-        remark: string | null;
-        wilayahCd: string | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-    }>;
-    getMappings(module?: string): Promise<({
-        creditRef: {
-            updatedAt: Date | null;
-            accountCode: string;
-            accountName: string;
-            accountType: string;
-            parentCode: string | null;
-            debetPoleFlag: boolean;
-            remark: string | null;
-            wilayahCd: string | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-        };
-        debitRef: {
-            updatedAt: Date | null;
-            accountCode: string;
-            accountName: string;
-            accountType: string;
-            parentCode: string | null;
-            debetPoleFlag: boolean;
-            remark: string | null;
-            wilayahCd: string | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-        };
-    } & {
-        id: number;
-        transType: string;
-        module: string;
-        description: string;
-        debitAccount: string;
-        creditAccount: string;
-        updatedAt: Date;
-    })[]>;
+    createAccount(data: Prisma.JournalAccountCreateInput): Promise<any>;
+    updateAccount(code: string, data: Prisma.JournalAccountUpdateInput): Promise<any>;
+    getMappings(module?: string): Promise<any>;
     updateMapping(transType: string, body: {
         debitAccount: string;
         creditAccount: string;
-    }): Promise<{
-        id: number;
-        transType: string;
-        module: string;
-        description: string;
-        debitAccount: string;
-        creditAccount: string;
-        updatedAt: Date;
-    }>;
+    }): Promise<any>;
     getJournals(startDate?: string, endDate?: string, status?: string, sourceCode?: string, fromAccount?: string, toAccount?: string, page?: string, limit?: string): Promise<{
-        data: ({
-            user: {
-                fullName: string;
-            };
-        } & {
-            id: number;
-            transType: string | null;
-            description: string | null;
-            updatedAt: Date | null;
-            wilayahCd: string | null;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            status: string;
-            userId: number;
-            journalNumber: string;
-            journalDate: Date;
-            postingType: string;
-            refId: number | null;
-            tellerId: string | null;
-            sourceCode: string | null;
-        })[];
-        total: number;
+        data: any;
+        total: any;
         page: number;
         limit: number;
         totalPages: number;
     }>;
     getDeletedJournals(startDate?: string, endDate?: string, page?: string, limit?: string): Promise<{
-        data: {
-            deletedByName: string | null;
-            id: number;
-            transType: string | null;
-            description: string | null;
-            wilayahCd: string | null;
-            status: string;
-            userId: number;
-            journalNumber: string;
-            journalDate: Date;
-            postingType: string;
-            refId: number | null;
-            sourceCode: string | null;
-            originalId: number;
-            deletedBy: string | null;
-            deletedAt: Date;
-            deleteReason: string | null;
-        }[];
-        total: number;
+        data: any;
+        total: any;
         page: number;
         limit: number;
         totalPages: number;
     }>;
-    getJournalDetail(id: string): Promise<{
-        isLocked: boolean;
-        user: {
-            fullName: string;
-        };
-        details: ({
-            account: {
-                updatedAt: Date | null;
-                accountCode: string;
-                accountName: string;
-                accountType: string;
-                parentCode: string | null;
-                debetPoleFlag: boolean;
-                remark: string | null;
-                wilayahCd: string | null;
-                isActive: boolean;
-                createdBy: string | null;
-                createdAt: Date;
-                updatedBy: string | null;
-            };
-        } & {
-            id: number;
-            description: string | null;
-            accountCode: string;
-            journalId: number;
-            debit: Prisma.Decimal;
-            credit: Prisma.Decimal;
-        })[];
-        id: number;
-        transType: string | null;
-        description: string | null;
-        updatedAt: Date | null;
-        wilayahCd: string | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        status: string;
-        userId: number;
-        journalNumber: string;
-        journalDate: Date;
-        postingType: string;
-        refId: number | null;
-        tellerId: string | null;
-        sourceCode: string | null;
-    }>;
+    getJournalDetail(id: string): Promise<any>;
     createManualJournal(req: any, body: {
         date: string;
         description: string;
@@ -222,46 +43,9 @@ export declare class AccountingController {
             credit: number;
             description?: string;
         }[];
-    }): Promise<{
-        id: number;
-        transType: string | null;
-        description: string | null;
-        updatedAt: Date | null;
-        wilayahCd: string | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        status: string;
-        userId: number;
-        journalNumber: string;
-        journalDate: Date;
-        postingType: string;
-        refId: number | null;
-        tellerId: string | null;
-        sourceCode: string | null;
-    }>;
-    updateManualJournal(id: string, body: any, req: any): Promise<{
-        id: number;
-        transType: string | null;
-        description: string | null;
-        updatedAt: Date | null;
-        wilayahCd: string | null;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        status: string;
-        userId: number;
-        journalNumber: string;
-        journalDate: Date;
-        postingType: string;
-        refId: number | null;
-        tellerId: string | null;
-        sourceCode: string | null;
-    }>;
-    deleteJournal(id: string, reason: string, req: any): Promise<{
-        success: boolean;
-        message: string;
-    }>;
+    }): Promise<any>;
+    updateManualJournal(id: string, body: any, req: any): Promise<any>;
+    deleteJournal(id: string, reason: string, req: any): Promise<any>;
     getDailyReport(date?: string): Promise<{
         date: Date;
         summary: {
@@ -277,32 +61,6 @@ export declare class AccountingController {
             avgRate: number;
             estimatedDailyInterest: number;
         }[];
-        journals: ({
-            details: {
-                id: number;
-                description: string | null;
-                accountCode: string;
-                journalId: number;
-                debit: Prisma.Decimal;
-                credit: Prisma.Decimal;
-            }[];
-        } & {
-            id: number;
-            transType: string | null;
-            description: string | null;
-            updatedAt: Date | null;
-            wilayahCd: string | null;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            status: string;
-            userId: number;
-            journalNumber: string;
-            journalDate: Date;
-            postingType: string;
-            refId: number | null;
-            tellerId: string | null;
-            sourceCode: string | null;
-        })[];
+        journals: any;
     }>;
 }

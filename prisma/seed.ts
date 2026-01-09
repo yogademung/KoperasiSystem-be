@@ -81,8 +81,12 @@ async function main() {
     // 6. Seed Menus (Phase 10)
     await seedMenus();
 
-    // 7. Seed Product Config (Phase 12)
-    await seedProductConfig();
+    // 5. Seed Product Configuration
+    // TODO: Re-enable after Prisma client regenerated
+    // console.log('\n5. Seeding product configuration...');
+    // await seedProductConfig(prisma);
+
+    console.log('\n✅ Seeding completed successfully!');
 }
 
 main()

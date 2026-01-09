@@ -18,7 +18,7 @@ export declare class AuthService {
         user?: undefined;
     } | {
         requiresSetup2FA: boolean;
-        userId: number;
+        userId: any;
         qrCodeUrl: string;
         secret: string;
         message: string;
@@ -42,10 +42,10 @@ export declare class AuthService {
         accessToken: string;
         refreshToken: string;
         user: {
-            id: number;
-            username: string;
-            fullName: string;
-            role: string | null;
+            id: any;
+            username: any;
+            fullName: any;
+            role: any;
             menus: any[];
         };
         requiresForceLogin?: undefined;

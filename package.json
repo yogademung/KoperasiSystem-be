@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migrate:deploy": "node scripts/deploy-migrations.js",
+    "migrate:status": "node scripts/migration-status.js",
+    "db:create-test": "node scripts/create-test-db.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -50,6 +53,7 @@
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "multer": "^2.0.2",
+    "mysql2": "^3.16.0",
     "node-fetch": "^2.7.0",
     "otplib": "^12.0.1",
     "passport": "^0.7.0",
@@ -63,8 +67,8 @@
     "swagger-ui-express": "^5.0.1"
   },
   "optionalDependencies": {
-  "@img/sharp-linux-x64": "0.33.5"
-	},
+    "@img/sharp-linux-x64": "0.33.5"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",

@@ -4,116 +4,20 @@ export declare class MenuService {
     private prisma;
     constructor(prisma: PrismaService);
     getAllMenus(): Promise<any[]>;
-    getMenuById(id: number): Promise<{
-        menuRoles: ({
-            role: {
-                id: number;
-                description: string | null;
-                updatedAt: Date | null;
-                isActive: boolean;
-                createdBy: string | null;
-                createdAt: Date;
-                updatedBy: string | null;
-                roleName: string;
-            };
-        } & {
-            roleId: number;
-            menuId: number;
-            canCreate: boolean;
-            canRead: boolean;
-            canUpdate: boolean;
-            canDelete: boolean;
-        })[];
-    } & {
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
+    getMenuById(id: number): Promise<any>;
     getMenusForRole(roleId: number): Promise<any[]>;
-    createMenu(dto: CreateMenuDto, createdBy: string): Promise<{
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
-    updateMenu(id: number, dto: UpdateMenuDto, updatedBy: string): Promise<{
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
-    deleteMenu(id: number, deletedBy: string): Promise<{
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
+    createMenu(dto: CreateMenuDto, createdBy: string): Promise<any>;
+    updateMenu(id: number, dto: UpdateMenuDto, updatedBy: string): Promise<any>;
+    deleteMenu(id: number, deletedBy: string): Promise<any>;
     assignMenusToRole(roleId: number, dto: AssignMenusToRoleDto): Promise<{
         success: boolean;
         message: string;
     }>;
-    getRoleMenus(roleId: number): Promise<{
-        permissions: {
-            canCreate: boolean;
-            canRead: boolean;
-            canUpdate: boolean;
-            canDelete: boolean;
-        };
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }[]>;
+    getRoleMenus(roleId: number): Promise<any>;
     copyPermissions(dto: CopyPermissionsDto): Promise<{
         success: boolean;
         message: string;
-        copiedCount: number;
+        copiedCount: any;
     }>;
     private buildMenuTree;
 }

@@ -16,7 +16,6 @@ export const seedProductConfig = async () => {
             routePath: '/simpanan/anggota',
             icon: 'Users',
             defaultInterestRate: 0.00,
-            interestPeriod: 'MONTHLY'
         },
         {
             productCode: 'TABRELA',
@@ -30,7 +29,6 @@ export const seedProductConfig = async () => {
             defaultInterestRate: 2.00,
             minInterestRate: 1.00,
             maxInterestRate: 5.00,
-            interestPeriod: 'MONTHLY'
         },
         {
             productCode: 'SIJANGKA',
@@ -44,7 +42,6 @@ export const seedProductConfig = async () => {
             defaultInterestRate: 5.00,
             minInterestRate: 3.00,
             maxInterestRate: 8.00,
-            interestPeriod: 'YEARLY'
         },
         {
             productCode: 'BRAHMACARI',
@@ -56,7 +53,6 @@ export const seedProductConfig = async () => {
             routePath: '/simpanan/brahmacari',
             icon: 'TrendingUp',
             defaultInterestRate: 3.00,
-            interestPeriod: 'MONTHLY'
         },
         {
             productCode: 'BALIMESARI',
@@ -68,7 +64,6 @@ export const seedProductConfig = async () => {
             routePath: '/simpanan/balimesari',
             icon: 'Sparkles',
             defaultInterestRate: 3.50,
-            interestPeriod: 'MONTHLY'
         },
         {
             productCode: 'WANAPRASTA',
@@ -80,7 +75,6 @@ export const seedProductConfig = async () => {
             routePath: '/simpanan/wanaprasta',
             icon: 'Leaf',
             defaultInterestRate: 4.00,
-            interestPeriod: 'MONTHLY'
         }
     ];
 

@@ -3,11 +3,7 @@ export declare class MigrationService {
     private prisma;
     constructor(prisma: PrismaService);
     generateJournalTemplate(): Promise<Buffer>;
-    uploadJournal(fileBuffer: Buffer, journalDate: string, userId: number): Promise<{
-        success: boolean;
-        message: string;
-        journalId: number;
-    }>;
+    uploadJournal(fileBuffer: Buffer, journalDate: string, userId: number): Promise<any>;
     previewJournal(fileBuffer: Buffer, journalDate: string, redenominate?: boolean): Promise<{
         data: any[];
         summary: {
@@ -20,11 +16,7 @@ export declare class MigrationService {
             errors: number;
         };
     }>;
-    confirmJournal(validatedData: any[], journalDate: string, userId: number): Promise<{
-        success: boolean;
-        message: string;
-        journalId: number;
-    }>;
+    confirmJournal(validatedData: any[], journalDate: string, userId: number): Promise<any>;
     generateNasabahTemplate(): Promise<Buffer>;
     previewNasabah(fileBuffer: Buffer): Promise<{
         success: boolean;
@@ -35,10 +27,7 @@ export declare class MigrationService {
             duplicates: number;
             errors: number;
         };
-        existingInDb: {
-            nama: string;
-            noKtp: string | null;
-        }[];
+        existingInDb: any;
     }>;
     confirmNasabah(validatedData: any[]): Promise<{
         success: boolean;
@@ -49,7 +38,7 @@ export declare class MigrationService {
         success: boolean;
         totalProcessed: number;
         created: number;
-        skipped: number;
+        skipped: any;
         errors: {
             row: number;
             message: string;

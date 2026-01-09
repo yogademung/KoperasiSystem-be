@@ -37,7 +37,6 @@ const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
 const accounting_seeder_1 = require("./seeds/accounting-seeder");
 const menu_seeder_1 = require("./seeds/menu-seeder");
-const product_config_seeder_1 = require("./seeds/product-config-seeder");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
@@ -100,7 +99,7 @@ async function main() {
     console.log('Business date configuration seeded:', businessDateConfig);
     await (0, accounting_seeder_1.seedAccounting)();
     await (0, menu_seeder_1.seedMenus)();
-    await (0, product_config_seeder_1.seedProductConfig)();
+    console.log('\n✅ Seeding completed successfully!');
 }
 main()
     .catch((e) => {

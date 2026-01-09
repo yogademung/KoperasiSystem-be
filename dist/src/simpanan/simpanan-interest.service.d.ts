@@ -7,15 +7,15 @@ export declare class SimpananInterestService {
     forceRunAllInterest(): Promise<void>;
     processDepositoInterest(targetNoJangka?: string): Promise<void>;
     simulateProcessing(noJangka: string): Promise<{
-        noJangka: string;
-        nama: string;
-        nominal: import("@prisma/client/runtime/library").Decimal;
-        rate: import("@prisma/client/runtime/library").Decimal;
+        noJangka: any;
+        nama: any;
+        nominal: any;
+        rate: any;
         grossInterest: number;
         tax: number;
         netInterest: number;
-        payoutMode: string;
-        targetAccountId: string | null;
+        payoutMode: any;
+        targetAccountId: any;
     }>;
     processTabrelaInterest(): Promise<void>;
     processBrahmacariInterest(): Promise<void>;

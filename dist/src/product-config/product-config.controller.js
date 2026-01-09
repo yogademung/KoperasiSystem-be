@@ -16,7 +16,6 @@ exports.ProductConfigController = void 0;
 const common_1 = require("@nestjs/common");
 const product_config_service_1 = require("./product-config.service");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
-const client_1 = require("@prisma/client");
 let ProductConfigController = class ProductConfigController {
     productConfigService;
     constructor(productConfigService) {

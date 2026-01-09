@@ -5,107 +5,11 @@ export declare class MenuController {
     constructor(menuService: MenuService);
     getAllMenus(): Promise<any[]>;
     getMenusForRole(roleId: number): Promise<any[]>;
-    getMenuById(id: number): Promise<{
-        menuRoles: ({
-            role: {
-                id: number;
-                description: string | null;
-                updatedAt: Date | null;
-                isActive: boolean;
-                createdBy: string | null;
-                createdAt: Date;
-                updatedBy: string | null;
-                roleName: string;
-            };
-        } & {
-            roleId: number;
-            menuId: number;
-            canCreate: boolean;
-            canRead: boolean;
-            canUpdate: boolean;
-            canDelete: boolean;
-        })[];
-    } & {
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
-    createMenu(dto: CreateMenuDto, req: any): Promise<{
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
-    updateMenu(id: number, dto: UpdateMenuDto, req: any): Promise<{
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
-    deleteMenu(id: number, req: any): Promise<{
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }>;
-    getRoleMenus(roleId: number): Promise<{
-        permissions: {
-            canCreate: boolean;
-            canRead: boolean;
-            canUpdate: boolean;
-            canDelete: boolean;
-        };
-        id: number;
-        module: string | null;
-        updatedAt: Date | null;
-        isActive: boolean;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        path: string | null;
-        orderNum: number | null;
-        menuName: string;
-        node: string | null;
-        parentId: number | null;
-        icon: string | null;
-    }[]>;
+    getMenuById(id: number): Promise<any>;
+    createMenu(dto: CreateMenuDto, req: any): Promise<any>;
+    updateMenu(id: number, dto: UpdateMenuDto, req: any): Promise<any>;
+    deleteMenu(id: number, req: any): Promise<any>;
+    getRoleMenus(roleId: number): Promise<any>;
     assignMenusToRole(roleId: number, dto: AssignMenusToRoleDto): Promise<{
         success: boolean;
         message: string;
@@ -113,6 +17,6 @@ export declare class MenuController {
     copyPermissions(dto: CopyPermissionsDto): Promise<{
         success: boolean;
         message: string;
-        copiedCount: number;
+        copiedCount: any;
     }>;
 }

@@ -11,7 +11,7 @@ export declare class ReportsController {
         };
         collectors: any[];
         summary: {
-            totalCollectors: number;
+            totalCollectors: any;
             totalMembersRegistered: any;
             totalTransactions: any;
             totalAmount: any;
@@ -19,98 +19,62 @@ export declare class ReportsController {
     }>;
     getBalanceSheet(date: string): Promise<{
         date: Date;
-        totalAcquisition: import("@prisma/client/runtime/library").Decimal;
-        totalBookValue: import("@prisma/client/runtime/library").Decimal;
-        details: {
-            id: number;
-            code: string;
-            name: string;
-            type: string;
-            acquisitionCost: import("@prisma/client/runtime/library").Decimal;
-            accumulatedDepreciation: import("@prisma/client/runtime/library").Decimal;
-            bookValue: import("@prisma/client/runtime/library").Decimal;
-        }[];
+        totalAcquisition: any;
+        totalBookValue: any;
+        details: any[];
     }>;
     getAssetMutations(startDate: string, endDate: string): Promise<{
         startDate: Date;
         endDate: Date;
-        acquisitions: {
-            type: string;
-            date: Date;
-            asset: string;
-            amount: import("@prisma/client/runtime/library").Decimal;
-        }[];
-        depreciations: {
-            type: string;
-            period: string;
-            asset: string;
-            amount: import("@prisma/client/runtime/library").Decimal;
-        }[];
+        acquisitions: any;
+        depreciations: any;
     }>;
     getCreditApplication(id: string): Promise<{
         template: string;
         companyProfile: Record<string, string>;
-        noPermohonan: string | null;
-        tanggal: Date;
+        noPermohonan: any;
+        tanggal: any;
         nasabah: {
-            nama: string;
-            alamat: string | null;
-            pekerjaan: string | null;
-            ktp: string | null;
+            nama: any;
+            alamat: any;
+            pekerjaan: any;
+            ktp: any;
         };
         pengajuan: {
             nominal: number;
             terbilang: string;
-            jangkaWaktu: number | null;
-            tujuan: string | null;
-            jenis: string;
-            collaterals: {
-                collateral: {
-                    assessedValue: number;
-                    id: number;
-                    description: string | null;
-                    updatedAt: Date | null;
-                    createdBy: string | null;
-                    createdAt: Date;
-                    updatedBy: string | null;
-                    nasabahId: number;
-                    status: string;
-                    type: string;
-                    details: string | null;
-                    marketValue: import("@prisma/client/runtime/library").Decimal;
-                    photos: string | null;
-                };
-                creditId: number;
-                collateralId: number;
-            }[];
+            jangkaWaktu: any;
+            tujuan: any;
+            jenis: any;
+            collaterals: any;
         };
     }>;
     getDepositoCertificate(id: string): Promise<{
         template: string;
         companyProfile: Record<string, string>;
-        nomorBilyet: string;
+        nomorBilyet: any;
         nasabah: {
-            nama: string;
-            alamat: string | null;
-            id: number;
+            nama: any;
+            alamat: any;
+            id: any;
         };
         detail: {
             nominal: number;
             terbilang: string;
             jangkaWaktu: string;
-            bungaPct: import("@prisma/client/runtime/library").Decimal;
-            tglMulai: Date;
-            tglJatuhTempo: Date;
+            bungaPct: any;
+            tglMulai: any;
+            tglJatuhTempo: any;
             perpanjanganOtomatis: string;
         };
         account: {
-            noRekening: string;
+            noRekening: any;
             nominal: number;
             terbilang: string;
             jangkaWaktu: string;
-            jatuhTempo: Date;
-            bunga: import("@prisma/client/runtime/library").Decimal;
-            tglBuka: Date;
+            jatuhTempo: any;
+            bunga: any;
+            tglBuka: any;
             perpanjanganOtomatis: string;
         };
     }>;
@@ -118,35 +82,17 @@ export declare class ReportsController {
         template: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
+            noRekening: any;
+            tglBuka: any;
             tglTutup: Date;
-            tglJatuhTempo: Date;
+            tglJatuhTempo: any;
             closeBalance: number;
             penalty: number;
             adminFee: number;
             refund: number;
             terbilangRefund: string;
         };
-        nasabah: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            pekerjaan: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
+        nasabah: any;
     }>;
     getSavingsPassbook(type: string, id: string): Promise<{
         template: string;
@@ -172,20 +118,20 @@ export declare class ReportsController {
         template: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
+            noRekening: any;
+            tglBuka: any;
             principal: number;
             mandatory: number;
             terbilangPokok: string;
             terbilangWajib: string;
         };
         nasabah: {
-            nama: string;
-            id: number;
-            ktp: string | null;
-            alamat: string | null;
-            pekerjaan: string | null;
-            phone: string | null;
+            nama: any;
+            id: any;
+            ktp: any;
+            alamat: any;
+            pekerjaan: any;
+            phone: any;
         };
     }>;
     getAnggotaClosure(id: string): Promise<{
@@ -193,9 +139,9 @@ export declare class ReportsController {
         title: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
-            tglTutup: Date;
+            noRekening: any;
+            tglBuka: any;
+            tglTutup: any;
             closeBalance: number;
             penalty: number;
             adminFee: number;
@@ -203,24 +149,24 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
-            nama: string;
-            id: number;
-            ktp: string | null;
-            alamat: string | null;
-            phone: string | null;
+            nama: any;
+            id: any;
+            ktp: any;
+            alamat: any;
+            phone: any;
         };
     }>;
     getAnggotaReceipt(id: string): Promise<{
         header: {
-            noRekening: string;
-            nama: string;
+            noRekening: any;
+            nama: any;
         };
         data: {
-            date: Date;
+            date: any;
             debit: number;
             credit: number;
             balance: number;
-            description: string;
+            description: any;
         }[];
         companyProfile: {
             name: string;
@@ -310,8 +256,8 @@ export declare class ReportsController {
         title: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
+            noRekening: any;
+            tglBuka: any;
             tglTutup: Date;
             closeBalance: number;
             penalty: number;
@@ -319,33 +265,15 @@ export declare class ReportsController {
             refund: number;
             terbilangRefund: string;
         };
-        nasabah: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            pekerjaan: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
+        nasabah: any;
     }>;
     getBrahmacariClosure(id: string): Promise<{
         template: string;
         title: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
+            noRekening: any;
+            tglBuka: any;
             tglTutup: Date;
             closeBalance: number;
             penalty: number;
@@ -353,33 +281,15 @@ export declare class ReportsController {
             refund: number;
             terbilangRefund: string;
         };
-        nasabah: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            pekerjaan: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
+        nasabah: any;
     }>;
     getBalimesariClosure(id: string): Promise<{
         template: string;
         title: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
+            noRekening: any;
+            tglBuka: any;
             tglTutup: Date;
             closeBalance: number;
             penalty: number;
@@ -387,33 +297,15 @@ export declare class ReportsController {
             refund: number;
             terbilangRefund: string;
         };
-        nasabah: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            pekerjaan: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
+        nasabah: any;
     }>;
     getWanaprastaClosure(id: string): Promise<{
         template: string;
         title: string;
         companyProfile: Record<string, string>;
         account: {
-            noRekening: string;
-            tglBuka: Date;
+            noRekening: any;
+            tglBuka: any;
             tglTutup: Date;
             closeBalance: number;
             penalty: number;
@@ -421,25 +313,7 @@ export declare class ReportsController {
             refund: number;
             terbilangRefund: string;
         };
-        nasabah: {
-            id: number;
-            updatedAt: Date | null;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            nama: string;
-            alamat: string | null;
-            noKtp: string | null;
-            email: string | null;
-            telepon: string | null;
-            tempatLahir: string | null;
-            tanggalLahir: Date | null;
-            jenisKelamin: string | null;
-            pekerjaan: string | null;
-            fileKtp: string | null;
-            fileKk: string | null;
-        };
+        nasabah: any;
     }>;
     getBukuBesar(accountCode: string, toAccount: string, startDate: string, endDate: string): Promise<{
         data: any[];
@@ -447,8 +321,5 @@ export declare class ReportsController {
     getBukuBesarPDF(accountCode: string, toAccount: string, startDate: string, endDate: string): Promise<{
         data: any[];
     }>;
-    getAccountsList(): Promise<{
-        accountCode: string;
-        accountName: string;
-    }[]>;
+    getAccountsList(): Promise<any>;
 }
