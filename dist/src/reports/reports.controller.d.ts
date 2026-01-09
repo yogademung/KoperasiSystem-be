@@ -68,16 +68,16 @@ export declare class ReportsController {
                 collateral: {
                     assessedValue: number;
                     id: number;
-                    nasabahId: number;
-                    status: string;
+                    description: string | null;
+                    updatedAt: Date | null;
                     createdBy: string | null;
                     createdAt: Date;
                     updatedBy: string | null;
-                    updatedAt: Date | null;
+                    nasabahId: number;
+                    status: string;
                     type: string;
-                    description: string | null;
-                    marketValue: import("@prisma/client/runtime/library").Decimal;
                     details: string | null;
+                    marketValue: import("@prisma/client/runtime/library").Decimal;
                     photos: string | null;
                 };
                 creditId: number;
@@ -130,13 +130,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -145,7 +146,6 @@ export declare class ReportsController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
-            isActive: boolean;
         };
     }>;
     getSavingsPassbook(type: string, id: string): Promise<{
@@ -321,13 +321,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -336,7 +337,6 @@ export declare class ReportsController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
-            isActive: boolean;
         };
     }>;
     getBrahmacariClosure(id: string): Promise<{
@@ -355,13 +355,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -370,7 +371,6 @@ export declare class ReportsController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
-            isActive: boolean;
         };
     }>;
     getBalimesariClosure(id: string): Promise<{
@@ -389,13 +389,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -404,7 +405,6 @@ export declare class ReportsController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
-            isActive: boolean;
         };
     }>;
     getWanaprastaClosure(id: string): Promise<{
@@ -423,13 +423,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -438,7 +439,6 @@ export declare class ReportsController {
             pekerjaan: string | null;
             fileKtp: string | null;
             fileKk: string | null;
-            isActive: boolean;
         };
     }>;
     getBukuBesar(accountCode: string, toAccount: string, startDate: string, endDate: string): Promise<{

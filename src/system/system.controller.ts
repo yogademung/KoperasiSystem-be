@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { SystemDateService } from './system-date.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
@@ -10,5 +10,10 @@ export class SystemController {
     @Get('status')
     async getSystemStatus() {
         return this.systemDateService.getSystemStatus();
+    }
+
+    @Post('advance-date')
+    async advanceDate() {
+        return this.systemDateService.advanceBusinessDate();
     }
 }

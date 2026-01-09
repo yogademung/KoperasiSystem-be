@@ -21,6 +21,9 @@ let SystemController = class SystemController {
     async getSystemStatus() {
         return this.systemDateService.getSystemStatus();
     }
+    async advanceDate() {
+        return this.systemDateService.advanceBusinessDate();
+    }
 };
 exports.SystemController = SystemController;
 __decorate([
@@ -29,6 +32,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], SystemController.prototype, "getSystemStatus", null);
+__decorate([
+    (0, common_1.Post)('advance-date'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SystemController.prototype, "advanceDate", null);
 exports.SystemController = SystemController = __decorate([
     (0, common_1.Controller)('api/system'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

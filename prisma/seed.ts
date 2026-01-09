@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { seedAccounting } from './seeds/accounting-seeder';
 import { seedMenus } from './seeds/menu-seeder';
+import { seedProductConfig } from './seeds/product-config-seeder';
 
 const prisma = new PrismaClient();
 
@@ -79,6 +80,9 @@ async function main() {
 
     // 6. Seed Menus (Phase 10)
     await seedMenus();
+
+    // 7. Seed Product Config (Phase 12)
+    await seedProductConfig();
 }
 
 main()

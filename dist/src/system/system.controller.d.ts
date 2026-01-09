@@ -13,4 +13,9 @@ export declare class SystemController {
         unclosedShiftCount: number;
         canAdvanceDate: boolean;
     }>;
+    advanceDate(): Promise<{
+        success: boolean;
+        newDate?: Date;
+        message: string;
+    }>;
 }
