@@ -33,12 +33,12 @@ export declare class MenuController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        path: string | null;
+        orderNum: number | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
         icon: string | null;
-        path: string | null;
-        orderNum: number | null;
     }>;
     createMenu(dto: CreateMenuDto, req: any): Promise<{
         id: number;
@@ -48,12 +48,12 @@ export declare class MenuController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        path: string | null;
+        orderNum: number | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
         icon: string | null;
-        path: string | null;
-        orderNum: number | null;
     }>;
     updateMenu(id: number, dto: UpdateMenuDto, req: any): Promise<{
         id: number;
@@ -63,12 +63,12 @@ export declare class MenuController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        path: string | null;
+        orderNum: number | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
         icon: string | null;
-        path: string | null;
-        orderNum: number | null;
     }>;
     deleteMenu(id: number, req: any): Promise<{
         id: number;
@@ -78,12 +78,12 @@ export declare class MenuController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        path: string | null;
+        orderNum: number | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
         icon: string | null;
-        path: string | null;
-        orderNum: number | null;
     }>;
     getRoleMenus(roleId: number): Promise<{
         permissions: {
@@ -99,12 +99,12 @@ export declare class MenuController {
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
+        path: string | null;
+        orderNum: number | null;
         menuName: string;
         node: string | null;
         parentId: number | null;
         icon: string | null;
-        path: string | null;
-        orderNum: number | null;
     }[]>;
     assignMenusToRole(roleId: number, dto: AssignMenusToRoleDto): Promise<{
         success: boolean;

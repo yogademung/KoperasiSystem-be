@@ -358,8 +358,8 @@ export class LaporanService {
         }
     }
 
-    async generateNeraca(params: { date: Date; format: 'PDF' | 'EXCEL' }) {
-        const title = 'NERACA (BALANCE SHEET)';
+    async generateNeraca(params: { date: Date; format: 'PDF' | 'EXCEL'; businessUnitId?: number }) {
+        const title = params.businessUnitId ? `NERACA UNIT KERJA ${params.businessUnitId}` : 'NERACA KONSOLIDASI';
 
         // Get all journal details up to the specified date
         const journalDetails = await this.prisma.postedJournalDetail.findMany({
@@ -367,7 +367,12 @@ export class LaporanService {
                 journal: {
                     journalDate: { lte: params.date },
                     status: 'POSTED'
-                }
+                },
+                ...(params.businessUnitId && {
+                    account: {
+                        businessUnitId: params.businessUnitId
+                    }
+                })
             },
             include: {
                 account: true
@@ -558,8 +563,8 @@ export class LaporanService {
         }
     }
 
-    async generateLabaRugi(params: { startDate: Date; endDate: Date; format: 'PDF' | 'EXCEL' }) {
-        const title = 'LAPORAN LABA RUGI (PROFIT & LOSS)';
+    async generateLabaRugi(params: { startDate: Date; endDate: Date; format: 'PDF' | 'EXCEL'; businessUnitId?: number }) {
+        const title = params.businessUnitId ? `LAPORAN LABA RUGI UNIT KERJA ${params.businessUnitId}` : 'LAPORAN LABA RUGI KONSOLIDASI';
 
         // Get journal details for the period
         const journalDetails = await this.prisma.postedJournalDetail.findMany({
@@ -567,7 +572,12 @@ export class LaporanService {
                 journal: {
                     journalDate: { gte: params.startDate, lte: params.endDate },
                     status: 'POSTED'
-                }
+                },
+                ...(params.businessUnitId && {
+                    account: {
+                        businessUnitId: params.businessUnitId
+                    }
+                })
             },
             include: {
                 account: true

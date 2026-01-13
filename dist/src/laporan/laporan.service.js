@@ -319,13 +319,18 @@ let LaporanService = class LaporanService {
         }
     }
     async generateNeraca(params) {
-        const title = 'NERACA (BALANCE SHEET)';
+        const title = params.businessUnitId ? `NERACA UNIT KERJA ${params.businessUnitId}` : 'NERACA KONSOLIDASI';
         const journalDetails = await this.prisma.postedJournalDetail.findMany({
             where: {
                 journal: {
                     journalDate: { lte: params.date },
                     status: 'POSTED'
-                }
+                },
+                ...(params.businessUnitId && {
+                    account: {
+                        businessUnitId: params.businessUnitId
+                    }
+                })
             },
             include: {
                 account: true
@@ -475,13 +480,18 @@ let LaporanService = class LaporanService {
         }
     }
     async generateLabaRugi(params) {
-        const title = 'LAPORAN LABA RUGI (PROFIT & LOSS)';
+        const title = params.businessUnitId ? `LAPORAN LABA RUGI UNIT KERJA ${params.businessUnitId}` : 'LAPORAN LABA RUGI KONSOLIDASI';
         const journalDetails = await this.prisma.postedJournalDetail.findMany({
             where: {
                 journal: {
                     journalDate: { gte: params.startDate, lte: params.endDate },
                     status: 'POSTED'
-                }
+                },
+                ...(params.businessUnitId && {
+                    account: {
+                        businessUnitId: params.businessUnitId
+                    }
+                })
             },
             include: {
                 account: true

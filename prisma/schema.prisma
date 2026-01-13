@@ -39,8 +39,8 @@ model User {
   eliminationsProcessed         InterUnitElimination[] @relation("EliminationProcessor")
 
   // Phase 13: Cost Centers
-  managedCostCenters  CostCenter[] @relation("CostCenterManager")
-  createdCostCenters  CostCenter[] @relation("CostCenterCreator")
+  managedCostCenters CostCenter[] @relation("CostCenterManager")
+  createdCostCenters CostCenter[] @relation("CostCenterCreator")
 
   @@index([roleId], map: "s_user_lpd_ROLE_LPD_ID_fkey")
   @@map("s_user_lpd")
@@ -487,6 +487,8 @@ model JournalAccount {
   debetPoleFlag  Boolean               @default(true) @map("DEBET_POLE_FLAG")
   remark         String?               @map("REMARK") @db.Text
   wilayahCd      String?               @map("WILAYAH_CD") @db.VarChar(10)
+  businessUnitId Int?                  @map("BUSINESS_UNIT_ID")
+  businessUnit   BusinessUnit?         @relation(fields: [businessUnitId], references: [id])
   isActive       Boolean               @default(true) @map("ACTIVE_FLAG")
   createdBy      String?               @map("CREATE_WHO") @db.VarChar(50)
   createdAt      DateTime              @default(now()) @map("CREATE_DATE")
@@ -1044,18 +1046,19 @@ model InterUnitElimination {
 // ====================================
 
 model CostCenter {
-  id              Int      @id @default(autoincrement()) @map("cost_center_id")
-  code            String   @unique @db.VarChar(20)
-  name            String   @db.VarChar(100)
-  description     String?  @db.Text
-  parentId        Int?     @map("parent_id")
-  businessUnitId  Int?     @map("business_unit_id")
-  managerId       Int?     @map("manager_id")
-  budget          Decimal? @db.Decimal(15, 2)
-  isActive        Boolean  @default(true) @map("is_active")
-  createdBy       Int      @map("created_by")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id             Int           @id @default(autoincrement()) @map("cost_center_id")
+  code           String        @unique @db.VarChar(20)
+  name           String        @db.VarChar(100)
+  description    String?       @db.Text
+  parentId       Int?          @map("parent_id")
+  businessUnitId Int?          @map("business_unit_id")
+  businessUnit   BusinessUnit? @relation(fields: [businessUnitId], references: [id])
+  managerId      Int?          @map("manager_id")
+  budget         Decimal?      @db.Decimal(15, 2)
+  isActive       Boolean       @default(true) @map("is_active")
+  createdBy      Int           @map("created_by")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
   // Relations
   parent   CostCenter?  @relation("CostCenterHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -1068,4 +1071,20 @@ model CostCenter {
   @@index([managerId])
   @@index([isActive])
   @@map("cost_center")
+}
+
+model BusinessUnit {
+  id          Int      @id @default(autoincrement()) @map("id")
+  code        String   @unique @map("code") @db.VarChar(20)
+  name        String   @map("name") @db.VarChar(100)
+  description String?  @map("description") @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  accounts    JournalAccount[]
+  costCenters CostCenter[]
+
+  @@map("m_business_unit")
 }

@@ -37,6 +37,10 @@ const migration_module_1 = require("./migration/migration.module");
 const menu_module_1 = require("./menu/menu.module");
 const collector_module_1 = require("./collector/collector.module");
 const system_module_1 = require("./system/system.module");
+const product_config_module_1 = require("./product-config/product-config.module");
+const inter_unit_module_1 = require("./inter-unit/inter-unit.module");
+const cost_center_module_1 = require("./cost-center/cost-center.module");
+const business_unit_module_1 = require("./business-unit/business-unit.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -69,6 +73,10 @@ exports.AppModule = AppModule = __decorate([
             menu_module_1.MenuModule,
             collector_module_1.CollectorModule,
             system_module_1.SystemModule,
+            business_unit_module_1.BusinessUnitModule,
+            product_config_module_1.ProductConfigModule,
+            inter_unit_module_1.InterUnitModule,
+            cost_center_module_1.CostCenterModule,
         ],
         controllers: [app_controller_1.AppController, month_end_controller_1.MonthEndController],
         providers: [app_service_1.AppService, period_lock_service_1.PeriodLockService, balance_sheet_service_1.BalanceSheetService, depreciation_service_1.DepreciationService, lov_value_service_1.LovValueService],

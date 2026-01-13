@@ -18,7 +18,7 @@ async function seedMenus() {
         { id: 37, menuName: 'Simulasi & Tools', path: '/simpanan/simulasi', module: 'SIMPANAN', orderNum: 7, parentId: 3 },
         { id: 4, menuName: 'Kredit', path: '/kredit', icon: 'CreditCard', module: 'KREDIT', orderNum: 4, parentId: null },
         { id: 9, menuName: 'Shift Harian', path: '/dashboard', icon: 'Clock', module: 'COLLECTOR', orderNum: 4.5, parentId: null },
-        { id: 5, menuName: 'Manajemen Modal', path: '/capital', icon: 'DollarSign', module: 'CAPITAL', orderNum: 5, parentId: null },
+        { id: 5, menuName: 'Manajemen Modal', path: '/capital', module: 'ACCOUNTING', orderNum: 2, parentId: 6 },
         { id: 6, menuName: 'Akuntansi', path: '/accounting', icon: 'PieChart', module: 'ACCOUNTING', orderNum: 6, parentId: null },
         { id: 61, menuName: 'Master Akun', path: '/accounting/accounts', module: 'ACCOUNTING', orderNum: 1, parentId: 6 },
         { id: 63, menuName: 'Jurnal Umum', path: '/accounting/journals', module: 'ACCOUNTING', orderNum: 3, parentId: 6 },
@@ -27,6 +27,7 @@ async function seedMenus() {
         { id: 66, menuName: 'Manajemen Aset', path: '/accounting/assets', module: 'ACCOUNTING', orderNum: 6, parentId: 6 },
         { id: 67, menuName: 'Depresiasi Bulanan', path: '/accounting/depreciation', module: 'ACCOUNTING', orderNum: 7, parentId: 6 },
         { id: 68, menuName: 'Penutupan Periode', path: '/accounting/closing', module: 'ACCOUNTING', orderNum: 8, parentId: 6 },
+        { id: 902, menuName: 'Mutasi Antar Unit', path: '/business-units/transactions', module: 'ACCOUNTING', orderNum: 10, parentId: 6 },
         { id: 7, menuName: 'Laporan', path: '/laporan', icon: 'FileText', module: 'LAPORAN', orderNum: 7, parentId: null },
         { id: 71, menuName: 'Template Laporan', path: '/laporan/templates', module: 'LAPORAN', orderNum: 1, parentId: 7 },
         { id: 72, menuName: 'Generator Laporan', path: '/laporan', module: 'LAPORAN', orderNum: 2, parentId: 7 },
@@ -36,7 +37,9 @@ async function seedMenus() {
         { id: 82, menuName: 'Manajemen User', path: '/users', module: 'SETTINGS', orderNum: 2, parentId: 8 },
         { id: 83, menuName: 'Migrasi Data', path: '/settings/migration', module: 'SETTINGS', orderNum: 3, parentId: 8 },
         { id: 84, menuName: 'Produk', path: '/settings/products', module: 'SETTINGS', orderNum: 4, parentId: 8 },
-        { id: 89, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', icon: 'FileText', module: 'SETTINGS', orderNum: 9, parentId: null },
+        { id: 89, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', icon: 'FileText', module: 'SETTINGS', orderNum: 9, parentId: 8 },
+        { id: 85, menuName: 'Master Unit Kerja', path: '/settings/business-units', module: 'SETTINGS', orderNum: 5, parentId: 8 },
+        { id: 91, menuName: 'Cost Centers', path: '/cost-centers', module: 'SETTINGS', orderNum: 6, parentId: 8 },
     ];
     for (const menu of menus) {
         const { icon, ...menuData } = menu;
@@ -52,7 +55,7 @@ async function seedMenus() {
         });
     }
     console.log(`✅ Created/Updated ${menus.length} menus`);
-    const deprecatedIds = [62, 91, 92];
+    const deprecatedIds = [62, 90, 901, 911, 912];
     await prisma.menuRole.deleteMany({
         where: { menuId: { in: deprecatedIds } }
     });

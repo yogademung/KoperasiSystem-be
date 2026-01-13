@@ -31,11 +31,13 @@ export declare class LaporanService {
     generateNeraca(params: {
         date: Date;
         format: 'PDF' | 'EXCEL';
+        businessUnitId?: number;
     }): Promise<Buffer<ArrayBufferLike>>;
     generateLabaRugi(params: {
         startDate: Date;
         endDate: Date;
         format: 'PDF' | 'EXCEL';
+        businessUnitId?: number;
     }): Promise<Buffer<ArrayBufferLike>>;
     private formatCurrency;
     private formatDate;

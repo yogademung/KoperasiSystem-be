@@ -174,7 +174,7 @@ export class InterUnitService {
 
     /**
      * Post inter-unit transaction to journal
-     * Creates journal entries for inter-unit receivable/payable
+     * Creates a 4-line journal entry that balances both units using per-unit RAK accounts
      */
     async post(id: number, userId: number) {
         const transaction = await this.findOne(id);
@@ -187,16 +187,68 @@ export class InterUnitService {
             throw new BadRequestException('Transaction already posted');
         }
 
-        // Create journal entry
-        // TODO: This needs COA mapping for inter-unit accounts
-        // For now, we'll just update status
-        // Later: Create actual journal with proper DR/CR entries
+        // 1. Get Accounts for Source Unit
+        const sourceKasAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.sourceUnitId, accountCode: { startsWith: '1.01' } }
+        });
+        const sourceRakAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.sourceUnitId, accountType: 'RAK' }
+        });
+
+        // 2. Get Accounts for Destination Unit
+        const destKasAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.destUnitId, accountCode: { startsWith: '1.01' } }
+        });
+        const destRakAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.destUnitId, accountType: 'RAK' }
+        });
+
+        if (!sourceKasAcc || !sourceRakAcc || !destKasAcc || !destRakAcc) {
+            throw new BadRequestException('Akun Kas atau RAK untuk Unit Pengirim/Penerima tidak ditemukan. Pastikan COA sudah disetup dengan Business Unit ID yang benar.');
+        }
+
+        // 3. Create Journal with 4 lines
+        const journal = await this.accountingService.createManualJournal({
+            date: transaction.transactionDate,
+            description: `Mutasi Antar Unit: ${transaction.description || ''} (${transaction.referenceNo})`,
+            userId: userId,
+            postingType: 'AUTO',
+            details: [
+                // Pair 1: Source Unit (Outflow balanced by RAK)
+                {
+                    accountCode: sourceRakAcc.accountCode,
+                    debit: Number(transaction.amount),
+                    credit: 0,
+                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`
+                },
+                {
+                    accountCode: sourceKasAcc.accountCode,
+                    debit: 0,
+                    credit: Number(transaction.amount),
+                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`
+                },
+
+                // Pair 2: Destination Unit (Inflow balanced by RAK)
+                {
+                    accountCode: destKasAcc.accountCode,
+                    debit: Number(transaction.amount),
+                    credit: 0,
+                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`
+                },
+                {
+                    accountCode: destRakAcc.accountCode,
+                    debit: 0,
+                    credit: Number(transaction.amount),
+                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`
+                },
+            ]
+        });
 
         return this.prisma.interUnitTransaction.update({
             where: { id },
             data: {
                 status: 'POSTED',
-                // journalId will be set when journal integration is complete
+                journalId: journal.id
             },
         });
     }

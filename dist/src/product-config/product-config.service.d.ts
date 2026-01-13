@@ -8,6 +8,7 @@ export declare class ProductConfigService {
         updatedAt: Date;
         createdAt: Date;
         icon: string | null;
+        minInterestRate: Prisma.Decimal | null;
         productCode: string;
         productName: string;
         tableName: string;
@@ -16,7 +17,6 @@ export declare class ProductConfigService {
         displayOrder: number;
         routePath: string;
         defaultInterestRate: Prisma.Decimal | null;
-        minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
         interestPeriod: string | null;
     }[]>;
@@ -25,6 +25,7 @@ export declare class ProductConfigService {
         updatedAt: Date;
         createdAt: Date;
         icon: string | null;
+        minInterestRate: Prisma.Decimal | null;
         productCode: string;
         productName: string;
         tableName: string;
@@ -33,7 +34,6 @@ export declare class ProductConfigService {
         displayOrder: number;
         routePath: string;
         defaultInterestRate: Prisma.Decimal | null;
-        minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
         interestPeriod: string | null;
     }[]>;
@@ -42,6 +42,7 @@ export declare class ProductConfigService {
         updatedAt: Date;
         createdAt: Date;
         icon: string | null;
+        minInterestRate: Prisma.Decimal | null;
         productCode: string;
         productName: string;
         tableName: string;
@@ -50,7 +51,6 @@ export declare class ProductConfigService {
         displayOrder: number;
         routePath: string;
         defaultInterestRate: Prisma.Decimal | null;
-        minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
         interestPeriod: string | null;
     }>;
@@ -60,6 +60,7 @@ export declare class ProductConfigService {
         updatedAt: Date;
         createdAt: Date;
         icon: string | null;
+        minInterestRate: Prisma.Decimal | null;
         productCode: string;
         productName: string;
         tableName: string;
@@ -68,7 +69,6 @@ export declare class ProductConfigService {
         displayOrder: number;
         routePath: string;
         defaultInterestRate: Prisma.Decimal | null;
-        minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
         interestPeriod: string | null;
     }>;
@@ -77,6 +77,7 @@ export declare class ProductConfigService {
         updatedAt: Date;
         createdAt: Date;
         icon: string | null;
+        minInterestRate: Prisma.Decimal | null;
         productCode: string;
         productName: string;
         tableName: string;
@@ -85,7 +86,6 @@ export declare class ProductConfigService {
         displayOrder: number;
         routePath: string;
         defaultInterestRate: Prisma.Decimal | null;
-        minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
         interestPeriod: string | null;
     }>;
@@ -97,6 +97,7 @@ export declare class ProductConfigService {
         updatedAt: Date;
         createdAt: Date;
         icon: string | null;
+        minInterestRate: Prisma.Decimal | null;
         productCode: string;
         productName: string;
         tableName: string;
@@ -105,7 +106,6 @@ export declare class ProductConfigService {
         displayOrder: number;
         routePath: string;
         defaultInterestRate: Prisma.Decimal | null;
-        minInterestRate: Prisma.Decimal | null;
         maxInterestRate: Prisma.Decimal | null;
         interestPeriod: string | null;
     }[]>;

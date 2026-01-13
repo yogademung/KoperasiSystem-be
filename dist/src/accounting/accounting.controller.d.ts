@@ -13,6 +13,7 @@ export declare class AccountingController {
             debetPoleFlag: boolean;
             remark: string | null;
             wilayahCd: string | null;
+            businessUnitId: number | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
@@ -32,6 +33,7 @@ export declare class AccountingController {
         debetPoleFlag: boolean;
         remark: string | null;
         wilayahCd: string | null;
+        businessUnitId: number | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
@@ -47,6 +49,7 @@ export declare class AccountingController {
         debetPoleFlag: boolean;
         remark: string | null;
         wilayahCd: string | null;
+        businessUnitId: number | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
@@ -61,6 +64,7 @@ export declare class AccountingController {
         debetPoleFlag: boolean;
         remark: string | null;
         wilayahCd: string | null;
+        businessUnitId: number | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
@@ -76,6 +80,7 @@ export declare class AccountingController {
             debetPoleFlag: boolean;
             remark: string | null;
             wilayahCd: string | null;
+            businessUnitId: number | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
@@ -90,6 +95,7 @@ export declare class AccountingController {
             debetPoleFlag: boolean;
             remark: string | null;
             wilayahCd: string | null;
+            businessUnitId: number | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
@@ -183,6 +189,7 @@ export declare class AccountingController {
                 debetPoleFlag: boolean;
                 remark: string | null;
                 wilayahCd: string | null;
+                businessUnitId: number | null;
                 isActive: boolean;
                 createdBy: string | null;
                 createdAt: Date;

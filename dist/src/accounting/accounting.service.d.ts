@@ -29,6 +29,7 @@ export declare class AccountingService {
             debetPoleFlag: boolean;
             remark: string | null;
             wilayahCd: string | null;
+            businessUnitId: number | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
@@ -48,6 +49,7 @@ export declare class AccountingService {
         debetPoleFlag: boolean;
         remark: string | null;
         wilayahCd: string | null;
+        businessUnitId: number | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
@@ -63,6 +65,7 @@ export declare class AccountingService {
         debetPoleFlag: boolean;
         remark: string | null;
         wilayahCd: string | null;
+        businessUnitId: number | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
@@ -77,6 +80,7 @@ export declare class AccountingService {
         debetPoleFlag: boolean;
         remark: string | null;
         wilayahCd: string | null;
+        businessUnitId: number | null;
         isActive: boolean;
         createdBy: string | null;
         createdAt: Date;
@@ -92,6 +96,7 @@ export declare class AccountingService {
             debetPoleFlag: boolean;
             remark: string | null;
             wilayahCd: string | null;
+            businessUnitId: number | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
@@ -106,6 +111,7 @@ export declare class AccountingService {
             debetPoleFlag: boolean;
             remark: string | null;
             wilayahCd: string | null;
+            businessUnitId: number | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
@@ -186,6 +192,7 @@ export declare class AccountingService {
                 debetPoleFlag: boolean;
                 remark: string | null;
                 wilayahCd: string | null;
+                businessUnitId: number | null;
                 isActive: boolean;
                 createdBy: string | null;
                 createdAt: Date;

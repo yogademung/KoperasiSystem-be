@@ -88,7 +88,8 @@ export class LaporanController {
         await this.handleReport(res, params, 'pdf', () =>
             this.laporanService.generateNeraca({
                 date: new Date(params.endDate || params.date),
-                format: params.format
+                format: params.format,
+                businessUnitId: params.businessUnitId ? Number(params.businessUnitId) : undefined
             })
         );
     }
@@ -96,7 +97,10 @@ export class LaporanController {
     @Post('akuntansi/labarugi')
     async labaRugi(@Body() params: any, @Res() res: Response) {
         await this.handleReport(res, params, 'pdf', () =>
-            this.laporanService.generateLabaRugi(this.parseDates(params))
+            this.laporanService.generateLabaRugi({
+                ...this.parseDates(params),
+                businessUnitId: params.businessUnitId ? Number(params.businessUnitId) : undefined
+            })
         );
     }
 

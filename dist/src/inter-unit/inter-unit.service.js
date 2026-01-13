@@ -132,10 +132,58 @@ let InterUnitService = class InterUnitService {
         if (transaction.journalId) {
             throw new common_1.BadRequestException('Transaction already posted');
         }
+        const sourceKasAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.sourceUnitId, accountCode: { startsWith: '1.01' } }
+        });
+        const sourceRakAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.sourceUnitId, accountType: 'RAK' }
+        });
+        const destKasAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.destUnitId, accountCode: { startsWith: '1.01' } }
+        });
+        const destRakAcc = await this.prisma.journalAccount.findFirst({
+            where: { businessUnitId: transaction.destUnitId, accountType: 'RAK' }
+        });
+        if (!sourceKasAcc || !sourceRakAcc || !destKasAcc || !destRakAcc) {
+            throw new common_1.BadRequestException('Akun Kas atau RAK untuk Unit Pengirim/Penerima tidak ditemukan. Pastikan COA sudah disetup dengan Business Unit ID yang benar.');
+        }
+        const journal = await this.accountingService.createManualJournal({
+            date: transaction.transactionDate,
+            description: `Mutasi Antar Unit: ${transaction.description || ''} (${transaction.referenceNo})`,
+            userId: userId,
+            postingType: 'AUTO',
+            details: [
+                {
+                    accountCode: sourceRakAcc.accountCode,
+                    debit: Number(transaction.amount),
+                    credit: 0,
+                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`
+                },
+                {
+                    accountCode: sourceKasAcc.accountCode,
+                    debit: 0,
+                    credit: Number(transaction.amount),
+                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`
+                },
+                {
+                    accountCode: destKasAcc.accountCode,
+                    debit: Number(transaction.amount),
+                    credit: 0,
+                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`
+                },
+                {
+                    accountCode: destRakAcc.accountCode,
+                    debit: 0,
+                    credit: Number(transaction.amount),
+                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`
+                },
+            ]
+        });
         return this.prisma.interUnitTransaction.update({
             where: { id },
             data: {
                 status: 'POSTED',
+                journalId: journal.id
             },
         });
     }

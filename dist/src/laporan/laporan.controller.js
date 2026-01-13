@@ -62,11 +62,15 @@ let LaporanController = class LaporanController {
     async neraca(params, res) {
         await this.handleReport(res, params, 'pdf', () => this.laporanService.generateNeraca({
             date: new Date(params.endDate || params.date),
-            format: params.format
+            format: params.format,
+            businessUnitId: params.businessUnitId ? Number(params.businessUnitId) : undefined
         }));
     }
     async labaRugi(params, res) {
-        await this.handleReport(res, params, 'pdf', () => this.laporanService.generateLabaRugi(this.parseDates(params)));
+        await this.handleReport(res, params, 'pdf', () => this.laporanService.generateLabaRugi({
+            ...this.parseDates(params),
+            businessUnitId: params.businessUnitId ? Number(params.businessUnitId) : undefined
+        }));
     }
     parseDates(params) {
         return {
