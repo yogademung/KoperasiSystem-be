@@ -14,11 +14,30 @@ export declare class MonthEndController {
     }>;
     closePeriod(body: {
         period: string;
-    }, req: any): Promise<any>;
+    }, req: any): Promise<{
+        status: string;
+        period: string;
+        reason: string | null;
+        lockedAt: Date;
+        lockedBy: number;
+        unlockedAt: Date | null;
+        unlockedBy: number | null;
+        unlockReason: string | null;
+    }>;
     requestUnlock(body: {
         period: string;
         reason: string;
-    }, req: any): Promise<any>;
+    }, req: any): Promise<{
+        id: number;
+        status: string;
+        period: string;
+        reason: string;
+        requestedAt: Date;
+        approvedAt: Date | null;
+        managerNotes: string | null;
+        requestedBy: number;
+        approvedBy: number | null;
+    }>;
     approveUnlock(body: {
         requestId: number;
         notes: string;
@@ -33,7 +52,26 @@ export declare class MonthEndController {
     }>;
     previewDepreciation(period: string): Promise<{
         items: {
-            asset: any;
+            asset: {
+                id: number;
+                updatedAt: Date | null;
+                name: string;
+                createdBy: string | null;
+                createdAt: Date;
+                updatedBy: string | null;
+                code: string;
+                status: string;
+                type: string;
+                acquisitionDate: Date;
+                acquisitionCost: import("@prisma/client/runtime/library").Decimal;
+                residualValue: import("@prisma/client/runtime/library").Decimal;
+                usefulLifeYears: number;
+                depreciationRate: number;
+                depreciationMethod: string;
+                assetAccountId: string;
+                accumDepreciationAccountId: string;
+                expenseAccountId: string;
+            };
             amount: number;
         }[];
         totalAmount: number;

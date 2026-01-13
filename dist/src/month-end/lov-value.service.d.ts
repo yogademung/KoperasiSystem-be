@@ -3,7 +3,27 @@ export declare class LovValueService {
     private prisma;
     constructor(prisma: PrismaService);
     getValue(code: string, codeValue: string): Promise<string | null>;
-    setValue(code: string, codeValue: string, description: string, userId: string): Promise<any>;
+    setValue(code: string, codeValue: string, description: string, userId: string): Promise<{
+        description: string | null;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        orderNum: number | null;
+        code: string;
+        codeValue: string;
+    }>;
     getLastClosingMonth(): Promise<string | null>;
-    setLastClosingMonth(period: string, userId: string): Promise<any>;
+    setLastClosingMonth(period: string, userId: string): Promise<{
+        description: string | null;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        orderNum: number | null;
+        code: string;
+        codeValue: string;
+    }>;
 }

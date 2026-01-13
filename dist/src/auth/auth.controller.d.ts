@@ -16,7 +16,7 @@ export declare class AuthController {
         user?: undefined;
     } | {
         requiresSetup2FA: boolean;
-        userId: any;
+        userId: number;
         qrCodeUrl: string;
         secret: string;
         message: string;
@@ -40,10 +40,10 @@ export declare class AuthController {
         accessToken: string;
         refreshToken: string;
         user: {
-            id: any;
-            username: any;
-            fullName: any;
-            role: any;
+            id: number;
+            username: string;
+            fullName: string;
+            role: string | null;
             menus: any[];
         };
         requiresForceLogin?: undefined;

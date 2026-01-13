@@ -1037,26 +1037,7 @@ model InterUnitElimination {
 // PHASE 12: Product Configuration
 // ====================================
 
-model ProductConfig {
-  id                   Int      @id @default(autoincrement()) @map("product_id")
-  productCode          String   @unique @map("product_code") @db.VarChar(50)
-  productName          String   @map("product_name") @db.VarChar(100)
-  tableName            String   @map("table_name") @db.VarChar(100)
-  isEnabled            Boolean  @default(true) @map("is_enabled")
-  isCore               Boolean  @default(false) @map("is_core")
-  displayOrder         Int      @default(0) @map("display_order")
-  routePath            String?  @map("route_path") @db.VarChar(255)
-  icon                 String?  @map("icon") @db.VarChar(50)
-  defaultInterestRate  Decimal? @default(0) @map("default_interest_rate") @db.Decimal(5, 2)
-  minInterestRate      Decimal? @map("min_interest_rate") @db.Decimal(5, 2)
-  maxInterestRate      Decimal? @map("max_interest_rate") @db.Decimal(5, 2)
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @updatedAt @map("updated_at")
-
-  @@index([isEnabled])
-  @@index([displayOrder])
-  @@map("s_product_config")
-}
+// ProductConfig removed (duplicate)
 
 // ====================================
 // PHASE 13: Week 3 - Cost Centers

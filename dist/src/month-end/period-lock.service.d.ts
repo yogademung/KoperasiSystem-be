@@ -10,8 +10,27 @@ export declare class PeriodLockService {
     isPeriodLocked(period: string): Promise<boolean>;
     private getPreviousPeriod;
     private validateSequentialClosing;
-    closePeriod(period: string, userId: number): Promise<any>;
-    requestUnlock(period: string, userId: number, reason: string): Promise<any>;
+    closePeriod(period: string, userId: number): Promise<{
+        status: string;
+        period: string;
+        reason: string | null;
+        lockedAt: Date;
+        lockedBy: number;
+        unlockedAt: Date | null;
+        unlockedBy: number | null;
+        unlockReason: string | null;
+    }>;
+    requestUnlock(period: string, userId: number, reason: string): Promise<{
+        id: number;
+        status: string;
+        period: string;
+        reason: string;
+        requestedAt: Date;
+        approvedAt: Date | null;
+        managerNotes: string | null;
+        requestedBy: number;
+        approvedBy: number | null;
+    }>;
     adminForceUnlock(period: string, adminId: number, reason: string): Promise<{
         success: boolean;
     }>;
@@ -21,5 +40,18 @@ export declare class PeriodLockService {
     rejectUnlock(requestId: number, managerId: number, notes?: string): Promise<{
         success: boolean;
     }>;
-    getLockedPeriods(): Promise<any>;
+    getLockedPeriods(): Promise<({
+        creator: {
+            fullName: string;
+        };
+    } & {
+        status: string;
+        period: string;
+        reason: string | null;
+        lockedAt: Date;
+        lockedBy: number;
+        unlockedAt: Date | null;
+        unlockedBy: number | null;
+        unlockReason: string | null;
+    })[]>;
 }

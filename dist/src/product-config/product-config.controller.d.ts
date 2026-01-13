@@ -1,20 +1,118 @@
 import { ProductConfigService } from './product-config.service';
+import { Prisma } from '@prisma/client';
 export declare class ProductConfigController {
     private readonly productConfigService;
     constructor(productConfigService: ProductConfigService);
-    getAllProducts(): Promise<any>;
-    getEnabledProducts(): Promise<any>;
-    getProductByCode(code: string): Promise<any>;
+    getAllProducts(): Promise<{
+        id: number;
+        updatedAt: Date;
+        createdAt: Date;
+        icon: string | null;
+        productCode: string;
+        productName: string;
+        tableName: string;
+        isEnabled: boolean;
+        isCore: boolean;
+        displayOrder: number;
+        routePath: string;
+        defaultInterestRate: Prisma.Decimal | null;
+        minInterestRate: Prisma.Decimal | null;
+        maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
+    }[]>;
+    getEnabledProducts(): Promise<{
+        id: number;
+        updatedAt: Date;
+        createdAt: Date;
+        icon: string | null;
+        productCode: string;
+        productName: string;
+        tableName: string;
+        isEnabled: boolean;
+        isCore: boolean;
+        displayOrder: number;
+        routePath: string;
+        defaultInterestRate: Prisma.Decimal | null;
+        minInterestRate: Prisma.Decimal | null;
+        maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
+    }[]>;
+    getProductByCode(code: string): Promise<{
+        id: number;
+        updatedAt: Date;
+        createdAt: Date;
+        icon: string | null;
+        productCode: string;
+        productName: string;
+        tableName: string;
+        isEnabled: boolean;
+        isCore: boolean;
+        displayOrder: number;
+        routePath: string;
+        defaultInterestRate: Prisma.Decimal | null;
+        minInterestRate: Prisma.Decimal | null;
+        maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
+    }>;
     hasExistingAccounts(code: string): Promise<{
         hasAccounts: boolean;
         count: number;
     }>;
-    toggleProduct(code: string): Promise<any>;
-    updateProduct(code: string, data: any): Promise<any>;
+    toggleProduct(code: string): Promise<{
+        message: string;
+        id: number;
+        updatedAt: Date;
+        createdAt: Date;
+        icon: string | null;
+        productCode: string;
+        productName: string;
+        tableName: string;
+        isEnabled: boolean;
+        isCore: boolean;
+        displayOrder: number;
+        routePath: string;
+        defaultInterestRate: Prisma.Decimal | null;
+        minInterestRate: Prisma.Decimal | null;
+        maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
+    }>;
+    updateProduct(code: string, data: any): Promise<{
+        id: number;
+        updatedAt: Date;
+        createdAt: Date;
+        icon: string | null;
+        productCode: string;
+        productName: string;
+        tableName: string;
+        isEnabled: boolean;
+        isCore: boolean;
+        displayOrder: number;
+        routePath: string;
+        defaultInterestRate: Prisma.Decimal | null;
+        minInterestRate: Prisma.Decimal | null;
+        maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
+    }>;
     reorderProducts(body: {
         order: {
             productCode: string;
             displayOrder: number;
         }[];
-    }): Promise<any>;
+    }): Promise<{
+        id: number;
+        updatedAt: Date;
+        createdAt: Date;
+        icon: string | null;
+        productCode: string;
+        productName: string;
+        tableName: string;
+        isEnabled: boolean;
+        isCore: boolean;
+        displayOrder: number;
+        routePath: string;
+        defaultInterestRate: Prisma.Decimal | null;
+        minInterestRate: Prisma.Decimal | null;
+        maxInterestRate: Prisma.Decimal | null;
+        interestPeriod: string | null;
+    }[]>;
 }

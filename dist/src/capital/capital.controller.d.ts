@@ -13,5 +13,8 @@ export declare class CapitalController {
     createLoan(dto: CreateExternalLoanDto, req: any): Promise<any>;
     findAllLoans(): Promise<any>;
     findOneLoan(id: string): Promise<any>;
-    repayLoan(id: string, dto: RepayExternalLoanDto, req: any): Promise<any>;
+    repayLoan(id: string, dto: RepayExternalLoanDto, req: any): Promise<{
+        loan: any;
+        journal: any;
+    }>;
 }

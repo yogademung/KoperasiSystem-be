@@ -9,16 +9,64 @@ export declare class ReportService {
     private generatorService;
     constructor(prisma: PrismaService, templateService: TemplateService, metadataService: ReportMetadataService, generatorService: ReportGeneratorService);
     getReportInfo(templateCode: string): Promise<{
-        template: any;
+        template: {
+            id: number;
+            description: string | null;
+            updatedAt: Date | null;
+            name: string;
+            isActive: boolean;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            parentId: number | null;
+            code: string;
+            isDefault: boolean;
+            productModule: string;
+            category: string;
+            jsonSchema: string;
+            paperSize: string;
+            orientation: string;
+            customWidth: import("@prisma/client/runtime/library").Decimal | null;
+            customHeight: import("@prisma/client/runtime/library").Decimal | null;
+            marginTop: import("@prisma/client/runtime/library").Decimal;
+            marginBottom: import("@prisma/client/runtime/library").Decimal;
+            marginLeft: import("@prisma/client/runtime/library").Decimal;
+            marginRight: import("@prisma/client/runtime/library").Decimal;
+            version: number;
+        };
         metadata: import("./interfaces/report.interfaces").ReportMetadata;
     }>;
     generateReportByCode(templateCode: string, format: 'PDF' | 'EXCEL', parameters: Record<string, any>, userId: string): Promise<{
         success: boolean;
-        logId: any;
+        logId: number;
         fileUrl: string;
-        fileSize: any;
-        generatedAt: any;
+        fileSize: number;
+        generatedAt: Date;
     }>;
-    getTemplatesByProduct(productModule: string): Promise<any>;
-    getDefaultTemplates(): Promise<any>;
+    getTemplatesByProduct(productModule: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
+        isActive: boolean;
+        createdAt: Date;
+        code: string;
+        isDefault: boolean;
+        productModule: string;
+        category: string;
+        version: number;
+    }[]>;
+    getDefaultTemplates(): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        name: string;
+        isActive: boolean;
+        createdAt: Date;
+        code: string;
+        isDefault: boolean;
+        productModule: string;
+        category: string;
+        version: number;
+    }[]>;
 }

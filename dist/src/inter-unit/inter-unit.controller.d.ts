@@ -2,22 +2,140 @@ import { InterUnitService, CreateInterUnitTransactionDto, InterUnitTransactionFi
 export declare class InterUnitController {
     private readonly interUnitService;
     constructor(interUnitService: InterUnitService);
-    createTransaction(dto: CreateInterUnitTransactionDto): Promise<any>;
+    createTransaction(dto: CreateInterUnitTransactionDto): Promise<{
+        creator: {
+            fullName: string;
+        };
+    } & {
+        id: number;
+        description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        journalId: number | null;
+        approvedBy: number | null;
+        transactionDate: Date;
+        sourceUnitId: number;
+        destUnitId: number;
+        transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
+        referenceNo: string | null;
+        eliminationJournalId: number | null;
+    }>;
     getTransactions(filters: InterUnitTransactionFilters): Promise<{
-        data: any;
-        total: any;
+        data: ({
+            creator: {
+                fullName: string;
+            };
+            approver: {
+                fullName: string;
+            } | null;
+        } & {
+            id: number;
+            description: string | null;
+            createdBy: number;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            journalId: number | null;
+            approvedBy: number | null;
+            transactionDate: Date;
+            sourceUnitId: number;
+            destUnitId: number;
+            transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
+            referenceNo: string | null;
+            eliminationJournalId: number | null;
+        })[];
+        total: number;
         page: number;
         limit: number;
         totalPages: number;
     }>;
-    getTransaction(id: number): Promise<any>;
-    approveTransaction(id: number): Promise<any>;
-    postTransaction(id: number): Promise<any>;
-    deleteTransaction(id: number): Promise<any>;
+    getTransaction(id: number): Promise<{
+        creator: {
+            username: string;
+            fullName: string;
+        };
+        approver: {
+            username: string;
+            fullName: string;
+        } | null;
+    } & {
+        id: number;
+        description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        journalId: number | null;
+        approvedBy: number | null;
+        transactionDate: Date;
+        sourceUnitId: number;
+        destUnitId: number;
+        transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
+        referenceNo: string | null;
+        eliminationJournalId: number | null;
+    }>;
+    approveTransaction(id: number): Promise<{
+        id: number;
+        description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        journalId: number | null;
+        approvedBy: number | null;
+        transactionDate: Date;
+        sourceUnitId: number;
+        destUnitId: number;
+        transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
+        referenceNo: string | null;
+        eliminationJournalId: number | null;
+    }>;
+    postTransaction(id: number): Promise<{
+        id: number;
+        description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        journalId: number | null;
+        approvedBy: number | null;
+        transactionDate: Date;
+        sourceUnitId: number;
+        destUnitId: number;
+        transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
+        referenceNo: string | null;
+        eliminationJournalId: number | null;
+    }>;
+    deleteTransaction(id: number): Promise<{
+        id: number;
+        description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        journalId: number | null;
+        approvedBy: number | null;
+        transactionDate: Date;
+        sourceUnitId: number;
+        destUnitId: number;
+        transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
+        referenceNo: string | null;
+        eliminationJournalId: number | null;
+    }>;
     getBalances(unitId: number, asOfDate?: string): Promise<{
         unitId: number;
         balance: number;
         type: string;
     }[]>;
-    generateElimination(year: number, month: number): Promise<any>;
+    generateElimination(year: number, month: number): Promise<{
+        id: number;
+        journalId: number | null;
+        periodYear: number;
+        periodMonth: number;
+        totalEliminated: import("@prisma/client/runtime/library").Decimal;
+        processedDate: Date | null;
+        processedBy: number | null;
+    }>;
 }

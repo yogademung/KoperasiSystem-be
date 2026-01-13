@@ -4,7 +4,7 @@ export declare class KreditReportController {
     private readonly kreditReportService;
     constructor(kreditReportService: KreditReportService);
     getKolektibilitas(period: string): Promise<{
-        totalKredit: any;
+        totalKredit: number;
         totalOutstanding: number;
         lancar: {
             count: number;
@@ -24,8 +24,27 @@ export declare class KreditReportController {
         };
     }>;
     downloadKolektibilitasPDF(period: string, res: Response): Promise<void>;
-    getDaftarKredit(status?: string): Promise<any>;
+    getDaftarKredit(status?: string): Promise<{
+        nomorKredit: string | null;
+        namaDebitur: string;
+        jenisKredit: string;
+        tglRealisasi: Date;
+        nominal: number;
+        sisaPokok: number;
+        sisaBunga: number;
+        status: string;
+    }[]>;
     downloadDaftarKreditExcel(status: string, res: Response): Promise<void>;
-    getTunggakan(asOf: string): Promise<any>;
+    getTunggakan(asOf: string): Promise<{
+        nomorKredit: string | null;
+        namaDebitur: string;
+        angsuranKe: number;
+        tglJatuhTempo: Date;
+        hariTerlambat: number;
+        pokokTunggakan: number;
+        bungaTunggakan: number;
+        denda: number;
+        totalTunggakan: number;
+    }[]>;
     downloadTunggakanPDF(asOf: string, res: Response): Promise<void>;
 }

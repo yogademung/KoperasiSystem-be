@@ -5,7 +5,20 @@ export declare class ReportMetadataService {
     constructor(prisma: PrismaService);
     getMetadata(productModule: string): Promise<ReportMetadata>;
     getAllProductModules(): Promise<string[]>;
-    getVariablesByCategory(productModule: string, category: string): Promise<any>;
+    getVariablesByCategory(productModule: string, category: string): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        createdAt: Date;
+        productModule: string;
+        category: string;
+        variableKey: string;
+        variableName: string;
+        dataType: string;
+        sampleValue: string | null;
+        isArray: boolean;
+        formatOptions: string | null;
+    }[]>;
     createVariable(data: {
         productModule: string;
         variableKey: string;
@@ -16,7 +29,20 @@ export declare class ReportMetadataService {
         sampleValue?: string;
         isArray?: boolean;
         formatOptions?: any;
-    }): Promise<any>;
+    }): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        createdAt: Date;
+        productModule: string;
+        category: string;
+        variableKey: string;
+        variableName: string;
+        dataType: string;
+        sampleValue: string | null;
+        isArray: boolean;
+        formatOptions: string | null;
+    }>;
     bulkCreateVariables(variables: Array<{
         productModule: string;
         variableKey: string;
@@ -27,5 +53,18 @@ export declare class ReportMetadataService {
         sampleValue?: string;
         isArray?: boolean;
         formatOptions?: any;
-    }>): Promise<any>;
+    }>): Promise<{
+        id: number;
+        description: string | null;
+        updatedAt: Date | null;
+        createdAt: Date;
+        productModule: string;
+        category: string;
+        variableKey: string;
+        variableName: string;
+        dataType: string;
+        sampleValue: string | null;
+        isArray: boolean;
+        formatOptions: string | null;
+    }[]>;
 }
