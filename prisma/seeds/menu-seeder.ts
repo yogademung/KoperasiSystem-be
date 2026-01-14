@@ -32,7 +32,7 @@ export async function seedMenus() {
 
         // Akuntansi Section
         { id: 6, menuName: 'Akuntansi', path: '/accounting', icon: 'PieChart', module: 'ACCOUNTING', orderNum: 6, parentId: null },
-        { id: 61, menuName: 'Master Akun', path: '/accounting/accounts', module: 'ACCOUNTING', orderNum: 1, parentId: 6 },
+        // { id: 61, menuName: 'Master Akun', path: '/accounting/accounts', module: 'ACCOUNTING', orderNum: 1, parentId: 6 }, // MOVED TO SETTINGS
         // { id: 62, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', module: 'ACCOUNTING', orderNum: 2, parentId: 6 }, // MOVED TO SETTINGS
         { id: 63, menuName: 'Jurnal Umum', path: '/accounting/journals', module: 'ACCOUNTING', orderNum: 3, parentId: 6 },
         { id: 64, menuName: 'Jurnal Terhapus', path: '/accounting/deleted-journals', module: 'ACCOUNTING', orderNum: 4, parentId: 6 },
@@ -51,6 +51,7 @@ export async function seedMenus() {
         // Pengaturan Section
         { id: 8, menuName: 'Pengaturan', path: '/settings', icon: 'Settings', module: 'SETTINGS', orderNum: 8, parentId: null },
         { id: 81, menuName: 'Profil Koperasi', path: '/settings/profile', module: 'SETTINGS', orderNum: 1, parentId: 8 },
+        { id: 61, menuName: 'Master Akun', path: '/accounting/accounts', module: 'SETTINGS', orderNum: 1.5, parentId: 8 },
         { id: 82, menuName: 'Manajemen User', path: '/users', module: 'SETTINGS', orderNum: 2, parentId: 8 },
         { id: 83, menuName: 'Migrasi Data', path: '/settings/migration', module: 'SETTINGS', orderNum: 3, parentId: 8 },
         { id: 84, menuName: 'Produk', path: '/settings/products', module: 'SETTINGS', orderNum: 4, parentId: 8 },

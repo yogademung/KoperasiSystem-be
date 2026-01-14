@@ -125,11 +125,11 @@ let MigrationController = class MigrationController {
         res.setHeader('Content-Disposition', 'attachment; filename=template_coa.xlsx');
         res.send(buffer);
     }
-    async previewCoa(file) {
+    async previewCoa(file, sheetMode) {
         if (!file) {
             throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);
         }
-        return this.migrationService.previewCoa(file.buffer);
+        return this.migrationService.previewCoa(file.buffer, sheetMode);
     }
     async confirmCoa(body) {
         if (!body.data || body.data.length === 0) {
@@ -246,8 +246,9 @@ __decorate([
     (0, common_1.Post)('preview-coa'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.Body)('sheetMode')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], MigrationController.prototype, "previewCoa", null);
 __decorate([

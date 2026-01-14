@@ -161,11 +161,14 @@ export class MigrationController {
 
     @Post('preview-coa')
     @UseInterceptors(FileInterceptor('file'))
-    async previewCoa(@UploadedFile() file: Express.Multer.File) {
+    async previewCoa(
+        @UploadedFile() file: Express.Multer.File,
+        @Body('sheetMode') sheetMode: string
+    ) {
         if (!file) {
             throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
         }
-        return this.migrationService.previewCoa(file.buffer);
+        return this.migrationService.previewCoa(file.buffer, sheetMode);
     }
 
     @Post('confirm-coa')

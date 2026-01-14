@@ -2,6 +2,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../database/prisma.service';
 import { SettingsService } from '../settings/settings.service'; // Import SettingsService
 import { ProductConfigService } from '../product-config/product-config.service';
+import * as ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
+import { Stream } from 'stream';
 
 @Injectable()
 export class ReportsService {
@@ -1209,5 +1212,110 @@ export class ReportsService {
                 totalAmount: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalAmount, 0)
             }
         };
+    }
+
+    // ============================
+    // COA EXPORTS (Akun)
+    // ============================
+
+    async exportCoaCsv(): Promise<Buffer> {
+        const accounts = await this.prisma.journalAccount.findMany({
+            orderBy: { accountCode: 'asc' }
+        });
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('COA');
+
+        worksheet.columns = [
+            { header: 'Kode Akun', key: 'accountCode', width: 20 },
+            { header: 'Nama Akun', key: 'accountName', width: 40 },
+            { header: 'Tipe', key: 'accountType', width: 10 },
+            { header: 'D/C', key: 'dc', width: 5 },
+            { header: 'Parent', key: 'parentCode', width: 20 },
+            { header: 'Status', key: 'status', width: 10 },
+            { header: 'Keterangan', key: 'remark', width: 30 },
+        ];
+
+        accounts.forEach(acc => {
+            worksheet.addRow({
+                accountCode: acc.accountCode,
+                accountName: acc.accountName,
+                accountType: acc.accountType,
+                dc: acc.debetPoleFlag ? 'D' : 'C',
+                parentCode: acc.parentCode || '-',
+                status: acc.isActive ? 'Aktif' : 'Nonaktif',
+                remark: acc.remark || ''
+            });
+        });
+
+        worksheet.getRow(1).font = { bold: true };
+
+        return await workbook.csv.writeBuffer() as any;
+    }
+
+    async exportCoaPdf(): Promise<Buffer> {
+        const accounts = await this.prisma.journalAccount.findMany({
+            orderBy: { accountCode: 'asc' }
+        });
+        const profile = await this.settingsService.getProfile();
+
+        return new Promise((resolve, reject) => {
+            const doc = new PDFDocument({ margin: 30, size: 'A4' });
+            const chunks: Buffer[] = [];
+
+            doc.on('data', chunk => chunks.push(chunk));
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+
+            // Header profile
+            doc.fontSize(14).text(profile.name.toUpperCase(), { align: 'center' });
+            doc.fontSize(10).text(profile.address, { align: 'center' });
+            doc.text(`Telp: ${profile.phone}`, { align: 'center' });
+            doc.moveDown();
+            doc.moveTo(30, doc.y).lineTo(565, doc.y).stroke();
+            doc.moveDown();
+
+            doc.fontSize(12).text('DAFTAR AKUN (CHART OF ACCOUNTS)', { align: 'center', bold: true } as any);
+            doc.moveDown();
+
+            // Table Header
+            const startX = 30;
+            const colWidths = [100, 200, 60, 40, 80];
+            const headers = ['Kode', 'Nama Akun', 'Tipe', 'D/C', 'Parent'];
+
+            let currentY = doc.y;
+            doc.fontSize(10).font('Helvetica-Bold');
+
+            headers.forEach((h, i) => {
+                let x = startX;
+                for (let j = 0; j < i; j++) x += colWidths[j];
+                doc.text(h, x, currentY);
+            });
+
+            doc.moveDown(0.5);
+            currentY = doc.y;
+            doc.moveTo(startX, currentY).lineTo(565, currentY).stroke();
+            doc.moveDown(0.5);
+
+            doc.font('Helvetica').fontSize(9);
+
+            accounts.forEach(acc => {
+                if (doc.y > 750) {
+                    doc.addPage();
+                    currentY = 50;
+                }
+
+                currentY = doc.y;
+                doc.text(acc.accountCode, startX, currentY);
+                doc.text(acc.accountName.substring(0, 40), startX + colWidths[0], currentY);
+                doc.text(acc.accountType, startX + colWidths[0] + colWidths[1], currentY);
+                doc.text(acc.debetPoleFlag ? 'D' : 'C', startX + colWidths[0] + colWidths[1] + colWidths[2], currentY);
+                doc.text(acc.parentCode || '-', startX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3], currentY);
+
+                doc.moveDown(1.2);
+            });
+
+            doc.end();
+        });
     }
 }

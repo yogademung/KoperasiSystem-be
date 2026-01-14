@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { ReportsService } from './reports.service';
 import { AssetService } from '../accounting/asset/asset.service';
 
@@ -163,5 +164,27 @@ export class ReportsController {
     @Get('accounting/accounts-list')
     async getAccountsList() {
         return this.reportsService.getAccountsList();
+    }
+
+    @Get('accounting/coa/pdf')
+    async exportCoaPdf(@Res() res: Response) {
+        const buffer = await this.reportsService.exportCoaPdf();
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=COA.pdf',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
+    }
+
+    @Get('accounting/coa/csv')
+    async exportCoaCsv(@Res() res: Response) {
+        const buffer = await this.reportsService.exportCoaCsv();
+        res.set({
+            'Content-Type': 'text/csv',
+            'Content-Disposition': 'attachment; filename=COA.csv',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
     }
 }

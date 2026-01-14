@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { ReportsService } from './reports.service';
 import { AssetService } from '../accounting/asset/asset.service';
 export declare class ReportsController {
@@ -68,16 +69,16 @@ export declare class ReportsController {
                 collateral: {
                     assessedValue: number;
                     id: number;
-                    description: string | null;
-                    updatedAt: Date | null;
                     createdBy: string | null;
                     createdAt: Date;
                     updatedBy: string | null;
-                    nasabahId: number;
-                    status: string;
+                    updatedAt: Date | null;
+                    description: string | null;
                     type: string;
-                    details: string | null;
+                    status: string;
+                    nasabahId: number;
                     marketValue: import("@prisma/client/runtime/library").Decimal;
+                    details: string | null;
                     photos: string | null;
                 };
                 creditId: number;
@@ -130,14 +131,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -321,14 +322,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -355,14 +356,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -389,14 +390,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -423,14 +424,14 @@ export declare class ReportsController {
         };
         nasabah: {
             id: number;
-            updatedAt: Date | null;
             isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
+            updatedAt: Date | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -451,4 +452,6 @@ export declare class ReportsController {
         accountCode: string;
         accountName: string;
     }[]>;
+    exportCoaPdf(res: Response): Promise<void>;
+    exportCoaCsv(res: Response): Promise<void>;
 }

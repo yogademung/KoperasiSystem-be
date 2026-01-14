@@ -174,6 +174,7 @@ export class MigrationService {
         }
 
         const previewData: any[] = [];
+        let globalId = 1;
         let totalDebit = 0;
         let totalCredit = 0;
 
@@ -199,6 +200,7 @@ export class MigrationService {
             if (!accountCode && !debit && !credit) return;
 
             const rowData: any = {
+                id: globalId++,
                 rowNumber,
                 accountCode,
                 description,
@@ -341,7 +343,7 @@ export class MigrationService {
 
             const previewData: any[] = [];
             const errors: { row: number; message: string }[] = [];
-            let rowNumber = 0;
+            let globalId = 1;
 
             worksheet.eachRow((row, idx) => {
                 if (idx === 1) return; // Skip header
@@ -352,8 +354,6 @@ export class MigrationService {
 
                 // Skip empty rows
                 if (!nama && !noKtp) return;
-
-                rowNumber++;
 
                 try {
                     let tanggalLahirVal: any = row.getCell(7).value;
@@ -367,7 +367,8 @@ export class MigrationService {
                     }
 
                     const nasabahData = {
-                        rowNumber,
+                        id: globalId++,
+                        rowNumber: idx, // Use idx for excel row number
                         excelRow: idx,
                         nama,
                         noKtp,
@@ -749,6 +750,7 @@ export class MigrationService {
         }
 
         const previewData: any[] = [];
+        let globalId = 1;
         const nasabahIds = new Set<number>();
 
         worksheet.eachRow((row, rowNumber) => {
@@ -780,6 +782,7 @@ export class MigrationService {
             }
 
             previewData.push({
+                id: globalId++,
                 rowNumber,
                 nasabahId,
                 noAnggota,
@@ -911,172 +914,234 @@ export class MigrationService {
     }
     async generateCoaTemplate(): Promise<Buffer> {
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Template COA');
 
-        worksheet.columns = [
-            { header: 'Account Code', key: 'accountCode', width: 15 },
-            { header: 'Account Name', key: 'accountName', width: 30 },
-            { header: 'Account Type', key: 'accountType', width: 20 },
-            { header: 'Parent Code', key: 'parentCode', width: 15 },
-            { header: 'D/C (Debet/Credit)', key: 'dbOrCr', width: 8 },
-            { header: 'Remark', key: 'remark', width: 30 },
+        // Sheet 1: Akun Induk (Header)
+        const parentSheet = workbook.addWorksheet('1. Akun Induk (Header)');
+        parentSheet.columns = [
+            { header: 'Kode Akun', key: 'accountCode', width: 20 },
+            { header: 'Nama Akun', key: 'accountName', width: 35 },
+            { header: 'Tipe Akun (AST/LIA/EQT/REV/EXP)', key: 'accountType', width: 25 },
+            { header: 'Normal Balance (D/C)', key: 'dbOrCr', width: 15 },
+            { header: 'Keterangan', key: 'remark', width: 30 },
         ];
+        parentSheet.getRow(1).font = { bold: true };
+        parentSheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
 
-        worksheet.getRow(1).font = { bold: true };
-        worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
-
-        worksheet.addRow({
+        parentSheet.addRow({
             accountCode: '1-000',
             accountName: 'AKTIVA',
-            accountType: 'ASSET',
-            parentCode: '',
+            accountType: 'AST',
             dbOrCr: 'D',
-            remark: 'Header Aktiva',
+            remark: 'Contoh Header Aktiva',
         });
-        worksheet.getRow(2).font = { italic: true, color: { argb: 'FF666666' } };
+
+        // Sheet 2: Akun Transaksi (Detail)
+        const childSheet = workbook.addWorksheet('2. Akun Transaksi (Detail)');
+        childSheet.columns = [
+            { header: 'Kode Akun', key: 'accountCode', width: 20 },
+            { header: 'Nama Akun', key: 'accountName', width: 35 },
+            { header: 'Kode Induk (Parent Code)', key: 'parentCode', width: 20 },
+            { header: 'Keterangan', key: 'remark', width: 30 },
+        ];
+        childSheet.getRow(1).font = { bold: true };
+        childSheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0F0' } };
+
+        childSheet.addRow({
+            accountCode: '1-100',
+            accountName: 'KAS BESAR',
+            parentCode: '1-000',
+            remark: 'Contoh Akun Transaksi',
+        });
 
         return Buffer.from(await workbook.xlsx.writeBuffer()) as Buffer;
     }
 
-    async previewCoa(fileBuffer: Buffer) {
+    async previewCoa(fileBuffer: Buffer, sheetMode: string = 'all') {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(fileBuffer as any);
-        const worksheet = workbook.getWorksheet(1);
-
-        if (!worksheet) {
-            throw new BadRequestException('Invalid Excel file');
-        }
 
         const previewData: any[] = [];
-        const accountCodes = new Set<string>();
+        let globalId = 1;
+        const accountCodesInFile = new Set<string>();
 
-        // Get existing accounts for duplicate checking
-        const existingAccounts = await this.prisma.journalAccount.findMany({ select: { accountCode: true } });
-        const existingAccountSet = new Set(existingAccounts.map(a => a.accountCode));
-
-        // Get COA Format
+        // 1. Get Settings (Format)
         const coaFormatSetting = await this.prisma.lovValue.findFirst({
             where: { code: 'COMPANY_PROFILE', codeValue: 'COA_FORMAT' }
         });
-        const coaFormat = coaFormatSetting?.description || 'xxx-xxx-xxx'; // Default if not set
-
-        // Convert format to regex
-        // Escape special chars except 'x' and '#' which represent digits/chars
-        // Assuming 'x' means digit or char? User said "xxx-xxx-xxx" or "xxx.xxx.xxx"
-        // Let's assume 'x' matches a digit \d. Or any character. Standard is usually digits for COA.
-        // Let's treat 'x' as \d for now or alphanumeric. 'x' is ambiguous. Usually COA is digits.
-        // If user wants flexibility, maybe they just want to define the separator and lengths.
-        // Let's strictly interpret the user's "format flexible" request.
-        // If they enter 'xxx.xxx.xxx', we expect 3 digits dot 3 digits dot 3 digits.
-        // If they enter 'x-xx-xxx', 1 digit dash 2 digits dash 3 digits.
-
-        let regexPattern = '';
-        if (coaFormat) {
-            regexPattern = '^' + coaFormat.replace(/[.-]/g, '\\$&').replace(/x/gi, '\\d') + '$';
-        }
+        const coaFormat = coaFormatSetting?.description || 'xxx-xxx-xxx';
+        let regexPattern = '^' + coaFormat.replace(/[.-]/g, '\\$&').replace(/x/gi, '\\d') + '$';
         const coaRegex = new RegExp(regexPattern);
 
-        // Helper function to auto-format plain numbers to COA format
+        // 2. Fetch Existing Accounts for duplicate check & parent lookup
+        const existingAccounts = await this.prisma.journalAccount.findMany({
+            select: { accountCode: true, accountType: true, debetPoleFlag: true }
+        });
+        const existingAccountMap = new Map(existingAccounts.map(a => [a.accountCode, a]));
+
+        // Helper: Format Code
         const formatAccountCode = (rawCode: string, format: string): string => {
-            if (!rawCode) return rawCode;
-
-            // Remove any existing separators
+            if (!rawCode || !/^\d+$/.test(rawCode)) return rawCode;
             const digitsOnly = rawCode.replace(/[.-]/g, '');
-
-            // If already properly formatted, return as is
-            const formatLength = format.length;
-            if (rawCode.length === formatLength && /^[\d.-]+$/.test(rawCode)) {
-                return rawCode;
-            }
-
-            // Extract separator positions from format
-            const separators: { pos: number; char: string }[] = [];
-            for (let i = 0; i < format.length; i++) {
-                if (format[i] === '.' || format[i] === '-') {
-                    separators.push({ pos: i, char: format[i] });
-                }
-            }
-
-            // Build formatted code
             let formatted = '';
             let digitIndex = 0;
-
             for (let i = 0; i < format.length; i++) {
-                const separator = separators.find(s => s.pos === i);
-                if (separator) {
-                    formatted += separator.char;
+                if (format[i] === '.' || format[i] === '-') {
+                    formatted += format[i];
                 } else {
                     formatted += digitsOnly[digitIndex] || '0';
                     digitIndex++;
                 }
             }
-
             return formatted;
         };
 
-        worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber <= 2) return;
+        // 3. Process Sheet 1 (Parent / Header)
+        const parentSheet = workbook.getWorksheet(1);
+        const parentMapInFile = new Map<string, { type: string, dbOrCr: string }>();
 
-            let accountCode = row.getCell(1).text?.toString().trim();
-            const accountName = row.getCell(2).text?.toString().trim();
-            const accountType = row.getCell(3).text?.toString().trim();
-            const parentCode = row.getCell(4).text?.toString().trim();
-            const dbOrCr = row.getCell(5).text?.toString().trim().toUpperCase();
-            const remark = row.getCell(6).text?.toString().trim();
+        const processSheet1 = sheetMode === 'all' || sheetMode === 'parent';
+        const processSheet2 = sheetMode === 'all' || sheetMode === 'child';
 
-            if (!accountCode && !accountName) return;
+        if (parentSheet && processSheet1) {
+            parentSheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return; // Skip Header
 
-            // Auto-format account code if it's plain digits
-            if (accountCode && /^\d+$/.test(accountCode)) {
+                let accountCode = row.getCell(1).text?.toString().trim();
+                const accountName = row.getCell(2).text?.toString().trim();
+                const accountType = row.getCell(3).text?.toString().trim().toUpperCase();
+                const dbOrCr = row.getCell(4).text?.toString().trim().toUpperCase();
+                const remark = row.getCell(5).text?.toString().trim();
+
+                if (!accountCode && !accountName) return;
+
+                // Format if plain digits
                 accountCode = formatAccountCode(accountCode, coaFormat);
-            }
 
-            const rowData: any = {
-                rowNumber,
-                accountCode,
-                accountName,
-                accountType,
-                parentCode,
-                dbOrCr,
-                remark,
-                status: 'valid',
-                errors: []
-            };
+                const rowData: any = {
+                    id: globalId++,
+                    rowNumber,
+                    sheet: 'Induk',
+                    accountCode,
+                    accountName,
+                    accountType,
+                    dbOrCr,
+                    remark,
+                    status: 'valid',
+                    errors: []
+                };
 
-            // Validation
-            if (!accountCode) {
-                rowData.errors.push('Account Code required');
-            } else {
-                if (accountCode.length !== coaFormat.length) {
+                // Validate Parent
+                if (!accountCode) rowData.errors.push('Kode Akun wajib diisi');
+                if (!accountName) rowData.errors.push('Nama Akun wajib diisi');
+                if (!accountType) rowData.errors.push('Tipe Akun wajib diisi');
+                if (!dbOrCr) rowData.errors.push('D/C wajib diisi');
+
+                if (accountCode && !coaRegex.test(accountCode)) {
                     rowData.status = 'error';
-                    rowData.errors.push(`Panjang kode keliru (Exp: ${coaFormat.length} char, Act: ${accountCode.length})`);
-                } else if (!coaRegex.test(accountCode)) {
-                    rowData.status = 'error';
-                    rowData.errors.push(`Format must match ${coaFormat}`);
+                    rowData.errors.push(`Format kode harus ${coaFormat}`);
                 }
-            }
 
-            if (!accountName) rowData.errors.push('Account Name required');
-            if (existingAccountSet.has(accountCode)) {
-                rowData.status = 'duplicate';
-                rowData.errors.push('Account Code already exists in DB');
-            }
-            if (accountCodes.has(accountCode)) {
-                rowData.status = 'duplicate';
-                rowData.errors.push('Duplicate in file');
-            }
-            if (dbOrCr && !['D', 'C'].includes(dbOrCr)) {
-                rowData.errors.push('D/C must be D or C');
-            }
+                if (existingAccountMap.has(accountCode)) {
+                    rowData.status = 'duplicate';
+                    rowData.errors.push('Sudah ada di database');
+                }
 
-            accountCodes.add(accountCode);
+                if (accountCodesInFile.has(accountCode)) {
+                    rowData.status = 'duplicate';
+                    rowData.errors.push('Duplikat di dalam file');
+                }
 
-            if (rowData.errors.length > 0 && rowData.status !== 'duplicate') {
-                rowData.status = 'error';
-            }
+                if (rowData.errors.length > 0 && rowData.status !== 'duplicate') {
+                    rowData.status = 'error';
+                }
 
-            previewData.push(rowData);
-        });
+                accountCodesInFile.add(accountCode);
+                if (rowData.status === 'valid' || rowData.status === 'duplicate') {
+                    parentMapInFile.set(accountCode, { type: accountType, dbOrCr });
+                }
+
+                previewData.push(rowData);
+            });
+        }
+
+        // 4. Process Sheet 2 (Transaction / Detail)
+        const childSheet = workbook.getWorksheet(2);
+        if (childSheet && processSheet2) {
+            childSheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return; // Skip Header
+
+                let accountCode = row.getCell(1).text?.toString().trim();
+                const accountName = row.getCell(2).text?.toString().trim();
+                let parentCode = row.getCell(3).text?.toString().trim();
+                const remark = row.getCell(4).text?.toString().trim();
+
+                if (!accountCode && !accountName) return;
+
+                accountCode = formatAccountCode(accountCode, coaFormat);
+                parentCode = formatAccountCode(parentCode, coaFormat);
+
+                // Property Inheritance
+                let accountType = '';
+                let dbOrCr = '';
+
+                if (parentCode) {
+                    const parentInFile = parentMapInFile.get(parentCode);
+                    const parentInDb = existingAccountMap.get(parentCode);
+
+                    if (parentInFile) {
+                        accountType = parentInFile.type;
+                        dbOrCr = parentInFile.dbOrCr;
+                    } else if (parentInDb) {
+                        accountType = parentInDb.accountType;
+                        dbOrCr = parentInDb.debetPoleFlag ? 'D' : 'C';
+                    }
+                }
+
+                const rowData: any = {
+                    id: globalId++,
+                    rowNumber,
+                    sheet: 'Transaksi',
+                    accountCode,
+                    accountName,
+                    accountType,
+                    parentCode,
+                    dbOrCr,
+                    remark,
+                    status: 'valid',
+                    errors: []
+                };
+
+                // Validate Child
+                if (!accountCode) rowData.errors.push('Kode Akun wajib diisi');
+                if (!accountName) rowData.errors.push('Nama Akun wajib diisi');
+                if (!parentCode) rowData.errors.push('Kode Induk wajib diisi');
+                else if (!accountType) {
+                    rowData.errors.push('Kode Induk tidak ditemukan (Tipe & D/C tidak bisa ditentukan)');
+                }
+
+                if (accountCode && !coaRegex.test(accountCode)) {
+                    rowData.status = 'error';
+                    rowData.errors.push(`Format kode harus ${coaFormat}`);
+                }
+
+                if (existingAccountMap.has(accountCode)) {
+                    rowData.status = 'duplicate';
+                    rowData.errors.push('Sudah ada di database');
+                }
+
+                if (accountCodesInFile.has(accountCode)) {
+                    rowData.status = 'duplicate';
+                    rowData.errors.push('Duplikat di dalam file');
+                }
+
+                if (rowData.errors.length > 0 && rowData.status !== 'duplicate') {
+                    rowData.status = 'error';
+                }
+
+                accountCodesInFile.add(accountCode);
+                previewData.push(rowData);
+            });
+        }
 
         return {
             data: previewData,

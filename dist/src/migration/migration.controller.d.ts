@@ -97,7 +97,7 @@ export declare class MigrationController {
         errors: any[];
     }>;
     downloadCoaTemplate(res: Response): Promise<void>;
-    previewCoa(file: Express.Multer.File): Promise<{
+    previewCoa(file: Express.Multer.File, sheetMode: string): Promise<{
         data: any[];
         summary: {
             totalRows: number;

@@ -1,12 +1,48 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportsService = void 0;
@@ -14,6 +50,8 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const settings_service_1 = require("../settings/settings.service");
 const product_config_service_1 = require("../product-config/product-config.service");
+const ExcelJS = __importStar(require("exceljs"));
+const pdfkit_1 = __importDefault(require("pdfkit"));
 let ReportsService = class ReportsService {
     prisma;
     settingsService;
@@ -1009,6 +1047,86 @@ let ReportsService = class ReportsService {
                 totalAmount: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalAmount, 0)
             }
         };
+    }
+    async exportCoaCsv() {
+        const accounts = await this.prisma.journalAccount.findMany({
+            orderBy: { accountCode: 'asc' }
+        });
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('COA');
+        worksheet.columns = [
+            { header: 'Kode Akun', key: 'accountCode', width: 20 },
+            { header: 'Nama Akun', key: 'accountName', width: 40 },
+            { header: 'Tipe', key: 'accountType', width: 10 },
+            { header: 'D/C', key: 'dc', width: 5 },
+            { header: 'Parent', key: 'parentCode', width: 20 },
+            { header: 'Status', key: 'status', width: 10 },
+            { header: 'Keterangan', key: 'remark', width: 30 },
+        ];
+        accounts.forEach(acc => {
+            worksheet.addRow({
+                accountCode: acc.accountCode,
+                accountName: acc.accountName,
+                accountType: acc.accountType,
+                dc: acc.debetPoleFlag ? 'D' : 'C',
+                parentCode: acc.parentCode || '-',
+                status: acc.isActive ? 'Aktif' : 'Nonaktif',
+                remark: acc.remark || ''
+            });
+        });
+        worksheet.getRow(1).font = { bold: true };
+        return await workbook.csv.writeBuffer();
+    }
+    async exportCoaPdf() {
+        const accounts = await this.prisma.journalAccount.findMany({
+            orderBy: { accountCode: 'asc' }
+        });
+        const profile = await this.settingsService.getProfile();
+        return new Promise((resolve, reject) => {
+            const doc = new pdfkit_1.default({ margin: 30, size: 'A4' });
+            const chunks = [];
+            doc.on('data', chunk => chunks.push(chunk));
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(14).text(profile.name.toUpperCase(), { align: 'center' });
+            doc.fontSize(10).text(profile.address, { align: 'center' });
+            doc.text(`Telp: ${profile.phone}`, { align: 'center' });
+            doc.moveDown();
+            doc.moveTo(30, doc.y).lineTo(565, doc.y).stroke();
+            doc.moveDown();
+            doc.fontSize(12).text('DAFTAR AKUN (CHART OF ACCOUNTS)', { align: 'center', bold: true });
+            doc.moveDown();
+            const startX = 30;
+            const colWidths = [100, 200, 60, 40, 80];
+            const headers = ['Kode', 'Nama Akun', 'Tipe', 'D/C', 'Parent'];
+            let currentY = doc.y;
+            doc.fontSize(10).font('Helvetica-Bold');
+            headers.forEach((h, i) => {
+                let x = startX;
+                for (let j = 0; j < i; j++)
+                    x += colWidths[j];
+                doc.text(h, x, currentY);
+            });
+            doc.moveDown(0.5);
+            currentY = doc.y;
+            doc.moveTo(startX, currentY).lineTo(565, currentY).stroke();
+            doc.moveDown(0.5);
+            doc.font('Helvetica').fontSize(9);
+            accounts.forEach(acc => {
+                if (doc.y > 750) {
+                    doc.addPage();
+                    currentY = 50;
+                }
+                currentY = doc.y;
+                doc.text(acc.accountCode, startX, currentY);
+                doc.text(acc.accountName.substring(0, 40), startX + colWidths[0], currentY);
+                doc.text(acc.accountType, startX + colWidths[0] + colWidths[1], currentY);
+                doc.text(acc.debetPoleFlag ? 'D' : 'C', startX + colWidths[0] + colWidths[1] + colWidths[2], currentY);
+                doc.text(acc.parentCode || '-', startX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3], currentY);
+                doc.moveDown(1.2);
+            });
+            doc.end();
+        });
     }
 };
 exports.ReportsService = ReportsService;

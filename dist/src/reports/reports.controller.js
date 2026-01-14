@@ -86,6 +86,24 @@ let ReportsController = class ReportsController {
     async getAccountsList() {
         return this.reportsService.getAccountsList();
     }
+    async exportCoaPdf(res) {
+        const buffer = await this.reportsService.exportCoaPdf();
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=COA.pdf',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
+    }
+    async exportCoaCsv(res) {
+        const buffer = await this.reportsService.exportCoaCsv();
+        res.set({
+            'Content-Type': 'text/csv',
+            'Content-Disposition': 'attachment; filename=COA.csv',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
+    }
 };
 exports.ReportsController = ReportsController;
 __decorate([
@@ -243,6 +261,20 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getAccountsList", null);
+__decorate([
+    (0, common_1.Get)('accounting/coa/pdf'),
+    __param(0, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "exportCoaPdf", null);
+__decorate([
+    (0, common_1.Get)('accounting/coa/csv'),
+    __param(0, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "exportCoaCsv", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, common_1.Controller)('api/reports'),
     __metadata("design:paramtypes", [reports_service_1.ReportsService,

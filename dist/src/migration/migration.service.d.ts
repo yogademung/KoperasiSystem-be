@@ -89,7 +89,7 @@ export declare class MigrationService {
         errors: any[];
     }>;
     generateCoaTemplate(): Promise<Buffer>;
-    previewCoa(fileBuffer: Buffer): Promise<{
+    previewCoa(fileBuffer: Buffer, sheetMode?: string): Promise<{
         data: any[];
         summary: {
             totalRows: number;
