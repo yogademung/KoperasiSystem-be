@@ -32,6 +32,9 @@ import { ProductConfigModule } from './product-config/product-config.module';
 import { InterUnitModule } from './inter-unit/inter-unit.module';
 import { CostCenterModule } from './cost-center/cost-center.module';
 import { BusinessUnitModule } from './business-unit/business-unit.module';
+import { BudgetModule } from './budget/budget.module';
+import { AllocationModule } from './allocation/allocation.module';
+
 
 
 
@@ -69,6 +72,8 @@ import { BusinessUnitModule } from './business-unit/business-unit.module';
     ProductConfigModule,
     InterUnitModule, // Phase 13: Inter-Unit Transactions
     CostCenterModule, // Phase 13: Cost Centers
+    BudgetModule, // Phase 13: Budget Management
+    AllocationModule, // Phase 13: Allocation Rules
 
   ],
   controllers: [AppController, MonthEndController],

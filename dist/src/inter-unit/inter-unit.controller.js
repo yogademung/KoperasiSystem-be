@@ -117,7 +117,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], InterUnitController.prototype, "generateElimination", null);
 exports.InterUnitController = InterUnitController = __decorate([
-    (0, common_1.Controller)('inter-unit'),
+    (0, common_1.Controller)('api/inter-unit'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [inter_unit_service_1.InterUnitService])
 ], InterUnitController);

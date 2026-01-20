@@ -108,7 +108,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CostCenterController.prototype, "getBudgetStatus", null);
 exports.CostCenterController = CostCenterController = __decorate([
-    (0, common_1.Controller)('cost-centers'),
+    (0, common_1.Controller)('api/cost-centers'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [cost_center_service_1.CostCenterService])
 ], CostCenterController);

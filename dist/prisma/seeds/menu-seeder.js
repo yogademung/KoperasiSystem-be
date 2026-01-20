@@ -40,6 +40,14 @@ async function seedMenus() {
         { id: 89, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', icon: 'FileText', module: 'SETTINGS', orderNum: 9, parentId: 8 },
         { id: 85, menuName: 'Master Unit Kerja', path: '/settings/business-units', module: 'SETTINGS', orderNum: 5, parentId: 8 },
         { id: 91, menuName: 'Cost Centers', path: '/cost-centers', module: 'SETTINGS', orderNum: 6, parentId: 8 },
+        { id: 100, menuName: 'Anggaran', path: '#', icon: 'DollarSign', module: 'SETTINGS', orderNum: 7, parentId: 8 },
+        { id: 101, menuName: 'Periode Anggaran', path: '/budget/periods', module: 'SETTINGS', orderNum: 1, parentId: 100 },
+        { id: 102, menuName: 'Input Anggaran', path: '/budget/entries', module: 'SETTINGS', orderNum: 2, parentId: 100 },
+        { id: 103, menuName: 'Pantau Anggaran', path: '/budget/variance', module: 'SETTINGS', orderNum: 3, parentId: 100 },
+        { id: 110, menuName: 'Aturan Alokasi', path: '#', icon: 'PieChart', module: 'SETTINGS', orderNum: 8, parentId: 8 },
+        { id: 111, menuName: 'Daftar Aturan', path: '/allocations/rules', module: 'SETTINGS', orderNum: 1, parentId: 110 },
+        { id: 112, menuName: 'Jalankan Alokasi', path: '/allocations/execute', module: 'SETTINGS', orderNum: 2, parentId: 110 },
+        { id: 113, menuName: 'Riwayat Alokasi', path: '/allocations/history', module: 'SETTINGS', orderNum: 3, parentId: 110 },
     ];
     for (const menu of menus) {
         const { icon, ...menuData } = menu;

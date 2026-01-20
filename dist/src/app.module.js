@@ -41,6 +41,8 @@ const product_config_module_1 = require("./product-config/product-config.module"
 const inter_unit_module_1 = require("./inter-unit/inter-unit.module");
 const cost_center_module_1 = require("./cost-center/cost-center.module");
 const business_unit_module_1 = require("./business-unit/business-unit.module");
+const budget_module_1 = require("./budget/budget.module");
+const allocation_module_1 = require("./allocation/allocation.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -77,6 +79,8 @@ exports.AppModule = AppModule = __decorate([
             product_config_module_1.ProductConfigModule,
             inter_unit_module_1.InterUnitModule,
             cost_center_module_1.CostCenterModule,
+            budget_module_1.BudgetModule,
+            allocation_module_1.AllocationModule,
         ],
         controllers: [app_controller_1.AppController, month_end_controller_1.MonthEndController],
         providers: [app_service_1.AppService, period_lock_service_1.PeriodLockService, balance_sheet_service_1.BalanceSheetService, depreciation_service_1.DepreciationService, lov_value_service_1.LovValueService],

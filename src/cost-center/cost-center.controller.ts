@@ -13,7 +13,7 @@ import {
 import { CostCenterService, CreateCostCenterDto, UpdateCostCenterDto, CostCenterFilters } from './cost-center.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@Controller('cost-centers')
+@Controller('api/cost-centers')
 @UseGuards(JwtAuthGuard)
 export class CostCenterController {
     constructor(private readonly costCenterService: CostCenterService) { }

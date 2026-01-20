@@ -35,6 +35,12 @@ let ReportsController = class ReportsController {
     async getCreditApplication(id) {
         return this.reportsService.getCreditApplicationData(Number(id));
     }
+    async getCreditAgreement(id) {
+        return this.reportsService.getCreditAgreementData(Number(id));
+    }
+    async getCreditStatement(id) {
+        return this.reportsService.getCreditStatementData(Number(id));
+    }
     async getDepositoCertificate(id) {
         return this.reportsService.getDepositoCertificateData(id);
     }
@@ -136,6 +142,20 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getCreditApplication", null);
+__decorate([
+    (0, common_1.Get)('credit/:id/agreement'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getCreditAgreement", null);
+__decorate([
+    (0, common_1.Get)('credit/:id/statement'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "getCreditStatement", null);
 __decorate([
     (0, common_1.Get)('deposito/:id/certificate'),
     __param(0, (0, common_1.Param)('id')),

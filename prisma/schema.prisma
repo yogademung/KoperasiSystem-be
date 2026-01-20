@@ -42,6 +42,16 @@ model User {
   managedCostCenters CostCenter[] @relation("CostCenterManager")
   createdCostCenters CostCenter[] @relation("CostCenterCreator")
 
+  // Phase 13: Budget Management
+  createdBudgetPeriods  BudgetPeriod[] @relation("BudgetPeriodCreator")
+  approvedBudgetPeriods BudgetPeriod[] @relation("BudgetPeriodApprover")
+  createdBudgets        UnitBudget[]   @relation("UnitBudgetCreator")
+
+  // Phase 13: Allocation Rules
+  createdAllocationRules    AllocationRule[]      @relation("AllocationRuleCreator")
+  executedAllocations       AllocationExecution[] @relation("AllocationExecutor")
+  rolledBackAllocations     AllocationExecution[] @relation("AllocationRollbacker")
+
   @@index([roleId], map: "s_user_lpd_ROLE_LPD_ID_fkey")
   @@map("s_user_lpd")
 }
@@ -521,6 +531,7 @@ model PostedJournal {
   assetHistory  AssetDepreciationHistory[]
   user          User                       @relation(fields: [userId], references: [id])
   details       PostedJournalDetail[]
+  allocationExecutions AllocationExecution[]
 
   @@index([userId], map: "t_posted_journal_USER_ID_fkey")
   @@map("t_posted_journal")
@@ -1061,10 +1072,14 @@ model CostCenter {
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
   // Relations
-  parent   CostCenter?  @relation("CostCenterHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children CostCenter[] @relation("CostCenterHierarchy")
-  manager  User?        @relation("CostCenterManager", fields: [managerId], references: [id])
-  creator  User         @relation("CostCenterCreator", fields: [createdBy], references: [id])
+  parent       CostCenter?  @relation("CostCenterHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children     CostCenter[] @relation("CostCenterHierarchy")
+  manager      User?        @relation("CostCenterManager", fields: [managerId], references: [id])
+  creator      User         @relation("CostCenterCreator", fields: [createdBy], references: [id])
+  unitBudgets  UnitBudget[]
+  // Phase 13: Allocation Rules
+  allocationTargets         AllocationTarget[]
+  allocationExecutionDetails AllocationExecutionDetail[]
 
   @@index([parentId])
   @@index([businessUnitId])
@@ -1085,6 +1100,172 @@ model BusinessUnit {
   // Relations
   accounts    JournalAccount[]
   costCenters CostCenter[]
+  unitBudgets UnitBudget[]
 
   @@map("m_business_unit")
 }
+
+// ============================================
+// Phase 13: Budget Management System
+// ============================================
+
+enum BudgetPeriodStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  CLOSED
+}
+
+model BudgetPeriod {
+  id         Int                @id @default(autoincrement())
+  year       Int
+  periodName String             @map("period_name") @db.VarChar(100)
+  startDate  DateTime           @map("start_date") @db.Date
+  endDate    DateTime           @map("end_date") @db.Date
+  status     BudgetPeriodStatus @default(DRAFT)
+  createdBy  Int                @map("created_by")
+  approvedBy Int?               @map("approved_by")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  approvedAt DateTime?          @map("approved_at")
+
+  // Relations
+  creator     User         @relation("BudgetPeriodCreator", fields: [createdBy], references: [id])
+  approver    User?        @relation("BudgetPeriodApprover", fields: [approvedBy], references: [id])
+  unitBudgets UnitBudget[]
+
+  @@unique([year, periodName])
+  @@index([status])
+  @@index([year])
+  @@map("budget_period")
+}
+
+model UnitBudget {
+  id             Int           @id @default(autoincrement())
+  periodId       Int           @map("period_id")
+  costCenterId   Int?          @map("cost_center_id")
+  businessUnitId Int?          @map("business_unit_id")
+  accountCode    String        @map("account_code") @db.VarChar(20)
+  budgetAmount   Decimal       @default(0) @map("budget_amount") @db.Decimal(15, 2)
+  notes          String?       @db.Text
+  createdBy      Int           @map("created_by")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  period       BudgetPeriod  @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  costCenter   CostCenter?   @relation(fields: [costCenterId], references: [id], onDelete: SetNull)
+  businessUnit BusinessUnit? @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  creator      User          @relation("UnitBudgetCreator", fields: [createdBy], references: [id])
+
+  @@unique([periodId, costCenterId, businessUnitId, accountCode])
+  @@index([periodId])
+  @@index([costCenterId])
+  @@index([businessUnitId])
+  @@index([accountCode])
+  @@map("unit_budget")
+}
+
+// ============================================
+// Allocation Rules Engine (Phase 13)
+// ============================================
+
+enum AllocationMethod {
+  EQUAL
+  REVENUE
+  HEADCOUNT
+  AREA
+  CUSTOM
+}
+
+enum AllocationExecutionStatus {
+  PREVIEW
+  EXECUTED
+  ROLLED_BACK
+}
+
+model AllocationRule {
+  id               Int              @id @default(autoincrement())
+  name             String           @db.VarChar(200)
+  description      String?          @db.Text
+  sourceAccountCode String          @map("source_account_code") @db.VarChar(20)
+  allocationMethod AllocationMethod @map("allocation_method")
+  customFormula    String?          @map("custom_formula") @db.Text
+  isActive         Boolean          @default(true) @map("is_active")
+  createdBy        Int              @map("created_by")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  creator         User                  @relation("AllocationRuleCreator", fields: [createdBy], references: [id])
+  targets         AllocationTarget[]
+  executions      AllocationExecution[]
+
+  @@index([sourceAccountCode])
+  @@index([isActive])
+  @@index([allocationMethod])
+  @@map("allocation_rule")
+}
+
+model AllocationTarget {
+  id               Int     @id @default(autoincrement())
+  ruleId           Int     @map("rule_id")
+  costCenterId     Int     @map("cost_center_id")
+  targetPercentage Decimal? @map("target_percentage") @db.Decimal(5, 2)
+  fixedAmount      Decimal? @map("fixed_amount") @db.Decimal(15, 2)
+  weight           Decimal? @db.Decimal(10, 2)
+
+  // Relations
+  rule       AllocationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  costCenter CostCenter     @relation(fields: [costCenterId], references: [id])
+
+  @@unique([ruleId, costCenterId])
+  @@index([ruleId])
+  @@map("allocation_target")
+}
+
+model AllocationExecution {
+  id            Int                       @id @default(autoincrement())
+  ruleId        Int                       @map("rule_id")
+  executionDate DateTime                  @map("execution_date") @db.Date
+  periodYear    Int                       @map("period_year")
+  periodMonth   Int                       @map("period_month")
+  totalAmount   Decimal                   @map("total_amount") @db.Decimal(15, 2)
+  journalId     Int?                      @map("journal_id")
+  status        AllocationExecutionStatus @default(EXECUTED)
+  executedBy    Int                       @map("executed_by")
+  executedAt    DateTime                  @default(now()) @map("executed_at")
+  rolledBackBy  Int?                      @map("rolled_back_by")
+  rolledBackAt  DateTime?                 @map("rolled_back_at")
+  notes         String?                   @db.Text
+
+  // Relations
+  rule          AllocationRule              @relation(fields: [ruleId], references: [id])
+  journal       PostedJournal?              @relation(fields: [journalId], references: [id])
+  executor      User                        @relation("AllocationExecutor", fields: [executedBy], references: [id])
+  rollbacker    User?                       @relation("AllocationRollbacker", fields: [rolledBackBy], references: [id])
+  details       AllocationExecutionDetail[]
+
+  @@index([periodYear, periodMonth])
+  @@index([ruleId])
+  @@index([status])
+  @@index([executionDate])
+  @@map("allocation_execution")
+}
+
+model AllocationExecutionDetail {
+  id               Int     @id @default(autoincrement())
+  executionId      Int     @map("execution_id")
+  costCenterId     Int     @map("cost_center_id")
+  allocatedAmount  Decimal @map("allocated_amount") @db.Decimal(15, 2)
+  percentage       Decimal? @db.Decimal(5, 2)
+  calculationBasis Decimal? @map("calculation_basis") @db.Decimal(15, 2)
+
+  // Relations
+  execution  AllocationExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  costCenter CostCenter          @relation(fields: [costCenterId], references: [id])
+
+  @@index([executionId])
+  @@index([costCenterId])
+  @@map("allocation_execution_detail")
+}
+

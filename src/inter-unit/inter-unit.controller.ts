@@ -14,7 +14,7 @@ import { InterUnitService, CreateInterUnitTransactionDto, InterUnitTransactionFi
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 // TODO: Implement GetUser decorator or use @Req() Request
 
-@Controller('inter-unit')
+@Controller('api/inter-unit')
 @UseGuards(JwtAuthGuard)
 export class InterUnitController {
     constructor(private readonly interUnitService: InterUnitService) { }

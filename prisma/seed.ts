@@ -3,11 +3,14 @@ import * as bcrypt from 'bcrypt';
 import { seedAccounting } from './seeds/accounting-seeder';
 import { seedMenus } from './seeds/menu-seeder';
 import { seedProductConfig } from './seeds/product-config-seeder';
+import { seedAllocationRules } from './seeds/allocation-seed';
 
 const prisma = new PrismaClient();
 
 async function main() {
     console.log('Seeding database...');
+
+
 
     // 1. Upsert Admin Role
     const adminRole = await prisma.role.upsert({
@@ -85,6 +88,9 @@ async function main() {
     // TODO: Re-enable after Prisma client regenerated
     console.log('\n5. Seeding product configuration...');
     await seedProductConfig();
+
+    console.log('\n8. Seeding allocation rules...');
+    await seedAllocationRules();
 
     console.log('\n✅ Seeding completed successfully!');
 }

@@ -54,6 +54,16 @@ export class ReportsController {
         return this.reportsService.getCreditApplicationData(Number(id));
     }
 
+    @Get('credit/:id/agreement') // SPK
+    async getCreditAgreement(@Param('id') id: string) {
+        return this.reportsService.getCreditAgreementData(Number(id));
+    }
+
+    @Get('credit/:id/statement') // K04
+    async getCreditStatement(@Param('id') id: string) {
+        return this.reportsService.getCreditStatementData(Number(id));
+    }
+
     // ============================
     // DEPOSITO (SIMPANAN BERJANGKA)
     // ============================

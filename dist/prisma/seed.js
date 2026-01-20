@@ -38,6 +38,7 @@ const bcrypt = __importStar(require("bcrypt"));
 const accounting_seeder_1 = require("./seeds/accounting-seeder");
 const menu_seeder_1 = require("./seeds/menu-seeder");
 const product_config_seeder_1 = require("./seeds/product-config-seeder");
+const allocation_seed_1 = require("./seeds/allocation-seed");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
@@ -102,6 +103,8 @@ async function main() {
     await (0, menu_seeder_1.seedMenus)();
     console.log('\n5. Seeding product configuration...');
     await (0, product_config_seeder_1.seedProductConfig)();
+    console.log('\n8. Seeding allocation rules...');
+    await (0, allocation_seed_1.seedAllocationRules)();
     console.log('\n✅ Seeding completed successfully!');
 }
 main()
