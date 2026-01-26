@@ -238,7 +238,10 @@ export class ReportsService {
             });
             if (!acc) throw new NotFoundException('Credit Account not found');
 
-            accountData = acc;
+            accountData = {
+                ...acc,
+                tglBuka: acc.realisasi[0]?.tglRealisasi || acc.tglPengajuan
+            };
             title = 'KARTU PINJAMAN';
 
             // Construct transactions for Passbook (Realisasi + Payments)
