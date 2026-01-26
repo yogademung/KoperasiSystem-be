@@ -49,7 +49,7 @@ export class NasabahController {
             if (file.mimetype === 'application/pdf') {
                 console.log('Saving PDF file directly without compression');
                 await fs.writeFile(filePath, file.buffer);
-                return `/uploads/nasabah/${filename}`;
+                return `uploads/nasabah/${filename}`;
             }
 
             // For images, preserve original format
@@ -74,7 +74,7 @@ export class NasabahController {
             const stats = await fs.stat(filePath);
             console.log(`File saved successfully: ${filename}, format: ${isPng ? 'PNG' : 'JPEG'}, size: ${stats.size} bytes`);
 
-            return `/uploads/nasabah/${filename}`;
+            return `uploads/nasabah/${filename}`;
         } catch (error) {
             console.error('File processing error:', {
                 filename: file.originalname,

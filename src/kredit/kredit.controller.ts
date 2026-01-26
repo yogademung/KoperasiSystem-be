@@ -123,7 +123,7 @@ export class KreditController {
                         const exists = await fs.pathExists(filePath);
                         console.log(`File exists: ${exists}`);
 
-                        photoPaths.push(`/uploads/collateral/${filename}`);
+                        photoPaths.push(`uploads/collateral/${filename}`);
                     } catch (error) {
                         console.error(`Failed to process photo [${file.originalname}]:`, error);
                     }

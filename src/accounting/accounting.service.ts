@@ -306,26 +306,42 @@ export class AccountingService {
         // Validate balancing
         await this.validateJournalEntry(data.details);
 
-        const journalNo = await this.generateJournalNumber(data.date);
+        // Create Initial Journal Number
+        const maxRetries = 3;
+        let retryCount = 0;
 
-        return this.prisma.postedJournal.create({
-            data: {
-                journalNumber: journalNo,
-                journalDate: data.date,
-                description: data.description,
-                postingType: data.postingType || 'MANUAL', // Use provided type or default to MANUAL
-                userId: data.userId,
-                status: 'POSTED',
-                details: {
-                    create: data.details.map(d => ({
-                        accountCode: d.accountCode,
-                        debit: d.debit,
-                        credit: d.credit,
-                        description: d.description || data.description
-                    }))
+        while (retryCount < maxRetries) {
+            try {
+                const journalNo = await this.generateJournalNumber(data.date);
+
+                return await this.prisma.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: data.date,
+                        description: data.description,
+                        postingType: data.postingType || 'MANUAL',
+                        userId: data.userId,
+                        status: 'POSTED',
+                        details: {
+                            create: data.details.map(d => ({
+                                accountCode: d.accountCode,
+                                debit: d.debit,
+                                credit: d.credit,
+                                description: d.description || data.description
+                            }))
+                        }
+                    }
+                });
+            } catch (error) {
+                if (error.code === 'P2002' && error.meta?.target?.includes('journalNumber')) {
+                    retryCount++;
+                    await new Promise(r => setTimeout(r, 100)); // Small backoff
+                    continue;
                 }
+                throw error;
             }
-        });
+        }
+        throw new Error('Failed to create manual journal: Unique constraint error on Journal Number');
     }
 
     async updateManualJournal(id: number, data: {
@@ -426,40 +442,57 @@ export class AccountingService {
             }
         }
 
-        // 4. GENERATE JOURNAL NO
-        const journalNo = await this.generateJournalNumber();
+        // 5. CREATE JOURNAL WITH RETRY
+        const maxRetries = 3;
+        let retryCount = 0;
 
-        // 5. CREATE JOURNAL
-        return prisma.postedJournal.create({
-            data: {
-                journalNumber: journalNo,
-                journalDate: new Date(), // Auto post is always NOW
-                description: detailedDescription,
-                postingType: 'AUTO',
-                transType: data.transType,
-                sourceCode: data.transType.split('_')[0], // Extract Source Code (e.g. BRAHMACARI from BRAHMACARI_SETOR)
-                refId: data.refId,
-                userId: data.userId,
-                wilayahCd: data.wilayahCd,
-                status: 'POSTED',
-                details: {
-                    create: [
-                        {
-                            accountCode: debitAccount,
-                            debit: data.amount,
-                            credit: 0,
-                            description: detailedDescription
-                        },
-                        {
-                            accountCode: creditAccount,
-                            debit: 0,
-                            credit: data.amount,
-                            description: detailedDescription
+        while (retryCount < maxRetries) {
+            try {
+                // Generate Journal No inside the loop
+                const journalNo = await this.generateJournalNumber();
+
+                return await prisma.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: new Date(), // Auto post is always NOW
+                        description: detailedDescription,
+                        postingType: 'AUTO',
+                        transType: data.transType,
+                        sourceCode: data.transType.split('_')[0], // Extract Source Code (e.g. BRAHMACARI from BRAHMACARI_SETOR)
+                        refId: data.refId,
+                        userId: data.userId,
+                        wilayahCd: data.wilayahCd,
+                        status: 'POSTED',
+                        details: {
+                            create: [
+                                {
+                                    accountCode: debitAccount,
+                                    debit: data.amount,
+                                    credit: 0,
+                                    description: detailedDescription
+                                },
+                                {
+                                    accountCode: creditAccount,
+                                    debit: 0,
+                                    credit: data.amount,
+                                    description: detailedDescription
+                                }
+                            ]
                         }
-                    ]
+                    }
+                });
+            } catch (error) {
+                if (error.code === 'P2002' && error.meta?.target?.includes('journalNumber')) {
+                    console.log(`[Accounting] Journal collision detected (${retryCount + 1}/${maxRetries}). Retrying...`);
+                    retryCount++;
+                    // Small delay to reduce contention
+                    await new Promise(r => setTimeout(r, 100));
+                    continue;
                 }
+                throw error;
             }
-        });
+        }
+        throw new Error('Failed to generate unique journal number after retries');
     }
 
     private async getTransactionInfo(transType: string, refId: number): Promise<{ accountNo: string, sequence: number } | null> {

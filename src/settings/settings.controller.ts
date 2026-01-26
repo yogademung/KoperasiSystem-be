@@ -34,7 +34,7 @@ export class SettingsController {
     }))
     uploadLogo(@UploadedFile() file: Express.Multer.File) {
         if (!file) throw new BadRequestException('No file uploaded');
-        // Return URL accessible via ServeStatic
-        return { url: `/uploads/logo/${file.filename}` };
+        // Return URL path without leading slash (frontend will add it)
+        return { url: `uploads/logo/${file.filename}` };
     }
 }
