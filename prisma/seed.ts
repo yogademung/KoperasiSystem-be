@@ -78,6 +78,21 @@ async function main() {
     });
     console.log('Business date configuration seeded:', businessDateConfig);
 
+    // 5. Seed Idle Timeout Config
+    const idleTimeoutConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'COMPANY_PROFILE', codeValue: 'IDLE_TIMEOUT' } },
+        update: {},
+        create: {
+            code: 'COMPANY_PROFILE',
+            codeValue: 'IDLE_TIMEOUT',
+            description: '15',
+            orderNum: 0,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Idle timeout configuration seeded:', idleTimeoutConfig);
+
     // 5. Seed Accounting Module
     await seedAccounting();
 
