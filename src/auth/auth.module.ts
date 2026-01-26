@@ -13,7 +13,7 @@ import { PrismaModule } from '../database/prisma.module';
         JwtModule.registerAsync({
             useFactory: () => ({
                 secret: process.env.JWT_SECRET || 'secret',
-                signOptions: { expiresIn: '15m' },
+                signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
             }),
         }),
     ],
