@@ -53,6 +53,16 @@ export class ProductConfigService {
             );
         }
 
+        // Only allow disabling if no accounts exist
+        if (product.isEnabled) {
+            const check = await this.hasExistingAccounts(code);
+            if (check.hasAccounts) {
+                throw new BadRequestException(
+                    `Cannot disable ${product.productName}. There are still ${check.count} associated accounts (active or inactive).`,
+                );
+            }
+        }
+
         const updated = await this.prisma.productConfig.update({
             where: { productCode: code },
             data: { isEnabled: !product.isEnabled },
