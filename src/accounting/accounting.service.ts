@@ -10,6 +10,7 @@ import { DepositoService } from '../simpanan/deposito/deposito.service';
 import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
 import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
 import { PeriodLockService } from '../month-end/period-lock.service';
+import { ProductConfigService } from '../product-config/product-config.service';
 
 
 
@@ -25,7 +26,8 @@ export class AccountingService {
         private balimesariService: BalimesariService,
 
         private wanaprastaService: WanaprastaService,
-        private periodLockService: PeriodLockService
+        private periodLockService: PeriodLockService,
+        private productConfigService: ProductConfigService
     ) { }
 
     // ============================================
@@ -748,8 +750,14 @@ export class AccountingService {
         });
 
         // 3. Aggregate Transaction Summaries (Setor/Tarik)
-        // We need to group by Product (Source) and Type (Setor/Tarik)
-        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA', 'KREDIT'];
+        // Fetch enabled products from DB
+        const configProducts = await this.productConfigService.getEnabledProducts();
+        const enabledProductCodes = configProducts.map(p => p.productCode);
+
+        // Always include KREDIT if it exists in data or just as default
+        const activeCodes = [...enabledProductCodes];
+        if (!activeCodes.includes('KREDIT')) activeCodes.push('KREDIT');
+
         const summaryMap = new Map<string, {
             product: string;
             depositTotal: number;
@@ -758,14 +766,18 @@ export class AccountingService {
             withdrawalCount: number;
         }>();
 
-        // Initialize Map
-        products.forEach(p => summaryMap.set(p, {
-            product: p,
-            depositTotal: 0,
-            withdrawalTotal: 0,
-            depositCount: 0,
-            withdrawalCount: 0
-        }));
+        // Initialize Map with enabled products
+        activeCodes.forEach(code => {
+            const config = configProducts.find(cp => cp.productCode === code);
+            const name = config?.productName || code;
+            summaryMap.set(code, {
+                product: name, // Use dynamic name
+                depositTotal: 0,
+                withdrawalTotal: 0,
+                depositCount: 0,
+                withdrawalCount: 0
+            });
+        });
 
         for (const j of journals) {
             if (!j.sourceCode || !summaryMap.has(j.sourceCode)) continue;

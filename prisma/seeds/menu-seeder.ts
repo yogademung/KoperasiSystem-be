@@ -38,7 +38,6 @@ export async function seedMenus() {
         { id: 64, menuName: 'Jurnal Terhapus', path: '/accounting/deleted-journals', module: 'ACCOUNTING', orderNum: 4, parentId: 6 },
         { id: 65, menuName: 'Journal List', path: '/accounting/reports', module: 'ACCOUNTING', orderNum: 5, parentId: 6 },
         { id: 66, menuName: 'Manajemen Aset', path: '/accounting/assets', module: 'ACCOUNTING', orderNum: 6, parentId: 6 },
-        { id: 67, menuName: 'Depresiasi Bulanan', path: '/accounting/depreciation', module: 'ACCOUNTING', orderNum: 7, parentId: 6 },
         { id: 68, menuName: 'Penutupan Periode', path: '/accounting/closing', module: 'ACCOUNTING', orderNum: 8, parentId: 6 },
         { id: 902, menuName: 'Mutasi Antar Unit', path: '/business-units/transactions', module: 'ACCOUNTING', orderNum: 10, parentId: 6 },
 
@@ -92,7 +91,7 @@ export async function seedMenus() {
     console.log(`✅ Created/Updated ${menus.length} menus`);
 
     // Remove deprecated menus if they exist
-    const deprecatedIds = [62, 90, 901, 911, 912];
+    const deprecatedIds = [62, 67, 90, 901, 911, 912];
 
     // cleanup dependants
     await prisma.menuRole.deleteMany({

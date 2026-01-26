@@ -4,7 +4,7 @@ import type { Response } from 'express';
 import { LaporanService } from './laporan.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-@Controller('accounting/reports') // Using existing prefix convention or matching plan
+@Controller('api/accounting/reports') // Standardized with /api prefix
 @UseGuards(JwtAuthGuard)
 export class LaporanController {
     constructor(private laporanService: LaporanService) { }
