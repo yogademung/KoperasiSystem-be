@@ -31,7 +31,7 @@ let TabrelaService = class TabrelaService {
                     saldo: createDto.setoranAwal || 0,
                     interestRate: 0,
                     status: 'A',
-                }
+                },
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
                 const transaction = await tx.transTab.create({
@@ -43,8 +43,8 @@ let TabrelaService = class TabrelaService {
                         keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
                         latitude: createDto.latitude,
                         longitude: createDto.longitude,
-                        createdBy: 'SYSTEM'
-                    }
+                        createdBy: 'SYSTEM',
+                    },
                 });
                 this.eventEmitter.emit('transaction.created', {
                     transType: 'TABRELA_SETOR',
@@ -52,7 +52,7 @@ let TabrelaService = class TabrelaService {
                     description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening',
                     userId: 1,
                     refId: transaction.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             return tabrela;
@@ -62,11 +62,11 @@ let TabrelaService = class TabrelaService {
         return this.prisma.nasabahTab.findMany({
             include: {
                 nasabah: {
-                    select: { nama: true, noKtp: true }
-                }
+                    select: { nama: true, noKtp: true },
+                },
             },
             orderBy: { createdAt: 'desc' },
-            where: { status: 'A' }
+            where: { status: 'A' },
         });
     }
     async findOne(noTab) {
@@ -75,9 +75,9 @@ let TabrelaService = class TabrelaService {
             include: {
                 nasabah: true,
                 transactions: {
-                    orderBy: { createdAt: 'desc' }
-                }
-            }
+                    orderBy: { createdAt: 'desc' },
+                },
+            },
         });
         if (!account) {
             throw new common_1.NotFoundException(`Tabungan ${noTab} not found`);
@@ -101,12 +101,12 @@ let TabrelaService = class TabrelaService {
                     keterangan: dto.description,
                     latitude: dto.latitude,
                     longitude: dto.longitude,
-                    createdBy: userId?.toString() || 'SYSTEM'
-                }
+                    createdBy: userId?.toString() || 'SYSTEM',
+                },
             });
             await tx.nasabahTab.update({
                 where: { noTab },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             this.eventEmitter.emit('transaction.created', {
                 transType: 'TABRELA_SETOR',
@@ -114,7 +114,7 @@ let TabrelaService = class TabrelaService {
                 description: transaction.keterangan,
                 userId: userId || 1,
                 refId: transaction.id,
-                branchCode: '001'
+                branchCode: '001',
             });
             return { success: true };
         });
@@ -139,12 +139,12 @@ let TabrelaService = class TabrelaService {
                     keterangan: dto.description,
                     latitude: dto.latitude,
                     longitude: dto.longitude,
-                    createdBy: userId?.toString() || 'SYSTEM'
-                }
+                    createdBy: userId?.toString() || 'SYSTEM',
+                },
             });
             await tx.nasabahTab.update({
                 where: { noTab },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             this.eventEmitter.emit('transaction.created', {
                 transType: 'TABRELA_TARIK',
@@ -152,7 +152,7 @@ let TabrelaService = class TabrelaService {
                 description: transaction.keterangan,
                 userId: userId || 1,
                 refId: transaction.id,
-                branchCode: '001'
+                branchCode: '001',
             });
             return { success: true };
         });
@@ -160,12 +160,12 @@ let TabrelaService = class TabrelaService {
     async voidTransaction(transId, txInput) {
         const executeLogic = async (tx) => {
             const original = await tx.transTab.findUnique({
-                where: { id: transId }
+                where: { id: transId },
             });
             if (!original)
                 throw new common_1.BadRequestException(`Transaction with ID ${transId} not found`);
             const account = await tx.nasabahTab.findUnique({
-                where: { noTab: original.noTab }
+                where: { noTab: original.noTab },
             });
             if (!account)
                 throw new common_1.BadRequestException('Account not found');
@@ -173,7 +173,7 @@ let TabrelaService = class TabrelaService {
             const newBalance = Number(account.saldo) - reversalAmount;
             await tx.nasabahTab.update({
                 where: { noTab: original.noTab },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             return tx.transTab.create({
                 data: {
@@ -182,8 +182,8 @@ let TabrelaService = class TabrelaService {
                     nominal: -reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID/REVERSAL of Trans #${original.id}: ${original.keterangan || ''}`,
-                    createdBy: original.createdBy || 'SYSTEM'
-                }
+                    createdBy: original.createdBy || 'SYSTEM',
+                },
             });
         };
         if (txInput) {
@@ -212,8 +212,8 @@ let TabrelaService = class TabrelaService {
                         nominal: -penalty,
                         saldoAkhir: currentBalance,
                         keterangan: `Denda Penutupan: ${dto.reason}`,
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
                 this.eventEmitter.emit('transaction.created', {
                     transType: 'TABRELA_DENDA',
@@ -221,7 +221,7 @@ let TabrelaService = class TabrelaService {
                     description: `Denda Penutupan ${noTab}`,
                     userId: userId || 1,
                     refId: penaltyTx.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             if (adminFee > 0) {
@@ -233,8 +233,8 @@ let TabrelaService = class TabrelaService {
                         nominal: -adminFee,
                         saldoAkhir: currentBalance,
                         keterangan: 'Biaya Administrasi Penutupan',
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
                 this.eventEmitter.emit('transaction.created', {
                     transType: 'TABRELA_ADMIN',
@@ -242,7 +242,7 @@ let TabrelaService = class TabrelaService {
                     description: `Biaya Admin Penutupan ${noTab}`,
                     userId: userId || 1,
                     refId: adminTx.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             if (currentBalance > 0) {
@@ -253,8 +253,8 @@ let TabrelaService = class TabrelaService {
                         nominal: -currentBalance,
                         saldoAkhir: 0,
                         keterangan: `Penutupan Rekening: ${dto.reason}`,
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
                 this.eventEmitter.emit('transaction.created', {
                     transType: 'TABRELA_TUTUP',
@@ -262,15 +262,15 @@ let TabrelaService = class TabrelaService {
                     description: `Penutupan Rekening ${noTab}`,
                     userId: userId || 1,
                     refId: closeTx.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             await tx.nasabahTab.update({
                 where: { noTab },
                 data: {
                     status: 'T',
-                    saldo: 0
-                }
+                    saldo: 0,
+                },
             });
             return { success: true, refund: currentBalance };
         });

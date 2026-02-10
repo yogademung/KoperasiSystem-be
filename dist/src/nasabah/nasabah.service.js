@@ -25,12 +25,12 @@ let NasabahService = class NasabahService {
     async findAll() {
         return this.prisma.nasabah.findMany({
             orderBy: { createdAt: 'desc' },
-            where: { isActive: true }
+            where: { isActive: true },
         });
     }
     async findOne(id) {
         const nasabah = await this.prisma.nasabah.findUnique({
-            where: { id }
+            where: { id },
         });
         if (!nasabah) {
             throw new common_1.NotFoundException(`Nasabah #${id} not found`);
@@ -41,7 +41,7 @@ let NasabahService = class NasabahService {
         await this.findOne(id);
         return this.prisma.nasabah.update({
             where: { id },
-            data: updateNasabahDto
+            data: updateNasabahDto,
         });
     }
     async searchNasabah(query, type) {
@@ -58,7 +58,7 @@ let NasabahService = class NasabahService {
                 { balimesari: { some: { noBalimesari: { contains: query } } } },
                 { wanaprasta: { some: { noWanaprasta: { contains: query } } } },
                 { kredit: { some: { nomorKredit: { contains: query } } } },
-            ]
+            ],
         };
         const results = await this.prisma.nasabah.findMany({
             where: whereInput,
@@ -70,7 +70,7 @@ let NasabahService = class NasabahService {
                 balimesari: { where: { status: 'A' } },
                 wanaprasta: { where: { status: 'A' } },
                 kredit: { where: { status: 'A' } },
-            }
+            },
         });
         return results;
     }
@@ -85,7 +85,7 @@ let NasabahService = class NasabahService {
                 balimesari: { where: { status: 'A' } },
                 wanaprasta: { where: { status: 'A' } },
                 kredit: { where: { status: 'A' } },
-            }
+            },
         });
         if (!nasabah)
             throw new common_1.NotFoundException(`Nasabah #${id} not found`);
@@ -102,7 +102,7 @@ let NasabahService = class NasabahService {
                 balimesari: true,
                 wanaprasta: true,
                 kredit: true,
-            }
+            },
         });
         if (!nasabah) {
             throw new common_1.NotFoundException(`Nasabah #${id} not found`);
@@ -127,7 +127,7 @@ let NasabahService = class NasabahService {
         }
         return this.prisma.nasabah.update({
             where: { id },
-            data: { isActive: false }
+            data: { isActive: false },
         });
     }
 };

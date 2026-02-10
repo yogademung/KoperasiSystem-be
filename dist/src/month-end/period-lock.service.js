@@ -193,8 +193,8 @@ let PeriodLockService = PeriodLockService_1 = class PeriodLockService {
                 status: 'REJECTED',
                 approvedBy: managerId,
                 approvedAt: new Date(),
-                managerNotes: notes
-            }
+                managerNotes: notes,
+            },
         });
         return { success: true };
     }
@@ -202,7 +202,7 @@ let PeriodLockService = PeriodLockService_1 = class PeriodLockService {
         return this.prisma.periodLock.findMany({
             where: { status: 'LOCKED' },
             orderBy: { period: 'desc' },
-            include: { creator: { select: { fullName: true } } }
+            include: { creator: { select: { fullName: true } } },
         });
     }
 };

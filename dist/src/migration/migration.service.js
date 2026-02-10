@@ -112,7 +112,7 @@ let MigrationService = class MigrationService {
                     accountCode,
                     debit,
                     credit,
-                    description
+                    description,
                 });
                 totalDebit += debit;
                 totalCredit += credit;
@@ -126,7 +126,7 @@ let MigrationService = class MigrationService {
         }
         for (const entry of journalEntries) {
             const account = await this.prisma.journalAccount.findUnique({
-                where: { accountCode: entry.accountCode }
+                where: { accountCode: entry.accountCode },
             });
             if (!account) {
                 throw new common_1.BadRequestException(`Account code ${entry.accountCode} not found`);
@@ -146,19 +146,19 @@ let MigrationService = class MigrationService {
                     status: 'POSTED',
                     userId: userId,
                     details: {
-                        create: journalEntries.map(entry => ({
+                        create: journalEntries.map((entry) => ({
                             accountCode: entry.accountCode,
                             debit: entry.debit,
                             credit: entry.credit,
-                            description: entry.description
-                        }))
-                    }
-                }
+                            description: entry.description,
+                        })),
+                    },
+                },
             });
             return {
                 success: true,
                 message: 'Journal imported successfully',
-                journalId: journal.id
+                journalId: journal.id,
             };
         });
     }
@@ -173,8 +173,10 @@ let MigrationService = class MigrationService {
         let globalId = 1;
         let totalDebit = 0;
         let totalCredit = 0;
-        const allAccounts = await this.prisma.journalAccount.findMany({ select: { accountCode: true } });
-        const validAccountCodes = new Set(allAccounts.map(a => a.accountCode));
+        const allAccounts = await this.prisma.journalAccount.findMany({
+            select: { accountCode: true },
+        });
+        const validAccountCodes = new Set(allAccounts.map((a) => a.accountCode));
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber <= 2)
                 return;
@@ -196,7 +198,7 @@ let MigrationService = class MigrationService {
                 debit,
                 credit,
                 status: 'valid',
-                errors: []
+                errors: [],
             };
             if (!accountCode) {
                 rowData.errors.push('Account Code required');
@@ -222,17 +224,17 @@ let MigrationService = class MigrationService {
                 totalCredit,
                 isBalanced,
                 balanceDiff: totalDebit - totalCredit,
-                valid: previewData.filter(d => d.status === 'valid').length,
-                errors: previewData.filter(d => d.status === 'error').length
-            }
+                valid: previewData.filter((d) => d.status === 'valid').length,
+                errors: previewData.filter((d) => d.status === 'error').length,
+            },
         };
     }
     async confirmJournal(validatedData, journalDate, userId) {
-        const entries = validatedData.map(d => ({
+        const entries = validatedData.map((d) => ({
             accountCode: d.accountCode,
             debit: d.debit,
             credit: d.credit,
-            description: d.description
+            description: d.description,
         }));
         const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
         const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
@@ -253,19 +255,19 @@ let MigrationService = class MigrationService {
                     status: 'POSTED',
                     userId: userId,
                     details: {
-                        create: entries.map(entry => ({
+                        create: entries.map((entry) => ({
                             accountCode: entry.accountCode,
                             debit: entry.debit,
                             credit: entry.credit,
-                            description: entry.description
-                        }))
-                    }
-                }
+                            description: entry.description,
+                        })),
+                    },
+                },
             });
             return {
                 success: true,
                 message: 'Journal imported successfully',
-                journalId: journal.id
+                journalId: journal.id,
             };
         });
     }
@@ -284,7 +286,11 @@ let MigrationService = class MigrationService {
             { header: 'Pekerjaan', key: 'pekerjaan', width: 20 },
         ];
         worksheet.getRow(1).font = { bold: true };
-        worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0E0' },
+        };
         worksheet.addRow({
             nama: 'I Made Contoh',
             noKtp: '1234567890123456',
@@ -299,7 +305,11 @@ let MigrationService = class MigrationService {
         worksheet.getRow(2).font = { italic: true, color: { argb: 'FF666666' } };
         worksheet.getColumn('H').eachCell((cell, rowNumber) => {
             if (rowNumber > 1) {
-                cell.dataValidation = { type: 'list', allowBlank: true, formulae: ['"L,P"'] };
+                cell.dataValidation = {
+                    type: 'list',
+                    allowBlank: true,
+                    formulae: ['"L,P"'],
+                };
             }
         });
         return Buffer.from(await workbook.xlsx.writeBuffer());
@@ -326,7 +336,7 @@ let MigrationService = class MigrationService {
                 if (!nama && !noKtp)
                     return;
                 try {
-                    let tanggalLahirVal = row.getCell(7).value;
+                    const tanggalLahirVal = row.getCell(7).value;
                     let tanggalLahir = null;
                     if (tanggalLahirVal instanceof Date) {
                         tanggalLahir = tanggalLahirVal;
@@ -350,7 +360,7 @@ let MigrationService = class MigrationService {
                         jenisKelamin: row.getCell(8).text,
                         pekerjaan: row.getCell(9).text,
                         status: 'valid',
-                        errors: []
+                        errors: [],
                     };
                     if (!nama)
                         nasabahData.errors.push('Nama wajib diisi');
@@ -367,25 +377,25 @@ let MigrationService = class MigrationService {
                     errors.push({ row: idx, message: e.message });
                 }
             });
-            const ktpList = previewData.map(n => n.noKtp).filter(Boolean);
+            const ktpList = previewData.map((n) => n.noKtp).filter(Boolean);
             const existingNasabah = await this.prisma.nasabah.findMany({
                 where: { noKtp: { in: ktpList } },
-                select: { noKtp: true, nama: true }
+                select: { noKtp: true, nama: true },
             });
-            const existingKtpSet = new Set(existingNasabah.map(n => n.noKtp));
-            previewData.forEach(item => {
+            const existingKtpSet = new Set(existingNasabah.map((n) => n.noKtp));
+            previewData.forEach((item) => {
                 if (existingKtpSet.has(item.noKtp)) {
                     item.status = 'duplicate';
                     item.errors.push(`KTP sudah terdaftar`);
                 }
             });
             const ktpCount = new Map();
-            previewData.forEach(item => {
+            previewData.forEach((item) => {
                 if (item.noKtp) {
                     ktpCount.set(item.noKtp, (ktpCount.get(item.noKtp) || 0) + 1);
                 }
             });
-            previewData.forEach(item => {
+            previewData.forEach((item) => {
                 if (item.noKtp && ktpCount.get(item.noKtp) > 1) {
                     if (item.status !== 'duplicate') {
                         item.status = 'duplicate';
@@ -397,16 +407,16 @@ let MigrationService = class MigrationService {
             });
             const summary = {
                 total: previewData.length,
-                valid: previewData.filter(d => d.status === 'valid').length,
-                duplicates: previewData.filter(d => d.status === 'duplicate').length,
-                errors: previewData.filter(d => d.status === 'error').length,
+                valid: previewData.filter((d) => d.status === 'valid').length,
+                duplicates: previewData.filter((d) => d.status === 'duplicate').length,
+                errors: previewData.filter((d) => d.status === 'error').length,
             };
             console.log(`✅ Preview complete: ${summary.total} rows, ${summary.valid} valid, ${summary.duplicates} duplicates, ${summary.errors} errors`);
             return {
                 success: true,
                 data: previewData,
                 summary,
-                existingInDb: existingNasabah
+                existingInDb: existingNasabah,
             };
         }
         catch (error) {
@@ -417,7 +427,7 @@ let MigrationService = class MigrationService {
     async confirmNasabah(validatedData) {
         try {
             console.log(`💾 Confirming upload of ${validatedData.length} nasabah records...`);
-            const nasabahToCreate = validatedData.map(n => ({
+            const nasabahToCreate = validatedData.map((n) => ({
                 nama: n.nama,
                 noKtp: n.noKtp,
                 alamat: n.alamat,
@@ -425,17 +435,19 @@ let MigrationService = class MigrationService {
                 telepon: n.telepon,
                 tempatLahir: n.tempatLahir,
                 tanggalLahir: n.tanggalLahir ? new Date(n.tanggalLahir) : null,
-                jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P' ? n.jenisKelamin : null,
-                pekerjaan: n.pekerjaan
+                jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P'
+                    ? n.jenisKelamin
+                    : null,
+                pekerjaan: n.pekerjaan,
             }));
             await this.prisma.nasabah.createMany({
-                data: nasabahToCreate
+                data: nasabahToCreate,
             });
             console.log(`✅ Successfully created ${nasabahToCreate.length} nasabah records`);
             return {
                 success: true,
                 created: nasabahToCreate.length,
-                message: `${nasabahToCreate.length} nasabah berhasil diimpor`
+                message: `${nasabahToCreate.length} nasabah berhasil diimpor`,
             };
         }
         catch (error) {
@@ -469,7 +481,7 @@ let MigrationService = class MigrationService {
                 try {
                     const nama = row.getCell(1).text;
                     const noKtp = row.getCell(2).text;
-                    let tanggalLahirVal = row.getCell(7).value;
+                    const tanggalLahirVal = row.getCell(7).value;
                     if (!nama || !noKtp)
                         throw new Error('Nama dan No KTP wajib diisi');
                     let tanggalLahir = null;
@@ -481,7 +493,9 @@ let MigrationService = class MigrationService {
                         if (!isNaN(parsed.getTime()))
                             tanggalLahir = parsed;
                     }
-                    else if (typeof tanggalLahirVal === 'object' && tanggalLahirVal && 'result' in tanggalLahirVal) {
+                    else if (typeof tanggalLahirVal === 'object' &&
+                        tanggalLahirVal &&
+                        'result' in tanggalLahirVal) {
                         const parsed = new Date(tanggalLahirVal.result);
                         if (!isNaN(parsed.getTime()))
                             tanggalLahir = parsed;
@@ -508,19 +522,19 @@ let MigrationService = class MigrationService {
                 console.error('❌ No valid nasabah data found');
                 throw new common_1.BadRequestException('No valid nasabah data found');
             }
-            const ktpList = nasabahList.map(n => n.noKtp);
+            const ktpList = nasabahList.map((n) => n.noKtp);
             console.log('🔍 Checking for existing KTP numbers...');
             const existing = await this.prisma.nasabah.findMany({
                 where: { noKtp: { in: ktpList } },
-                select: { noKtp: true }
+                select: { noKtp: true },
             });
-            const existingKtps = new Set(existing.map(e => e.noKtp));
-            const validNasabah = nasabahList.filter(n => !existingKtps.has(n.noKtp));
+            const existingKtps = new Set(existing.map((e) => e.noKtp));
+            const validNasabah = nasabahList.filter((n) => !existingKtps.has(n.noKtp));
             console.log(`✅ Found ${existing.length} existing, ${validNasabah.length} new nasabah`);
             if (validNasabah.length > 0) {
                 console.log('💾 Creating new nasabah records...');
                 await this.prisma.nasabah.createMany({
-                    data: validNasabah.map(n => ({
+                    data: validNasabah.map((n) => ({
                         nama: n.nama,
                         noKtp: n.noKtp,
                         alamat: n.alamat,
@@ -528,9 +542,11 @@ let MigrationService = class MigrationService {
                         telepon: n.telepon,
                         tempatLahir: n.tempatLahir,
                         tanggalLahir: n.tanggalLahir,
-                        jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P' ? n.jenisKelamin : null,
-                        pekerjaan: n.pekerjaan
-                    }))
+                        jenisKelamin: n.jenisKelamin === 'L' || n.jenisKelamin === 'P'
+                            ? n.jenisKelamin
+                            : null,
+                        pekerjaan: n.pekerjaan,
+                    })),
                 });
                 console.log(`✅ Successfully created ${validNasabah.length} nasabah records`);
             }
@@ -539,7 +555,7 @@ let MigrationService = class MigrationService {
                 totalProcessed: rowCount,
                 created: validNasabah.length,
                 skipped: existing.length,
-                errors: errors.length > 0 ? errors : undefined
+                errors: errors.length > 0 ? errors : undefined,
             };
             console.log('✅ Upload nasabah completed:', result);
             return result;
@@ -549,7 +565,7 @@ let MigrationService = class MigrationService {
             console.error('Error details:', {
                 message: error.message,
                 stack: error.stack,
-                name: error.name
+                name: error.name,
             });
             throw error;
         }
@@ -564,9 +580,9 @@ let MigrationService = class MigrationService {
         ];
         const customers = await this.prisma.nasabah.findMany({
             select: { id: true, nama: true, noKtp: true },
-            orderBy: { nama: 'asc' }
+            orderBy: { nama: 'asc' },
         });
-        customers.forEach(c => {
+        customers.forEach((c) => {
             sheet1.addRow({ id: c.id, nama: c.nama, ktp: c.noKtp });
         });
         const sheet2 = workbook.addWorksheet('Transaksi Anggota');
@@ -579,7 +595,11 @@ let MigrationService = class MigrationService {
             { header: 'Saldo Simpanan', key: 'saldo', width: 15 },
         ];
         sheet2.getRow(1).font = { bold: true };
-        sheet2.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+        sheet2.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0E0' },
+        };
         sheet2.addRow({
             nasabahId: 1,
             noAnggota: 'A001',
@@ -607,7 +627,7 @@ let MigrationService = class MigrationService {
             try {
                 const nasabahId = parseInt(row.getCell(1).text);
                 const noAnggota = row.getCell(2).text;
-                let tglDaftarVal = row.getCell(3).value;
+                const tglDaftarVal = row.getCell(3).value;
                 const pokok = parseFloat(row.getCell(4).text) || 0;
                 const wajib = parseFloat(row.getCell(5).text) || 0;
                 const saldo = parseFloat(row.getCell(6).text) || 0;
@@ -624,24 +644,31 @@ let MigrationService = class MigrationService {
                     if (!isNaN(parsed.getTime()))
                         tglDaftar = parsed;
                 }
-                txns.push({ nasabahId, noAnggota, tglDaftar, pokok, wajibAwal: wajib, saldo });
+                txns.push({
+                    nasabahId,
+                    noAnggota,
+                    tglDaftar,
+                    pokok,
+                    wajibAwal: wajib,
+                    saldo,
+                });
             }
             catch (e) {
                 errors.push({ row: rowNumber, message: e.message });
             }
         });
         let successCount = 0;
-        const nasabahIds = [...new Set(txns.map(t => t.nasabahId))];
+        const nasabahIds = [...new Set(txns.map((t) => t.nasabahId))];
         const validCustomers = await this.prisma.nasabah.findMany({
             where: { id: { in: nasabahIds } },
-            select: { id: true }
+            select: { id: true },
         });
-        const validCustSet = new Set(validCustomers.map(c => c.id));
+        const validCustSet = new Set(validCustomers.map((c) => c.id));
         for (const txn of txns) {
             if (!validCustSet.has(txn.nasabahId))
                 continue;
             const existing = await this.prisma.anggotaAccount.findUnique({
-                where: { accountNumber: txn.noAnggota }
+                where: { accountNumber: txn.noAnggota },
             });
             if (existing)
                 continue;
@@ -658,7 +685,7 @@ let MigrationService = class MigrationService {
                         regionCode: 'PUSAT',
                         groupCode: 'UMUM',
                         createdBy: 'MIGRATION',
-                    }
+                    },
                 });
                 successCount++;
             }
@@ -670,7 +697,7 @@ let MigrationService = class MigrationService {
             success: true,
             total: txns.length,
             imported: successCount,
-            errors
+            errors,
         };
     }
     async previewAnggota(fileBuffer, redenominate = false) {
@@ -688,7 +715,7 @@ let MigrationService = class MigrationService {
                 return;
             const nasabahId = parseInt(row.getCell(1).text);
             const noAnggota = row.getCell(2).text;
-            let tglDaftarVal = row.getCell(3).value;
+            const tglDaftarVal = row.getCell(3).value;
             let pokok = parseFloat(row.getCell(4).text) || 0;
             let wajib = parseFloat(row.getCell(5).text) || 0;
             let saldo = parseFloat(row.getCell(6).text) || 0;
@@ -720,21 +747,25 @@ let MigrationService = class MigrationService {
                 wajib,
                 saldo,
                 status: 'valid',
-                errors: []
+                errors: [],
             });
         });
         const existingNasabah = await this.prisma.nasabah.findMany({
             where: { id: { in: Array.from(nasabahIds) } },
-            select: { id: true, nama: true, noKtp: true }
+            select: { id: true, nama: true, noKtp: true },
         });
-        const nasabahMap = new Map(existingNasabah.map(n => [n.id, n]));
+        const nasabahMap = new Map(existingNasabah.map((n) => [n.id, n]));
         const existingAnggota = await this.prisma.anggotaAccount.findMany({
-            where: { accountNumber: { in: previewData.map(d => d.noAnggota).filter(Boolean) } },
-            select: { accountNumber: true }
+            where: {
+                accountNumber: {
+                    in: previewData.map((d) => d.noAnggota).filter(Boolean),
+                },
+            },
+            select: { accountNumber: true },
         });
-        const existingAnggotaSet = new Set(existingAnggota.map(a => a.accountNumber));
+        const existingAnggotaSet = new Set(existingAnggota.map((a) => a.accountNumber));
         const nasabahAggregates = new Map();
-        previewData.forEach(row => {
+        previewData.forEach((row) => {
             if (!row.nasabahId) {
                 row.status = 'error';
                 row.errors.push('Nasabah ID required');
@@ -752,7 +783,7 @@ let MigrationService = class MigrationService {
                     totalPokok: 0,
                     totalWajib: 0,
                     totalSaldo: 0,
-                    count: 0
+                    count: 0,
                 };
                 current.totalPokok += row.pokok;
                 current.totalWajib += row.wajib;
@@ -771,17 +802,17 @@ let MigrationService = class MigrationService {
         });
         const aggregates = Array.from(nasabahAggregates.entries()).map(([id, stats]) => ({
             nasabahId: id,
-            ...stats
+            ...stats,
         }));
         return {
             data: previewData,
             aggregates,
             summary: {
                 totalRows: previewData.length,
-                valid: previewData.filter(d => d.status === 'valid').length,
-                errors: previewData.filter(d => d.status === 'error').length,
-                totalSaldoAll: previewData.reduce((sum, d) => sum + d.saldo, 0)
-            }
+                valid: previewData.filter((d) => d.status === 'valid').length,
+                errors: previewData.filter((d) => d.status === 'error').length,
+                totalSaldoAll: previewData.reduce((sum, d) => sum + d.saldo, 0),
+            },
         };
     }
     async confirmAnggota(validatedData) {
@@ -790,7 +821,7 @@ let MigrationService = class MigrationService {
         for (const txn of validatedData) {
             try {
                 const existing = await this.prisma.anggotaAccount.findUnique({
-                    where: { accountNumber: txn.noAnggota }
+                    where: { accountNumber: txn.noAnggota },
                 });
                 if (existing)
                     continue;
@@ -806,7 +837,7 @@ let MigrationService = class MigrationService {
                         regionCode: 'PUSAT',
                         groupCode: 'UMUM',
                         createdBy: 'MIGRATION',
-                    }
+                    },
                 });
                 successCount++;
             }
@@ -817,7 +848,7 @@ let MigrationService = class MigrationService {
         return {
             success: true,
             imported: successCount,
-            errors
+            errors,
         };
     }
     async generateCoaTemplate() {
@@ -826,12 +857,20 @@ let MigrationService = class MigrationService {
         parentSheet.columns = [
             { header: 'Kode Akun', key: 'accountCode', width: 20 },
             { header: 'Nama Akun', key: 'accountName', width: 35 },
-            { header: 'Tipe Akun (AST/LIA/EQT/REV/EXP)', key: 'accountType', width: 25 },
+            {
+                header: 'Tipe Akun (AST/LIA/EQT/REV/EXP)',
+                key: 'accountType',
+                width: 25,
+            },
             { header: 'Normal Balance (D/C)', key: 'dbOrCr', width: 15 },
             { header: 'Keterangan', key: 'remark', width: 30 },
         ];
         parentSheet.getRow(1).font = { bold: true };
-        parentSheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+        parentSheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0E0' },
+        };
         parentSheet.addRow({
             accountCode: '1-000',
             accountName: 'AKTIVA',
@@ -847,7 +886,11 @@ let MigrationService = class MigrationService {
             { header: 'Keterangan', key: 'remark', width: 30 },
         ];
         childSheet.getRow(1).font = { bold: true };
-        childSheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0F0' } };
+        childSheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0F0' },
+        };
         childSheet.addRow({
             accountCode: '1-100',
             accountName: 'KAS BESAR',
@@ -863,15 +906,15 @@ let MigrationService = class MigrationService {
         let globalId = 1;
         const accountCodesInFile = new Set();
         const coaFormatSetting = await this.prisma.lovValue.findFirst({
-            where: { code: 'COMPANY_PROFILE', codeValue: 'COA_FORMAT' }
+            where: { code: 'COMPANY_PROFILE', codeValue: 'COA_FORMAT' },
         });
         const coaFormat = coaFormatSetting?.description || 'xxx-xxx-xxx';
-        let regexPattern = '^' + coaFormat.replace(/[.-]/g, '\\$&').replace(/x/gi, '\\d') + '$';
+        const regexPattern = '^' + coaFormat.replace(/[.-]/g, '\\$&').replace(/x/gi, '\\d') + '$';
         const coaRegex = new RegExp(regexPattern);
         const existingAccounts = await this.prisma.journalAccount.findMany({
-            select: { accountCode: true, accountType: true, debetPoleFlag: true }
+            select: { accountCode: true, accountType: true, debetPoleFlag: true },
         });
-        const existingAccountMap = new Map(existingAccounts.map(a => [a.accountCode, a]));
+        const existingAccountMap = new Map(existingAccounts.map((a) => [a.accountCode, a]));
         const formatAccountCode = (rawCode, format) => {
             if (!rawCode || !/^\d+$/.test(rawCode))
                 return rawCode;
@@ -899,7 +942,11 @@ let MigrationService = class MigrationService {
                     return;
                 let accountCode = row.getCell(1).text?.toString().trim();
                 const accountName = row.getCell(2).text?.toString().trim();
-                const accountType = row.getCell(3).text?.toString().trim().toUpperCase();
+                const accountType = row
+                    .getCell(3)
+                    .text?.toString()
+                    .trim()
+                    .toUpperCase();
                 const dbOrCr = row.getCell(4).text?.toString().trim().toUpperCase();
                 const remark = row.getCell(5).text?.toString().trim();
                 if (!accountCode && !accountName)
@@ -915,7 +962,7 @@ let MigrationService = class MigrationService {
                     dbOrCr,
                     remark,
                     status: 'valid',
-                    errors: []
+                    errors: [],
                 };
                 if (!accountCode)
                     rowData.errors.push('Kode Akun wajib diisi');
@@ -985,7 +1032,7 @@ let MigrationService = class MigrationService {
                     dbOrCr,
                     remark,
                     status: 'valid',
-                    errors: []
+                    errors: [],
                 };
                 if (!accountCode)
                     rowData.errors.push('Kode Akun wajib diisi');
@@ -1019,10 +1066,10 @@ let MigrationService = class MigrationService {
             data: previewData,
             summary: {
                 totalRows: previewData.length,
-                valid: previewData.filter(d => d.status === 'valid').length,
-                duplicates: previewData.filter(d => d.status === 'duplicate').length,
-                errors: previewData.filter(d => d.status === 'error').length
-            }
+                valid: previewData.filter((d) => d.status === 'valid').length,
+                duplicates: previewData.filter((d) => d.status === 'duplicate').length,
+                errors: previewData.filter((d) => d.status === 'error').length,
+            },
         };
     }
     async confirmCoa(validatedData) {
@@ -1031,7 +1078,7 @@ let MigrationService = class MigrationService {
         for (const row of validatedData) {
             try {
                 const existing = await this.prisma.journalAccount.findUnique({
-                    where: { accountCode: row.accountCode }
+                    where: { accountCode: row.accountCode },
                 });
                 if (existing)
                     continue;
@@ -1044,8 +1091,8 @@ let MigrationService = class MigrationService {
                         debetPoleFlag: row.dbOrCr === 'D',
                         remark: row.remark,
                         isActive: true,
-                        createdBy: 'MIGRATION'
-                    }
+                        createdBy: 'MIGRATION',
+                    },
                 });
                 successCount++;
             }
@@ -1056,7 +1103,7 @@ let MigrationService = class MigrationService {
         return {
             success: true,
             imported: successCount,
-            errors
+            errors,
         };
     }
 };

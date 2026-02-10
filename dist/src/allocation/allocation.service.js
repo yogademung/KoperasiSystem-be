@@ -21,18 +21,18 @@ let AllocationService = class AllocationService {
         return this.prisma.allocationRule.findMany({
             include: {
                 creator: { select: { fullName: true } },
-                targets: { include: { costCenter: true } }
+                targets: { include: { costCenter: true } },
             },
             orderBy: { createdAt: 'desc' },
-            where: { isActive: true }
+            where: { isActive: true },
         });
     }
     async findOneRule(id) {
         const rule = await this.prisma.allocationRule.findUnique({
             where: { id },
             include: {
-                targets: { include: { costCenter: true } }
-            }
+                targets: { include: { costCenter: true } },
+            },
         });
         if (!rule)
             throw new common_1.NotFoundException('Rule not found');
@@ -49,16 +49,16 @@ let AllocationService = class AllocationService {
                         costCenterId: t.costCenterId,
                         weight: t.weight || 1,
                         targetPercentage: t.targetPercentage,
-                        fixedAmount: t.fixedAmount
-                    }))
-                }
-            }
+                        fixedAmount: t.fixedAmount,
+                    })),
+                },
+            },
         });
     }
     async deleteRule(id) {
         return this.prisma.allocationRule.update({
             where: { id },
-            data: { isActive: false }
+            data: { isActive: false },
         });
     }
     async previewAllocation(ruleId, year, month) {
@@ -70,7 +70,7 @@ let AllocationService = class AllocationService {
             sourceAmount,
             period: { year, month },
             details,
-            totalAllocated: details.reduce((sum, d) => sum + d.amount, 0)
+            totalAllocated: details.reduce((sum, d) => sum + d.amount, 0),
         };
     }
     async executeAllocation(ruleId, year, month, userId) {
@@ -79,8 +79,8 @@ let AllocationService = class AllocationService {
                 ruleId,
                 periodYear: year,
                 periodMonth: month,
-                status: 'EXECUTED'
-            }
+                status: 'EXECUTED',
+            },
         });
         if (existing)
             throw new common_1.BadRequestException('Allocation already executed for this period');
@@ -97,14 +97,14 @@ let AllocationService = class AllocationService {
                 status: 'EXECUTED',
                 executedBy: userId,
                 details: {
-                    create: preview.details.map(d => ({
+                    create: preview.details.map((d) => ({
                         costCenterId: d.costCenterId,
                         allocatedAmount: d.amount,
                         percentage: d.percentage,
-                        calculationBasis: d.basis
-                    }))
-                }
-            }
+                        calculationBasis: d.basis,
+                    })),
+                },
+            },
         });
         return execution;
     }
@@ -119,13 +119,15 @@ let AllocationService = class AllocationService {
             include: {
                 rule: true,
                 executor: { select: { fullName: true } },
-                details: { include: { costCenter: true } }
+                details: { include: { costCenter: true } },
             },
-            orderBy: { executedAt: 'desc' }
+            orderBy: { executedAt: 'desc' },
         });
     }
     async rollbackExecution(id, userId) {
-        const execution = await this.prisma.allocationExecution.findUnique({ where: { id } });
+        const execution = await this.prisma.allocationExecution.findUnique({
+            where: { id },
+        });
         if (!execution)
             throw new common_1.NotFoundException('Execution not found');
         if (execution.status !== 'EXECUTED')
@@ -135,8 +137,8 @@ let AllocationService = class AllocationService {
             data: {
                 status: 'ROLLED_BACK',
                 rolledBackBy: userId,
-                rolledBackAt: new Date()
-            }
+                rolledBackAt: new Date(),
+            },
         });
     }
     calculateAllocation(rule, totalAmount) {
@@ -152,7 +154,7 @@ let AllocationService = class AllocationService {
                 costCenterId: t.costCenterId,
                 amount: amountPerTarget,
                 percentage: (1 / targets.length) * 100,
-                basis: 1
+                basis: 1,
             }));
         }
         else {
@@ -163,18 +165,18 @@ let AllocationService = class AllocationService {
                     costCenterId: t.costCenterId,
                     amount: amountPerTarget,
                     percentage: (1 / targets.length) * 100,
-                    basis: 0
+                    basis: 0,
                 }));
             }
             result = targets.map((t) => {
                 const weight = Number(t.weight || 0);
-                const percentage = (weight / totalWeight);
+                const percentage = weight / totalWeight;
                 const amount = totalAmount * percentage;
                 return {
                     costCenterId: t.costCenterId,
                     amount,
                     percentage: percentage * 100,
-                    basis: weight
+                    basis: weight,
                 };
             });
         }
@@ -189,15 +191,15 @@ let AllocationService = class AllocationService {
                 journal: {
                     journalDate: {
                         gte: startDate,
-                        lte: endDate
+                        lte: endDate,
                     },
-                    status: 'POSTED'
-                }
+                    status: 'POSTED',
+                },
             },
             _sum: {
                 debit: true,
-                credit: true
-            }
+                credit: true,
+            },
         });
         const debit = Number(aggregations._sum.debit || 0);
         const credit = Number(aggregations._sum.credit || 0);

@@ -88,7 +88,7 @@ let MigrationController = class MigrationController {
             mimetype: file?.mimetype,
             size: file?.size,
             bufferType: typeof file?.buffer,
-            hasBuffer: !!file?.buffer
+            hasBuffer: !!file?.buffer,
         });
         if (!file) {
             throw new common_1.HttpException('File is required', common_1.HttpStatus.BAD_REQUEST);

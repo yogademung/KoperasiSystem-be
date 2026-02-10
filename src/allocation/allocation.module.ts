@@ -4,9 +4,9 @@ import { AllocationService } from './allocation.service';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [AllocationController],
-    providers: [AllocationService],
-    exports: [AllocationService],
+  imports: [PrismaModule],
+  controllers: [AllocationController],
+  providers: [AllocationService],
+  exports: [AllocationService],
 })
-export class AllocationModule { }
+export class AllocationModule {}

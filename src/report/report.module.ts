@@ -10,17 +10,17 @@ import { ExcelRendererService } from './excel-renderer.service';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [ReportController],
-    providers: [
-        ReportService,
-        ReportMetadataService,
-        ReportGeneratorService,
-        TemplateService,
-        DataProviderService,
-        PdfRendererService,
-        ExcelRendererService,
-    ],
-    exports: [ReportService, ReportMetadataService, ReportGeneratorService],
+  imports: [PrismaModule],
+  controllers: [ReportController],
+  providers: [
+    ReportService,
+    ReportMetadataService,
+    ReportGeneratorService,
+    TemplateService,
+    DataProviderService,
+    PdfRendererService,
+    ExcelRendererService,
+  ],
+  exports: [ReportService, ReportMetadataService, ReportGeneratorService],
 })
-export class ReportModule { }
+export class ReportModule {}

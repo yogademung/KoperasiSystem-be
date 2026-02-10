@@ -21,7 +21,7 @@ exports.CollectorModule = CollectorModule = __decorate([
         imports: [accounting_module_1.AccountingModule, system_module_1.SystemModule],
         controllers: [collector_controller_1.CollectorController],
         providers: [collector_service_1.CollectorService, prisma_service_1.PrismaService],
-        exports: [collector_service_1.CollectorService]
+        exports: [collector_service_1.CollectorService],
     })
 ], CollectorModule);
 //# sourceMappingURL=collector.module.js.map

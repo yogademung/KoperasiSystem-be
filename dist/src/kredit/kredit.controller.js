@@ -91,7 +91,7 @@ let KreditController = class KreditController {
                 console.log('First file details:', {
                     originalname: files.photos[0].originalname,
                     mimetype: files.photos[0].mimetype,
-                    size: files.photos[0].size
+                    size: files.photos[0].size,
                 });
             }
             else {
@@ -124,7 +124,10 @@ let KreditController = class KreditController {
                         }
                         else {
                             try {
-                                const pipeline = (0, sharp_1.default)(file.buffer).resize({ width: 1024, withoutEnlargement: true });
+                                const pipeline = (0, sharp_1.default)(file.buffer).resize({
+                                    width: 1024,
+                                    withoutEnlargement: true,
+                                });
                                 if (file.mimetype === 'image/png') {
                                     await pipeline.png({ quality: 80 }).toFile(filePath);
                                 }
@@ -141,7 +144,7 @@ let KreditController = class KreditController {
                         }
                         const exists = await fs.pathExists(filePath);
                         console.log(`File exists: ${exists}`);
-                        photoPaths.push(`/uploads/collateral/${filename}`);
+                        photoPaths.push(`uploads/collateral/${filename}`);
                     }
                     catch (error) {
                         console.error(`Failed to process photo [${file.originalname}]:`, error);
@@ -152,14 +155,16 @@ let KreditController = class KreditController {
             if (isNaN(nasabahId))
                 throw new common_1.BadRequestException('Invalid Nasabah ID');
             const marketValue = data.marketValue ? data.marketValue.toString() : '0';
-            const assessedValue = data.assessedValue ? data.assessedValue.toString() : '0';
+            const assessedValue = data.assessedValue
+                ? data.assessedValue.toString()
+                : '0';
             const payload = {
                 ...data,
                 nasabahId: nasabahId,
                 marketValue: marketValue,
                 assessedValue: assessedValue,
                 details: data.details ? JSON.parse(data.details) : undefined,
-                photos: JSON.stringify(photoPaths)
+                photos: JSON.stringify(photoPaths),
             };
             return await this.kreditService.addCollateral(+id, payload, user.id);
         }
@@ -210,9 +215,7 @@ __decorate([
 ], KreditController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(':id/collateral'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
-        { name: 'photos', maxCount: 1 },
-    ], {
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([{ name: 'photos', maxCount: 1 }], {
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: 5 * 1024 * 1024 },
         fileFilter: fileFilter,

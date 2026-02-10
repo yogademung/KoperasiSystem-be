@@ -18,7 +18,7 @@ exports.NasabahModule = NasabahModule = __decorate([
     (0, common_1.Module)({
         controllers: [nasabah_controller_1.NasabahController],
         providers: [nasabah_service_1.NasabahService, prisma_service_1.PrismaService],
-        exports: [nasabah_service_1.NasabahService]
+        exports: [nasabah_service_1.NasabahService],
     })
 ], NasabahModule);
 //# sourceMappingURL=nasabah.module.js.map

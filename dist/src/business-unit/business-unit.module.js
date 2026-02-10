@@ -19,7 +19,7 @@ exports.BusinessUnitModule = BusinessUnitModule = __decorate([
         imports: [prisma_module_1.PrismaModule],
         providers: [business_unit_service_1.BusinessUnitService],
         controllers: [business_unit_controller_1.BusinessUnitController],
-        exports: [business_unit_service_1.BusinessUnitService]
+        exports: [business_unit_service_1.BusinessUnitService],
     })
 ], BusinessUnitModule);
 //# sourceMappingURL=business-unit.module.js.map

@@ -4,9 +4,9 @@ import { CostCenterController } from './cost-center.controller';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [CostCenterController],
-    providers: [CostCenterService],
-    exports: [CostCenterService],
+  imports: [PrismaModule],
+  controllers: [CostCenterController],
+  providers: [CostCenterService],
+  exports: [CostCenterService],
 })
-export class CostCenterModule { }
+export class CostCenterModule {}

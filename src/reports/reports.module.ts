@@ -10,8 +10,14 @@ import { SettingsModule } from '../settings/settings.module';
 import { ProductConfigModule } from '../product-config/product-config.module';
 
 @Module({
-    imports: [PrismaModule, AssetModule, AccountingModule, SettingsModule, ProductConfigModule],
-    controllers: [ReportsController, KreditReportController],
-    providers: [ReportsService, KreditReportService],
+  imports: [
+    PrismaModule,
+    AssetModule,
+    AccountingModule,
+    SettingsModule,
+    ProductConfigModule,
+  ],
+  controllers: [ReportsController, KreditReportController],
+  providers: [ReportsService, KreditReportService],
 })
-export class ReportsModule { }
+export class ReportsModule {}

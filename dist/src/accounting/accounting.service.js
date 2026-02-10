@@ -20,6 +20,7 @@ const deposito_service_1 = require("../simpanan/deposito/deposito.service");
 const balimesari_service_1 = require("../simpanan/balimesari/balimesari.service");
 const wanaprasta_service_1 = require("../simpanan/wanaprasta/wanaprasta.service");
 const period_lock_service_1 = require("../month-end/period-lock.service");
+const product_config_service_1 = require("../product-config/product-config.service");
 let AccountingService = class AccountingService {
     prisma;
     moduleRef;
@@ -30,7 +31,8 @@ let AccountingService = class AccountingService {
     balimesariService;
     wanaprastaService;
     periodLockService;
-    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, wanaprastaService, periodLockService) {
+    productConfigService;
+    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, wanaprastaService, periodLockService, productConfigService) {
         this.prisma = prisma;
         this.moduleRef = moduleRef;
         this.anggotaService = anggotaService;
@@ -40,6 +42,7 @@ let AccountingService = class AccountingService {
         this.balimesariService = balimesariService;
         this.wanaprastaService = wanaprastaService;
         this.periodLockService = periodLockService;
+        this.productConfigService = productConfigService;
     }
     async getAccounts(type, page = 1, limit = 10) {
         const where = { isActive: true };
@@ -54,34 +57,36 @@ let AccountingService = class AccountingService {
                 skip,
                 take: limit,
             }),
-            this.prisma.journalAccount.count({ where })
+            this.prisma.journalAccount.count({ where }),
         ]);
         return {
             data,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async getParentAccounts() {
         return this.prisma.journalAccount.findMany({
             where: {
                 parentCode: null,
-                isActive: true
+                isActive: true,
             },
-            orderBy: { accountCode: 'asc' }
+            orderBy: { accountCode: 'asc' },
         });
     }
     async generateNextCode(parentCode) {
-        const parent = await this.prisma.journalAccount.findUnique({ where: { accountCode: parentCode } });
+        const parent = await this.prisma.journalAccount.findUnique({
+            where: { accountCode: parentCode },
+        });
         if (!parent)
             throw new common_1.NotFoundException('Parent Account not found');
         const lastChild = await this.prisma.journalAccount.findFirst({
             where: {
-                parentCode: parentCode
+                parentCode: parentCode,
             },
-            orderBy: { accountCode: 'desc' }
+            orderBy: { accountCode: 'desc' },
         });
         if (lastChild) {
             const parts = lastChild.accountCode.split(/[-.]/);
@@ -122,20 +127,24 @@ let AccountingService = class AccountingService {
                 debitRef: true,
                 creditRef: true,
             },
-            orderBy: { transType: 'asc' }
+            orderBy: { transType: 'asc' },
         });
     }
     async updateMapping(transType, debitAccount, creditAccount) {
-        const debit = await this.prisma.journalAccount.findUnique({ where: { accountCode: debitAccount } });
-        const credit = await this.prisma.journalAccount.findUnique({ where: { accountCode: creditAccount } });
+        const debit = await this.prisma.journalAccount.findUnique({
+            where: { accountCode: debitAccount },
+        });
+        const credit = await this.prisma.journalAccount.findUnique({
+            where: { accountCode: creditAccount },
+        });
         if (!debit || !credit)
             throw new common_1.BadRequestException('Invalid Debit or Credit Account Code');
         return this.prisma.productCoaMapping.update({
             where: { transType },
             data: {
                 debitAccount,
-                creditAccount
-            }
+                creditAccount,
+            },
         });
     }
     async generateJournalNumber(date = new Date()) {
@@ -184,9 +193,9 @@ let AccountingService = class AccountingService {
                 some: {
                     accountCode: {
                         gte: params.fromAccount,
-                        lte: params.toAccount
-                    }
-                }
+                        lte: params.toAccount,
+                    },
+                },
             };
         }
         const page = params.page || 1;
@@ -196,20 +205,20 @@ let AccountingService = class AccountingService {
             this.prisma.postedJournal.findMany({
                 where,
                 include: {
-                    user: { select: { fullName: true } }
+                    user: { select: { fullName: true } },
                 },
                 orderBy: { journalNumber: 'desc' },
                 skip,
                 take: limit,
             }),
-            this.prisma.postedJournal.count({ where })
+            this.prisma.postedJournal.count({ where }),
         ]);
         return {
             data,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async getJournalDetail(id) {
@@ -217,10 +226,10 @@ let AccountingService = class AccountingService {
             where: { id },
             include: {
                 details: {
-                    include: { account: true }
+                    include: { account: true },
                 },
-                user: { select: { fullName: true } }
-            }
+                user: { select: { fullName: true } },
+            },
         });
         if (!journal)
             throw new common_1.NotFoundException('Journal not found');
@@ -230,25 +239,41 @@ let AccountingService = class AccountingService {
     }
     async createManualJournal(data) {
         await this.validateJournalEntry(data.details);
-        const journalNo = await this.generateJournalNumber(data.date);
-        return this.prisma.postedJournal.create({
-            data: {
-                journalNumber: journalNo,
-                journalDate: data.date,
-                description: data.description,
-                postingType: data.postingType || 'MANUAL',
-                userId: data.userId,
-                status: 'POSTED',
-                details: {
-                    create: data.details.map(d => ({
-                        accountCode: d.accountCode,
-                        debit: d.debit,
-                        credit: d.credit,
-                        description: d.description || data.description
-                    }))
-                }
+        const maxRetries = 3;
+        let retryCount = 0;
+        while (retryCount < maxRetries) {
+            try {
+                const journalNo = await this.generateJournalNumber(data.date);
+                return await this.prisma.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: data.date,
+                        description: data.description,
+                        postingType: data.postingType || 'MANUAL',
+                        userId: data.userId,
+                        status: 'POSTED',
+                        details: {
+                            create: data.details.map((d) => ({
+                                accountCode: d.accountCode,
+                                debit: d.debit,
+                                credit: d.credit,
+                                description: d.description || data.description,
+                            })),
+                        },
+                    },
+                });
             }
-        });
+            catch (error) {
+                if (error.code === 'P2002' &&
+                    error.meta?.target?.includes('journalNumber')) {
+                    retryCount++;
+                    await new Promise((r) => setTimeout(r, 100));
+                    continue;
+                }
+                throw error;
+            }
+        }
+        throw new Error('Failed to create manual journal: Unique constraint error on Journal Number');
     }
     async updateManualJournal(id, data) {
         const period = data.date.toISOString().slice(0, 7);
@@ -256,7 +281,9 @@ let AccountingService = class AccountingService {
         if (isLocked) {
             throw new common_1.BadRequestException(`Periode ${period} sudah ditutup. Tidak dapat melakukan perubahan jurnal.`);
         }
-        const existing = await this.prisma.postedJournal.findUnique({ where: { id } });
+        const existing = await this.prisma.postedJournal.findUnique({
+            where: { id },
+        });
         if (!existing)
             throw new common_1.NotFoundException('Journal not found');
         if (existing.postingType !== 'MANUAL')
@@ -273,19 +300,19 @@ let AccountingService = class AccountingService {
                     journalDate: data.date,
                     description: data.description,
                     userId: data.userId,
-                }
+                },
             });
             await tx.postedJournalDetail.deleteMany({
-                where: { journalId: id }
+                where: { journalId: id },
             });
             await tx.postedJournalDetail.createMany({
-                data: data.details.map(d => ({
+                data: data.details.map((d) => ({
                     journalId: id,
                     accountCode: d.accountCode,
                     debit: d.debit,
                     credit: d.credit,
-                    description: d.description || data.description
-                }))
+                    description: d.description || data.description,
+                })),
             });
             return updated;
         });
@@ -293,7 +320,7 @@ let AccountingService = class AccountingService {
     async autoPostJournal(data, tx) {
         const prisma = tx || this.prisma;
         const mapping = await prisma.productCoaMapping.findUnique({
-            where: { transType: data.transType }
+            where: { transType: data.transType },
         });
         if (!mapping) {
             throw new common_1.BadRequestException(`Konfigurasi Akuntansi (COA Mapping) tidak ditemukan untuk transaksi: ${data.transType}. Silakan hubungi Admin untuk menambahkan mapping.`);
@@ -312,37 +339,54 @@ let AccountingService = class AccountingService {
                 console.warn(`[Accounting] Failed to fetch transaction info for description: ${err.message}`);
             }
         }
-        const journalNo = await this.generateJournalNumber();
-        return prisma.postedJournal.create({
-            data: {
-                journalNumber: journalNo,
-                journalDate: new Date(),
-                description: detailedDescription,
-                postingType: 'AUTO',
-                transType: data.transType,
-                sourceCode: data.transType.split('_')[0],
-                refId: data.refId,
-                userId: data.userId,
-                wilayahCd: data.wilayahCd,
-                status: 'POSTED',
-                details: {
-                    create: [
-                        {
-                            accountCode: debitAccount,
-                            debit: data.amount,
-                            credit: 0,
-                            description: detailedDescription
+        const maxRetries = 3;
+        let retryCount = 0;
+        while (retryCount < maxRetries) {
+            try {
+                const journalNo = await this.generateJournalNumber();
+                return await prisma.postedJournal.create({
+                    data: {
+                        journalNumber: journalNo,
+                        journalDate: new Date(),
+                        description: detailedDescription,
+                        postingType: 'AUTO',
+                        transType: data.transType,
+                        sourceCode: data.transType.split('_')[0],
+                        refId: data.refId,
+                        userId: data.userId,
+                        wilayahCd: data.wilayahCd,
+                        status: 'POSTED',
+                        details: {
+                            create: [
+                                {
+                                    accountCode: debitAccount,
+                                    debit: data.amount,
+                                    credit: 0,
+                                    description: detailedDescription,
+                                },
+                                {
+                                    accountCode: creditAccount,
+                                    debit: 0,
+                                    credit: data.amount,
+                                    description: detailedDescription,
+                                },
+                            ],
                         },
-                        {
-                            accountCode: creditAccount,
-                            debit: 0,
-                            credit: data.amount,
-                            description: detailedDescription
-                        }
-                    ]
-                }
+                    },
+                });
             }
-        });
+            catch (error) {
+                if (error.code === 'P2002' &&
+                    error.meta?.target?.includes('journalNumber')) {
+                    console.log(`[Accounting] Journal collision detected (${retryCount + 1}/${maxRetries}). Retrying...`);
+                    retryCount++;
+                    await new Promise((r) => setTimeout(r, 100));
+                    continue;
+                }
+                throw error;
+            }
+        }
+        throw new Error('Failed to generate unique journal number after retries');
     }
     async getTransactionInfo(transType, refId) {
         const source = transType.split('_')[0];
@@ -351,71 +395,87 @@ let AccountingService = class AccountingService {
         try {
             switch (source) {
                 case 'ANGGOTA':
-                    const tAnggota = await this.prisma.anggotaTransaction.findUnique({ where: { id: refId } });
+                    const tAnggota = await this.prisma.anggotaTransaction.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tAnggota)
                         return null;
                     accountNo = tAnggota.accountNumber;
                     sequence = await this.prisma.anggotaTransaction.count({
-                        where: { accountNumber: accountNo, id: { lte: refId } }
+                        where: { accountNumber: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'TABRELA':
-                    const tTab = await this.prisma.transTab.findUnique({ where: { id: refId } });
+                    const tTab = await this.prisma.transTab.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tTab)
                         return null;
                     accountNo = tTab.noTab;
                     sequence = await this.prisma.transTab.count({
-                        where: { noTab: accountNo, id: { lte: refId } }
+                        where: { noTab: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'DEPOSITO':
-                    const tDep = await this.prisma.transJangka.findUnique({ where: { id: refId } });
+                    const tDep = await this.prisma.transJangka.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tDep)
                         return null;
                     accountNo = tDep.noJangka;
                     sequence = await this.prisma.transJangka.count({
-                        where: { noJangka: accountNo, id: { lte: refId } }
+                        where: { noJangka: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'BRAHMACARI':
-                    const tBrah = await this.prisma.transBrahmacari.findUnique({ where: { id: refId } });
+                    const tBrah = await this.prisma.transBrahmacari.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tBrah)
                         return null;
                     accountNo = tBrah.noBrahmacari;
                     sequence = await this.prisma.transBrahmacari.count({
-                        where: { noBrahmacari: accountNo, id: { lte: refId } }
+                        where: { noBrahmacari: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'BALIMESARI':
-                    const tBali = await this.prisma.transBalimesari.findUnique({ where: { id: refId } });
+                    const tBali = await this.prisma.transBalimesari.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tBali)
                         return null;
                     accountNo = tBali.noBalimesari;
                     sequence = await this.prisma.transBalimesari.count({
-                        where: { noBalimesari: accountNo, id: { lte: refId } }
+                        where: { noBalimesari: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'WANAPRASTA':
-                    const tWana = await this.prisma.transWanaprasta.findUnique({ where: { id: refId } });
+                    const tWana = await this.prisma.transWanaprasta.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tWana)
                         return null;
                     accountNo = tWana.noWanaprasta;
                     sequence = await this.prisma.transWanaprasta.count({
-                        where: { noWanaprasta: accountNo, id: { lte: refId } }
+                        where: { noWanaprasta: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'MODAL':
-                    const tModal = await this.prisma.transModal.findUnique({ where: { id: refId } });
+                    const tModal = await this.prisma.transModal.findUnique({
+                        where: { id: refId },
+                    });
                     if (!tModal)
                         return null;
                     accountNo = tModal.noRekModal;
                     sequence = await this.prisma.transModal.count({
-                        where: { noRekModal: accountNo, id: { lte: refId } }
+                        where: { noRekModal: accountNo, id: { lte: refId } },
                     });
                     break;
                 case 'LOAN':
                 case 'PINJAMAN_LUAR':
-                    const loan = await this.prisma.externalLoan.findUnique({ where: { id: refId } });
+                    const loan = await this.prisma.externalLoan.findUnique({
+                        where: { id: refId },
+                    });
                     if (!loan)
                         return null;
                     accountNo = loan.contractNumber;
@@ -436,7 +496,7 @@ let AccountingService = class AccountingService {
         return this.prisma.$transaction(async (tx) => {
             const journal = await tx.postedJournal.findUnique({
                 where: { id },
-                include: { details: true }
+                include: { details: true },
             });
             if (!journal)
                 throw new common_1.NotFoundException('Journal not found');
@@ -445,7 +505,9 @@ let AccountingService = class AccountingService {
             if (isLocked) {
                 throw new common_1.BadRequestException(`Periode ${period} sudah ditutup. Jurnal tidak dapat dihapus.`);
             }
-            if (journal.postingType === 'AUTO' && journal.refId && journal.sourceCode) {
+            if (journal.postingType === 'AUTO' &&
+                journal.refId &&
+                journal.sourceCode) {
                 try {
                     console.log(`[Accounting] Voiding source transaction: ${journal.sourceCode} #${journal.refId}`);
                     switch (journal.sourceCode) {
@@ -497,25 +559,28 @@ let AccountingService = class AccountingService {
                     wilayahCd: journal.wilayahCd,
                     status: 'DELETED',
                     deletedBy: userId.toString(),
-                    deleteReason: reason
-                }
+                    deleteReason: reason,
+                },
             });
             if (journal.details.length > 0) {
                 await tx.postedJournalDetailTemp.createMany({
-                    data: journal.details.map(d => ({
+                    data: journal.details.map((d) => ({
                         tempJournalId: temp.id,
                         accountCode: d.accountCode,
                         debit: d.debit,
                         credit: d.credit,
-                        description: d.description
-                    }))
+                        description: d.description,
+                    })),
                 });
             }
             console.log('[Accounting] Deleting original Journal...');
             await tx.postedJournalDetail.deleteMany({ where: { journalId: id } });
             await tx.postedJournal.delete({ where: { id } });
             console.log('[Accounting] Delete Complete.');
-            return { success: true, message: 'Journal deleted and associated transactions voided.' };
+            return {
+                success: true,
+                message: 'Journal deleted and associated transactions voided.',
+            };
         });
     }
     async getDeletedJournals(params) {
@@ -536,19 +601,23 @@ let AccountingService = class AccountingService {
                 skip,
                 take: limit,
             }),
-            this.prisma.postedJournalTemp.count({ where })
+            this.prisma.postedJournalTemp.count({ where }),
         ]);
-        const userIds = [...new Set(data.map(d => Number(d.deletedBy)).filter(id => !isNaN(id)))];
+        const userIds = [
+            ...new Set(data.map((d) => Number(d.deletedBy)).filter((id) => !isNaN(id))),
+        ];
         const users = await this.prisma.user.findMany({
             where: { id: { in: userIds } },
-            select: { id: true, fullName: true, username: true }
+            select: { id: true, fullName: true, username: true },
         });
-        const enrichedData = data.map(journal => {
+        const enrichedData = data.map((journal) => {
             const deleterId = Number(journal.deletedBy);
-            const deleter = users.find(u => u.id === deleterId);
+            const deleter = users.find((u) => u.id === deleterId);
             return {
                 ...journal,
-                deletedByName: deleter ? `${deleter.fullName} (${deleter.username})` : journal.deletedBy
+                deletedByName: deleter
+                    ? `${deleter.fullName} (${deleter.username})`
+                    : journal.deletedBy,
             };
         });
         return {
@@ -556,7 +625,7 @@ let AccountingService = class AccountingService {
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async getDailyReportData(date) {
@@ -568,31 +637,45 @@ let AccountingService = class AccountingService {
             where: {
                 journalDate: {
                     gte: startOfDay,
-                    lte: endOfDay
-                }
+                    lte: endOfDay,
+                },
             },
-            include: { details: true }
+            include: { details: true },
         });
-        const products = ['ANGGOTA', 'TABRELA', 'DEPOSITO', 'BRAHMACARI', 'BALIMESARI', 'WANAPRASTA', 'KREDIT'];
+        const configProducts = await this.productConfigService.getEnabledProducts();
+        const enabledProductCodes = configProducts.map((p) => p.productCode);
+        const activeCodes = [...enabledProductCodes];
+        if (!activeCodes.includes('KREDIT'))
+            activeCodes.push('KREDIT');
         const summaryMap = new Map();
-        products.forEach(p => summaryMap.set(p, {
-            product: p,
-            depositTotal: 0,
-            withdrawalTotal: 0,
-            depositCount: 0,
-            withdrawalCount: 0
-        }));
+        activeCodes.forEach((code) => {
+            const config = configProducts.find((cp) => cp.productCode === code);
+            const name = config?.productName || code;
+            summaryMap.set(code, {
+                product: name,
+                depositTotal: 0,
+                withdrawalTotal: 0,
+                depositCount: 0,
+                withdrawalCount: 0,
+            });
+        });
         for (const j of journals) {
             if (!j.sourceCode || !summaryMap.has(j.sourceCode))
                 continue;
             const stats = summaryMap.get(j.sourceCode);
             const type = j.transType || '';
             const amount = j.details.reduce((sum, d) => sum + Number(d.debit), 0);
-            if (type.includes('SETOR') || type.includes('BUKA') || type.includes('TABUNG') || type.includes('ANGSURAN')) {
+            if (type.includes('SETOR') ||
+                type.includes('BUKA') ||
+                type.includes('TABUNG') ||
+                type.includes('ANGSURAN')) {
                 stats.depositTotal += amount;
                 stats.depositCount++;
             }
-            else if (type.includes('TARIK') || type.includes('CAIR') || type.includes('TUTUP') || type.includes('REALISASI')) {
+            else if (type.includes('TARIK') ||
+                type.includes('CAIR') ||
+                type.includes('TUTUP') ||
+                type.includes('REALISASI')) {
                 stats.withdrawalTotal += amount;
                 stats.withdrawalCount++;
             }
@@ -602,7 +685,7 @@ let AccountingService = class AccountingService {
         const calcInterest = async (model, name) => {
             const agg = await model.aggregate({
                 _sum: { saldo: true },
-                _avg: { interestRate: true }
+                _avg: { interestRate: true },
             });
             const totalSaldo = Number(agg._sum.saldo || 0);
             const avgRate = Number(agg._avg.interestRate || 0);
@@ -611,7 +694,7 @@ let AccountingService = class AccountingService {
                 product: name,
                 totalBalance: totalSaldo,
                 avgRate: avgRate,
-                estimatedDailyInterest: dailyInterest
+                estimatedDailyInterest: dailyInterest,
             };
         };
         if (this.prisma.nasabahTab)
@@ -625,7 +708,7 @@ let AccountingService = class AccountingService {
         if (this.prisma.nasabahJangka) {
             const agg = await this.prisma.nasabahJangka.aggregate({
                 _sum: { nominal: true },
-                _avg: { bunga: true }
+                _avg: { bunga: true },
             });
             const totalSaldo = Number(agg._sum.nominal || 0);
             const avgRate = Number(agg._avg.bunga || 0);
@@ -634,14 +717,14 @@ let AccountingService = class AccountingService {
                 product: 'DEPOSITO',
                 totalBalance: totalSaldo,
                 avgRate: avgRate,
-                estimatedDailyInterest: dailyInterest
+                estimatedDailyInterest: dailyInterest,
             });
         }
         return {
             date: date,
             summary,
             interestEstimates,
-            journals
+            journals,
         };
     }
 };
@@ -656,6 +739,7 @@ exports.AccountingService = AccountingService = __decorate([
         brahmacari_service_1.BrahmacariService,
         balimesari_service_1.BalimesariService,
         wanaprasta_service_1.WanaprastaService,
-        period_lock_service_1.PeriodLockService])
+        period_lock_service_1.PeriodLockService,
+        product_config_service_1.ProductConfigService])
 ], AccountingService);
 //# sourceMappingURL=accounting.service.js.map

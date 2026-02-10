@@ -97,7 +97,7 @@ let AuthService = class AuthService {
             }
             const isValid = otplib_1.authenticator.verify({
                 token: loginDto.twoFactorCode,
-                secret: user.totpSecret
+                secret: user.totpSecret,
             });
             if (!isValid) {
                 throw new common_1.UnauthorizedException('Invalid 2FA Code');
@@ -108,26 +108,28 @@ let AuthService = class AuthService {
             sub: user.id,
             username: user.username,
             role: user.role?.roleName || null,
-            rt_hash: refreshToken.slice(-10)
+            rt_hash: refreshToken.slice(-10),
         };
         const accessToken = this.jwtService.sign(payload);
         await this.prisma.user.update({
             where: { id: user.id },
             data: { token: refreshToken },
         });
-        const menuRoles = user.roleId ? await this.prisma.menuRole.findMany({
-            where: {
-                roleId: user.roleId,
-                canRead: true,
-                menu: { isActive: true }
-            },
-            include: {
-                menu: true,
-            },
-            orderBy: {
-                menu: { orderNum: 'asc' }
-            }
-        }) : [];
+        const menuRoles = user.roleId
+            ? await this.prisma.menuRole.findMany({
+                where: {
+                    roleId: user.roleId,
+                    canRead: true,
+                    menu: { isActive: true },
+                },
+                include: {
+                    menu: true,
+                },
+                orderBy: {
+                    menu: { orderNum: 'asc' },
+                },
+            })
+            : [];
         const menus = this.buildMenuTree(menuRoles);
         return {
             accessToken,
@@ -144,20 +146,20 @@ let AuthService = class AuthService {
     async confirmTotpSetup(userId, secret, code) {
         const isValid = otplib_1.authenticator.verify({
             token: code,
-            secret: secret
+            secret: secret,
         });
         if (!isValid)
             throw new common_1.UnauthorizedException('Invalid Code');
         await this.prisma.user.update({
             where: { id: userId },
-            data: { totpSecret: secret }
+            data: { totpSecret: secret },
         });
         return { success: true };
     }
     buildMenuTree(menuRoles) {
         const menuMap = new Map();
         const rootMenus = [];
-        menuRoles.forEach(mr => {
+        menuRoles.forEach((mr) => {
             const menu = {
                 id: mr.menu.id,
                 label: mr.menu.menuName,
@@ -169,7 +171,7 @@ let AuthService = class AuthService {
             };
             menuMap.set(menu.id, menu);
         });
-        menuMap.forEach(menu => {
+        menuMap.forEach((menu) => {
             if (menu.parentId) {
                 const parent = menuMap.get(menu.parentId);
                 if (parent) {

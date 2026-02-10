@@ -141,7 +141,7 @@ let ReportGeneratorService = class ReportGeneratorService {
     }
     async printPassbook(options) {
         const state = await this.getPassbookState(options.accountNumber);
-        const startLine = options.startLine ?? (state?.lastPrintedLine ?? 1);
+        const startLine = options.startLine ?? state?.lastPrintedLine ?? 1;
         const template = await this.templateService.findByCode(`${options.productType}_PASSBOOK`);
         let transactions = [];
         if (options.mode === 'NEW_ONLY' && state) {
@@ -216,8 +216,22 @@ let ReportGeneratorService = class ReportGeneratorService {
                     nama: 'I Made Dummy',
                     saldo: 'Rp 5.000.000',
                     transactions: [
-                        { no: 1, tgl: '01-01-2025', kode: 'SETOR', debet: '', kredit: 'Rp 1.000.000', saldo: 'Rp 1.000.000' },
-                        { no: 2, tgl: '02-01-2025', kode: 'TARIK', debet: 'Rp 500.000', kredit: '', saldo: 'Rp 500.000' },
+                        {
+                            no: 1,
+                            tgl: '01-01-2025',
+                            kode: 'SETOR',
+                            debet: '',
+                            kredit: 'Rp 1.000.000',
+                            saldo: 'Rp 1.000.000',
+                        },
+                        {
+                            no: 2,
+                            tgl: '02-01-2025',
+                            kode: 'TARIK',
+                            debet: 'Rp 500.000',
+                            kredit: '',
+                            saldo: 'Rp 500.000',
+                        },
                     ],
                 };
             case 'KREDIT':

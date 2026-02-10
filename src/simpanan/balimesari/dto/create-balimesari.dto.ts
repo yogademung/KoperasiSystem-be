@@ -1,15 +1,15 @@
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateBalimesariDto {
-    @IsNumber()
-    nasabahId: number;
+  @IsNumber()
+  nasabahId: number;
 
-    @IsNumber()
-    @Min(0)
-    @IsOptional()
-    setoranAwal?: number;
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  setoranAwal?: number;
 
-    @IsString()
-    @IsOptional()
-    keterangan?: string;
+  @IsString()
+  @IsOptional()
+  keterangan?: string;
 }

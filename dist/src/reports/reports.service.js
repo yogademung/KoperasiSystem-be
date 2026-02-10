@@ -67,9 +67,9 @@ let ReportsService = class ReportsService {
             include: {
                 nasabah: true,
                 collaterals: {
-                    include: { collateral: true }
-                }
-            }
+                    include: { collateral: true },
+                },
+            },
         });
         if (!credit)
             throw new common_1.NotFoundException('Credit application not found');
@@ -91,14 +91,14 @@ let ReportsService = class ReportsService {
                 jangkaWaktu: credit.mohonJangkaWaktu,
                 tujuan: credit.tujuanKredit,
                 jenis: credit.jenisKredit,
-                collaterals: credit.collaterals.map(c => ({
+                collaterals: credit.collaterals.map((c) => ({
                     ...c,
                     collateral: {
                         ...c.collateral,
-                        assessedValue: this.normalizeCurrency(c.collateral.assessedValue)
-                    }
-                }))
-            }
+                        assessedValue: this.normalizeCurrency(c.collateral.assessedValue),
+                    },
+                })),
+            },
         };
     }
     async getCreditAgreementData(id) {
@@ -107,16 +107,16 @@ let ReportsService = class ReportsService {
             include: {
                 nasabah: true,
                 collaterals: {
-                    include: { collateral: true }
+                    include: { collateral: true },
                 },
-                realisasi: true
-            }
+                realisasi: true,
+            },
         });
         if (!credit)
             throw new common_1.NotFoundException('Credit data not found');
         const companyProfile = await this.settingsService.getProfile();
         const ketuaInfo = await this.prisma.lovValue.findFirst({
-            where: { code: 'TTD_REPORT', codeValue: 'KETUA' }
+            where: { code: 'TTD_REPORT', codeValue: 'KETUA' },
         });
         return {
             template: 'SPK',
@@ -125,25 +125,26 @@ let ReportsService = class ReportsService {
             tanggalAkad: credit.realisasi[0]?.tglRealisasi || new Date(),
             pihakPertama: {
                 nama: ketuaInfo?.description || 'Ketua Koperasi',
-                jabatan: 'Ketua Pengurus'
+                jabatan: 'Ketua Pengurus',
             },
             pihakKedua: {
                 nama: credit.nasabah.nama,
                 alamat: credit.nasabah.alamat,
-                ktp: credit.nasabah.noKtp
+                ktp: credit.nasabah.noKtp,
             },
             pinjaman: {
                 nominal: this.normalizeCurrency(credit.nominalPengajuan),
                 terbilang: this.terbilang(this.normalizeCurrency(credit.nominalPengajuan)),
                 bungaPct: credit.mohonSukuBunga,
                 jangkaWaktu: credit.mohonJangkaWaktu,
-                angsuranPokok: this.normalizeCurrency(credit.nominalPengajuan) / Number(credit.mohonJangkaWaktu),
+                angsuranPokok: this.normalizeCurrency(credit.nominalPengajuan) /
+                    Number(credit.mohonJangkaWaktu),
             },
-            jaminan: credit.collaterals.map(AG => ({
+            jaminan: credit.collaterals.map((AG) => ({
                 jenis: AG.collateral.type,
                 keterangan: AG.collateral.description,
-                nilai: this.normalizeCurrency(AG.collateral.assessedValue)
-            }))
+                nilai: this.normalizeCurrency(AG.collateral.assessedValue),
+            })),
         };
     }
     async getCreditStatementData(id) {
@@ -152,12 +153,12 @@ let ReportsService = class ReportsService {
             include: {
                 nasabah: true,
                 jadwal: {
-                    orderBy: { angsuranKe: 'asc' }
+                    orderBy: { angsuranKe: 'asc' },
                 },
                 transactions: {
-                    orderBy: { createdAt: 'asc' }
-                }
-            }
+                    orderBy: { createdAt: 'asc' },
+                },
+            },
         });
         if (!credit)
             throw new common_1.NotFoundException('Credit data not found');
@@ -173,14 +174,17 @@ let ReportsService = class ReportsService {
                 jangkaWaktu: credit.mohonJangkaWaktu,
                 bungaPct: credit.mohonSukuBunga,
             },
-            jadwal: credit.jadwal.map(j => ({
+            jadwal: credit.jadwal.map((j) => ({
                 ...j,
                 angsuranPokok: this.normalizeCurrency(j.pokok),
                 angsuranBunga: this.normalizeCurrency(j.bunga),
                 totalAngsuran: this.normalizeCurrency(j.total),
-                sisaPinjaman: this.normalizeCurrency(j.sisaPokok)
+                sisaPinjaman: this.normalizeCurrency(j.sisaPokok),
             })),
-            transaksi: credit.transactions.map(t => ({ ...t, nominal: this.normalizeCurrency(t.nominal) }))
+            transaksi: credit.transactions.map((t) => ({
+                ...t,
+                nominal: this.normalizeCurrency(t.nominal),
+            })),
         };
     }
     async getSavingsPassbookData(type, accountNumber) {
@@ -191,7 +195,10 @@ let ReportsService = class ReportsService {
         if (type === 'TABUNGAN') {
             const acc = await this.prisma.nasabahTab.findUnique({
                 where: { noTab: accountNumber },
-                include: { nasabah: true, transactions: { orderBy: { createdAt: 'asc' } } }
+                include: {
+                    nasabah: true,
+                    transactions: { orderBy: { createdAt: 'asc' } },
+                },
             });
             if (!acc)
                 throw new common_1.NotFoundException('Account not found');
@@ -203,58 +210,73 @@ let ReportsService = class ReportsService {
         else if (type === 'BRAHMACARI') {
             const acc = await this.prisma.nasabahBrahmacari.findUnique({
                 where: { noBrahmacari: accountNumber },
-                include: { nasabah: true, transactions: { orderBy: { createdAt: 'asc' } } }
+                include: {
+                    nasabah: true,
+                    transactions: { orderBy: { createdAt: 'asc' } },
+                },
             });
             if (!acc)
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
             const productConfig = await this.productConfigService.getProductByCode('BRAHMACARI');
-            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN BRAHMACARI';
+            title =
+                productConfig?.productName?.toUpperCase() || 'TABUNGAN BRAHMACARI';
         }
         else if (type === 'BALIMESARI') {
             const acc = await this.prisma.nasabahBalimesari.findUnique({
                 where: { noBalimesari: accountNumber },
-                include: { nasabah: true, transactions: { orderBy: { createdAt: 'asc' } } }
+                include: {
+                    nasabah: true,
+                    transactions: { orderBy: { createdAt: 'asc' } },
+                },
             });
             if (!acc)
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
             const productConfig = await this.productConfigService.getProductByCode('BALIMESARI');
-            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN BALIMESARI';
+            title =
+                productConfig?.productName?.toUpperCase() || 'TABUNGAN BALIMESARI';
         }
         else if (type === 'WANAPRASTA') {
             const acc = await this.prisma.nasabahWanaprasta.findUnique({
                 where: { noWanaprasta: accountNumber },
-                include: { nasabah: true, transactions: { orderBy: { createdAt: 'asc' } } }
+                include: {
+                    nasabah: true,
+                    transactions: { orderBy: { createdAt: 'asc' } },
+                },
             });
             if (!acc)
                 throw new common_1.NotFoundException('Account not found');
             accountData = acc;
             transactions = acc.transactions;
             const productConfig = await this.productConfigService.getProductByCode('WANAPRASTA');
-            title = productConfig?.productName?.toUpperCase() || 'TABUNGAN WANAPRASTA';
+            title =
+                productConfig?.productName?.toUpperCase() || 'TABUNGAN WANAPRASTA';
         }
         else if (type === 'ANGGOTA') {
             const acc = await this.prisma.anggotaAccount.findUnique({
                 where: { accountNumber },
-                include: { customer: true, transactions: { orderBy: { transDate: 'asc' } } }
+                include: {
+                    customer: true,
+                    transactions: { orderBy: { transDate: 'asc' } },
+                },
             });
             if (!acc)
                 throw new common_1.NotFoundException('Account not found');
             accountData = {
                 nasabah: acc.customer,
                 tglBuka: acc.openDate,
-                ...acc
+                ...acc,
             };
-            transactions = acc.transactions.map(t => ({
+            transactions = acc.transactions.map((t) => ({
                 ...t,
                 createdAt: t.transDate,
                 tipeTrans: t.transType,
                 saldoAkhir: t.balanceAfter,
                 keterangan: t.description,
-                nominal: t.amount
+                nominal: t.amount,
             }));
             const productConfig = await this.productConfigService.getProductByCode('ANGGOTA');
             title = productConfig?.productName?.toUpperCase() || 'SIMPANAN ANGGOTA';
@@ -265,12 +287,15 @@ let ReportsService = class ReportsService {
                 include: {
                     nasabah: true,
                     realisasi: true,
-                    transactions: { orderBy: { createdAt: 'asc' } }
-                }
+                    transactions: { orderBy: { createdAt: 'asc' } },
+                },
             });
             if (!acc)
                 throw new common_1.NotFoundException('Credit Account not found');
-            accountData = acc;
+            accountData = {
+                ...acc,
+                tglBuka: acc.realisasi[0]?.tglRealisasi || acc.tglPengajuan,
+            };
             title = 'KARTU PINJAMAN';
             let runningBalance = 0;
             const fullTransactions = [];
@@ -283,7 +308,7 @@ let ReportsService = class ReportsService {
                     tipeTrans: 'REALISASI',
                     nominal: nominalReal,
                     saldoAkhir: runningBalance,
-                    keterangan: 'Pencairan Kredit'
+                    keterangan: 'Pencairan Kredit',
                 });
             }
             if (acc.transactions) {
@@ -297,19 +322,19 @@ let ReportsService = class ReportsService {
                         pokok: pokok,
                         bunga: Number(t.bungaBayar || 0),
                         saldoAkhir: runningBalance,
-                        keterangan: t.keterangan || 'Angsuran'
+                        keterangan: t.keterangan || 'Angsuran',
                     });
                 }
             }
-            transactions = fullTransactions.map(t => ({
+            transactions = fullTransactions.map((t) => ({
                 ...t,
-                isCredit: true
+                isCredit: true,
             }));
         }
         else {
             throw new common_1.BadRequestException('Invalid savings type');
         }
-        const normalizedTransactions = transactions.map(t => {
+        const normalizedTransactions = transactions.map((t) => {
             let debit = 0;
             let credit = 0;
             if (t.isCredit) {
@@ -321,8 +346,16 @@ let ReportsService = class ReportsService {
                 }
             }
             else {
-                debit = t.tipeTrans.includes('TARIK') || t.tipeTrans.includes('DEBIT') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0;
-                credit = t.tipeTrans.includes('SETOR') || t.tipeTrans.includes('CREDIT') || t.tipeTrans.includes('BUNGA') ? Math.abs(this.normalizeCurrency(t.nominal)) : 0;
+                debit =
+                    t.tipeTrans.includes('TARIK') || t.tipeTrans.includes('DEBIT')
+                        ? Math.abs(this.normalizeCurrency(t.nominal))
+                        : 0;
+                credit =
+                    t.tipeTrans.includes('SETOR') ||
+                        t.tipeTrans.includes('CREDIT') ||
+                        t.tipeTrans.includes('BUNGA')
+                        ? Math.abs(this.normalizeCurrency(t.nominal))
+                        : 0;
             }
             return {
                 date: t.createdAt,
@@ -330,7 +363,7 @@ let ReportsService = class ReportsService {
                 debit: debit,
                 credit: credit,
                 balance: this.normalizeCurrency(t.saldoAkhir),
-                description: t.keterangan
+                description: t.keterangan,
             };
         });
         return {
@@ -342,15 +375,15 @@ let ReportsService = class ReportsService {
                 nama: accountData.nasabah.nama,
                 alamat: accountData.nasabah.alamat,
                 id: accountData.nasabah.id,
-                tglBuka: accountData.tglBuka
+                tglBuka: accountData.tglBuka,
             },
-            data: normalizedTransactions
+            data: normalizedTransactions,
         };
     }
     async getDepositoCertificateData(noJangka) {
         const deposito = await this.prisma.nasabahJangka.findUnique({
             where: { noJangka },
-            include: { nasabah: true }
+            include: { nasabah: true },
         });
         if (!deposito)
             throw new common_1.NotFoundException('Deposito not found');
@@ -362,7 +395,7 @@ let ReportsService = class ReportsService {
             nasabah: {
                 nama: deposito.nasabah.nama,
                 alamat: deposito.nasabah.alamat,
-                id: deposito.nasabahId
+                id: deposito.nasabahId,
             },
             detail: {
                 nominal: this.normalizeCurrency(deposito.nominal),
@@ -371,8 +404,11 @@ let ReportsService = class ReportsService {
                 bungaPct: deposito.bunga,
                 tglMulai: deposito.tglBuka,
                 tglJatuhTempo: deposito.tglJatuhTempo,
-                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER' ? 'YA (Kapitalisasi Bunga)' :
-                    deposito.payoutMode === 'TRANSFER' ? `YA (Bunga Masuk Tabungan: ${deposito.targetAccountId || '-'})` : 'TIDAK'
+                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER'
+                    ? 'YA (Kapitalisasi Bunga)'
+                    : deposito.payoutMode === 'TRANSFER'
+                        ? `YA (Bunga Masuk Tabungan: ${deposito.targetAccountId || '-'})`
+                        : 'TIDAK',
             },
             account: {
                 noRekening: deposito.noJangka,
@@ -382,15 +418,18 @@ let ReportsService = class ReportsService {
                 jatuhTempo: deposito.tglJatuhTempo,
                 bunga: deposito.bunga,
                 tglBuka: deposito.tglBuka,
-                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER' ? 'YA (Kapitalisasi Bunga)' :
-                    deposito.payoutMode === 'TRANSFER' ? `YA (Bunga Masuk Tabungan: ${deposito.targetAccountId || '-'})` : 'TIDAK'
-            }
+                perpanjanganOtomatis: deposito.payoutMode === 'ROLLOVER'
+                    ? 'YA (Kapitalisasi Bunga)'
+                    : deposito.payoutMode === 'TRANSFER'
+                        ? `YA (Bunga Masuk Tabungan: ${deposito.targetAccountId || '-'})`
+                        : 'TIDAK',
+            },
         };
     }
     async getAnggotaRegistrationData(accountNumber) {
         const account = await this.prisma.anggotaAccount.findUnique({
             where: { accountNumber },
-            include: { customer: true }
+            include: { customer: true },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
@@ -404,7 +443,7 @@ let ReportsService = class ReportsService {
                 principal: this.normalizeCurrency(account.principal),
                 mandatory: this.normalizeCurrency(account.mandatoryInit),
                 terbilangPokok: this.terbilang(this.normalizeCurrency(account.principal)),
-                terbilangWajib: this.terbilang(this.normalizeCurrency(account.mandatoryInit))
+                terbilangWajib: this.terbilang(this.normalizeCurrency(account.mandatoryInit)),
             },
             nasabah: {
                 nama: account.customer.nama,
@@ -412,8 +451,8 @@ let ReportsService = class ReportsService {
                 ktp: account.customer.noKtp,
                 alamat: account.customer.alamat,
                 pekerjaan: account.customer.pekerjaan,
-                phone: account.customer.telepon
-            }
+                phone: account.customer.telepon,
+            },
         };
     }
     async getAnggotaClosureData(accountNumber) {
@@ -423,27 +462,31 @@ let ReportsService = class ReportsService {
                 customer: true,
                 transactions: {
                     where: {
-                        transType: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                        transType: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] },
                     },
                     orderBy: { transDate: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         const companyProfile = await this.settingsService.getProfile();
-        const closureTx = account.transactions.find(t => t.transType === 'TUTUP');
-        const penaltyTx = account.transactions.find(t => t.transType === 'DENDA');
-        const adminTx = account.transactions.find(t => t.transType === 'BIAYA_ADMIN');
+        const closureTx = account.transactions.find((t) => t.transType === 'TUTUP');
+        const penaltyTx = account.transactions.find((t) => t.transType === 'DENDA');
+        const adminTx = account.transactions.find((t) => t.transType === 'BIAYA_ADMIN');
         let refundAmount = 0;
         let penaltyAmount = 0;
         let adminAmount = 0;
         let closeBalance = 0;
         if (closureTx) {
             refundAmount = Math.abs(this.normalizeCurrency(closureTx.amount));
-            penaltyAmount = penaltyTx ? Math.abs(this.normalizeCurrency(penaltyTx.amount)) : 0;
-            adminAmount = adminTx ? Math.abs(this.normalizeCurrency(adminTx.amount)) : 0;
+            penaltyAmount = penaltyTx
+                ? Math.abs(this.normalizeCurrency(penaltyTx.amount))
+                : 0;
+            adminAmount = adminTx
+                ? Math.abs(this.normalizeCurrency(adminTx.amount))
+                : 0;
             closeBalance = refundAmount + penaltyAmount + adminAmount;
         }
         else {
@@ -464,15 +507,15 @@ let ReportsService = class ReportsService {
                 penalty: penaltyAmount,
                 adminFee: adminAmount,
                 refund: refundAmount,
-                terbilangRefund: this.terbilang(refundAmount)
+                terbilangRefund: this.terbilang(refundAmount),
             },
             nasabah: {
                 nama: account.customer.nama,
                 id: account.customer.id,
                 ktp: account.customer.noKtp,
                 alamat: account.customer.alamat,
-                phone: account.customer.telepon
-            }
+                phone: account.customer.telepon,
+            },
         };
     }
     async getTabrelaClosureData(noTab) {
@@ -482,19 +525,19 @@ let ReportsService = class ReportsService {
                 nasabah: true,
                 transactions: {
                     where: {
-                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] },
                     },
                     orderBy: { createdAt: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         const companyProfile = await this.settingsService.getProfile();
-        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
-        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
-        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+        const closureTx = account.transactions.find((t) => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find((t) => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find((t) => t.tipeTrans === 'BIAYA_ADMIN');
         let refundAmount = 0;
         let penaltyAmount = 0;
         let adminAmount = 0;
@@ -523,9 +566,9 @@ let ReportsService = class ReportsService {
                 penalty: penaltyAmount,
                 adminFee: adminAmount,
                 refund: refundAmount,
-                terbilangRefund: this.terbilang(refundAmount)
+                terbilangRefund: this.terbilang(refundAmount),
             },
-            nasabah: account.nasabah
+            nasabah: account.nasabah,
         };
     }
     async getBrahmacariClosureData(noBrahmacari) {
@@ -535,19 +578,19 @@ let ReportsService = class ReportsService {
                 nasabah: true,
                 transactions: {
                     where: {
-                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] },
                     },
                     orderBy: { createdAt: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         const companyProfile = await this.settingsService.getProfile();
-        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
-        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
-        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+        const closureTx = account.transactions.find((t) => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find((t) => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find((t) => t.tipeTrans === 'BIAYA_ADMIN');
         let refundAmount = 0;
         let penaltyAmount = 0;
         let adminAmount = 0;
@@ -576,9 +619,9 @@ let ReportsService = class ReportsService {
                 penalty: penaltyAmount,
                 adminFee: adminAmount,
                 refund: refundAmount,
-                terbilangRefund: this.terbilang(refundAmount)
+                terbilangRefund: this.terbilang(refundAmount),
             },
-            nasabah: account.nasabah
+            nasabah: account.nasabah,
         };
     }
     async getBalimesariClosureData(noBalimesari) {
@@ -588,19 +631,19 @@ let ReportsService = class ReportsService {
                 nasabah: true,
                 transactions: {
                     where: {
-                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] },
                     },
                     orderBy: { createdAt: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         const companyProfile = await this.settingsService.getProfile();
-        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
-        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
-        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+        const closureTx = account.transactions.find((t) => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find((t) => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find((t) => t.tipeTrans === 'BIAYA_ADMIN');
         let refundAmount = 0;
         let penaltyAmount = 0;
         let adminAmount = 0;
@@ -629,9 +672,9 @@ let ReportsService = class ReportsService {
                 penalty: penaltyAmount,
                 adminFee: adminAmount,
                 refund: refundAmount,
-                terbilangRefund: this.terbilang(refundAmount)
+                terbilangRefund: this.terbilang(refundAmount),
             },
-            nasabah: account.nasabah
+            nasabah: account.nasabah,
         };
     }
     async getWanaprastaClosureData(noWanaprasta) {
@@ -641,19 +684,19 @@ let ReportsService = class ReportsService {
                 nasabah: true,
                 transactions: {
                     where: {
-                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] }
+                        tipeTrans: { in: ['TUTUP', 'DENDA', 'BIAYA_ADMIN'] },
                     },
                     orderBy: { createdAt: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         const companyProfile = await this.settingsService.getProfile();
-        const closureTx = account.transactions.find(t => t.tipeTrans === 'TUTUP');
-        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
-        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+        const closureTx = account.transactions.find((t) => t.tipeTrans === 'TUTUP');
+        const penaltyTx = account.transactions.find((t) => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find((t) => t.tipeTrans === 'BIAYA_ADMIN');
         let refundAmount = 0;
         let penaltyAmount = 0;
         let adminAmount = 0;
@@ -682,9 +725,9 @@ let ReportsService = class ReportsService {
                 penalty: penaltyAmount,
                 adminFee: adminAmount,
                 refund: refundAmount,
-                terbilangRefund: this.terbilang(refundAmount)
+                terbilangRefund: this.terbilang(refundAmount),
             },
-            nasabah: account.nasabah
+            nasabah: account.nasabah,
         };
     }
     async getDepositoClosureData(noJangka) {
@@ -694,27 +737,31 @@ let ReportsService = class ReportsService {
                 nasabah: true,
                 transactions: {
                     where: {
-                        tipeTrans: { in: ['CAIR', 'DENDA', 'BIAYA_ADMIN'] }
+                        tipeTrans: { in: ['CAIR', 'DENDA', 'BIAYA_ADMIN'] },
                     },
                     orderBy: { createdAt: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         const companyProfile = await this.settingsService.getProfile();
-        const closureTx = account.transactions.find(t => t.tipeTrans === 'CAIR');
-        const penaltyTx = account.transactions.find(t => t.tipeTrans === 'DENDA');
-        const adminTx = account.transactions.find(t => t.tipeTrans === 'BIAYA_ADMIN');
+        const closureTx = account.transactions.find((t) => t.tipeTrans === 'CAIR');
+        const penaltyTx = account.transactions.find((t) => t.tipeTrans === 'DENDA');
+        const adminTx = account.transactions.find((t) => t.tipeTrans === 'BIAYA_ADMIN');
         let refundAmount = 0;
         let penaltyAmount = 0;
         let adminAmount = 0;
         let closeBalance = 0;
         const principal = this.normalizeCurrency(account.nominal);
         if (closureTx) {
-            penaltyAmount = penaltyTx ? Math.abs(this.normalizeCurrency(penaltyTx.nominal)) : 0;
-            adminAmount = adminTx ? Math.abs(this.normalizeCurrency(adminTx.nominal)) : 0;
+            penaltyAmount = penaltyTx
+                ? Math.abs(this.normalizeCurrency(penaltyTx.nominal))
+                : 0;
+            adminAmount = adminTx
+                ? Math.abs(this.normalizeCurrency(adminTx.nominal))
+                : 0;
             closeBalance = principal;
             refundAmount = closeBalance - penaltyAmount - adminAmount;
         }
@@ -734,51 +781,82 @@ let ReportsService = class ReportsService {
                 penalty: penaltyAmount,
                 adminFee: adminAmount,
                 refund: refundAmount,
-                terbilangRefund: this.terbilang(refundAmount)
+                terbilangRefund: this.terbilang(refundAmount),
             },
-            nasabah: account.nasabah
+            nasabah: account.nasabah,
         };
     }
     normalizeCurrency(value) {
         return Number(value || 0) * 1000;
     }
     getTerbilangWords(nominal) {
-        const bil = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
-        let terbilang = "";
+        const bil = [
+            '',
+            'Satu',
+            'Dua',
+            'Tiga',
+            'Empat',
+            'Lima',
+            'Enam',
+            'Tujuh',
+            'Delapan',
+            'Sembilan',
+            'Sepuluh',
+            'Sebelas',
+        ];
+        let terbilang = '';
         if (nominal < 12) {
-            terbilang = " " + bil[nominal];
+            terbilang = ' ' + bil[nominal];
         }
         else if (nominal < 20) {
-            terbilang = this.getTerbilangWords(nominal - 10) + " Belas";
+            terbilang = this.getTerbilangWords(nominal - 10) + ' Belas';
         }
         else if (nominal < 100) {
-            terbilang = this.getTerbilangWords(Math.floor(nominal / 10)) + " Puluh" + this.getTerbilangWords(nominal % 10);
+            terbilang =
+                this.getTerbilangWords(Math.floor(nominal / 10)) +
+                    ' Puluh' +
+                    this.getTerbilangWords(nominal % 10);
         }
         else if (nominal < 200) {
-            terbilang = " Seratus" + this.getTerbilangWords(nominal - 100);
+            terbilang = ' Seratus' + this.getTerbilangWords(nominal - 100);
         }
         else if (nominal < 1000) {
-            terbilang = this.getTerbilangWords(Math.floor(nominal / 100)) + " Ratus" + this.getTerbilangWords(nominal % 100);
+            terbilang =
+                this.getTerbilangWords(Math.floor(nominal / 100)) +
+                    ' Ratus' +
+                    this.getTerbilangWords(nominal % 100);
         }
         else if (nominal < 2000) {
-            terbilang = " Seribu" + this.getTerbilangWords(nominal - 1000);
+            terbilang = ' Seribu' + this.getTerbilangWords(nominal - 1000);
         }
         else if (nominal < 1000000) {
-            terbilang = this.getTerbilangWords(Math.floor(nominal / 1000)) + " Ribu" + this.getTerbilangWords(nominal % 1000);
+            terbilang =
+                this.getTerbilangWords(Math.floor(nominal / 1000)) +
+                    ' Ribu' +
+                    this.getTerbilangWords(nominal % 1000);
         }
         else if (nominal < 1000000000) {
-            terbilang = this.getTerbilangWords(Math.floor(nominal / 1000000)) + " Juta" + this.getTerbilangWords(nominal % 1000000);
+            terbilang =
+                this.getTerbilangWords(Math.floor(nominal / 1000000)) +
+                    ' Juta' +
+                    this.getTerbilangWords(nominal % 1000000);
         }
         else if (nominal < 1000000000000) {
-            terbilang = this.getTerbilangWords(Math.floor(nominal / 1000000000)) + " Milyar" + this.getTerbilangWords(nominal % 1000000000);
+            terbilang =
+                this.getTerbilangWords(Math.floor(nominal / 1000000000)) +
+                    ' Milyar' +
+                    this.getTerbilangWords(nominal % 1000000000);
         }
         else if (nominal < 1000000000000000) {
-            terbilang = this.getTerbilangWords(Math.floor(nominal / 1000000000000)) + " Triliun" + this.getTerbilangWords(nominal % 1000000000000);
+            terbilang =
+                this.getTerbilangWords(Math.floor(nominal / 1000000000000)) +
+                    ' Triliun' +
+                    this.getTerbilangWords(nominal % 1000000000000);
         }
         return terbilang;
     }
     terbilang(nominal) {
-        return this.getTerbilangWords(nominal).trim() + " Rupiah";
+        return this.getTerbilangWords(nominal).trim() + ' Rupiah';
     }
     async getBukuBesar(fromAccount, toAccount, startDate, endDate) {
         const start = new Date(startDate);
@@ -788,10 +866,10 @@ let ReportsService = class ReportsService {
             where: {
                 accountCode: {
                     gte: fromAccount,
-                    lte: endAccount
-                }
+                    lte: endAccount,
+                },
             },
-            orderBy: { accountCode: 'asc' }
+            orderBy: { accountCode: 'asc' },
         });
         if (accounts.length === 0) {
             throw new common_1.NotFoundException(`No accounts found in range ${fromAccount} - ${endAccount}`);
@@ -802,8 +880,8 @@ let ReportsService = class ReportsService {
             const openingEntries = await this.prisma.postedJournalDetail.findMany({
                 where: {
                     accountCode,
-                    journal: { journalDate: { lt: start } }
-                }
+                    journal: { journalDate: { lt: start } },
+                },
             });
             let saldoAwal = 0;
             for (const entry of openingEntries) {
@@ -814,13 +892,13 @@ let ReportsService = class ReportsService {
             const periodEntries = await this.prisma.postedJournalDetail.findMany({
                 where: {
                     accountCode,
-                    journal: { journalDate: { gte: start, lte: end } }
+                    journal: { journalDate: { gte: start, lte: end } },
                 },
                 include: { journal: true },
-                orderBy: [{ journal: { journalDate: 'asc' } }, { id: 'asc' }]
+                orderBy: [{ journal: { journalDate: 'asc' } }, { id: 'asc' }],
             });
             let runningBalance = saldoAwal;
-            const entries = periodEntries.map(entry => {
+            const entries = periodEntries.map((entry) => {
                 const debit = this.normalizeCurrency(entry.debit);
                 const credit = this.normalizeCurrency(entry.credit);
                 runningBalance += debit - credit;
@@ -830,7 +908,7 @@ let ReportsService = class ReportsService {
                     keterangan: entry.journal.description || entry.description || '-',
                     debit,
                     credit,
-                    saldo: runningBalance
+                    saldo: runningBalance,
                 };
             });
             const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
@@ -838,7 +916,7 @@ let ReportsService = class ReportsService {
             results.push({
                 account: {
                     accountCode: account.accountCode,
-                    accountName: account.accountName
+                    accountName: account.accountName,
                 },
                 periodStart: startDate,
                 periodEnd: endDate,
@@ -846,7 +924,7 @@ let ReportsService = class ReportsService {
                 entries,
                 saldoAkhir: runningBalance,
                 totalDebit,
-                totalCredit
+                totalCredit,
             });
         }
         return { data: results };
@@ -859,9 +937,9 @@ let ReportsService = class ReportsService {
         const accounts = await this.prisma.journalAccount.findMany({
             select: {
                 accountCode: true,
-                accountName: true
+                accountName: true,
             },
-            orderBy: { accountCode: 'asc' }
+            orderBy: { accountCode: 'asc' },
         });
         console.log('Total accounts found:', accounts.length);
         return accounts;
@@ -874,9 +952,9 @@ let ReportsService = class ReportsService {
                 nasabah: true,
                 transactions: {
                     orderBy: { createdAt: 'desc' },
-                    take: 1
-                }
-            }
+                    take: 1,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
@@ -890,7 +968,7 @@ let ReportsService = class ReportsService {
             try {
                 const user = await this.prisma.user.findUnique({
                     where: { id: lastTransaction.userId },
-                    select: { fullName: true, username: true }
+                    select: { fullName: true, username: true },
                 });
                 if (user) {
                     userName = `${user.fullName} (${user.username})`;
@@ -910,19 +988,29 @@ let ReportsService = class ReportsService {
                 noRekening: accountNumber,
                 nama: account.nasabah.nama,
             },
-            data: [{
+            data: [
+                {
                     date: lastTransaction.createdAt || lastTransaction.transDate,
-                    debit: txAmount < 0 ? Math.abs(txAmount) : (tipeTrans === 'T' ? txAmount : 0),
-                    credit: txAmount > 0 ? txAmount : (tipeTrans === 'S' ? txAmount : 0),
-                    balance: Number(lastTransaction.saldoAkhir || lastTransaction.balanceAfter || account.saldo),
-                    description: lastTransaction.keterangan || lastTransaction.description || tipeTrans
-                }],
+                    debit: txAmount < 0
+                        ? Math.abs(txAmount)
+                        : tipeTrans === 'T'
+                            ? txAmount
+                            : 0,
+                    credit: txAmount > 0 ? txAmount : tipeTrans === 'S' ? txAmount : 0,
+                    balance: Number(lastTransaction.saldoAkhir ||
+                        lastTransaction.balanceAfter ||
+                        account.saldo),
+                    description: lastTransaction.keterangan ||
+                        lastTransaction.description ||
+                        tipeTrans,
+                },
+            ],
             companyProfile: {
                 name: companyProfile.name,
                 address: companyProfile.address,
-                phone: companyProfile.phone
+                phone: companyProfile.phone,
             },
-            currentUser: userName
+            currentUser: userName,
         };
     }
     async getAnggotaReceiptData(accountNumber) {
@@ -932,9 +1020,9 @@ let ReportsService = class ReportsService {
                 customer: true,
                 transactions: {
                     orderBy: { transDate: 'desc' },
-                    take: 1
-                }
-            }
+                    take: 1,
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
@@ -945,7 +1033,7 @@ let ReportsService = class ReportsService {
         const companyProfile = await this.settingsService.getProfile();
         const user = await this.prisma.user.findUnique({
             where: { id: lastTransaction.userId },
-            select: { fullName: true, username: true }
+            select: { fullName: true, username: true },
         });
         const txAmount = Number(lastTransaction.amount);
         return {
@@ -953,19 +1041,21 @@ let ReportsService = class ReportsService {
                 noRekening: account.accountNumber,
                 nama: account.customer.nama,
             },
-            data: [{
+            data: [
+                {
                     date: lastTransaction.transDate,
                     debit: txAmount < 0 ? Math.abs(txAmount) : 0,
                     credit: txAmount > 0 ? txAmount : 0,
                     balance: Number(lastTransaction.balanceAfter),
-                    description: lastTransaction.description || lastTransaction.transType
-                }],
+                    description: lastTransaction.description || lastTransaction.transType,
+                },
+            ],
             companyProfile: {
                 name: companyProfile.name,
                 address: companyProfile.address,
-                phone: companyProfile.phone
+                phone: companyProfile.phone,
             },
-            currentUser: user ? `${user.fullName} (${user.username})` : 'Petugas'
+            currentUser: user ? `${user.fullName} (${user.username})` : 'Petugas',
         };
     }
     async getTabrelaReceiptData(accountNumber) {
@@ -984,14 +1074,14 @@ let ReportsService = class ReportsService {
         const collectors = await this.prisma.user.findMany({
             where: {
                 role: {
-                    roleName: 'COLLECTOR'
-                }
+                    roleName: 'COLLECTOR',
+                },
             },
             select: {
                 id: true,
                 fullName: true,
-                username: true
-            }
+                username: true,
+            },
         });
         const kpiData = [];
         for (const collector of collectors) {
@@ -1000,9 +1090,9 @@ let ReportsService = class ReportsService {
                     createdBy: collector.username,
                     createdAt: {
                         gte: startDate,
-                        lte: endDate
-                    }
-                }
+                        lte: endDate,
+                    },
+                },
             });
             const totalTransactions = 0;
             const totalAmount = 0;
@@ -1010,7 +1100,7 @@ let ReportsService = class ReportsService {
                 lancar: { count: 0, percentage: '0' },
                 kurangLancar: { count: 0, percentage: '0' },
                 diragukan: { count: 0, percentage: '0' },
-                macet: { count: 0, percentage: '0' }
+                macet: { count: 0, percentage: '0' },
             };
             kpiData.push({
                 collectorId: collector.id,
@@ -1018,39 +1108,39 @@ let ReportsService = class ReportsService {
                 collectorUsername: collector.username,
                 period: {
                     startDate,
-                    endDate
+                    endDate,
                 },
                 metrics: {
                     membersRegistered,
                     transactionStats: {
                         totalTransactions,
                         totalAmount,
-                        avgTransactionAmount: '0'
+                        avgTransactionAmount: '0',
                     },
                     creditStats: {
                         totalActiveCredits: 0,
-                        collectibility
-                    }
-                }
+                        collectibility,
+                    },
+                },
             });
         }
         return {
             period: {
                 startDate,
-                endDate
+                endDate,
             },
             collectors: kpiData,
             summary: {
                 totalCollectors: collectors.length,
                 totalMembersRegistered: kpiData.reduce((sum, c) => sum + c.metrics.membersRegistered, 0),
                 totalTransactions: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalTransactions, 0),
-                totalAmount: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalAmount, 0)
-            }
+                totalAmount: kpiData.reduce((sum, c) => sum + c.metrics.transactionStats.totalAmount, 0),
+            },
         };
     }
     async exportCoaCsv() {
         const accounts = await this.prisma.journalAccount.findMany({
-            orderBy: { accountCode: 'asc' }
+            orderBy: { accountCode: 'asc' },
         });
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('COA');
@@ -1063,7 +1153,7 @@ let ReportsService = class ReportsService {
             { header: 'Status', key: 'status', width: 10 },
             { header: 'Keterangan', key: 'remark', width: 30 },
         ];
-        accounts.forEach(acc => {
+        accounts.forEach((acc) => {
             worksheet.addRow({
                 accountCode: acc.accountCode,
                 accountName: acc.accountName,
@@ -1071,21 +1161,21 @@ let ReportsService = class ReportsService {
                 dc: acc.debetPoleFlag ? 'D' : 'C',
                 parentCode: acc.parentCode || '-',
                 status: acc.isActive ? 'Aktif' : 'Nonaktif',
-                remark: acc.remark || ''
+                remark: acc.remark || '',
             });
         });
         worksheet.getRow(1).font = { bold: true };
-        return await workbook.csv.writeBuffer();
+        return (await workbook.csv.writeBuffer());
     }
     async exportCoaPdf() {
         const accounts = await this.prisma.journalAccount.findMany({
-            orderBy: { accountCode: 'asc' }
+            orderBy: { accountCode: 'asc' },
         });
         const profile = await this.settingsService.getProfile();
         return new Promise((resolve, reject) => {
             const doc = new pdfkit_1.default({ margin: 30, size: 'A4' });
             const chunks = [];
-            doc.on('data', chunk => chunks.push(chunk));
+            doc.on('data', (chunk) => chunks.push(chunk));
             doc.on('end', () => resolve(Buffer.concat(chunks)));
             doc.on('error', reject);
             doc.fontSize(14).text(profile.name.toUpperCase(), { align: 'center' });
@@ -1094,7 +1184,10 @@ let ReportsService = class ReportsService {
             doc.moveDown();
             doc.moveTo(30, doc.y).lineTo(565, doc.y).stroke();
             doc.moveDown();
-            doc.fontSize(12).text('DAFTAR AKUN (CHART OF ACCOUNTS)', { align: 'center', bold: true });
+            doc.fontSize(12).text('DAFTAR AKUN (CHART OF ACCOUNTS)', {
+                align: 'center',
+                bold: true,
+            });
             doc.moveDown();
             const startX = 30;
             const colWidths = [100, 200, 60, 40, 80];
@@ -1112,7 +1205,7 @@ let ReportsService = class ReportsService {
             doc.moveTo(startX, currentY).lineTo(565, currentY).stroke();
             doc.moveDown(0.5);
             doc.font('Helvetica').fontSize(9);
-            accounts.forEach(acc => {
+            accounts.forEach((acc) => {
                 if (doc.y > 750) {
                     doc.addPage();
                     currentY = 50;

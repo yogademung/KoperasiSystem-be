@@ -65,14 +65,17 @@ let ExcelService = class ExcelService {
         headerRow.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FFD3D3D3' }
+            fgColor: { argb: 'FFD3D3D3' },
         };
         headerRow.alignment = { horizontal: 'center' };
-        data.data.forEach(row => {
+        data.data.forEach((row) => {
             worksheet.addRow(Object.values(row));
         });
         if (data.totals) {
-            const totalRow = worksheet.addRow(['TOTAL', ...Object.values(data.totals)]);
+            const totalRow = worksheet.addRow([
+                'TOTAL',
+                ...Object.values(data.totals),
+            ]);
             totalRow.font = { bold: true };
         }
         worksheet.columns.forEach((column, index) => {
@@ -97,7 +100,7 @@ let ExcelService = class ExcelService {
                         top: { style: 'thin' },
                         left: { style: 'thin' },
                         bottom: { style: 'thin' },
-                        right: { style: 'thin' }
+                        right: { style: 'thin' },
                     };
                 });
             }

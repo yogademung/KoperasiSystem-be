@@ -23,9 +23,9 @@ let SystemDateService = class SystemDateService {
             where: {
                 code_codeValue: {
                     code: 'SYSTEM',
-                    codeValue: 'CURRENT_BUSINESS_DATE'
-                }
-            }
+                    codeValue: 'CURRENT_BUSINESS_DATE',
+                },
+            },
         });
         if (!config || !config.description) {
             return (0, date_fns_1.startOfDay)(new Date());
@@ -41,7 +41,7 @@ let SystemDateService = class SystemDateService {
         return businessDate.getTime() !== serverDate.getTime();
     }
     async getUnclosedShifts(date) {
-        const targetDate = date || await this.getCurrentBusinessDate();
+        const targetDate = date || (await this.getCurrentBusinessDate());
         const dayStart = (0, date_fns_1.startOfDay)(targetDate);
         const dayEnd = (0, date_fns_1.endOfDay)(targetDate);
         return this.prisma.collectorShift.findMany({
@@ -49,17 +49,17 @@ let SystemDateService = class SystemDateService {
                 status: 'ACTIVE',
                 startTime: {
                     gte: dayStart,
-                    lte: dayEnd
-                }
+                    lte: dayEnd,
+                },
             },
             include: {
                 user: {
                     select: {
                         id: true,
-                        fullName: true
-                    }
-                }
-            }
+                        fullName: true,
+                    },
+                },
+            },
         });
     }
     async canAdvanceDate() {
@@ -72,7 +72,7 @@ let SystemDateService = class SystemDateService {
         if (!canAdvance) {
             return {
                 success: false,
-                message: 'Cannot advance date: There are unclosed shifts'
+                message: 'Cannot advance date: There are unclosed shifts',
             };
         }
         const currentBusinessDate = await this.getCurrentBusinessDate();
@@ -81,27 +81,27 @@ let SystemDateService = class SystemDateService {
         if (nextBusinessDate.getTime() > serverDate.getTime()) {
             return {
                 success: false,
-                message: 'Business date is already at server date'
+                message: 'Business date is already at server date',
             };
         }
         await this.prisma.lovValue.update({
             where: {
                 code_codeValue: {
                     code: 'SYSTEM',
-                    codeValue: 'CURRENT_BUSINESS_DATE'
-                }
+                    codeValue: 'CURRENT_BUSINESS_DATE',
+                },
             },
             data: {
                 description: (0, date_fns_1.format)(nextBusinessDate, 'yyyy-MM-dd'),
                 updatedAt: new Date(),
-                updatedBy: 'SYSTEM_AUTO_ADVANCE'
-            }
+                updatedBy: 'SYSTEM_AUTO_ADVANCE',
+            },
         });
         console.log(`✅ Business date advanced: ${(0, date_fns_1.format)(currentBusinessDate, 'yyyy-MM-dd')} → ${(0, date_fns_1.format)(nextBusinessDate, 'yyyy-MM-dd')}`);
         return {
             success: true,
             newDate: nextBusinessDate,
-            message: `Business date advanced to ${(0, date_fns_1.format)(nextBusinessDate, 'yyyy-MM-dd')}`
+            message: `Business date advanced to ${(0, date_fns_1.format)(nextBusinessDate, 'yyyy-MM-dd')}`,
         };
     }
     async getSystemStatus() {
@@ -114,12 +114,12 @@ let SystemDateService = class SystemDateService {
             businessDate: (0, date_fns_1.format)(businessDate, 'yyyy-MM-dd'),
             serverDate: (0, date_fns_1.format)(serverDate, 'yyyy-MM-dd'),
             isDateMismatch,
-            unclosedShifts: unclosedShifts.map(shift => ({
+            unclosedShifts: unclosedShifts.map((shift) => ({
                 collectorName: shift.user.fullName,
-                startTime: shift.startTime
+                startTime: shift.startTime,
             })),
             unclosedShiftCount: unclosedShifts.length,
-            canAdvanceDate: canAdvance
+            canAdvanceDate: canAdvance,
         };
     }
 };

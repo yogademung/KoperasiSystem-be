@@ -4,8 +4,8 @@ import { NasabahService } from './nasabah.service';
 import { PrismaService } from '../database/prisma.service';
 
 @Module({
-    controllers: [NasabahController],
-    providers: [NasabahService, PrismaService],
-    exports: [NasabahService]
+  controllers: [NasabahController],
+  providers: [NasabahService, PrismaService],
+  exports: [NasabahService],
 })
-export class NasabahModule { }
+export class NasabahModule {}

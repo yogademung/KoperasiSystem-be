@@ -8,9 +8,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Security
-  app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-  }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   // CORS
   app.enableCors({

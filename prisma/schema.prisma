@@ -32,6 +32,7 @@ model User {
   unlockApprovals UnlockRequest[]  @relation("UnlockApprover")
   unlockRequests  UnlockRequest[]  @relation("UnlockRequester")
   collectorShifts CollectorShift[]
+  auditLogs       AuditLog[]
 
   // Phase 13: Inter-Unit Transactions
   interUnitTransactionsCreated  InterUnitTransaction[] @relation("InterUnitCreator")
@@ -1267,5 +1268,26 @@ model AllocationExecutionDetail {
   @@index([executionId])
   @@index([costCenterId])
   @@map("allocation_execution_detail")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement()) @map("id")
+  userId      Int?     @map("user_id")
+  username    String?  @map("username") @db.VarChar(50)
+  action      String   @map("action") @db.VarChar(20)
+  tableName   String   @map("table_name") @db.VarChar(100)
+  recordId    String   @map("record_id") @db.VarChar(100)
+  oldValue    String?  @map("old_value") @db.LongText
+  newValue    String?  @map("new_value") @db.LongText
+  ipAddress   String?  @map("ip_address") @db.VarChar(50)
+  userAgent   String?  @map("user_agent") @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([tableName])
+  @@index([recordId])
+  @@index([userId])
+  @@map("audit_log")
 }
 

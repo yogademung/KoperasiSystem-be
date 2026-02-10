@@ -190,14 +190,24 @@ let KreditService = class KreditService {
                     },
                 });
                 const mapping = await tx.productCoaMapping.findUnique({
-                    where: { transType: 'KREDIT_REALISASI' }
+                    where: { transType: 'KREDIT_REALISASI' },
                 });
                 if (!mapping) {
                     throw new common_1.BadRequestException('Konfigurasi COA Mapping untuk [KREDIT_REALISASI] belum tersedia. Hubungi Administrator.');
                 }
                 const journalDetails = [
-                    { accountCode: mapping.debitAccount, debit: Number(data.plafond), credit: 0, description: `Pencairan Kredit ${nomorKredit}` },
-                    { accountCode: mapping.creditAccount, debit: 0, credit: Number(data.plafond), description: `Pencairan Kredit ${nomorKredit}` },
+                    {
+                        accountCode: mapping.debitAccount,
+                        debit: Number(data.plafond),
+                        credit: 0,
+                        description: `Pencairan Kredit ${nomorKredit}`,
+                    },
+                    {
+                        accountCode: mapping.creditAccount,
+                        debit: 0,
+                        credit: Number(data.plafond),
+                        description: `Pencairan Kredit ${nomorKredit}`,
+                    },
                 ];
                 const journalNo = await this.accountingService.generateJournalNumber(new Date());
                 await tx.postedJournal.create({
@@ -212,18 +222,18 @@ let KreditService = class KreditService {
                         status: 'POSTED',
                         transType: 'KREDIT_REALISASI',
                         details: {
-                            create: journalDetails.map(d => ({
+                            create: journalDetails.map((d) => ({
                                 accountCode: d.accountCode,
                                 debit: d.debit,
                                 credit: d.credit,
-                                description: d.description
-                            }))
-                        }
-                    }
+                                description: d.description,
+                            })),
+                        },
+                    },
                 });
                 const schedule = this.calculateInstallmentSchedule(Number(data.plafond), Number(data.bungaPct), Number(data.jangkaWaktu), new Date());
                 await tx.debiturJadwal.createMany({
-                    data: schedule.map(s => ({
+                    data: schedule.map((s) => ({
                         debiturKreditId: creditId,
                         angsuranKe: s.angsuranKe,
                         tglJatuhTempo: s.tglJatuhTempo,
@@ -233,8 +243,8 @@ let KreditService = class KreditService {
                         sisaPokok: new client_1.Prisma.Decimal(s.pokok),
                         sisaBunga: new client_1.Prisma.Decimal(s.bunga),
                         status: 'UNPAID',
-                        createdBy: 'SYSTEM'
-                    }))
+                        createdBy: 'SYSTEM',
+                    })),
                 });
                 return await tx.debiturKredit.update({
                     where: { id: creditId },
@@ -261,7 +271,7 @@ let KreditService = class KreditService {
     async payInstallment(creditId, data, userId) {
         const credit = await this.prisma.debiturKredit.findUnique({
             where: { id: creditId },
-            include: { nasabah: true }
+            include: { nasabah: true },
         });
         if (!credit || credit.status !== 'ACTIVE') {
             throw new common_1.BadRequestException('Credit is not ACTIVE or not found');
@@ -270,7 +280,8 @@ let KreditService = class KreditService {
         if (paymentAmount <= 0)
             throw new common_1.BadRequestException('Payment amount must be positive');
         const paymentDate = data.date ? new Date(data.date) : new Date();
-        return this.prisma.$transaction(async (tx) => {
+        return this.prisma
+            .$transaction(async (tx) => {
             const trans = await tx.transKredit.create({
                 data: {
                     debiturKreditId: creditId,
@@ -278,22 +289,26 @@ let KreditService = class KreditService {
                     tglTrans: paymentDate,
                     nominal: new client_1.Prisma.Decimal(paymentAmount),
                     keterangan: data.description || 'Pembayaran Angsuran Kredit',
-                    createdBy: userId.toString()
-                }
+                    createdBy: userId.toString(),
+                },
             });
             const schedules = await tx.debiturJadwal.findMany({
                 where: {
                     debiturKreditId: creditId,
-                    status: { in: ['UNPAID', 'PARTIAL'] }
+                    status: { in: ['UNPAID', 'PARTIAL'] },
                 },
-                orderBy: { angsuranKe: 'asc' }
+                orderBy: { angsuranKe: 'asc' },
             });
             let remainingMoney = Number(paymentAmount);
             const journalDetailsData = [];
-            const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'KREDIT_ANGSURAN' } });
+            const mapping = await tx.productCoaMapping.findUnique({
+                where: { transType: 'KREDIT_ANGSURAN' },
+            });
             const cashAccount = mapping?.debitAccount || '10100';
             const receivableAccount = mapping?.creditAccount || '10300';
-            const interestMapping = await tx.productCoaMapping.findUnique({ where: { transType: 'KREDIT_BUNGA' } });
+            const interestMapping = await tx.productCoaMapping.findUnique({
+                where: { transType: 'KREDIT_BUNGA' },
+            });
             const interestIncomeAccount = interestMapping?.creditAccount || '40100';
             let totalPrincipalPaid = 0;
             let totalInterestPaid = 0;
@@ -303,7 +318,9 @@ let KreditService = class KreditService {
                 let interestDue = Number(sched.sisaBunga);
                 let principalDue = Number(sched.sisaPokok);
                 if (interestDue === 0 && Number(sched.bunga) > 0) {
-                    if (sched.status === 'UNPAID' || (sched.status === 'PARTIAL' && principalDue >= Number(sched.pokok) - 100)) {
+                    if (sched.status === 'UNPAID' ||
+                        (sched.status === 'PARTIAL' &&
+                            principalDue >= Number(sched.pokok) - 100)) {
                         interestDue = Number(sched.bunga);
                     }
                 }
@@ -333,8 +350,8 @@ let KreditService = class KreditService {
                             sisaPokok: new client_1.Prisma.Decimal(principalDue),
                             status: newStatus,
                             tglBayar: new Date(),
-                            updatedBy: userId.toString()
-                        }
+                            updatedBy: userId.toString(),
+                        },
                     });
                 }
             }
@@ -346,15 +363,15 @@ let KreditService = class KreditService {
                         accountCode: cashAccount,
                         debit: totalPrincipalPaid + totalInterestPaid,
                         credit: 0,
-                        description: `Pembayaran Angsuran ${credit.nomorKredit}`
-                    }
+                        description: `Pembayaran Angsuran ${credit.nomorKredit}`,
+                    },
                 ];
                 if (totalPrincipalPaid > 0) {
                     journalDetails.push({
                         accountCode: receivableAccount,
                         debit: 0,
                         credit: totalPrincipalPaid,
-                        description: `Angsuran Pokok ${credit.nomorKredit}`
+                        description: `Angsuran Pokok ${credit.nomorKredit}`,
                     });
                 }
                 if (totalInterestPaid > 0) {
@@ -362,7 +379,7 @@ let KreditService = class KreditService {
                         accountCode: interestIncomeAccount,
                         debit: 0,
                         credit: totalInterestPaid,
-                        description: `Angsuran Bunga ${credit.nomorKredit}`
+                        description: `Angsuran Bunga ${credit.nomorKredit}`,
                     });
                 }
                 const journal = await tx.postedJournal.create({
@@ -377,9 +394,9 @@ let KreditService = class KreditService {
                         status: 'POSTED',
                         transType: 'KREDIT_ANGSURAN',
                         details: {
-                            create: journalDetails
-                        }
-                    }
+                            create: journalDetails,
+                        },
+                    },
                 });
                 journalId = journal.id;
             }
@@ -388,17 +405,18 @@ let KreditService = class KreditService {
                 data: {
                     pokokBayar: new client_1.Prisma.Decimal(totalPrincipalPaid),
                     bungaBayar: new client_1.Prisma.Decimal(totalInterestPaid),
-                    journalId: journalId
-                }
+                    journalId: journalId,
+                },
             });
             return {
                 message: 'Payment recorded successfully',
                 allocatedPrincipal: totalPrincipalPaid,
                 allocatedInterest: totalInterestPaid,
-                remainingDeposit: remainingMoney
+                remainingDeposit: remainingMoney,
             };
-        }).catch(error => {
-            console.error("PAY INSTALLMENT ERROR:", error);
+        })
+            .catch((error) => {
+            console.error('PAY INSTALLMENT ERROR:', error);
             throw error;
         });
     }
@@ -409,13 +427,13 @@ let KreditService = class KreditService {
         const romanMonth = this.getRomanMonth(month);
         let counter = 1;
         const counterRecord = await this.prisma.lovValue.findUnique({
-            where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } }
+            where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } },
         });
         if (counterRecord) {
             counter = Number(counterRecord.description) + 1;
             await this.prisma.lovValue.update({
                 where: { code_codeValue: { code: 'COUNTER', codeValue: 'SPK' } },
-                data: { description: counter.toString() }
+                data: { description: counter.toString() },
             });
         }
         else {
@@ -424,20 +442,34 @@ let KreditService = class KreditService {
                     code: 'COUNTER',
                     codeValue: 'SPK',
                     description: '1',
-                    orderNum: 1
-                }
+                    orderNum: 1,
+                },
             });
         }
         const sequence = String(counter).padStart(3, '0');
         return `SPK/${sequence}/${romanMonth}/${year}`;
     }
     getRomanMonth(month) {
-        const romans = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-        return romans[month] || "";
+        const romans = [
+            '',
+            'I',
+            'II',
+            'III',
+            'IV',
+            'V',
+            'VI',
+            'VII',
+            'VIII',
+            'IX',
+            'X',
+            'XI',
+            'XII',
+        ];
+        return romans[month] || '';
     }
     async generateAccountNumber(nasabahId) {
         const count = await this.prisma.debiturKredit.count({
-            where: { nomorKredit: { not: null } }
+            where: { nomorKredit: { not: null } },
         });
         return `K-${String(nasabahId).padStart(4, '0')}-${String(count + 1).padStart(3, '0')}`;
     }
@@ -463,7 +495,7 @@ let KreditService = class KreditService {
                 pokok: currentPokok,
                 bunga: angsuranBunga,
                 total: currentTotal,
-                sisaPokok: currentSisaPokok
+                sisaPokok: currentSisaPokok,
             });
         }
         return schedule;
@@ -503,12 +535,12 @@ let KreditService = class KreditService {
                 fasilitas: true,
                 realisasi: true,
                 jadwal: {
-                    orderBy: { angsuranKe: 'asc' }
+                    orderBy: { angsuranKe: 'asc' },
                 },
                 transactions: {
                     orderBy: { createdAt: 'desc' },
-                    take: 10
-                }
+                    take: 10,
+                },
             },
         });
         if (!credit)

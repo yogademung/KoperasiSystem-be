@@ -74,10 +74,7 @@ let BudgetService = class BudgetService {
                     },
                 },
             },
-            orderBy: [
-                { year: 'desc' },
-                { startDate: 'desc' },
-            ],
+            orderBy: [{ year: 'desc' }, { startDate: 'desc' }],
         });
     }
     async findOnePeriod(id) {
@@ -236,9 +233,7 @@ let BudgetService = class BudgetService {
                     },
                 },
             },
-            orderBy: [
-                { accountCode: 'asc' },
-            ],
+            orderBy: [{ accountCode: 'asc' }],
         });
     }
     async findOneBudget(id) {
@@ -353,7 +348,9 @@ let BudgetService = class BudgetService {
     async copyFromPreviousPeriod(sourcePeriodId, targetPeriodId, userId, adjustmentPercent = 0) {
         const sourcePeriod = await this.findOnePeriod(sourcePeriodId);
         const targetPeriod = await this.findOnePeriod(targetPeriodId);
-        const sourceBudgets = await this.findAllBudgets({ periodId: sourcePeriodId });
+        const sourceBudgets = await this.findAllBudgets({
+            periodId: sourcePeriodId,
+        });
         if (sourceBudgets.length === 0) {
             throw new common_1.BadRequestException('Periode sumber tidak memiliki entry anggaran');
         }
@@ -382,7 +379,7 @@ let BudgetService = class BudgetService {
     async getBudgetUtilization(costCenterId, periodId) {
         const budgets = await this.findAllBudgets({ costCenterId, periodId });
         const totalBudget = budgets.reduce((sum, b) => sum + Number(b.budgetAmount), 0);
-        const actualPromises = budgets.map(b => this.calculateActual(periodId, b.accountCode, costCenterId));
+        const actualPromises = budgets.map((b) => this.calculateActual(periodId, b.accountCode, costCenterId));
         const actuals = await Promise.all(actualPromises);
         const totalActual = actuals.reduce((sum, a) => sum + a, 0);
         const variance = totalBudget - totalActual;

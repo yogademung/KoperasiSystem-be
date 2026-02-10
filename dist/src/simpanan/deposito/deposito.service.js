@@ -64,7 +64,7 @@ let DepositoService = class DepositoService {
                 description: 'Setoran Awal Deposito',
                 userId: userId,
                 refId: transaction.id,
-                branchCode: '001'
+                branchCode: '001',
             });
             return deposito;
         });
@@ -86,23 +86,25 @@ let DepositoService = class DepositoService {
                 where: { noJangka },
                 orderBy: { createdAt: 'desc' },
                 skip,
-                take: limit
+                take: limit,
             }),
             this.prisma.transJangka.count({
-                where: { noJangka }
-            })
+                where: { noJangka },
+            }),
         ]);
         return {
             data: transactions,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async voidTransaction(transId, txInput) {
         const executeLogic = async (tx) => {
-            const original = await tx.transJangka.findUnique({ where: { id: transId } });
+            const original = await tx.transJangka.findUnique({
+                where: { id: transId },
+            });
             if (!original)
                 throw new common_1.NotFoundException(`Transaction ${transId} not found`);
             const reversalAmount = Number(original.nominal) * -1;
@@ -112,13 +114,13 @@ let DepositoService = class DepositoService {
                     tipeTrans: 'KOREKSI',
                     nominal: reversalAmount,
                     keterangan: `VOID/REVERSAL #${original.id}: ${original.keterangan || ''}`,
-                    createdBy: 'SYSTEM'
-                }
+                    createdBy: 'SYSTEM',
+                },
             });
             if (original.tipeTrans === 'CAIR') {
                 await tx.nasabahJangka.update({
                     where: { noJangka: original.noJangka },
-                    data: { status: 'A' }
+                    data: { status: 'A' },
                 });
             }
         };
@@ -142,17 +144,17 @@ let DepositoService = class DepositoService {
         if (!deposito)
             throw new common_1.NotFoundException('Deposito not found');
         const accumulatedInterest = deposito.transactions
-            .filter(t => t.tipeTrans === 'BUNGA')
+            .filter((t) => t.tipeTrans === 'BUNGA')
             .reduce((sum, t) => sum + Number(t.nominal), 0);
         return {
             ...deposito,
-            accumulatedInterest
+            accumulatedInterest,
         };
     }
     async withdraw(noJangka, userId, options) {
         const deposito = await this.prisma.nasabahJangka.findUnique({
             where: { noJangka },
-            include: { transactions: true }
+            include: { transactions: true },
         });
         if (!deposito)
             throw new common_1.NotFoundException('Deposito not found');
@@ -162,7 +164,7 @@ let DepositoService = class DepositoService {
         const adminFee = options?.adminFee || 0;
         const reason = options?.reason || 'Pencairan Deposito';
         return this.prisma.$transaction(async (tx) => {
-            let principal = Number(deposito.nominal);
+            const principal = Number(deposito.nominal);
             let finalPayout = principal;
             if (penalty > 0) {
                 finalPayout -= penalty;
@@ -173,7 +175,7 @@ let DepositoService = class DepositoService {
                         nominal: -penalty,
                         keterangan: `Denda Pencairan: ${reason}`,
                         createdBy: userId.toString(),
-                    }
+                    },
                 });
             }
             if (adminFee > 0) {
@@ -185,7 +187,7 @@ let DepositoService = class DepositoService {
                         nominal: -adminFee,
                         keterangan: 'Biaya Administrasi Pencairan',
                         createdBy: userId.toString(),
-                    }
+                    },
                 });
             }
             const transaction = await tx.transJangka.create({
@@ -210,7 +212,7 @@ let DepositoService = class DepositoService {
                 description: `Pencairan Deposito (${reason})`,
                 userId: userId,
                 refId: transaction.id,
-                branchCode: '001'
+                branchCode: '001',
             });
             return result;
         });

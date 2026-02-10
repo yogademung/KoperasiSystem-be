@@ -23,7 +23,7 @@ let AnggotaService = class AnggotaService {
     async create(dto, userId) {
         const accountNumber = await this.generateAccountNumber(dto.regionCode);
         const existing = await this.prisma.anggotaAccount.findUnique({
-            where: { accountNumber }
+            where: { accountNumber },
         });
         if (existing) {
             throw new common_1.BadRequestException('Account number already exists');
@@ -42,11 +42,11 @@ let AnggotaService = class AnggotaService {
                     groupCode: dto.groupCode,
                     remark: dto.remark,
                     createdBy: userId.toString(),
-                    isActive: true
+                    isActive: true,
                 },
                 include: {
-                    customer: true
-                }
+                    customer: true,
+                },
             });
             if (dto.principal > 0) {
                 await this.createTransaction(tx, accountNumber, {
@@ -65,7 +65,7 @@ let AnggotaService = class AnggotaService {
     }
     async findAll() {
         return this.prisma.anggotaAccount.findMany({
-            include: { customer: true }
+            include: { customer: true },
         });
     }
     async findOne(accountNumber) {
@@ -75,9 +75,9 @@ let AnggotaService = class AnggotaService {
                 customer: true,
                 transactions: {
                     orderBy: { transDate: 'desc' },
-                    take: 10
-                }
-            }
+                    take: 10,
+                },
+            },
         });
         if (!account) {
             throw new common_1.BadRequestException('Account not found');
@@ -87,7 +87,7 @@ let AnggotaService = class AnggotaService {
     async setoran(accountNumber, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.anggotaAccount.findUnique({
-                where: { accountNumber }
+                where: { accountNumber },
             });
             if (!account) {
                 throw new common_1.BadRequestException('Account not found');
@@ -99,7 +99,7 @@ let AnggotaService = class AnggotaService {
             if (account.status === 'D') {
                 await tx.anggotaAccount.update({
                     where: { accountNumber },
-                    data: { status: 'A' }
+                    data: { status: 'A' },
                 });
             }
             return { success: true };
@@ -108,7 +108,7 @@ let AnggotaService = class AnggotaService {
     async penarikan(accountNumber, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.anggotaAccount.findUnique({
-                where: { accountNumber }
+                where: { accountNumber },
             });
             if (!account) {
                 throw new common_1.BadRequestException('Account not found');
@@ -125,7 +125,7 @@ let AnggotaService = class AnggotaService {
                 amount: -Math.abs(dto.amount),
                 description: dto.description,
                 latitude: dto.latitude,
-                longitude: dto.longitude
+                longitude: dto.longitude,
             }, userId);
             return { success: true };
             return { success: true };
@@ -134,7 +134,7 @@ let AnggotaService = class AnggotaService {
     async closeAccount(accountNumber, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.anggotaAccount.findUnique({
-                where: { accountNumber }
+                where: { accountNumber },
             });
             if (!account) {
                 throw new common_1.BadRequestException('Account not found');
@@ -148,7 +148,7 @@ let AnggotaService = class AnggotaService {
                 await this.createTransaction(tx, accountNumber, {
                     transType: 'DENDA',
                     amount: -dto.penaltyAmount,
-                    description: `Penalty: ${dto.reason || 'Account Closure'}`
+                    description: `Penalty: ${dto.reason || 'Account Closure'}`,
                 }, userId);
                 finalBalance -= dto.penaltyAmount;
             }
@@ -156,7 +156,7 @@ let AnggotaService = class AnggotaService {
                 await this.createTransaction(tx, accountNumber, {
                     transType: 'BIAYA_ADMIN',
                     amount: -dto.adminFee,
-                    description: `Admin Fee: ${dto.reason || 'Account Closure'}`
+                    description: `Admin Fee: ${dto.reason || 'Account Closure'}`,
                 }, userId);
                 finalBalance -= dto.adminFee;
             }
@@ -164,7 +164,7 @@ let AnggotaService = class AnggotaService {
                 await this.createTransaction(tx, accountNumber, {
                     transType: 'TUTUP',
                     amount: -finalBalance,
-                    description: `Closing Account: ${dto.reason || ''}`
+                    description: `Closing Account: ${dto.reason || ''}`,
                 }, userId);
             }
             await tx.anggotaAccount.update({
@@ -172,13 +172,13 @@ let AnggotaService = class AnggotaService {
                 data: {
                     status: 'T',
                     closeDate: new Date(),
-                    balance: 0
-                }
+                    balance: 0,
+                },
             });
             return {
                 success: true,
                 refundAmount: finalBalance,
-                message: 'Account closed successfully'
+                message: 'Account closed successfully',
             };
         });
     }
@@ -192,19 +192,21 @@ let AnggotaService = class AnggotaService {
                 take: limit,
             }),
             this.prisma.anggotaTransaction.count({
-                where: { accountNumber }
-            })
+                where: { accountNumber },
+            }),
         ]);
         return {
             data: transactions,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async createTransaction(tx, accountNumber, dto, userId) {
-        const account = await tx.anggotaAccount.findUnique({ where: { accountNumber } });
+        const account = await tx.anggotaAccount.findUnique({
+            where: { accountNumber },
+        });
         const newBalance = Number(account.balance) + dto.amount;
         const transaction = await tx.anggotaTransaction.create({
             data: {
@@ -216,18 +218,18 @@ let AnggotaService = class AnggotaService {
                 description: dto.description || '',
                 userId,
                 latitude: dto.latitude,
-                longitude: dto.longitude
-            }
+                longitude: dto.longitude,
+            },
         });
         const updateData = {
-            balance: newBalance
+            balance: newBalance,
         };
         if (dto.transType === 'SETORAN_POKOK') {
             updateData.principal = Number(account.principal) + dto.amount;
         }
         await tx.anggotaAccount.update({
             where: { accountNumber },
-            data: updateData
+            data: updateData,
         });
         let eventTransType = '';
         if (dto.transType === 'SETORAN_POKOK')
@@ -252,7 +254,7 @@ let AnggotaService = class AnggotaService {
                     description: dto.description || transaction.transType,
                     userId: userId,
                     refId: transaction.id,
-                    branchCode: account.regionCode
+                    branchCode: account.regionCode,
                 });
             }
             catch (error) {
@@ -265,12 +267,12 @@ let AnggotaService = class AnggotaService {
         const lastAccount = await this.prisma.anggotaAccount.findFirst({
             where: {
                 accountNumber: {
-                    startsWith: regionCode
-                }
+                    startsWith: regionCode,
+                },
             },
             orderBy: {
-                accountNumber: 'desc'
-            }
+                accountNumber: 'desc',
+            },
         });
         let sequence = 1;
         if (lastAccount) {
@@ -286,26 +288,26 @@ let AnggotaService = class AnggotaService {
     async voidTransaction(transId, txInput) {
         const executeLogic = async (tx) => {
             const original = await tx.anggotaTransaction.findUnique({
-                where: { id: transId }
+                where: { id: transId },
             });
             if (!original)
                 throw new common_1.BadRequestException(`Transaction with ID ${transId} not found`);
             const account = await tx.anggotaAccount.findUnique({
-                where: { accountNumber: original.accountNumber }
+                where: { accountNumber: original.accountNumber },
             });
             if (!account)
                 throw new common_1.BadRequestException('Account not found');
             const reversalAmount = Number(original.amount);
             const newBalance = Number(account.balance) - reversalAmount;
             const updateData = {
-                balance: newBalance
+                balance: newBalance,
             };
             if (original.transType === 'SETORAN_POKOK') {
                 updateData.principal = Number(account.principal) - reversalAmount;
             }
             await tx.anggotaAccount.update({
                 where: { accountNumber: original.accountNumber },
-                data: updateData
+                data: updateData,
             });
             return tx.anggotaTransaction.create({
                 data: {
@@ -317,8 +319,8 @@ let AnggotaService = class AnggotaService {
                     description: `VOID/REVERSAL of Trans #${original.id}: ${original.description || ''}`,
                     userId: original.userId,
                     latitude: original.latitude,
-                    longitude: original.longitude
-                }
+                    longitude: original.longitude,
+                },
             });
         };
         if (txInput) {

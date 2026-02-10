@@ -99,9 +99,7 @@ let CostCenterService = class CostCenterService {
                     },
                 },
             },
-            orderBy: [
-                { code: 'asc' },
-            ],
+            orderBy: [{ code: 'asc' }],
         });
         return {
             data: costCenters,

@@ -14,15 +14,16 @@ const prisma_module_1 = require("../database/prisma.module");
 const simpanan_module_1 = require("../simpanan/simpanan.module");
 const accounting_listener_1 = require("./listeners/accounting.listener");
 const month_end_module_1 = require("../month-end/month-end.module");
+const product_config_module_1 = require("../product-config/product-config.module");
 let AccountingModule = class AccountingModule {
 };
 exports.AccountingModule = AccountingModule;
 exports.AccountingModule = AccountingModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, simpanan_module_1.SimpananModule, month_end_module_1.MonthEndModule],
+        imports: [prisma_module_1.PrismaModule, simpanan_module_1.SimpananModule, month_end_module_1.MonthEndModule, product_config_module_1.ProductConfigModule],
         providers: [accounting_service_1.AccountingService, accounting_listener_1.AccountingListener],
         controllers: [accounting_controller_1.AccountingController],
-        exports: [accounting_service_1.AccountingService]
+        exports: [accounting_service_1.AccountingService],
     })
 ], AccountingModule);
 //# sourceMappingURL=accounting.module.js.map

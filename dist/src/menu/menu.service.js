@@ -20,22 +20,19 @@ let MenuService = class MenuService {
     async getAllMenus() {
         const menus = await this.prisma.menu.findMany({
             where: { isActive: true },
-            orderBy: [
-                { parentId: 'asc' },
-                { orderNum: 'asc' }
-            ],
+            orderBy: [{ parentId: 'asc' }, { orderNum: 'asc' }],
             include: {
                 menuRoles: {
                     include: {
                         role: {
                             select: {
                                 id: true,
-                                roleName: true
-                            }
-                        }
-                    }
-                }
-            }
+                                roleName: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
         return this.buildMenuTree(menus);
     }
@@ -45,10 +42,10 @@ let MenuService = class MenuService {
             include: {
                 menuRoles: {
                     include: {
-                        role: true
-                    }
-                }
-            }
+                        role: true,
+                    },
+                },
+            },
         });
         if (!menu) {
             throw new common_1.NotFoundException(`Menu with ID ${id} not found`);
@@ -59,29 +56,29 @@ let MenuService = class MenuService {
         const menuRoles = await this.prisma.menuRole.findMany({
             where: { roleId },
             include: {
-                menu: true
+                menu: true,
             },
             orderBy: {
                 menu: {
-                    orderNum: 'asc'
-                }
-            }
+                    orderNum: 'asc',
+                },
+            },
         });
-        const menusWithPermissions = menuRoles.map(mr => ({
+        const menusWithPermissions = menuRoles.map((mr) => ({
             ...mr.menu,
             permissions: {
                 canCreate: mr.canCreate,
                 canRead: mr.canRead,
                 canUpdate: mr.canUpdate,
                 canDelete: mr.canDelete,
-            }
+            },
         }));
         return this.buildMenuTree(menusWithPermissions);
     }
     async createMenu(dto, createdBy) {
         if (dto.parentId) {
             const parent = await this.prisma.menu.findUnique({
-                where: { id: dto.parentId }
+                where: { id: dto.parentId },
             });
             if (!parent) {
                 throw new common_1.BadRequestException(`Parent menu with ID ${dto.parentId} not found`);
@@ -91,7 +88,7 @@ let MenuService = class MenuService {
             const maxOrder = await this.prisma.menu.findFirst({
                 where: { parentId: dto.parentId || null },
                 orderBy: { orderNum: 'desc' },
-                select: { orderNum: true }
+                select: { orderNum: true },
             });
             dto.orderNum = (maxOrder?.orderNum || 0) + 1;
         }
@@ -106,8 +103,8 @@ let MenuService = class MenuService {
                 orderNum: dto.orderNum,
                 isActive: dto.isActive !== undefined ? dto.isActive : true,
                 createdBy,
-                createdAt: new Date()
-            }
+                createdAt: new Date(),
+            },
         });
     }
     async updateMenu(id, dto, updatedBy) {
@@ -120,7 +117,7 @@ let MenuService = class MenuService {
                 throw new common_1.BadRequestException('Menu cannot be its own parent');
             }
             const parent = await this.prisma.menu.findUnique({
-                where: { id: dto.parentId }
+                where: { id: dto.parentId },
             });
             if (!parent) {
                 throw new common_1.BadRequestException(`Parent menu with ID ${dto.parentId} not found`);
@@ -131,22 +128,22 @@ let MenuService = class MenuService {
             data: {
                 ...dto,
                 updatedBy,
-                updatedAt: new Date()
-            }
+                updatedAt: new Date(),
+            },
         });
     }
     async deleteMenu(id, deletedBy) {
         const existing = await this.prisma.menu.findUnique({
             where: { id },
             include: {
-                menuRoles: true
-            }
+                menuRoles: true,
+            },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Menu with ID ${id} not found`);
         }
         const children = await this.prisma.menu.count({
-            where: { parentId: id, isActive: true }
+            where: { parentId: id, isActive: true },
         });
         if (children > 0) {
             throw new common_1.BadRequestException('Cannot delete menu with active children. Delete children first or set parentId to null.');
@@ -156,8 +153,8 @@ let MenuService = class MenuService {
             data: {
                 isActive: false,
                 updatedBy: deletedBy,
-                updatedAt: new Date()
-            }
+                updatedAt: new Date(),
+            },
         });
     }
     async assignMenusToRole(roleId, dto) {
@@ -165,20 +162,20 @@ let MenuService = class MenuService {
         if (!role) {
             throw new common_1.NotFoundException(`Role with ID ${roleId} not found`);
         }
-        const menuIds = dto.menuPermissions.map(mp => mp.menuId);
+        const menuIds = dto.menuPermissions.map((mp) => mp.menuId);
         const menus = await this.prisma.menu.findMany({
             where: {
                 id: { in: menuIds },
-                isActive: true
-            }
+                isActive: true,
+            },
         });
         if (menus.length !== menuIds.length) {
             throw new common_1.BadRequestException('Some menu IDs are invalid or inactive');
         }
         await this.prisma.menuRole.deleteMany({
-            where: { roleId }
+            where: { roleId },
         });
-        const menuRoles = dto.menuPermissions.map(mp => ({
+        const menuRoles = dto.menuPermissions.map((mp) => ({
             roleId,
             menuId: mp.menuId,
             canCreate: mp.canCreate,
@@ -187,35 +184,35 @@ let MenuService = class MenuService {
             canDelete: mp.canDelete,
         }));
         await this.prisma.menuRole.createMany({
-            data: menuRoles
+            data: menuRoles,
         });
         return {
             success: true,
-            message: `Assigned ${dto.menuPermissions.length} menus with permissions to role`
+            message: `Assigned ${dto.menuPermissions.length} menus with permissions to role`,
         };
     }
     async getRoleMenus(roleId) {
         const menuRoles = await this.prisma.menuRole.findMany({
             where: { roleId },
             include: {
-                menu: true
-            }
+                menu: true,
+            },
         });
-        return menuRoles.map(mr => ({
+        return menuRoles.map((mr) => ({
             ...mr.menu,
             permissions: {
                 canCreate: mr.canCreate,
                 canRead: mr.canRead,
                 canUpdate: mr.canUpdate,
                 canDelete: mr.canDelete,
-            }
+            },
         }));
     }
     async copyPermissions(dto) {
         const { sourceRoleId, targetRoleId, overwriteExisting = false } = dto;
         const [sourceRole, targetRole] = await Promise.all([
             this.prisma.role.findUnique({ where: { id: sourceRoleId } }),
-            this.prisma.role.findUnique({ where: { id: targetRoleId } })
+            this.prisma.role.findUnique({ where: { id: targetRoleId } }),
         ]);
         if (!sourceRole) {
             throw new common_1.NotFoundException(`Source role with ID ${sourceRoleId} not found`);
@@ -224,17 +221,17 @@ let MenuService = class MenuService {
             throw new common_1.NotFoundException(`Target role with ID ${targetRoleId} not found`);
         }
         const sourcePermissions = await this.prisma.menuRole.findMany({
-            where: { roleId: sourceRoleId }
+            where: { roleId: sourceRoleId },
         });
         if (sourcePermissions.length === 0) {
             throw new common_1.BadRequestException('Source role has no menu permissions to copy');
         }
         if (overwriteExisting) {
             await this.prisma.menuRole.deleteMany({
-                where: { roleId: targetRoleId }
+                where: { roleId: targetRoleId },
             });
         }
-        const newPermissions = sourcePermissions.map(sp => ({
+        const newPermissions = sourcePermissions.map((sp) => ({
             roleId: targetRoleId,
             menuId: sp.menuId,
             canCreate: sp.canCreate,
@@ -244,21 +241,21 @@ let MenuService = class MenuService {
         }));
         await this.prisma.menuRole.createMany({
             data: newPermissions,
-            skipDuplicates: !overwriteExisting
+            skipDuplicates: !overwriteExisting,
         });
         return {
             success: true,
             message: `Copied ${sourcePermissions.length} menu permissions from ${sourceRole.roleName} to ${targetRole.roleName}`,
-            copiedCount: sourcePermissions.length
+            copiedCount: sourcePermissions.length,
         };
     }
     buildMenuTree(menus) {
         const menuMap = new Map();
         const roots = [];
-        menus.forEach(menu => {
+        menus.forEach((menu) => {
             menuMap.set(menu.id, { ...menu, children: [] });
         });
-        menus.forEach(menu => {
+        menus.forEach((menu) => {
             const node = menuMap.get(menu.id);
             if (menu.parentId === null) {
                 roots.push(node);

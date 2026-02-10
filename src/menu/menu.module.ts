@@ -6,9 +6,9 @@ import { MenuService } from './menu.service';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [MenuController],
-    providers: [MenuService],
-    exports: [MenuService],
+  imports: [PrismaModule],
+  controllers: [MenuController],
+  providers: [MenuService],
+  exports: [MenuService],
 })
-export class MenuModule { }
+export class MenuModule {}

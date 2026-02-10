@@ -13,7 +13,19 @@ exports.SettingsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const PROFILE_CODE = 'COMPANY_PROFILE';
-const KEYS = ['NAME', 'ADDRESS', 'PHONE', 'EMAIL', 'WEBSITE', 'LOGO', 'THEME_COLOR', 'FONT_COLOR', 'LAST_CLOSING_MONTH', 'COA_FORMAT'];
+const KEYS = [
+    'NAME',
+    'ADDRESS',
+    'PHONE',
+    'EMAIL',
+    'WEBSITE',
+    'LOGO',
+    'THEME_COLOR',
+    'FONT_COLOR',
+    'LAST_CLOSING_MONTH',
+    'COA_FORMAT',
+    'IDLE_TIMEOUT',
+];
 let SettingsService = class SettingsService {
     prisma;
     constructor(prisma) {
@@ -23,11 +35,16 @@ let SettingsService = class SettingsService {
         await this.ensureDefaults();
     }
     async ensureDefaults() {
-        const count = await this.prisma.lovValue.count({ where: { code: PROFILE_CODE } });
+        const count = await this.prisma.lovValue.count({
+            where: { code: PROFILE_CODE },
+        });
         if (count === 0) {
             const defaults = [
                 { codeValue: 'NAME', description: 'Koperasi Simpan Pinjam Sejahtera' },
-                { codeValue: 'ADDRESS', description: 'Jl. Raya Utama No. 123, Denpasar, Bali' },
+                {
+                    codeValue: 'ADDRESS',
+                    description: 'Jl. Raya Utama No. 123, Denpasar, Bali',
+                },
                 { codeValue: 'PHONE', description: '(0361) 123456' },
                 { codeValue: 'EMAIL', description: 'info@kspsejahtera.com' },
                 { codeValue: 'WEBSITE', description: 'www.kspsejahtera.com' },
@@ -36,6 +53,7 @@ let SettingsService = class SettingsService {
                 { codeValue: 'FONT_COLOR', description: 'oklch(0.985 0 0)' },
                 { codeValue: 'LAST_CLOSING_MONTH', description: '' },
                 { codeValue: 'COA_FORMAT', description: 'xxx-xxx-xxx' },
+                { codeValue: 'IDLE_TIMEOUT', description: '15' },
             ];
             for (const d of defaults) {
                 await this.prisma.lovValue.create({
@@ -45,8 +63,8 @@ let SettingsService = class SettingsService {
                         description: d.description,
                         orderNum: 0,
                         isActive: true,
-                        createdBy: 'SYSTEM'
-                    }
+                        createdBy: 'SYSTEM',
+                    },
                 });
             }
             console.log('✅ Company Profile defaults seeded.');
@@ -54,11 +72,11 @@ let SettingsService = class SettingsService {
     }
     async getProfile() {
         const items = await this.prisma.lovValue.findMany({
-            where: { code: PROFILE_CODE, isActive: true }
+            where: { code: PROFILE_CODE, isActive: true },
         });
         const profile = {};
-        KEYS.forEach(k => {
-            const found = items.find(i => i.codeValue === k);
+        KEYS.forEach((k) => {
+            const found = items.find((i) => i.codeValue === k);
             profile[k.toLowerCase()] = found?.description || '';
         });
         return profile;
@@ -71,17 +89,21 @@ let SettingsService = class SettingsService {
                     where: {
                         code_codeValue: {
                             code: PROFILE_CODE,
-                            codeValue: key
-                        }
+                            codeValue: key,
+                        },
                     },
-                    update: { description: val, updatedAt: new Date(), updatedBy: 'ADMIN' },
+                    update: {
+                        description: val,
+                        updatedAt: new Date(),
+                        updatedBy: 'ADMIN',
+                    },
                     create: {
                         code: PROFILE_CODE,
                         codeValue: key,
                         description: val,
                         isActive: true,
-                        createdBy: 'ADMIN'
-                    }
+                        createdBy: 'ADMIN',
+                    },
                 });
             }
         }

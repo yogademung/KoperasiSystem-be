@@ -4,9 +4,9 @@ import { BusinessUnitController } from './business-unit.controller';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    providers: [BusinessUnitService],
-    controllers: [BusinessUnitController],
-    exports: [BusinessUnitService]
+  imports: [PrismaModule],
+  providers: [BusinessUnitService],
+  controllers: [BusinessUnitController],
+  exports: [BusinessUnitService],
 })
-export class BusinessUnitModule { }
+export class BusinessUnitModule {}

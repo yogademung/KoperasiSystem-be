@@ -5,8 +5,8 @@ import { PrismaService } from '../database/prisma.service';
 import { AccountingModule } from '../accounting/accounting.module';
 
 @Module({
-    imports: [forwardRef(() => AccountingModule)],
-    controllers: [CapitalController],
-    providers: [CapitalService],
+  imports: [forwardRef(() => AccountingModule)],
+  controllers: [CapitalController],
+  providers: [CapitalService],
 })
-export class CapitalModule { }
+export class CapitalModule {}

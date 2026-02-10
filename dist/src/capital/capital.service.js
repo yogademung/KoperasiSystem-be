@@ -24,7 +24,9 @@ let CapitalService = class CapitalService {
         this.accountingService = accountingService;
     }
     async createNasabahModal(dto, userId) {
-        const nasabah = await this.prisma.nasabah.findUnique({ where: { id: dto.nasabahId } });
+        const nasabah = await this.prisma.nasabah.findUnique({
+            where: { id: dto.nasabahId },
+        });
         if (!nasabah)
             throw new common_1.NotFoundException('Nasabah not found');
         const accountNumber = await this.generateModalAccountNumber(dto.regionCode || '01');
@@ -40,13 +42,13 @@ let CapitalService = class CapitalService {
                     wilayahCd: dto.regionCode,
                     createdBy: userId.toString(),
                 },
-                include: { nasabah: true }
+                include: { nasabah: true },
             });
             if (dto.initialDeposit > 0) {
                 await this.createModalTransaction(tx, accountNumber, {
                     transType: 'MODAL_SETOR',
                     amount: dto.initialDeposit,
-                    description: 'Setoran Awal Modal Penyertaan'
+                    description: 'Setoran Awal Modal Penyertaan',
                 }, userId);
             }
             return account;
@@ -55,7 +57,7 @@ let CapitalService = class CapitalService {
     async findAllNasabahModal() {
         return this.prisma.nasabahModal.findMany({
             include: { nasabah: true },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async findOneNasabahModal(id) {
@@ -64,9 +66,9 @@ let CapitalService = class CapitalService {
             include: {
                 nasabah: true,
                 transactions: {
-                    orderBy: { transDate: 'desc' }
-                }
-            }
+                    orderBy: { transDate: 'desc' },
+                },
+            },
         });
         if (!account)
             throw new common_1.NotFoundException('Modal account not found');
@@ -79,7 +81,9 @@ let CapitalService = class CapitalService {
     }
     async createModalTransaction(tx, accountNumber, dto, userId) {
         const client = tx;
-        const account = await client.nasabahModal.findUnique({ where: { noRekModal: accountNumber } });
+        const account = await client.nasabahModal.findUnique({
+            where: { noRekModal: accountNumber },
+        });
         if (!account)
             throw new common_1.NotFoundException('Account not found');
         let newBalance = Number(account.saldo);
@@ -106,12 +110,12 @@ let CapitalService = class CapitalService {
                 saldoAkhir: newBalance,
                 keterangan: dto.description,
                 createdBy: userId.toString(),
-                transDate: new Date()
-            }
+                transDate: new Date(),
+            },
         });
         await client.nasabahModal.update({
             where: { noRekModal: accountNumber },
-            data: { saldo: newBalance }
+            data: { saldo: newBalance },
         });
         await this.accountingService.autoPostJournal({
             transType: type,
@@ -119,15 +123,17 @@ let CapitalService = class CapitalService {
             description: dto.description || `Transaksi Modal ${type}`,
             userId: userId,
             refId: trans.id,
-            wilayahCd: account.wilayahCd
+            wilayahCd: account.wilayahCd,
         }, tx);
         return trans;
     }
     async generateModalAccountNumber(regionCode) {
-        return this.prisma.nasabahModal.findFirst({
+        return this.prisma.nasabahModal
+            .findFirst({
             where: { noRekModal: { startsWith: regionCode + 'MDL' } },
-            orderBy: { noRekModal: 'desc' }
-        }).then(last => {
+            orderBy: { noRekModal: 'desc' },
+        })
+            .then((last) => {
             let seq = 1;
             if (last) {
                 const numPart = last.noRekModal.substring((regionCode + 'MDL').length);
@@ -152,12 +158,12 @@ let CapitalService = class CapitalService {
                     monthlyInstallment: 0,
                     outstandingPrincipal: dto.principal,
                     status: 'ACTIVE',
-                    createdBy: userId.toString()
-                }
+                    createdBy: userId.toString(),
+                },
             });
             const principalPerMonth = Number(dto.principal) / dto.termMonths;
             const interestPerMonth = (Number(dto.principal) * (Number(dto.interestRate) / 100)) / 12;
-            let currentDate = new Date(dto.loanDate);
+            const currentDate = new Date(dto.loanDate);
             for (let i = 1; i <= dto.termMonths; i++) {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 await client.installmentSchedule.create({
@@ -168,8 +174,8 @@ let CapitalService = class CapitalService {
                         principalDue: principalPerMonth,
                         interestDue: interestPerMonth,
                         totalDue: principalPerMonth + interestPerMonth,
-                        status: 'DUE'
-                    }
+                        status: 'DUE',
+                    },
                 });
             }
             await this.accountingService.autoPostJournal({
@@ -177,7 +183,7 @@ let CapitalService = class CapitalService {
                 amount: Number(dto.principal),
                 description: `Pencairan Pinjaman Bank ${dto.bankName} - Kontrak ${dto.contractNumber}`,
                 userId: userId,
-                refId: loan.id
+                refId: loan.id,
             }, tx);
             return loan;
         });
@@ -185,13 +191,13 @@ let CapitalService = class CapitalService {
     async findAllExternalLoans() {
         return this.prisma.externalLoan.findMany({
             include: { schedule: true },
-            orderBy: { loanDate: 'desc' }
+            orderBy: { loanDate: 'desc' },
         });
     }
     async findOneExternalLoan(id) {
         const loan = await this.prisma.externalLoan.findUnique({
             where: { id },
-            include: { schedule: { orderBy: { installmentNumber: 'asc' } } }
+            include: { schedule: { orderBy: { installmentNumber: 'asc' } } },
         });
         if (!loan)
             throw new common_1.NotFoundException('Loan not found');
@@ -206,9 +212,9 @@ let CapitalService = class CapitalService {
                     schedule: {
                         where: { status: 'DUE' },
                         orderBy: { installmentNumber: 'asc' },
-                        take: 1
-                    }
-                }
+                        take: 1,
+                    },
+                },
             });
             if (!loan)
                 throw new common_1.NotFoundException('Loan not found');
@@ -224,20 +230,22 @@ let CapitalService = class CapitalService {
                 where: { id: dueInstallment.id },
                 data: {
                     status: 'PAID',
-                    paidDate: new Date(dto.paymentDate)
-                }
+                    paidDate: new Date(dto.paymentDate),
+                },
             });
             const newOutstanding = Number(loan.outstandingPrincipal) - Number(dueInstallment.principalDue);
-            const isFullyPaid = newOutstanding <= 0 && loan.termMonths === dueInstallment.installmentNumber;
+            const isFullyPaid = newOutstanding <= 0 &&
+                loan.termMonths === dueInstallment.installmentNumber;
             await client.externalLoan.update({
                 where: { id: loan.id },
                 data: {
                     outstandingPrincipal: newOutstanding,
-                    status: isFullyPaid ? 'CLOSED' : 'ACTIVE'
-                }
+                    status: isFullyPaid ? 'CLOSED' : 'ACTIVE',
+                },
             });
             await this.ensureExternalLoanAccounts(tx);
-            const desc = dto.description || `Angsuran Pinjaman Bank ${loan.bankName} - Ke ${dueInstallment.installmentNumber}`;
+            const desc = dto.description ||
+                `Angsuran Pinjaman Bank ${loan.bankName} - Ke ${dueInstallment.installmentNumber}`;
             const journal = await client.postedJournal.create({
                 data: {
                     journalNumber: `JU/${new Date().getFullYear()}/${new Date().getMonth() + 1}/LOAN-${loan.id}-${dueInstallment.installmentNumber}`,
@@ -255,29 +263,31 @@ let CapitalService = class CapitalService {
                                 accountCode: dto.sourceAccountId,
                                 credit: dto.amount,
                                 debit: 0,
-                                description: 'Pembayaran Angsuran'
+                                description: 'Pembayaran Angsuran',
                             },
                             {
                                 accountCode: '2.30.01',
                                 credit: 0,
                                 debit: dueInstallment.principalDue,
-                                description: 'Pokok Angsuran'
+                                description: 'Pokok Angsuran',
                             },
                             {
                                 accountCode: '5.20.10',
                                 credit: 0,
                                 debit: dueInstallment.interestDue,
-                                description: 'Bunga Angsuran'
-                            }
-                        ]
-                    }
-                }
+                                description: 'Bunga Angsuran',
+                            },
+                        ],
+                    },
+                },
             });
             return { loan, journal };
         });
     }
     async ensureExternalLoanAccounts(tx) {
-        const accPrincipal = await tx.journalAccount.findUnique({ where: { accountCode: '2.30.01' } });
+        const accPrincipal = await tx.journalAccount.findUnique({
+            where: { accountCode: '2.30.01' },
+        });
         if (!accPrincipal) {
             await tx.journalAccount.create({
                 data: {
@@ -287,11 +297,13 @@ let CapitalService = class CapitalService {
                     debetPoleFlag: false,
                     parentCode: null,
                     isActive: true,
-                    createdBy: 'SYSTEM'
-                }
+                    createdBy: 'SYSTEM',
+                },
             });
         }
-        const accInterest = await tx.journalAccount.findUnique({ where: { accountCode: '5.20.10' } });
+        const accInterest = await tx.journalAccount.findUnique({
+            where: { accountCode: '5.20.10' },
+        });
         if (!accInterest) {
             await tx.journalAccount.create({
                 data: {
@@ -301,8 +313,8 @@ let CapitalService = class CapitalService {
                     debetPoleFlag: true,
                     parentCode: null,
                     isActive: true,
-                    createdBy: 'SYSTEM'
-                }
+                    createdBy: 'SYSTEM',
+                },
             });
         }
     }

@@ -133,16 +133,22 @@ let InterUnitService = class InterUnitService {
             throw new common_1.BadRequestException('Transaction already posted');
         }
         const sourceKasAcc = await this.prisma.journalAccount.findFirst({
-            where: { businessUnitId: transaction.sourceUnitId, accountCode: { startsWith: '1.01' } }
+            where: {
+                businessUnitId: transaction.sourceUnitId,
+                accountCode: { startsWith: '1.01' },
+            },
         });
         const sourceRakAcc = await this.prisma.journalAccount.findFirst({
-            where: { businessUnitId: transaction.sourceUnitId, accountType: 'RAK' }
+            where: { businessUnitId: transaction.sourceUnitId, accountType: 'RAK' },
         });
         const destKasAcc = await this.prisma.journalAccount.findFirst({
-            where: { businessUnitId: transaction.destUnitId, accountCode: { startsWith: '1.01' } }
+            where: {
+                businessUnitId: transaction.destUnitId,
+                accountCode: { startsWith: '1.01' },
+            },
         });
         const destRakAcc = await this.prisma.journalAccount.findFirst({
-            where: { businessUnitId: transaction.destUnitId, accountType: 'RAK' }
+            where: { businessUnitId: transaction.destUnitId, accountType: 'RAK' },
         });
         if (!sourceKasAcc || !sourceRakAcc || !destKasAcc || !destRakAcc) {
             throw new common_1.BadRequestException('Akun Kas atau RAK untuk Unit Pengirim/Penerima tidak ditemukan. Pastikan COA sudah disetup dengan Business Unit ID yang benar.');
@@ -157,43 +163,40 @@ let InterUnitService = class InterUnitService {
                     accountCode: sourceRakAcc.accountCode,
                     debit: Number(transaction.amount),
                     credit: 0,
-                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`
+                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`,
                 },
                 {
                     accountCode: sourceKasAcc.accountCode,
                     debit: 0,
                     credit: Number(transaction.amount),
-                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`
+                    description: `Mutasi Keluar ke Unit ${transaction.destUnitId}`,
                 },
                 {
                     accountCode: destKasAcc.accountCode,
                     debit: Number(transaction.amount),
                     credit: 0,
-                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`
+                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`,
                 },
                 {
                     accountCode: destRakAcc.accountCode,
                     debit: 0,
                     credit: Number(transaction.amount),
-                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`
+                    description: `Mutasi Masuk dari Unit ${transaction.sourceUnitId}`,
                 },
-            ]
+            ],
         });
         return this.prisma.interUnitTransaction.update({
             where: { id },
             data: {
                 status: 'POSTED',
-                journalId: journal.id
+                journalId: journal.id,
             },
         });
     }
     async getBalances(unitId, asOfDate) {
         const where = {
             status: 'POSTED',
-            OR: [
-                { sourceUnitId: unitId },
-                { destUnitId: unitId },
-            ],
+            OR: [{ sourceUnitId: unitId }, { destUnitId: unitId }],
         };
         if (asOfDate) {
             where.transactionDate = { lte: asOfDate };
@@ -255,7 +258,7 @@ let InterUnitService = class InterUnitService {
         });
         await this.prisma.interUnitTransaction.updateMany({
             where: {
-                id: { in: transactions.map(t => t.id) },
+                id: { in: transactions.map((t) => t.id) },
             },
             data: {
                 status: 'ELIMINATED',

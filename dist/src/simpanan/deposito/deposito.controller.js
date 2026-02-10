@@ -27,7 +27,9 @@ let DepositoController = class DepositoController {
     }
     async testInterest() {
         await this.interestService.forceRunAllInterest();
-        return { message: 'Interest Scheduler Triggered for ALL Products (Forced)' };
+        return {
+            message: 'Interest Scheduler Triggered for ALL Products (Forced)',
+        };
     }
     async getSimulation(noJangka) {
         return this.interestService.simulateProcessing(noJangka);

@@ -25,12 +25,12 @@ exports.MonthEndModule = MonthEndModule = __decorate([
             period_lock_service_1.PeriodLockService,
             balance_sheet_service_1.BalanceSheetService,
             depreciation_service_1.DepreciationService,
-            lov_value_service_1.LovValueService
+            lov_value_service_1.LovValueService,
         ],
         exports: [
             period_lock_service_1.PeriodLockService,
-            balance_sheet_service_1.BalanceSheetService
-        ]
+            balance_sheet_service_1.BalanceSheetService,
+        ],
     })
 ], MonthEndModule);
 //# sourceMappingURL=month-end.module.js.map

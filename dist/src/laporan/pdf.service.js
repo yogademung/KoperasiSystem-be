@@ -57,7 +57,10 @@ let PdfService = class PdfService {
         Handlebars.registerHelper('formatCurrency', (value) => {
             if (value === undefined || value === null)
                 return '';
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+            }).format(value);
         });
         Handlebars.registerHelper('formatDate', (value) => {
             if (!value)
@@ -77,11 +80,11 @@ let PdfService = class PdfService {
             columns: data.data.length > 0 ? Object.keys(data.data[0]) : [],
             rows: data.data,
             totals: data.totals,
-            location: 'Denpasar'
+            location: 'Denpasar',
         });
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox']
+            args: ['--no-sandbox'],
         });
         const page = await browser.newPage();
         await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -93,8 +96,8 @@ let PdfService = class PdfService {
                 top: '20mm',
                 right: '15mm',
                 bottom: '20mm',
-                left: '15mm'
-            }
+                left: '15mm',
+            },
         });
         await browser.close();
         return Buffer.from(pdf);

@@ -72,8 +72,12 @@ let DataProviderService = class DataProviderService {
                     tgl: this.formatDate(trans.createdAt),
                     kode: trans.tipeTrans,
                     transaksi: trans.keterangan || trans.tipeTrans,
-                    debet: trans.tipeTrans === 'TARIK' ? this.formatCurrency(trans.nominal) : '',
-                    kredit: trans.tipeTrans === 'SETOR' ? this.formatCurrency(trans.nominal) : '',
+                    debet: trans.tipeTrans === 'TARIK'
+                        ? this.formatCurrency(trans.nominal)
+                        : '',
+                    kredit: trans.tipeTrans === 'SETOR'
+                        ? this.formatCurrency(trans.nominal)
+                        : '',
                     saldo: this.formatCurrency(trans.saldoAkhir),
                 }));
             }
@@ -150,7 +154,9 @@ let DataProviderService = class DataProviderService {
                 data.transactions = credit.transactions.map((trans) => ({
                     tanggal: this.formatDate(trans.createdAt),
                     kode_transaksi: trans.tipeTrans,
-                    angsuran_pokok: trans.tipeTrans.includes('ANGSUR') ? this.formatCurrency(trans.nominal) : '',
+                    angsuran_pokok: trans.tipeTrans.includes('ANGSUR')
+                        ? this.formatCurrency(trans.nominal)
+                        : '',
                     angsuran_bunga: '',
                     denda: '',
                     sisa_pinjaman: '',
@@ -186,8 +192,12 @@ let DataProviderService = class DataProviderService {
                 data.transactions = account.transactions.map((trans) => ({
                     tgl: this.formatDate(trans.transDate),
                     kode: trans.transType,
-                    debet: trans.transType.includes('TARIK') ? this.formatCurrency(trans.amount) : '',
-                    kredit: trans.transType.includes('SETOR') ? this.formatCurrency(trans.amount) : '',
+                    debet: trans.transType.includes('TARIK')
+                        ? this.formatCurrency(trans.amount)
+                        : '',
+                    kredit: trans.transType.includes('SETOR')
+                        ? this.formatCurrency(trans.amount)
+                        : '',
                     saldo: this.formatCurrency(trans.balanceAfter),
                 }));
             }
@@ -217,7 +227,8 @@ let DataProviderService = class DataProviderService {
             nama_instansi: 'Koperasi Krama Bali',
             tanggal: this.formatDate(new Date()),
         };
-        if (parameters?.reportType === 'NERACA' || parameters?.reportType === 'AK80a') {
+        if (parameters?.reportType === 'NERACA' ||
+            parameters?.reportType === 'AK80a') {
             const accounts = await this.prisma.journalAccount.findMany({
                 where: { isActive: true },
                 orderBy: { accountCode: 'asc' },
@@ -259,7 +270,8 @@ let DataProviderService = class DataProviderService {
                 data.bunga_persen = `${deposito.bunga}%`;
                 data.tanggal_mulai = this.formatDate(deposito.tglBuka);
                 data.tanggal_jatuh_tempo = this.formatDate(deposito.tglJatuhTempo);
-                data.perpanjangan_otomatis = deposito.payoutMode === 'ROLLOVER' ? 'YA' : 'TIDAK';
+                data.perpanjangan_otomatis =
+                    deposito.payoutMode === 'ROLLOVER' ? 'YA' : 'TIDAK';
             }
         }
         return data;

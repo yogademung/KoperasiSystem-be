@@ -22,10 +22,7 @@ let ReportMetadataService = class ReportMetadataService {
             where: {
                 productModule: productModule.toUpperCase(),
             },
-            orderBy: [
-                { category: 'asc' },
-                { variableKey: 'asc' },
-            ],
+            orderBy: [{ category: 'asc' }, { variableKey: 'asc' }],
         });
         const categoriesMap = new Map();
         for (const variable of variables) {
@@ -63,7 +60,7 @@ let ReportMetadataService = class ReportMetadataService {
                 productModule: 'asc',
             },
         });
-        return modules.map(m => m.productModule);
+        return modules.map((m) => m.productModule);
     }
     async getVariablesByCategory(productModule, category) {
         return this.prisma.reportVariable.findMany({
@@ -92,7 +89,7 @@ let ReportMetadataService = class ReportMetadataService {
         });
     }
     async bulkCreateVariables(variables) {
-        const operations = variables.map(variable => this.prisma.reportVariable.upsert({
+        const operations = variables.map((variable) => this.prisma.reportVariable.upsert({
             where: {
                 productModule_variableKey: {
                     productModule: variable.productModule.toUpperCase(),

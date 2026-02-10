@@ -7,17 +7,17 @@ import { LovValueService } from './lov-value.service';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [MonthEndController],
-    providers: [
-        PeriodLockService,
-        BalanceSheetService,
-        DepreciationService,
-        LovValueService
-    ],
-    exports: [
-        PeriodLockService, // Exported for AccountingService validation
-        BalanceSheetService // Exported for potential future use
-    ]
+  imports: [PrismaModule],
+  controllers: [MonthEndController],
+  providers: [
+    PeriodLockService,
+    BalanceSheetService,
+    DepreciationService,
+    LovValueService,
+  ],
+  exports: [
+    PeriodLockService, // Exported for AccountingService validation
+    BalanceSheetService, // Exported for potential future use
+  ],
 })
-export class MonthEndModule { }
+export class MonthEndModule {}

@@ -5,7 +5,7 @@ exports.calculateInterestForDateRange = calculateInterestForDateRange;
 exports.getPeriodRate = getPeriodRate;
 exports.estimateAnnualInterest = estimateAnnualInterest;
 function calculateInterest(params) {
-    const { balance, annualRatePercent, period, days = 1, months = 1, years = 1 } = params;
+    const { balance, annualRatePercent, period, days = 1, months = 1, years = 1, } = params;
     if (!period) {
         throw new Error('Interest period not configured');
     }
@@ -15,9 +15,9 @@ function calculateInterest(params) {
     const annualRate = annualRatePercent / 100;
     switch (period) {
         case 'DAILY':
-            return (balance * annualRate / 365) * days;
+            return ((balance * annualRate) / 365) * days;
         case 'MONTHLY':
-            return (balance * annualRate / 12) * months;
+            return ((balance * annualRate) / 12) * months;
         case 'YEARLY':
             return balance * annualRate * years;
         default:

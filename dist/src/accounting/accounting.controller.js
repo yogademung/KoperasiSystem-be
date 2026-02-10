@@ -75,7 +75,7 @@ let AccountingController = class AccountingController {
             date: new Date(body.date),
             description: body.description,
             userId: userId ? +userId : 1,
-            details: body.details
+            details: body.details,
         });
     }
     async updateManualJournal(id, body, req) {
@@ -83,7 +83,7 @@ let AccountingController = class AccountingController {
             date: new Date(body.date),
             description: body.description,
             userId: req.user.userId,
-            details: body.details
+            details: body.details,
         });
     }
     async deleteJournal(id, reason, req) {

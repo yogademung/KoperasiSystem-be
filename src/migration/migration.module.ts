@@ -6,13 +6,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
 @Module({
-    imports: [
-        PrismaModule,
-        MulterModule.register({
-            storage: memoryStorage(),
-        }),
-    ],
-    controllers: [MigrationController],
-    providers: [MigrationService],
+  imports: [
+    PrismaModule,
+    MulterModule.register({
+      storage: memoryStorage(),
+    }),
+  ],
+  controllers: [MigrationController],
+  providers: [MigrationService],
 })
-export class MigrationModule { }
+export class MigrationModule {}

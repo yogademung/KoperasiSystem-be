@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AnggotaService } from './anggota.service';
 import { CreateAnggotaDto } from './dto/create-anggota.dto';
 import { SetoranDto } from './dto/setoran.dto';
@@ -8,68 +17,65 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 @Controller('api/simpanan/anggota')
 @UseGuards(JwtAuthGuard)
 export class AnggotaController {
-    constructor(private readonly anggotaService: AnggotaService) { }
+  constructor(private readonly anggotaService: AnggotaService) {}
 
-    @Post()
-    // @Roles('admin', 'teller')
-    async create(
-        @Body() dto: CreateAnggotaDto,
-        @Req() req
-    ) {
-        // Mock user ID for now if req.user is undefined, or defaults to 1
-        const userId = req.user?.id || 1;
-        return this.anggotaService.create(dto, userId);
-    }
+  @Post()
+  // @Roles('admin', 'teller')
+  async create(@Body() dto: CreateAnggotaDto, @Req() req) {
+    // Mock user ID for now if req.user is undefined, or defaults to 1
+    const userId = req.user?.id || 1;
+    return this.anggotaService.create(dto, userId);
+  }
 
-    @Get()
-    async findAll() {
-        return this.anggotaService.findAll();
-    }
+  @Get()
+  async findAll() {
+    return this.anggotaService.findAll();
+  }
 
-    @Get(':accountNumber')
-    async findOne(@Param('accountNumber') accountNumber: string) {
-        return this.anggotaService.findOne(accountNumber);
-    }
+  @Get(':accountNumber')
+  async findOne(@Param('accountNumber') accountNumber: string) {
+    return this.anggotaService.findOne(accountNumber);
+  }
 
-    @Post(':accountNumber/setoran')
-    // @Roles('admin', 'teller')
-    async setoran(
-        @Param('accountNumber') accountNumber: string,
-        @Body() dto: SetoranDto,
-        @Req() req
-    ) {
-        const userId = req.user?.id || 1;
-        return this.anggotaService.setoran(accountNumber, dto, userId);
-    }
+  @Post(':accountNumber/setoran')
+  // @Roles('admin', 'teller')
+  async setoran(
+    @Param('accountNumber') accountNumber: string,
+    @Body() dto: SetoranDto,
+    @Req() req,
+  ) {
+    const userId = req.user?.id || 1;
+    return this.anggotaService.setoran(accountNumber, dto, userId);
+  }
 
-    @Post(':accountNumber/penarikan')
-    // @Roles('admin', 'teller')
-    async penarikan(
-        @Param('accountNumber') accountNumber: string,
-        @Body() dto: SetoranDto, // Reusing SetoranDto as structure is identical (amount, desc)
-        @Req() req
-    ) {
-        const userId = req.user?.id || 1;
-        return this.anggotaService.penarikan(accountNumber, dto, userId);
-    }
+  @Post(':accountNumber/penarikan')
+  // @Roles('admin', 'teller')
+  async penarikan(
+    @Param('accountNumber') accountNumber: string,
+    @Body() dto: SetoranDto, // Reusing SetoranDto as structure is identical (amount, desc)
+    @Req() req,
+  ) {
+    const userId = req.user?.id || 1;
+    return this.anggotaService.penarikan(accountNumber, dto, userId);
+  }
 
-    @Get(':accountNumber/transactions')
-    async getTransactions(
-        @Param('accountNumber') accountNumber: string,
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10
-    ) {
-        return this.anggotaService.getTransactions(accountNumber, page, limit);
-    }
+  @Get(':accountNumber/transactions')
+  async getTransactions(
+    @Param('accountNumber') accountNumber: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.anggotaService.getTransactions(accountNumber, page, limit);
+  }
 
-    @Post(':accountNumber/tutup')
-    // @Roles('admin', 'teller')
-    async tutup(
-        @Param('accountNumber') accountNumber: string,
-        @Body() dto: TutupAnggotaDto,
-        @Req() req
-    ) {
-        const userId = req.user?.id || 1;
-        return this.anggotaService.closeAccount(accountNumber, dto, userId);
-    }
+  @Post(':accountNumber/tutup')
+  // @Roles('admin', 'teller')
+  async tutup(
+    @Param('accountNumber') accountNumber: string,
+    @Body() dto: TutupAnggotaDto,
+    @Req() req,
+  ) {
+    const userId = req.user?.id || 1;
+    return this.anggotaService.closeAccount(accountNumber, dto, userId);
+  }
 }

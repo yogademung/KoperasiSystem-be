@@ -11,15 +11,16 @@ const common_1 = require("@nestjs/common");
 const system_date_service_1 = require("./system-date.service");
 const system_scheduler_1 = require("./system.scheduler");
 const system_controller_1 = require("./system.controller");
-const prisma_service_1 = require("../database/prisma.service");
+const audit_module_1 = require("./audit/audit.module");
 let SystemModule = class SystemModule {
 };
 exports.SystemModule = SystemModule;
 exports.SystemModule = SystemModule = __decorate([
     (0, common_1.Module)({
+        imports: [audit_module_1.AuditModule],
         controllers: [system_controller_1.SystemController],
-        providers: [system_date_service_1.SystemDateService, prisma_service_1.PrismaService, system_scheduler_1.SystemSchedulerService],
-        exports: [system_date_service_1.SystemDateService]
+        providers: [system_date_service_1.SystemDateService, system_scheduler_1.SystemSchedulerService],
+        exports: [system_date_service_1.SystemDateService, audit_module_1.AuditModule],
     })
 ], SystemModule);
 //# sourceMappingURL=system.module.js.map

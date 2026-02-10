@@ -11,6 +11,6 @@ import { ProductConfigModule } from '../product-config/product-config.module';
   imports: [PrismaModule, SimpananModule, MonthEndModule, ProductConfigModule],
   providers: [AccountingService, AccountingListener],
   controllers: [AccountingController],
-  exports: [AccountingService]
+  exports: [AccountingService],
 })
-export class AccountingModule { }
+export class AccountingModule {}

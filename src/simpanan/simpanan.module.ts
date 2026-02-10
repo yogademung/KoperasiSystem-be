@@ -17,32 +17,32 @@ import { WanaprastaService } from './wanaprasta/wanaprasta.service';
 import { SimpananInterestService } from './simpanan-interest.service';
 
 @Module({
-    imports: [PrismaModule, EventEmitterModule.forRoot(), MonthEndModule],
-    controllers: [
-        AnggotaController,
-        TabrelaController,
-        DepositoController,
-        BrahmacariController,
-        BalimesariController,
-        WanaprastaController
-    ],
-    providers: [
-        AnggotaService,
-        TabrelaService,
-        DepositoService,
-        BrahmacariService,
-        BalimesariService,
-        WanaprastaService,
-        SimpananInterestService
-    ],
-    exports: [
-        AnggotaService,
-        TabrelaService,
-        DepositoService,
-        BrahmacariService,
-        BalimesariService,
-        WanaprastaService,
-        SimpananInterestService
-    ]
+  imports: [PrismaModule, EventEmitterModule.forRoot(), MonthEndModule],
+  controllers: [
+    AnggotaController,
+    TabrelaController,
+    DepositoController,
+    BrahmacariController,
+    BalimesariController,
+    WanaprastaController,
+  ],
+  providers: [
+    AnggotaService,
+    TabrelaService,
+    DepositoService,
+    BrahmacariService,
+    BalimesariService,
+    WanaprastaService,
+    SimpananInterestService,
+  ],
+  exports: [
+    AnggotaService,
+    TabrelaService,
+    DepositoService,
+    BrahmacariService,
+    BalimesariService,
+    WanaprastaService,
+    SimpananInterestService,
+  ],
 })
-export class SimpananModule { }
+export class SimpananModule {}

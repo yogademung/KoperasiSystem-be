@@ -66,13 +66,13 @@ let KreditReportService = class KreditReportService {
                 jadwal: {
                     where: {
                         status: 'UNPAID',
-                        tglJatuhTempo: { lte: endDate }
+                        tglJatuhTempo: { lte: endDate },
                     },
-                    orderBy: { angsuranKe: 'asc' }
+                    orderBy: { angsuranKe: 'asc' },
                 },
                 nasabah: true,
                 realisasi: true,
-            }
+            },
         });
         const result = {
             totalKredit: credits.length,
@@ -91,7 +91,9 @@ let KreditReportService = class KreditReportService {
                 result.lancar.outstanding += sisaPokok;
                 continue;
             }
-            const daysOverdue = Math.floor((endDate.getTime() - new Date(overdueInstallment.tglJatuhTempo).getTime()) / (1000 * 60 * 60 * 24));
+            const daysOverdue = Math.floor((endDate.getTime() -
+                new Date(overdueInstallment.tglJatuhTempo).getTime()) /
+                (1000 * 60 * 60 * 24));
             if (daysOverdue <= 0) {
                 result.lancar.count++;
                 result.lancar.outstanding += sisaPokok;
@@ -119,7 +121,9 @@ let KreditReportService = class KreditReportService {
             doc.on('data', (chunk) => chunks.push(chunk));
             doc.on('end', () => resolve(Buffer.concat(chunks)));
             doc.on('error', reject);
-            doc.fontSize(16).text('LAPORAN KOLEKTIBILITAS KREDIT', { align: 'center' });
+            doc
+                .fontSize(16)
+                .text('LAPORAN KOLEKTIBILITAS KREDIT', { align: 'center' });
             doc.fontSize(12).text(`Periode: ${period}`, { align: 'center' });
             doc.moveDown(2);
             doc.fontSize(12).text(`Total Kredit: ${data.totalKredit}`);
@@ -146,15 +150,15 @@ let KreditReportService = class KreditReportService {
                 nasabah: true,
                 realisasi: {
                     orderBy: { tglRealisasi: 'desc' },
-                    take: 1
+                    take: 1,
                 },
                 jadwal: {
-                    where: { status: 'UNPAID' }
-                }
+                    where: { status: 'UNPAID' },
+                },
             },
-            orderBy: { nomorKredit: 'asc' }
+            orderBy: { nomorKredit: 'asc' },
         });
-        return credits.map(credit => {
+        return credits.map((credit) => {
             const sisaPokok = credit.jadwal.reduce((sum, j) => sum + parseFloat(j.sisaPokok.toString()), 0);
             const sisaBunga = credit.jadwal.reduce((sum, j) => sum + parseFloat(j.sisaBunga?.toString() || '0'), 0);
             return {
@@ -165,7 +169,7 @@ let KreditReportService = class KreditReportService {
                 nominal: parseFloat(credit.nominalPengajuan.toString()),
                 sisaPokok,
                 sisaBunga,
-                status: credit.status
+                status: credit.status,
             };
         });
     }
@@ -181,19 +185,21 @@ let KreditReportService = class KreditReportService {
             { header: 'Plafon', key: 'nominal', width: 15 },
             { header: 'Sisa Pokok', key: 'sisaPokok', width: 15 },
             { header: 'Sisa Bunga', key: 'sisaBunga', width: 15 },
-            { header: 'Status', key: 'status', width: 12 }
+            { header: 'Status', key: 'status', width: 12 },
         ];
-        data.forEach(row => {
+        data.forEach((row) => {
             worksheet.addRow({
                 ...row,
-                tglRealisasi: row.tglRealisasi ? new Date(row.tglRealisasi).toLocaleDateString('id-ID') : '-'
+                tglRealisasi: row.tglRealisasi
+                    ? new Date(row.tglRealisasi).toLocaleDateString('id-ID')
+                    : '-',
             });
         });
         worksheet.getRow(1).font = { bold: true };
         worksheet.getRow(1).fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FFE0E0E0' }
+            fgColor: { argb: 'FFE0E0E0' },
         };
         return await workbook.xlsx.writeBuffer();
     }
@@ -202,21 +208,20 @@ let KreditReportService = class KreditReportService {
         const overdueInstallments = await this.prisma.debiturJadwal.findMany({
             where: {
                 status: 'UNPAID',
-                tglJatuhTempo: { lt: asOfDate }
+                tglJatuhTempo: { lt: asOfDate },
             },
             include: {
                 debiturKredit: {
                     include: {
-                        nasabah: true
-                    }
-                }
+                        nasabah: true,
+                    },
+                },
             },
-            orderBy: [
-                { tglJatuhTempo: 'asc' }
-            ]
+            orderBy: [{ tglJatuhTempo: 'asc' }],
         });
-        return overdueInstallments.map(jadwal => {
-            const daysOverdue = Math.floor((asOfDate.getTime() - new Date(jadwal.tglJatuhTempo).getTime()) / (1000 * 60 * 60 * 24));
+        return overdueInstallments.map((jadwal) => {
+            const daysOverdue = Math.floor((asOfDate.getTime() - new Date(jadwal.tglJatuhTempo).getTime()) /
+                (1000 * 60 * 60 * 24));
             const penaltyRate = Math.min(daysOverdue * 0.005, 0.1);
             const pokokTunggakan = parseFloat(jadwal.pokok.toString());
             const bungaTunggakan = parseFloat(jadwal.bunga.toString());
@@ -230,7 +235,7 @@ let KreditReportService = class KreditReportService {
                 pokokTunggakan,
                 bungaTunggakan,
                 denda,
-                totalTunggakan: pokokTunggakan + bungaTunggakan + denda
+                totalTunggakan: pokokTunggakan + bungaTunggakan + denda,
             };
         });
     }

@@ -23,7 +23,9 @@ let TemplateService = class TemplateService {
                 isActive: true,
                 ...(filters?.productModule && { productModule: filters.productModule }),
                 ...(filters?.category && { category: filters.category }),
-                ...(filters?.isDefault !== undefined && { isDefault: filters.isDefault }),
+                ...(filters?.isDefault !== undefined && {
+                    isDefault: filters.isDefault,
+                }),
             },
             select: {
                 id: true,
@@ -38,10 +40,7 @@ let TemplateService = class TemplateService {
                 createdAt: true,
                 updatedAt: true,
             },
-            orderBy: [
-                { productModule: 'asc' },
-                { code: 'asc' },
-            ],
+            orderBy: [{ productModule: 'asc' }, { code: 'asc' }],
         });
     }
     async findOne(id) {
@@ -134,10 +133,7 @@ let TemplateService = class TemplateService {
         const parent = await this.findOne(parentId);
         const latestVersion = await this.prisma.reportTemplate.findFirst({
             where: {
-                OR: [
-                    { id: parentId },
-                    { parentId: parentId },
-                ],
+                OR: [{ id: parentId }, { parentId: parentId }],
             },
             orderBy: { version: 'desc' },
         });

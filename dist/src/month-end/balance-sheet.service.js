@@ -56,13 +56,13 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                     totalAssets += netDebit;
                     break;
                 case 'LIA':
-                    totalLiabilities += (credit - debit);
+                    totalLiabilities += credit - debit;
                     break;
                 case 'EQT':
-                    totalEquity += (credit - debit);
+                    totalEquity += credit - debit;
                     break;
                 case 'REV':
-                    totalRevenue += (credit - debit);
+                    totalRevenue += credit - debit;
                     break;
                 case 'EXP':
                     totalExpense += netDebit;
@@ -84,10 +84,14 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
             return;
         }
         this.logger.log(`Processing Retained Earnings for Year End ${period}`);
-        const revenueAccounts = await this.prisma.journalAccount.findMany({ where: { accountType: 'REV' } });
-        const expenseAccounts = await this.prisma.journalAccount.findMany({ where: { accountType: 'EXP' } });
-        const revCodes = revenueAccounts.map(a => a.accountCode);
-        const expCodes = expenseAccounts.map(a => a.accountCode);
+        const revenueAccounts = await this.prisma.journalAccount.findMany({
+            where: { accountType: 'REV' },
+        });
+        const expenseAccounts = await this.prisma.journalAccount.findMany({
+            where: { accountType: 'EXP' },
+        });
+        const revCodes = revenueAccounts.map((a) => a.accountCode);
+        const expCodes = expenseAccounts.map((a) => a.accountCode);
         const allPnLCodes = [...revCodes, ...expCodes];
         const balances = await this.prisma.postedJournalDetail.groupBy({
             by: ['accountCode'],
@@ -95,10 +99,10 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                 accountCode: { in: allPnLCodes },
                 journal: {
                     journalDate: { lte: new Date(`${year}-12-31`) },
-                    status: 'POSTED'
-                }
+                    status: 'POSTED',
+                },
             },
-            _sum: { debit: true, credit: true }
+            _sum: { debit: true, credit: true },
         });
         const details = [];
         let totalRevenue = 0;
@@ -114,7 +118,7 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                         accountCode: b.accountCode,
                         debit: balance,
                         credit: 0,
-                        description: `Closing Entry ${year}`
+                        description: `Closing Entry ${year}`,
                     });
                     totalRevenue += balance;
                 }
@@ -126,7 +130,7 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                         accountCode: b.accountCode,
                         debit: 0,
                         credit: balance,
-                        description: `Closing Entry ${year}`
+                        description: `Closing Entry ${year}`,
                     });
                     totalExpense += balance;
                 }
@@ -135,7 +139,7 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
         const currentSHU = totalRevenue - totalExpense;
         let retainedEarningsAccount = '3.20.01';
         const mapping = await this.prisma.productCoaMapping.findUnique({
-            where: { transType: 'sys_RETAINED_EARNINGS' }
+            where: { transType: 'sys_RETAINED_EARNINGS' },
         });
         if (mapping) {
             retainedEarningsAccount = mapping.creditAccount;
@@ -148,7 +152,7 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                 accountCode: retainedEarningsAccount,
                 debit: 0,
                 credit: currentSHU,
-                description: `Allocation of SHU ${year}`
+                description: `Allocation of SHU ${year}`,
             });
         }
         else if (currentSHU < 0) {
@@ -156,7 +160,7 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                 accountCode: retainedEarningsAccount,
                 debit: Math.abs(currentSHU),
                 credit: 0,
-                description: `Allocation of Loss ${year}`
+                description: `Allocation of Loss ${year}`,
             });
         }
         if (details.length === 0) {
@@ -172,9 +176,9 @@ let BalanceSheetService = BalanceSheetService_1 = class BalanceSheetService {
                 userId: user_id,
                 status: 'POSTED',
                 details: {
-                    create: details
-                }
-            }
+                    create: details,
+                },
+            },
         });
         this.logger.log(`Year End Closing Journal Created for ${year}. SHU: ${currentSHU}`);
     }

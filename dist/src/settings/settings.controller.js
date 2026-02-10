@@ -33,7 +33,7 @@ let SettingsController = class SettingsController {
     uploadLogo(file) {
         if (!file)
             throw new common_1.BadRequestException('No file uploaded');
-        return { url: `/uploads/logo/${file.filename}` };
+        return { url: `uploads/logo/${file.filename}` };
     }
 };
 exports.SettingsController = SettingsController;
@@ -56,11 +56,11 @@ __decorate([
         storage: (0, multer_1.diskStorage)({
             destination: './uploads/logo',
             filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
                 const ext = (0, path_1.extname)(file.originalname);
                 cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-            }
-        })
+            },
+        }),
     })),
     __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),

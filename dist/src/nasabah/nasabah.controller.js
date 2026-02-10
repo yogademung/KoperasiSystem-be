@@ -82,7 +82,7 @@ let NasabahController = class NasabahController {
             originalname: file.originalname,
             mimetype: file.mimetype,
             size: file.size,
-            timestamp
+            timestamp,
         });
         const ext = (0, path_1.extname)(file.originalname).toLowerCase();
         const filename = `${file.fieldname}_${timestamp}${ext}`;
@@ -91,32 +91,32 @@ let NasabahController = class NasabahController {
             if (file.mimetype === 'application/pdf') {
                 console.log('Saving PDF file directly without compression');
                 await fs.writeFile(filePath, file.buffer);
-                return `/uploads/nasabah/${filename}`;
+                return `uploads/nasabah/${filename}`;
             }
             console.log('Compressing image with sharp, preserving format');
             const isPng = file.mimetype === 'image/png';
-            const sharpInstance = (0, sharp_1.default)(file.buffer)
-                .resize({ width: 1024, withoutEnlargement: true });
+            const sharpInstance = (0, sharp_1.default)(file.buffer).resize({
+                width: 1024,
+                withoutEnlargement: true,
+            });
             if (isPng) {
                 await sharpInstance
                     .png({ quality: 80, compressionLevel: 8 })
                     .toFile(filePath);
             }
             else {
-                await sharpInstance
-                    .jpeg({ quality: 80 })
-                    .toFile(filePath);
+                await sharpInstance.jpeg({ quality: 80 }).toFile(filePath);
             }
             const stats = await fs.stat(filePath);
             console.log(`File saved successfully: ${filename}, format: ${isPng ? 'PNG' : 'JPEG'}, size: ${stats.size} bytes`);
-            return `/uploads/nasabah/${filename}`;
+            return `uploads/nasabah/${filename}`;
         }
         catch (error) {
             console.error('File processing error:', {
                 filename: file.originalname,
                 mimetype: file.mimetype,
                 error: error.message,
-                stack: error.stack
+                stack: error.stack,
             });
             throw new common_1.BadRequestException(`Gagal memproses file: ${error.message}`);
         }
@@ -124,23 +124,35 @@ let NasabahController = class NasabahController {
     async create(files, createNasabahDto) {
         console.log('Received Create Payload:', createNasabahDto);
         console.log('Received Files:', files);
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
-        const fileKtpPath = files?.fileKtp?.[0] ? await this.processAndSaveFile(files.fileKtp[0], timestamp) : null;
-        const fileKkPath = files?.fileKk?.[0] ? await this.processAndSaveFile(files.fileKk[0], timestamp) : null;
+        const timestamp = new Date()
+            .toISOString()
+            .replace(/[:.]/g, '-')
+            .replace('T', '_')
+            .slice(0, -5);
+        const fileKtpPath = files?.fileKtp?.[0]
+            ? await this.processAndSaveFile(files.fileKtp[0], timestamp)
+            : null;
+        const fileKkPath = files?.fileKk?.[0]
+            ? await this.processAndSaveFile(files.fileKk[0], timestamp)
+            : null;
         const nasabahData = { ...createNasabahDto };
-        Object.keys(nasabahData).forEach(key => {
-            if (nasabahData[key] === 'null' || nasabahData[key] === 'undefined' || nasabahData[key] === '') {
+        Object.keys(nasabahData).forEach((key) => {
+            if (nasabahData[key] === 'null' ||
+                nasabahData[key] === 'undefined' ||
+                nasabahData[key] === '') {
                 nasabahData[key] = null;
             }
         });
         if (nasabahData.tanggalLahir) {
             nasabahData.tanggalLahir = new Date(nasabahData.tanggalLahir);
         }
-        return this.nasabahService.create({
+        return this.nasabahService
+            .create({
             ...nasabahData,
             fileKtp: fileKtpPath,
-            fileKk: fileKkPath
-        }).catch(err => {
+            fileKk: fileKkPath,
+        })
+            .catch((err) => {
             if (err.code === 'P2002') {
                 throw new common_1.BadRequestException('NIK already exists (Data duplikat)');
             }
@@ -160,16 +172,26 @@ let NasabahController = class NasabahController {
         return this.nasabahService.getPortfolio(+id);
     }
     async update(id, updateNasabahDto, files) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
-        const fileKtpPath = files?.fileKtp?.[0] ? await this.processAndSaveFile(files.fileKtp[0], timestamp) : undefined;
-        const fileKkPath = files?.fileKk?.[0] ? await this.processAndSaveFile(files.fileKk[0], timestamp) : undefined;
+        const timestamp = new Date()
+            .toISOString()
+            .replace(/[:.]/g, '-')
+            .replace('T', '_')
+            .slice(0, -5);
+        const fileKtpPath = files?.fileKtp?.[0]
+            ? await this.processAndSaveFile(files.fileKtp[0], timestamp)
+            : undefined;
+        const fileKkPath = files?.fileKk?.[0]
+            ? await this.processAndSaveFile(files.fileKk[0], timestamp)
+            : undefined;
         const updateData = { ...updateNasabahDto };
         if (fileKtpPath)
             updateData.fileKtp = fileKtpPath;
         if (fileKkPath)
             updateData.fileKk = fileKkPath;
-        Object.keys(updateData).forEach(key => {
-            if (updateData[key] === 'null' || updateData[key] === 'undefined' || updateData[key] === '') {
+        Object.keys(updateData).forEach((key) => {
+            if (updateData[key] === 'null' ||
+                updateData[key] === 'undefined' ||
+                updateData[key] === '') {
                 updateData[key] = null;
             }
         });

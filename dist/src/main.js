@@ -11,7 +11,7 @@ async function bootstrap() {
     console.log('Force Rebuild TS ' + Date.now());
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.use((0, helmet_1.default)({
-        crossOriginResourcePolicy: { policy: "cross-origin" },
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
     }));
     app.enableCors({
         origin: true,

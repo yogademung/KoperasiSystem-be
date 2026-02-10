@@ -36,7 +36,7 @@ exports.SimpananModule = SimpananModule = __decorate([
             deposito_controller_1.DepositoController,
             brahmacari_controller_1.BrahmacariController,
             balimesari_controller_1.BalimesariController,
-            wanaprasta_controller_1.WanaprastaController
+            wanaprasta_controller_1.WanaprastaController,
         ],
         providers: [
             anggota_service_1.AnggotaService,
@@ -45,7 +45,7 @@ exports.SimpananModule = SimpananModule = __decorate([
             brahmacari_service_1.BrahmacariService,
             balimesari_service_1.BalimesariService,
             wanaprasta_service_1.WanaprastaService,
-            simpanan_interest_service_1.SimpananInterestService
+            simpanan_interest_service_1.SimpananInterestService,
         ],
         exports: [
             anggota_service_1.AnggotaService,
@@ -54,8 +54,8 @@ exports.SimpananModule = SimpananModule = __decorate([
             brahmacari_service_1.BrahmacariService,
             balimesari_service_1.BalimesariService,
             wanaprasta_service_1.WanaprastaService,
-            simpanan_interest_service_1.SimpananInterestService
-        ]
+            simpanan_interest_service_1.SimpananInterestService,
+        ],
     })
 ], SimpananModule);
 //# sourceMappingURL=simpanan.module.js.map

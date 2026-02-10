@@ -42,7 +42,8 @@ let DepreciationService = DepreciationService_1 = class DepreciationService {
                 }
             }
             else if (asset.depreciationMethod === 'DECLINING_BALANCE') {
-                monthlyDepreciation = Number(asset.acquisitionCost) * (asset.depreciationRate / 100) / 12;
+                monthlyDepreciation =
+                    (Number(asset.acquisitionCost) * (asset.depreciationRate / 100)) / 12;
             }
             monthlyDepreciation = Math.round(monthlyDepreciation * 100) / 100;
             if (monthlyDepreciation > 0) {
@@ -61,8 +62,8 @@ let DepreciationService = DepreciationService_1 = class DepreciationService {
             where: {
                 period,
                 action: 'DEPRECIATION',
-                status: 'SUCCESS'
-            }
+                status: 'SUCCESS',
+            },
         });
         if (existing) {
             throw new common_1.BadRequestException(`Depresiasi periode ${period} sudah diposting.`);
@@ -83,9 +84,9 @@ let DepreciationService = DepreciationService_1 = class DepreciationService {
                     status: 'POSTED',
                     userId,
                     details: {
-                        create: []
-                    }
-                }
+                        create: [],
+                    },
+                },
             });
             const journalEntries = new Map();
             for (const item of items) {
@@ -98,8 +99,8 @@ let DepreciationService = DepreciationService_1 = class DepreciationService {
                         assetId: item.asset.id,
                         period,
                         amount: item.amount,
-                        journalId: journal.id
-                    }
+                        journalId: journal.id,
+                    },
                 });
             }
             for (const [acc, amount] of journalEntries) {
@@ -109,8 +110,8 @@ let DepreciationService = DepreciationService_1 = class DepreciationService {
                         accountCode: acc,
                         debit: amount > 0 ? amount : 0,
                         credit: amount < 0 ? Math.abs(amount) : 0,
-                        description: `Penyusutan ${period}`
-                    }
+                        description: `Penyusutan ${period}`,
+                    },
                 });
             }
             await tx.monthEndLog.create({
@@ -119,8 +120,8 @@ let DepreciationService = DepreciationService_1 = class DepreciationService {
                     action: 'DEPRECIATION',
                     status: 'SUCCESS',
                     performedBy: userId,
-                    details: `Depreciation posted. Total: ${totalAmount}, Assets: ${items.length}`
-                }
+                    details: `Depreciation posted. Total: ${totalAmount}, Assets: ${items.length}`,
+                },
             });
         });
         this.logger.log(`Depreciation for ${period} posted. Total: ${totalAmount}`);

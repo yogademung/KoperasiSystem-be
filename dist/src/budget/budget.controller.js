@@ -49,8 +49,12 @@ let BudgetController = class BudgetController {
     async findAllBudgets(query) {
         const filters = {
             periodId: query.periodId ? parseInt(query.periodId) : undefined,
-            costCenterId: query.costCenterId ? parseInt(query.costCenterId) : undefined,
-            businessUnitId: query.businessUnitId ? parseInt(query.businessUnitId) : undefined,
+            costCenterId: query.costCenterId
+                ? parseInt(query.costCenterId)
+                : undefined,
+            businessUnitId: query.businessUnitId
+                ? parseInt(query.businessUnitId)
+                : undefined,
             accountCode: query.accountCode,
             search: query.search,
         };

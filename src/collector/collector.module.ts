@@ -6,9 +6,9 @@ import { AccountingModule } from '../accounting/accounting.module';
 import { SystemModule } from '../system/system.module';
 
 @Module({
-    imports: [AccountingModule, SystemModule],
-    controllers: [CollectorController],
-    providers: [CollectorService, PrismaService],
-    exports: [CollectorService]
+  imports: [AccountingModule, SystemModule],
+  controllers: [CollectorController],
+  providers: [CollectorService, PrismaService],
+  exports: [CollectorService],
 })
-export class CollectorModule { }
+export class CollectorModule {}

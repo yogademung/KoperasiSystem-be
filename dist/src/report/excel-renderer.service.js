@@ -154,7 +154,8 @@ let ExcelRendererService = class ExcelRendererService {
             }
             currentRow++;
         }
-        const tableRange = worksheet.getCell(row, col).address + ':' +
+        const tableRange = worksheet.getCell(row, col).address +
+            ':' +
             worksheet.getCell(currentRow - 1, col + columns.length - 1).address;
         const range = worksheet.getCell(tableRange);
     }

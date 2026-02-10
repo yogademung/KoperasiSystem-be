@@ -4,9 +4,9 @@ import { ProductConfigController } from './product-config.controller';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [ProductConfigController],
-    providers: [ProductConfigService],
-    exports: [ProductConfigService],
+  imports: [PrismaModule],
+  controllers: [ProductConfigController],
+  providers: [ProductConfigService],
+  exports: [ProductConfigService],
 })
-export class ProductConfigModule { }
+export class ProductConfigModule {}

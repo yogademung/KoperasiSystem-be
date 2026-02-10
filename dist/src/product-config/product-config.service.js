@@ -42,6 +42,12 @@ let ProductConfigService = class ProductConfigService {
         if (product.isCore && product.isEnabled) {
             throw new common_1.BadRequestException('Core product cannot be disabled. ANGGOTA is mandatory for cooperative operations.');
         }
+        if (product.isEnabled) {
+            const check = await this.hasExistingAccounts(code);
+            if (check.hasAccounts) {
+                throw new common_1.BadRequestException(`Cannot disable ${product.productName}. There are still ${check.count} associated accounts (active or inactive).`);
+            }
+        }
         const updated = await this.prisma.productConfig.update({
             where: { productCode: code },
             data: { isEnabled: !product.isEnabled },

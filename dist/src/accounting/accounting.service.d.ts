@@ -8,6 +8,7 @@ import { DepositoService } from '../simpanan/deposito/deposito.service';
 import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
 import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
 import { PeriodLockService } from '../month-end/period-lock.service';
+import { ProductConfigService } from '../product-config/product-config.service';
 export declare class AccountingService {
     private prisma;
     private moduleRef;
@@ -18,7 +19,8 @@ export declare class AccountingService {
     private balimesariService;
     private wanaprastaService;
     private periodLockService;
-    constructor(prisma: PrismaService, moduleRef: ModuleRef, anggotaService: AnggotaService, tabrelaService: TabrelaService, depositoService: DepositoService, brahmacariService: BrahmacariService, balimesariService: BalimesariService, wanaprastaService: WanaprastaService, periodLockService: PeriodLockService);
+    private productConfigService;
+    constructor(prisma: PrismaService, moduleRef: ModuleRef, anggotaService: AnggotaService, tabrelaService: TabrelaService, depositoService: DepositoService, brahmacariService: BrahmacariService, balimesariService: BalimesariService, wanaprastaService: WanaprastaService, periodLockService: PeriodLockService, productConfigService: ProductConfigService);
     getAccounts(type?: string, page?: number, limit?: number): Promise<{
         data: {
             updatedAt: Date | null;

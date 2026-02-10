@@ -40,5 +40,6 @@ export declare class LaporanService {
         businessUnitId?: number;
     }): Promise<Buffer<ArrayBufferLike>>;
     private formatCurrency;
+    private formatKiloIDR;
     private formatDate;
 }

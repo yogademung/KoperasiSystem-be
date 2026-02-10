@@ -44,8 +44,8 @@ async function runMigration() {
         const sql = fs.readFileSync(sqlPath, 'utf-8');
         const statements = sql
             .split(';')
-            .map(s => s.trim())
-            .filter(s => s.length > 0 && !s.startsWith('--') && !s.startsWith('COMMENT'));
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0 && !s.startsWith('--') && !s.startsWith('COMMENT'));
         for (const statement of statements) {
             if (statement.toUpperCase().includes('ALTER TABLE')) {
                 console.log('Executing:', statement.substring(0, 50) + '...');

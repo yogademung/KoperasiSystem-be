@@ -5,9 +5,9 @@ import { PrismaModule } from '../database/prisma.module';
 import { AccountingModule } from '../accounting/accounting.module';
 
 @Module({
-    imports: [PrismaModule, AccountingModule],
-    controllers: [InterUnitController],
-    providers: [InterUnitService],
-    exports: [InterUnitService],
+  imports: [PrismaModule, AccountingModule],
+  controllers: [InterUnitController],
+  providers: [InterUnitService],
+  exports: [InterUnitService],
 })
-export class InterUnitModule { }
+export class InterUnitModule {}

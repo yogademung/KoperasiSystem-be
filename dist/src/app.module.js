@@ -43,7 +43,11 @@ const cost_center_module_1 = require("./cost-center/cost-center.module");
 const business_unit_module_1 = require("./business-unit/business-unit.module");
 const budget_module_1 = require("./budget/budget.module");
 const allocation_module_1 = require("./allocation/allocation.module");
+const audit_context_middleware_1 = require("./common/middleware/audit-context.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(audit_context_middleware_1.AuditContextMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
@@ -83,7 +87,13 @@ exports.AppModule = AppModule = __decorate([
             allocation_module_1.AllocationModule,
         ],
         controllers: [app_controller_1.AppController, month_end_controller_1.MonthEndController],
-        providers: [app_service_1.AppService, period_lock_service_1.PeriodLockService, balance_sheet_service_1.BalanceSheetService, depreciation_service_1.DepreciationService, lov_value_service_1.LovValueService],
+        providers: [
+            app_service_1.AppService,
+            period_lock_service_1.PeriodLockService,
+            balance_sheet_service_1.BalanceSheetService,
+            depreciation_service_1.DepreciationService,
+            lov_value_service_1.LovValueService,
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

@@ -25,7 +25,7 @@ let PeriodLockGuard = class PeriodLockGuard {
         const method = request.method;
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
             const body = request.body;
-            let dateToCheck = body.journalDate || body.date || body.transactionDate;
+            const dateToCheck = body.journalDate || body.date || body.transactionDate;
             if (dateToCheck) {
                 const dateObj = new Date(dateToCheck);
                 if (!isNaN(dateObj.getTime())) {

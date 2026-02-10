@@ -25,7 +25,7 @@ let LaporanController = class LaporanController {
         const buffer = await this.laporanService.generateSimpananRekap({
             ...params,
             startDate: new Date(params.startDate),
-            endDate: new Date(params.endDate)
+            endDate: new Date(params.endDate),
         });
         const filename = `simpanan-rekap-${Date.now()}.${params.format === 'PDF' ? 'pdf' : 'xlsx'}`;
         const contentType = params.format === 'PDF'
@@ -34,7 +34,7 @@ let LaporanController = class LaporanController {
         res.set({
             'Content-Type': contentType,
             'Content-Disposition': `attachment; filename="${filename}"`,
-            'Content-Length': buffer.length
+            'Content-Length': buffer.length,
         });
         res.send(buffer);
     }
@@ -63,20 +63,24 @@ let LaporanController = class LaporanController {
         await this.handleReport(res, params, 'pdf', () => this.laporanService.generateNeraca({
             date: new Date(params.endDate || params.date),
             format: params.format,
-            businessUnitId: params.businessUnitId ? Number(params.businessUnitId) : undefined
+            businessUnitId: params.businessUnitId && params.businessUnitId !== 'ALL'
+                ? Number(params.businessUnitId)
+                : undefined,
         }));
     }
     async labaRugi(params, res) {
         await this.handleReport(res, params, 'pdf', () => this.laporanService.generateLabaRugi({
             ...this.parseDates(params),
-            businessUnitId: params.businessUnitId ? Number(params.businessUnitId) : undefined
+            businessUnitId: params.businessUnitId && params.businessUnitId !== 'ALL'
+                ? Number(params.businessUnitId)
+                : undefined,
         }));
     }
     parseDates(params) {
         return {
             ...params,
             startDate: new Date(params.startDate),
-            endDate: new Date(params.endDate)
+            endDate: new Date(params.endDate),
         };
     }
     async handleReport(res, params, defaultExt, generator) {
@@ -89,7 +93,7 @@ let LaporanController = class LaporanController {
         res.set({
             'Content-Type': contentType,
             'Content-Disposition': `attachment; filename="${filename}"`,
-            'Content-Length': buffer.length
+            'Content-Length': buffer.length,
         });
         res.send(buffer);
     }
@@ -176,7 +180,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], LaporanController.prototype, "labaRugi", null);
 exports.LaporanController = LaporanController = __decorate([
-    (0, common_1.Controller)('accounting/reports'),
+    (0, common_1.Controller)('api/accounting/reports'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [laporan_service_1.LaporanService])
 ], LaporanController);

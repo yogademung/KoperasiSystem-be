@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -34,10 +34,7 @@ import { CostCenterModule } from './cost-center/cost-center.module';
 import { BusinessUnitModule } from './business-unit/business-unit.module';
 import { BudgetModule } from './budget/budget.module';
 import { AllocationModule } from './allocation/allocation.module';
-
-
-
-
+import { AuditContextMiddleware } from './common/middleware/audit-context.middleware';
 
 @Module({
   imports: [
@@ -68,15 +65,23 @@ import { AllocationModule } from './allocation/allocation.module';
     CollectorModule,
     SystemModule,
     BusinessUnitModule,
-    // TODO: Re-enable after Prisma client regenerated with new models
     ProductConfigModule,
     InterUnitModule, // Phase 13: Inter-Unit Transactions
     CostCenterModule, // Phase 13: Cost Centers
     BudgetModule, // Phase 13: Budget Management
     AllocationModule, // Phase 13: Allocation Rules
-
   ],
   controllers: [AppController, MonthEndController],
-  providers: [AppService, PeriodLockService, BalanceSheetService, DepreciationService, LovValueService],
+  providers: [
+    AppService,
+    PeriodLockService,
+    BalanceSheetService,
+    DepreciationService,
+    LovValueService,
+  ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuditContextMiddleware).forRoutes('*');
+  }
+}

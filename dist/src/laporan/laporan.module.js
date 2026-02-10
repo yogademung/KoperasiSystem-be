@@ -21,7 +21,7 @@ exports.LaporanModule = LaporanModule = __decorate([
         imports: [prisma_module_1.PrismaModule],
         controllers: [laporan_controller_1.LaporanController],
         providers: [laporan_service_1.LaporanService, pdf_service_1.PdfService, excel_service_1.ExcelService],
-        exports: [laporan_service_1.LaporanService]
+        exports: [laporan_service_1.LaporanService],
     })
 ], LaporanModule);
 //# sourceMappingURL=laporan.module.js.map

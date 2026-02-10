@@ -31,7 +31,7 @@ let BalimesariService = class BalimesariService {
                     saldo: createDto.setoranAwal || 0,
                     interestRate: 3.0,
                     status: 'A',
-                }
+                },
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
                 const transaction = await tx.transBalimesari.create({
@@ -40,18 +40,20 @@ let BalimesariService = class BalimesariService {
                         tipeTrans: 'SETORAN',
                         nominal: createDto.setoranAwal,
                         saldoAkhir: createDto.setoranAwal,
-                        keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Bali Mesari',
-                        createdBy: 'SYSTEM'
-                    }
+                        keterangan: createDto.keterangan ||
+                            'Setoran Awal Pembukaan Rekening Bali Mesari',
+                        createdBy: 'SYSTEM',
+                    },
                 });
                 try {
                     this.eventEmitter.emit('transaction.created', {
                         transType: 'BALIMESARI_SETOR',
                         amount: createDto.setoranAwal,
-                        description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Bali Mesari',
+                        description: createDto.keterangan ||
+                            'Setoran Awal Pembukaan Rekening Bali Mesari',
                         userId: 1,
                         refId: transaction.id,
-                        branchCode: '001'
+                        branchCode: '001',
                     });
                 }
                 catch (error) {
@@ -65,10 +67,10 @@ let BalimesariService = class BalimesariService {
         return this.prisma.nasabahBalimesari.findMany({
             include: {
                 nasabah: {
-                    select: { nama: true, noKtp: true }
-                }
+                    select: { nama: true, noKtp: true },
+                },
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async findOne(noBalimesari) {
@@ -78,9 +80,9 @@ let BalimesariService = class BalimesariService {
                 nasabah: true,
                 transactions: {
                     orderBy: { createdAt: 'desc' },
-                    take: 20
-                }
-            }
+                    take: 20,
+                },
+            },
         });
         if (!account) {
             throw new common_1.NotFoundException('Rekening Bali Mesari tidak ditemukan');
@@ -90,7 +92,7 @@ let BalimesariService = class BalimesariService {
     async setoran(noBalimesari, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBalimesari.findUnique({
-                where: { noBalimesari }
+                where: { noBalimesari },
             });
             if (!account) {
                 throw new common_1.NotFoundException('Rekening tidak ditemukan');
@@ -106,12 +108,12 @@ let BalimesariService = class BalimesariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Setoran Bali Mesari',
-                    createdBy: userId?.toString() || 'SYSTEM'
-                }
+                    createdBy: userId?.toString() || 'SYSTEM',
+                },
             });
             await tx.nasabahBalimesari.update({
                 where: { noBalimesari },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             try {
                 this.eventEmitter.emit('transaction.created', {
@@ -120,7 +122,7 @@ let BalimesariService = class BalimesariService {
                     description: transaction.keterangan,
                     userId: userId || 1,
                     refId: transaction.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             catch (error) {
@@ -132,7 +134,7 @@ let BalimesariService = class BalimesariService {
     async penarikan(noBalimesari, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahBalimesari.findUnique({
-                where: { noBalimesari }
+                where: { noBalimesari },
             });
             if (!account) {
                 throw new common_1.NotFoundException('Rekening tidak ditemukan');
@@ -151,12 +153,12 @@ let BalimesariService = class BalimesariService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Penarikan Bali Mesari',
-                    createdBy: userId?.toString() || 'SYSTEM'
-                }
+                    createdBy: userId?.toString() || 'SYSTEM',
+                },
             });
             await tx.nasabahBalimesari.update({
                 where: { noBalimesari },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             try {
                 this.eventEmitter.emit('transaction.created', {
@@ -165,7 +167,7 @@ let BalimesariService = class BalimesariService {
                     description: transaction.keterangan,
                     userId: userId || 1,
                     refId: transaction.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             catch (error) {
@@ -181,36 +183,42 @@ let BalimesariService = class BalimesariService {
                 where: { noBalimesari },
                 orderBy: { createdAt: 'desc' },
                 skip,
-                take: limit
+                take: limit,
             }),
             this.prisma.transBalimesari.count({
-                where: { noBalimesari }
-            })
+                where: { noBalimesari },
+            }),
         ]);
         return {
             data: transactions,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async voidTransaction(transId, txInput) {
         const executeLogic = async (tx) => {
-            const original = await tx.transBalimesari.findUnique({ where: { id: transId } });
+            const original = await tx.transBalimesari.findUnique({
+                where: { id: transId },
+            });
             if (!original)
                 throw new common_1.NotFoundException(`Transaction ${transId} not found`);
-            const account = await tx.nasabahBalimesari.findUnique({ where: { noBalimesari: original.noBalimesari } });
+            const account = await tx.nasabahBalimesari.findUnique({
+                where: { noBalimesari: original.noBalimesari },
+            });
             if (!account)
                 throw new common_1.NotFoundException('Account not found');
             let newBalance = Number(account.saldo);
             const nominal = Number(original.nominal);
             let reversalAmount = 0;
-            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'BALIMESARI_SETOR') {
+            if (original.tipeTrans === 'SETORAN' ||
+                original.tipeTrans === 'BALIMESARI_SETOR') {
                 newBalance -= nominal;
                 reversalAmount = -nominal;
             }
-            else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'BALIMESARI_TARIK') {
+            else if (original.tipeTrans === 'PENARIKAN' ||
+                original.tipeTrans === 'BALIMESARI_TARIK') {
                 newBalance += nominal;
                 reversalAmount = nominal;
             }
@@ -220,7 +228,7 @@ let BalimesariService = class BalimesariService {
             }
             await tx.nasabahBalimesari.update({
                 where: { noBalimesari: original.noBalimesari },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             return tx.transBalimesari.create({
                 data: {
@@ -229,8 +237,8 @@ let BalimesariService = class BalimesariService {
                     nominal: reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
-                    createdBy: 'SYSTEM'
-                }
+                    createdBy: 'SYSTEM',
+                },
             });
         };
         if (txInput) {
@@ -243,7 +251,9 @@ let BalimesariService = class BalimesariService {
     async closeAccount(noBalimesari, dto, userId) {
         const { reason, penalty = 0, adminFee = 0 } = dto;
         return this.prisma.$transaction(async (tx) => {
-            const account = await tx.nasabahBalimesari.findUnique({ where: { noBalimesari } });
+            const account = await tx.nasabahBalimesari.findUnique({
+                where: { noBalimesari },
+            });
             if (!account)
                 throw new common_1.NotFoundException('Account not found');
             if (account.status !== 'A')
@@ -258,8 +268,8 @@ let BalimesariService = class BalimesariService {
                         nominal: -penalty,
                         saldoAkhir: currentBalance,
                         keterangan: `Denda Penutupan: ${reason}`,
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
             }
             if (adminFee > 0) {
@@ -271,8 +281,8 @@ let BalimesariService = class BalimesariService {
                         nominal: -adminFee,
                         saldoAkhir: currentBalance,
                         keterangan: 'Biaya Administrasi Penutupan',
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
             }
             if (currentBalance > 0) {
@@ -283,8 +293,8 @@ let BalimesariService = class BalimesariService {
                         nominal: -currentBalance,
                         saldoAkhir: 0,
                         keterangan: `Penutupan Rekening: ${reason}`,
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
                 this.eventEmitter.emit('transaction.created', {
                     transType: 'BALIMESARI_TUTUP',
@@ -292,15 +302,15 @@ let BalimesariService = class BalimesariService {
                     description: `Penutupan Rekening ${noBalimesari}`,
                     userId: userId || 1,
                     refId: closeTx.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             await tx.nasabahBalimesari.update({
                 where: { noBalimesari },
                 data: {
                     status: 'T',
-                    saldo: 0
-                }
+                    saldo: 0,
+                },
             });
             return { success: true, refund: currentBalance };
         });

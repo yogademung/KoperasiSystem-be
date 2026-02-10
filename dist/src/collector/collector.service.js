@@ -28,7 +28,7 @@ let CollectorService = class CollectorService {
         const startTime = shiftStartTime || (0, date_fns_1.startOfDay)(new Date());
         const endTime = (0, date_fns_1.endOfDay)(new Date());
         const user = await this.prisma.user.findUnique({
-            where: { id: userId }
+            where: { id: userId },
         });
         if (!user) {
             return { todayTransactions: 0, todayDeposits: 0, todayWithdrawals: 0 };
@@ -36,19 +36,19 @@ let CollectorService = class CollectorService {
         const username = user.username;
         const anggotaStats = await this.getStatsForModel(this.prisma.anggotaTransaction, {
             userId: userId,
-            transDate: { gte: startTime, lte: endTime }
+            transDate: { gte: startTime, lte: endTime },
         }, 'AnggotaTransaction');
         const savingsTables = [
             { model: this.prisma.transTab, name: 'TransTab' },
             { model: this.prisma.transBrahmacari, name: 'TransBrahmacari' },
             { model: this.prisma.transBalimesari, name: 'TransBalimesari' },
-            { model: this.prisma.transWanaprasta, name: 'TransWanaprasta' }
+            { model: this.prisma.transWanaprasta, name: 'TransWanaprasta' },
         ];
-        let totalStats = { ...anggotaStats };
+        const totalStats = { ...anggotaStats };
         for (const table of savingsTables) {
             const stats = await this.getStatsForModel(table.model, {
                 createdBy: username,
-                createdAt: { gte: startTime, lte: endTime }
+                createdAt: { gte: startTime, lte: endTime },
             }, table.name, 'nominal', 'tipeTrans');
             totalStats.count += stats.count;
             totalStats.deposits += stats.deposits;
@@ -57,7 +57,7 @@ let CollectorService = class CollectorService {
         return {
             todayTransactions: totalStats.count,
             todayDeposits: totalStats.deposits,
-            todayWithdrawals: totalStats.withdrawals
+            todayWithdrawals: totalStats.withdrawals,
         };
     }
     async getStatsForModel(model, whereClause, modelName, amountField = 'amount', typeField = 'transType') {
@@ -69,14 +69,17 @@ let CollectorService = class CollectorService {
             selectObj[typeField] = true;
             const txs = await model.findMany({
                 where: whereClause,
-                select: selectObj
+                select: selectObj,
             });
             let deposits = 0;
             let withdrawals = 0;
             txs.forEach((t) => {
                 const amt = Number(t[amountField] || 0);
                 const type = (t[typeField] || '').toUpperCase();
-                if (type.includes('TARIK') || type.includes('PENARIKAN') || type.includes('WITHDRAW') || (modelName === 'AnggotaTransaction' && amt < 0)) {
+                if (type.includes('TARIK') ||
+                    type.includes('PENARIKAN') ||
+                    type.includes('WITHDRAW') ||
+                    (modelName === 'AnggotaTransaction' && amt < 0)) {
                     withdrawals += Math.abs(amt);
                 }
                 else {
@@ -94,9 +97,9 @@ let CollectorService = class CollectorService {
         return this.prisma.collectorShift.findFirst({
             where: {
                 userId: userId,
-                status: 'ACTIVE'
+                status: 'ACTIVE',
             },
-            include: { user: { select: { fullName: true } } }
+            include: { user: { select: { fullName: true } } },
         });
     }
     async startShift(userId, dto) {
@@ -120,11 +123,13 @@ let CollectorService = class CollectorService {
                 startDenom500: dto.denominations.denom500,
                 startDenom200: dto.denominations.denom200,
                 startDenom100: dto.denominations.denom100,
-            }
+            },
         });
         if (startingCash > 0) {
             try {
-                const user = await this.prisma.user.findUnique({ where: { id: userId } });
+                const user = await this.prisma.user.findUnique({
+                    where: { id: userId },
+                });
                 const userName = user ? user.fullName : 'Collector';
                 await this.accountingService.createManualJournal({
                     date: new Date(),
@@ -132,9 +137,19 @@ let CollectorService = class CollectorService {
                     description: `Modal Awal Shift Kolektor - ${userName} (Shift #${shift.id})`,
                     postingType: 'AUTO',
                     details: [
-                        { accountCode: '1.01.05', debit: startingCash, credit: 0, description: 'Kas Transit Kolektor (Modal)' },
-                        { accountCode: '1.01.01', debit: 0, credit: startingCash, description: 'Kas Kantor (Keluar)' }
-                    ]
+                        {
+                            accountCode: '1.01.05',
+                            debit: startingCash,
+                            credit: 0,
+                            description: 'Kas Transit Kolektor (Modal)',
+                        },
+                        {
+                            accountCode: '1.01.01',
+                            debit: 0,
+                            credit: startingCash,
+                            description: 'Kas Kantor (Keluar)',
+                        },
+                    ],
                 });
             }
             catch (error) {
@@ -169,11 +184,13 @@ let CollectorService = class CollectorService {
                 endDenom500: dto.denominations.denom500,
                 endDenom200: dto.denominations.denom200,
                 endDenom100: dto.denominations.denom100,
-            }
+            },
         });
         if (endingCash > 0) {
             try {
-                const user = await this.prisma.user.findUnique({ where: { id: userId } });
+                const user = await this.prisma.user.findUnique({
+                    where: { id: userId },
+                });
                 const userName = user ? user.fullName : 'Collector';
                 await this.accountingService.createManualJournal({
                     date: new Date(),
@@ -181,9 +198,19 @@ let CollectorService = class CollectorService {
                     description: `Setor Kas Akhir Shift - ${userName} (Shift #${shift.id})`,
                     postingType: 'AUTO',
                     details: [
-                        { accountCode: '1.01.01', debit: endingCash, credit: 0, description: 'Kas Kantor (Masuk)' },
-                        { accountCode: '1.01.05', debit: 0, credit: endingCash, description: 'Kas Transit Kolektor (Keluar)' }
-                    ]
+                        {
+                            accountCode: '1.01.01',
+                            debit: endingCash,
+                            credit: 0,
+                            description: 'Kas Kantor (Masuk)',
+                        },
+                        {
+                            accountCode: '1.01.05',
+                            debit: 0,
+                            credit: endingCash,
+                            description: 'Kas Transit Kolektor (Keluar)',
+                        },
+                    ],
                 });
             }
             catch (error) {
@@ -218,33 +245,33 @@ let CollectorService = class CollectorService {
         const todayEnd = (0, date_fns_1.endOfDay)(new Date());
         const activeShifts = await this.prisma.collectorShift.findMany({
             where: {
-                status: 'ACTIVE'
+                status: 'ACTIVE',
             },
             include: {
                 user: {
                     select: {
                         id: true,
-                        fullName: true
-                    }
-                }
-            }
+                        fullName: true,
+                    },
+                },
+            },
         });
         const closedShifts = await this.prisma.collectorShift.findMany({
             where: {
                 status: 'CLOSED',
-                startTime: { gte: todayStart, lte: todayEnd }
+                startTime: { gte: todayStart, lte: todayEnd },
             },
             include: {
                 user: {
                     select: {
                         id: true,
-                        fullName: true
-                    }
-                }
+                        fullName: true,
+                    },
+                },
             },
             orderBy: {
-                endTime: 'desc'
-            }
+                endTime: 'desc',
+            },
         });
         const totalCashInHand = activeShifts.reduce((sum, shift) => {
             return sum + Number(shift.startingCash || 0);
@@ -264,10 +291,10 @@ let CollectorService = class CollectorService {
                 shiftStartTime: shift.startTime,
                 deposits: stats.todayDeposits,
                 withdrawals: stats.todayWithdrawals,
-                transactions: stats.todayTransactions
+                transactions: stats.todayTransactions,
             });
         }
-        const closedShiftsHistory = closedShifts.map(shift => ({
+        const closedShiftsHistory = closedShifts.map((shift) => ({
             name: shift.user.fullName,
             startTime: shift.startTime,
             endTime: shift.endTime,
@@ -275,7 +302,7 @@ let CollectorService = class CollectorService {
             endingCash: Number(shift.endingCash || 0),
             totalDeposits: Number(shift.totalDeposits || 0),
             totalWithdrawals: Number(shift.totalWithdrawals || 0),
-            transactionCount: shift.transactionCount || 0
+            transactionCount: shift.transactionCount || 0,
         }));
         return {
             activeCollectors: activeShifts.length,
@@ -284,7 +311,7 @@ let CollectorService = class CollectorService {
             totalWithdrawals,
             totalTransactions,
             collectors: collectorsWithStats,
-            closedShifts: closedShiftsHistory
+            closedShifts: closedShiftsHistory,
         };
     }
 };

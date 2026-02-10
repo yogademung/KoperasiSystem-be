@@ -55,7 +55,7 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
         }
         const depositos = await this.prisma.nasabahJangka.findMany({
             where: whereClause,
-            include: { nasabah: true }
+            include: { nasabah: true },
         });
         this.logger.log(`Found ${depositos.length} active depositos to check.`);
         for (const dep of depositos) {
@@ -76,7 +76,7 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
             const interest = (Number(dep.nominal) * (Number(dep.bunga) / 100)) / 12;
             let tax = 0;
             if (interest > 240000)
-                tax = interest * 0.20;
+                tax = interest * 0.2;
             const netInterest = interest - tax;
             if (netInterest <= 0)
                 continue;
@@ -89,12 +89,12 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
                             tipeTrans: 'BUNGA',
                             nominal: netInterest,
                             keterangan: 'Bunga Bulanan (Rollover)',
-                            createdBy: 'SYSTEM'
-                        }
+                            createdBy: 'SYSTEM',
+                        },
                     });
                     await tx.nasabahJangka.update({
                         where: { noJangka: dep.noJangka },
-                        data: { nominal: newNominal }
+                        data: { nominal: newNominal },
                     });
                 }
                 else if (dep.payoutMode === 'TRANSFER' && dep.targetAccountId) {
@@ -104,8 +104,8 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
                             tipeTrans: 'BUNGA_OUT',
                             nominal: netInterest,
                             keterangan: `Transfer Bunga ke ${dep.targetAccountId}`,
-                            createdBy: 'SYSTEM'
-                        }
+                            createdBy: 'SYSTEM',
+                        },
                     });
                     await this.createTransaction(tx, 'nasabahTab', 'transTab', 'noTab', dep.targetAccountId, 'BUNGA_DEP', netInterest, `Bunga Deposito ${dep.noJangka}`);
                 }
@@ -116,8 +116,8 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
                             tipeTrans: 'BUNGA',
                             nominal: netInterest,
                             keterangan: 'Bunga Bulanan (Akumulasi)',
-                            createdBy: 'SYSTEM'
-                        }
+                            createdBy: 'SYSTEM',
+                        },
                     });
                 }
             });
@@ -126,14 +126,14 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
     async simulateProcessing(noJangka) {
         const dep = await this.prisma.nasabahJangka.findUnique({
             where: { noJangka },
-            include: { nasabah: true }
+            include: { nasabah: true },
         });
         if (!dep)
             throw new Error('Deposito not found');
         const interest = (Number(dep.nominal) * (Number(dep.bunga) / 100)) / 12;
         let tax = 0;
         if (interest > 240000)
-            tax = interest * 0.20;
+            tax = interest * 0.2;
         const netInterest = interest - tax;
         return {
             noJangka: dep.noJangka,
@@ -144,21 +144,21 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
             tax,
             netInterest,
             payoutMode: dep.payoutMode,
-            targetAccountId: dep.targetAccountId
+            targetAccountId: dep.targetAccountId,
         };
     }
     async processTabrelaInterest() {
         const RATE = 0.02;
         const ADMIN_FEE = 5000;
         const accounts = await this.prisma.nasabahTab.findMany({
-            where: { status: 'A', saldo: { gt: 0 } }
+            where: { status: 'A', saldo: { gt: 0 } },
         });
         for (const acc of accounts) {
             const interestRate = Number(acc.interestRate) > 0 ? Number(acc.interestRate) / 100 : RATE;
             const interest = (Number(acc.saldo) * interestRate) / 12;
             let tax = 0;
             if (interest > 240000) {
-                tax = interest * 0.20;
+                tax = interest * 0.2;
             }
             const netInterest = interest - tax;
             if (netInterest <= 0)
@@ -178,14 +178,14 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
         const RATE = 0.03;
         const ADMIN_FEE = 0;
         const accounts = await this.prisma.nasabahBrahmacari.findMany({
-            where: { status: 'A', saldo: { gt: 0 } }
+            where: { status: 'A', saldo: { gt: 0 } },
         });
         for (const acc of accounts) {
             const interestRate = Number(acc.interestRate) > 0 ? Number(acc.interestRate) / 100 : RATE;
             const interest = (Number(acc.saldo) * interestRate) / 12;
             let tax = 0;
             if (interest > 240000)
-                tax = interest * 0.20;
+                tax = interest * 0.2;
             await this.prisma.$transaction(async (tx) => {
                 await this.createTransaction(tx, 'nasabahBrahmacari', 'transBrahmacari', 'noBrahmacari', acc.noBrahmacari, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
@@ -198,14 +198,14 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
         const RATE = 0.04;
         const ADMIN_FEE = 10000;
         const accounts = await this.prisma.nasabahBalimesari.findMany({
-            where: { status: 'A', saldo: { gt: 0 } }
+            where: { status: 'A', saldo: { gt: 0 } },
         });
         for (const acc of accounts) {
             const interestRate = Number(acc.interestRate) > 0 ? Number(acc.interestRate) / 100 : RATE;
             const interest = (Number(acc.saldo) * interestRate) / 12;
             let tax = 0;
             if (interest > 240000)
-                tax = interest * 0.20;
+                tax = interest * 0.2;
             await this.prisma.$transaction(async (tx) => {
                 await this.createTransaction(tx, 'nasabahBalimesari', 'transBalimesari', 'noBalimesari', acc.noBalimesari, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
@@ -221,14 +221,14 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
         const RATE = 0.05;
         const ADMIN_FEE = 5000;
         const accounts = await this.prisma.nasabahWanaprasta.findMany({
-            where: { status: 'A', saldo: { gt: 0 } }
+            where: { status: 'A', saldo: { gt: 0 } },
         });
         for (const acc of accounts) {
             const interestRate = Number(acc.interestRate) > 0 ? Number(acc.interestRate) / 100 : RATE;
             const interest = (Number(acc.saldo) * interestRate) / 12;
             let tax = 0;
             if (interest > 240000)
-                tax = interest * 0.20;
+                tax = interest * 0.2;
             await this.prisma.$transaction(async (tx) => {
                 await this.createTransaction(tx, 'nasabahWanaprasta', 'transWanaprasta', 'noWanaprasta', acc.noWanaprasta, 'BUNGA', interest, 'Bunga Bulanan');
                 if (tax > 0) {
@@ -241,7 +241,9 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
         }
     }
     async createTransaction(tx, tableModel, transModel, idField, idValue, type, amount, desc) {
-        const account = await tx[tableModel].findUnique({ where: { [idField]: idValue } });
+        const account = await tx[tableModel].findUnique({
+            where: { [idField]: idValue },
+        });
         const newBalance = Number(account.saldo) + amount;
         await tx[transModel].create({
             data: {
@@ -250,11 +252,11 @@ let SimpananInterestService = SimpananInterestService_1 = class SimpananInterest
                 nominal: Math.abs(amount),
                 saldoAkhir: newBalance,
                 keterangan: desc,
-            }
+            },
         });
         await tx[tableModel].update({
             where: { [idField]: idValue },
-            data: { saldo: newBalance }
+            data: { saldo: newBalance },
         });
     }
 };

@@ -1,43 +1,43 @@
 import { IsString, IsOptional, IsEmail, IsDateString } from 'class-validator';
 
 export class CreateNasabahDto {
-    @IsString()
-    nama: string;
+  @IsString()
+  nama: string;
 
-    @IsString()
-    @IsOptional()
-    alamat?: string;
+  @IsString()
+  @IsOptional()
+  alamat?: string;
 
-    @IsString()
-    noKtp: string;
+  @IsString()
+  noKtp: string;
 
-    @IsString()
-    @IsOptional()
-    email?: string;
+  @IsString()
+  @IsOptional()
+  email?: string;
 
-    @IsString()
-    @IsOptional()
-    telepon?: string;
+  @IsString()
+  @IsOptional()
+  telepon?: string;
 
-    @IsString()
-    @IsOptional()
-    tempatLahir?: string;
+  @IsString()
+  @IsOptional()
+  tempatLahir?: string;
 
-    @IsDateString()
-    @IsOptional()
-    tanggalLahir?: string;
+  @IsDateString()
+  @IsOptional()
+  tanggalLahir?: string;
 
-    @IsString()
-    @IsOptional()
-    jenisKelamin?: string;
+  @IsString()
+  @IsOptional()
+  jenisKelamin?: string;
 
-    @IsString()
-    @IsOptional()
-    pekerjaan?: string;
+  @IsString()
+  @IsOptional()
+  pekerjaan?: string;
 
-    @IsOptional()
-    fileKtp?: string;
+  @IsOptional()
+  fileKtp?: string;
 
-    @IsOptional()
-    fileKk?: string;
+  @IsOptional()
+  fileKk?: string;
 }

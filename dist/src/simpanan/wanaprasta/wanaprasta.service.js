@@ -31,7 +31,7 @@ let WanaprastaService = class WanaprastaService {
                     saldo: createDto.setoranAwal || 0,
                     interestRate: 4.0,
                     status: 'A',
-                }
+                },
             });
             if (createDto.setoranAwal && createDto.setoranAwal > 0) {
                 const transaction = await tx.transWanaprasta.create({
@@ -40,18 +40,20 @@ let WanaprastaService = class WanaprastaService {
                         tipeTrans: 'SETORAN',
                         nominal: createDto.setoranAwal,
                         saldoAkhir: createDto.setoranAwal,
-                        keterangan: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Wanaprasta',
-                        createdBy: 'SYSTEM'
-                    }
+                        keterangan: createDto.keterangan ||
+                            'Setoran Awal Pembukaan Rekening Wanaprasta',
+                        createdBy: 'SYSTEM',
+                    },
                 });
                 try {
                     this.eventEmitter.emit('transaction.created', {
                         transType: 'WANAPRASTA_SETOR',
                         amount: createDto.setoranAwal,
-                        description: createDto.keterangan || 'Setoran Awal Pembukaan Rekening Wanaprasta',
+                        description: createDto.keterangan ||
+                            'Setoran Awal Pembukaan Rekening Wanaprasta',
                         userId: 1,
                         refId: transaction.id,
-                        branchCode: '001'
+                        branchCode: '001',
                     });
                 }
                 catch (error) {
@@ -65,10 +67,10 @@ let WanaprastaService = class WanaprastaService {
         return this.prisma.nasabahWanaprasta.findMany({
             include: {
                 nasabah: {
-                    select: { nama: true, noKtp: true }
-                }
+                    select: { nama: true, noKtp: true },
+                },
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async findOne(noWanaprasta) {
@@ -78,9 +80,9 @@ let WanaprastaService = class WanaprastaService {
                 nasabah: true,
                 transactions: {
                     orderBy: { createdAt: 'desc' },
-                    take: 20
-                }
-            }
+                    take: 20,
+                },
+            },
         });
         if (!account) {
             throw new common_1.NotFoundException('Rekening Wanaprasta tidak ditemukan');
@@ -90,7 +92,7 @@ let WanaprastaService = class WanaprastaService {
     async setoran(noWanaprasta, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahWanaprasta.findUnique({
-                where: { noWanaprasta }
+                where: { noWanaprasta },
             });
             if (!account) {
                 throw new common_1.NotFoundException('Rekening tidak ditemukan');
@@ -106,12 +108,12 @@ let WanaprastaService = class WanaprastaService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Setoran Wanaprasta',
-                    createdBy: userId?.toString() || 'SYSTEM'
-                }
+                    createdBy: userId?.toString() || 'SYSTEM',
+                },
             });
             await tx.nasabahWanaprasta.update({
                 where: { noWanaprasta },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             try {
                 this.eventEmitter.emit('transaction.created', {
@@ -120,7 +122,7 @@ let WanaprastaService = class WanaprastaService {
                     description: transaction.keterangan,
                     userId: userId || 1,
                     refId: transaction.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             catch (error) {
@@ -132,7 +134,7 @@ let WanaprastaService = class WanaprastaService {
     async penarikan(noWanaprasta, dto, userId) {
         return this.prisma.$transaction(async (tx) => {
             const account = await tx.nasabahWanaprasta.findUnique({
-                where: { noWanaprasta }
+                where: { noWanaprasta },
             });
             if (!account) {
                 throw new common_1.NotFoundException('Rekening tidak ditemukan');
@@ -151,12 +153,12 @@ let WanaprastaService = class WanaprastaService {
                     nominal: dto.nominal,
                     saldoAkhir: newBalance,
                     keterangan: dto.keterangan || 'Penarikan Wanaprasta',
-                    createdBy: userId?.toString() || 'SYSTEM'
-                }
+                    createdBy: userId?.toString() || 'SYSTEM',
+                },
             });
             await tx.nasabahWanaprasta.update({
                 where: { noWanaprasta },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             try {
                 this.eventEmitter.emit('transaction.created', {
@@ -165,7 +167,7 @@ let WanaprastaService = class WanaprastaService {
                     description: transaction.keterangan,
                     userId: userId || 1,
                     refId: transaction.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             catch (error) {
@@ -181,36 +183,42 @@ let WanaprastaService = class WanaprastaService {
                 where: { noWanaprasta },
                 orderBy: { createdAt: 'desc' },
                 skip,
-                take: limit
+                take: limit,
             }),
             this.prisma.transWanaprasta.count({
-                where: { noWanaprasta }
-            })
+                where: { noWanaprasta },
+            }),
         ]);
         return {
             data: transactions,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(total / limit),
         };
     }
     async voidTransaction(transId, txInput) {
         const executeLogic = async (tx) => {
-            const original = await tx.transWanaprasta.findUnique({ where: { id: transId } });
+            const original = await tx.transWanaprasta.findUnique({
+                where: { id: transId },
+            });
             if (!original)
                 throw new common_1.NotFoundException(`Transaction ${transId} not found`);
-            const account = await tx.nasabahWanaprasta.findUnique({ where: { noWanaprasta: original.noWanaprasta } });
+            const account = await tx.nasabahWanaprasta.findUnique({
+                where: { noWanaprasta: original.noWanaprasta },
+            });
             if (!account)
                 throw new common_1.NotFoundException('Account not found');
             let newBalance = Number(account.saldo);
             const nominal = Number(original.nominal);
             let reversalAmount = 0;
-            if (original.tipeTrans === 'SETORAN' || original.tipeTrans === 'WANAPRASTA_SETOR') {
+            if (original.tipeTrans === 'SETORAN' ||
+                original.tipeTrans === 'WANAPRASTA_SETOR') {
                 newBalance -= nominal;
                 reversalAmount = -nominal;
             }
-            else if (original.tipeTrans === 'PENARIKAN' || original.tipeTrans === 'WANAPRASTA_TARIK') {
+            else if (original.tipeTrans === 'PENARIKAN' ||
+                original.tipeTrans === 'WANAPRASTA_TARIK') {
                 newBalance += nominal;
                 reversalAmount = nominal;
             }
@@ -220,7 +228,7 @@ let WanaprastaService = class WanaprastaService {
             }
             await tx.nasabahWanaprasta.update({
                 where: { noWanaprasta: original.noWanaprasta },
-                data: { saldo: newBalance }
+                data: { saldo: newBalance },
             });
             return tx.transWanaprasta.create({
                 data: {
@@ -229,8 +237,8 @@ let WanaprastaService = class WanaprastaService {
                     nominal: reversalAmount,
                     saldoAkhir: newBalance,
                     keterangan: `VOID Trans #${original.id}: ${original.keterangan}`,
-                    createdBy: 'SYSTEM'
-                }
+                    createdBy: 'SYSTEM',
+                },
             });
         };
         if (txInput) {
@@ -243,7 +251,9 @@ let WanaprastaService = class WanaprastaService {
     async closeAccount(noWanaprasta, dto, userId) {
         const { reason, penalty = 0, adminFee = 0 } = dto;
         return this.prisma.$transaction(async (tx) => {
-            const account = await tx.nasabahWanaprasta.findUnique({ where: { noWanaprasta } });
+            const account = await tx.nasabahWanaprasta.findUnique({
+                where: { noWanaprasta },
+            });
             if (!account)
                 throw new common_1.NotFoundException('Account not found');
             if (account.status !== 'A')
@@ -258,8 +268,8 @@ let WanaprastaService = class WanaprastaService {
                         nominal: -penalty,
                         saldoAkhir: currentBalance,
                         keterangan: `Denda Penutupan: ${reason}`,
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
             }
             if (adminFee > 0) {
@@ -271,8 +281,8 @@ let WanaprastaService = class WanaprastaService {
                         nominal: -adminFee,
                         saldoAkhir: currentBalance,
                         keterangan: 'Biaya Administrasi Penutupan',
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
             }
             if (currentBalance > 0) {
@@ -283,8 +293,8 @@ let WanaprastaService = class WanaprastaService {
                         nominal: -currentBalance,
                         saldoAkhir: 0,
                         keterangan: `Penutupan Rekening: ${reason}`,
-                        createdBy: userId?.toString() || 'SYSTEM'
-                    }
+                        createdBy: userId?.toString() || 'SYSTEM',
+                    },
                 });
                 this.eventEmitter.emit('transaction.created', {
                     transType: 'WANAPRASTA_TUTUP',
@@ -292,15 +302,15 @@ let WanaprastaService = class WanaprastaService {
                     description: `Penutupan Rekening ${noWanaprasta}`,
                     userId: userId || 1,
                     refId: closeTx.id,
-                    branchCode: '001'
+                    branchCode: '001',
                 });
             }
             await tx.nasabahWanaprasta.update({
                 where: { noWanaprasta },
                 data: {
                     status: 'T',
-                    saldo: 0
-                }
+                    saldo: 0,
+                },
             });
             return { success: true, refund: currentBalance };
         });

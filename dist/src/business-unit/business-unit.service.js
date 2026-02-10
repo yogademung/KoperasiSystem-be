@@ -19,39 +19,43 @@ let BusinessUnitService = class BusinessUnitService {
     }
     async findAll() {
         return this.prisma.businessUnit.findMany({
-            orderBy: { id: 'asc' }
+            orderBy: { id: 'asc' },
         });
     }
     async findActive() {
         return this.prisma.businessUnit.findMany({
             where: { isActive: true },
-            orderBy: { id: 'asc' }
+            orderBy: { id: 'asc' },
         });
     }
     async findOne(id) {
         return this.prisma.businessUnit.findUnique({
-            where: { id }
+            where: { id },
         });
     }
     async create(dto) {
         return this.prisma.businessUnit.create({
-            data: dto
+            data: dto,
         });
     }
     async update(id, dto) {
         return this.prisma.businessUnit.update({
             where: { id },
-            data: dto
+            data: dto,
         });
     }
     async delete(id) {
-        const linkedAccounts = await this.prisma.journalAccount.count({ where: { businessUnitId: id } });
-        const linkedCostCenters = await this.prisma.costCenter.count({ where: { businessUnitId: id } });
+        const linkedAccounts = await this.prisma.journalAccount.count({
+            where: { businessUnitId: id },
+        });
+        const linkedCostCenters = await this.prisma.costCenter.count({
+            where: { businessUnitId: id },
+        });
         if (linkedAccounts > 0 || linkedCostCenters > 0) {
             throw new Error('Business Unit cannot be deleted because it is still linked to accounts or cost centers.');
         }
         return this.prisma.businessUnit.delete({
-            where: { id }
+            where: { id },
         });
     }
 };
