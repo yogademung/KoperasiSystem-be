@@ -1,0 +1,18 @@
+STARTING TEST
+1. Creating Asset (Expect Auto Code & Hutang Default)...
+CREATED Asset: ASSET-11022026-001 (ID: 4)
+SUCCESS: Code Auto-Generated.
+SUCCESS: Default Source is Hutang Pembelian Aset (2.20.04).
+--------------------------------------------------
+2. Paying Asset Purchase...
+SUCCESS: Payment Journal Posted (ID: 15, No: JU/2026/02/0004).
+--------------------------------------------------
+3. Running Depreciation (Simulate 1 Month)...
+4. Disposing Asset (Gain Scenario)...
+DISPOSED Journal ID: 16
+Calculated Gain/Loss: 1000000
+SUCCESS: Asset Status is DISPOSED.
+SUCCESS: Gain calculation correct (1M).
+--------------------------------------------------
+Cleaning up...
+Cleanup Complete.

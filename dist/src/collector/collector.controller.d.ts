@@ -13,10 +13,10 @@ export declare class CollectorController {
             fullName: string;
         };
     } & {
-        id: number;
-        updatedAt: Date;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
@@ -49,10 +49,10 @@ export declare class CollectorController {
         closingJournalId: number | null;
     }) | null>;
     startShift(req: any, dto: StartShiftDto): Promise<{
-        id: number;
-        updatedAt: Date;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
@@ -85,10 +85,10 @@ export declare class CollectorController {
         closingJournalId: number | null;
     }>;
     endShift(req: any, dto: EndShiftDto): Promise<{
-        id: number;
-        updatedAt: Date;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;

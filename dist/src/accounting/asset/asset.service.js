@@ -17,16 +17,29 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
 const client_1 = require("@prisma/client");
 const accounting_service_1 = require("../accounting.service");
+const period_lock_service_1 = require("../../month-end/period-lock.service");
 let AssetService = class AssetService {
     prisma;
     accountingService;
-    constructor(prisma, accountingService) {
+    periodLockService;
+    constructor(prisma, accountingService, periodLockService) {
         this.prisma = prisma;
         this.accountingService = accountingService;
+        this.periodLockService = periodLockService;
     }
     async create(createAssetDto, userId) {
-        return this.prisma.$transaction(async (tx) => {
-            const sourceAccount = createAssetDto.sourceAccountId || '10100';
+        return await this.prisma.$transaction(async (tx) => {
+            const acquisitionDate = new Date(createAssetDto.acquisitionDate);
+            const period = `${acquisitionDate.getFullYear()}-${String(acquisitionDate.getMonth() + 1).padStart(2, '0')}`;
+            const isLocked = await this.periodLockService.isPeriodLocked(period);
+            if (isLocked) {
+                throw new common_1.BadRequestException(`Periode ${period} sudah ditutup. Tidak dapat menambah aset baru pada periode ini.`);
+            }
+            let assetCode = createAssetDto.code;
+            if (!assetCode || assetCode === 'AUTO') {
+                assetCode = await this.generateAssetCode(createAssetDto.acquisitionDate, tx);
+            }
+            const sourceAccount = createAssetDto.sourceAccountId || '2.20.04';
             const accountCodesToValidate = [
                 { code: createAssetDto.assetAccountId, name: 'Akun Aset' },
                 {
@@ -37,7 +50,7 @@ let AssetService = class AssetService {
                     code: createAssetDto.expenseAccountId,
                     name: 'Akun Biaya Penyusutan',
                 },
-                { code: sourceAccount, name: 'Akun Sumber Dana' },
+                { code: sourceAccount, name: 'Akun Sumber Dana (Hutang/Kas)' },
             ];
             for (const acc of accountCodesToValidate) {
                 const exists = await tx.journalAccount.findUnique({
@@ -50,7 +63,7 @@ let AssetService = class AssetService {
             const asset = await tx.asset.create({
                 data: {
                     name: createAssetDto.name,
-                    code: createAssetDto.code,
+                    code: assetCode,
                     type: createAssetDto.type,
                     acquisitionDate: new Date(createAssetDto.acquisitionDate),
                     acquisitionCost: new client_1.Prisma.Decimal(createAssetDto.acquisitionCost),
@@ -101,7 +114,7 @@ let AssetService = class AssetService {
                                 accountCode: sourceAccount,
                                 debit: 0,
                                 credit: amount,
-                                description: `Pembelian Aset: ${asset.name}`,
+                                description: `Pembelian Aset: ${asset.name} (Via Hutang/Kas)`,
                             },
                         ],
                     },
@@ -116,17 +129,33 @@ let AssetService = class AssetService {
             this.prisma.asset.findMany({
                 skip,
                 take: limit,
-                orderBy: { code: 'asc' },
+                orderBy: { createdAt: 'desc' },
             }),
             this.prisma.asset.count(),
         ]);
         return {
             data,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+            meta: {
+                total,
+                page,
+                lastPage: Math.ceil(total / limit),
+            },
         };
+    }
+    async generateAssetCode(dateStr, tx) {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const codePrefix = `ASSET-${day}${month}${year}-`;
+        const prisma = tx || this.prisma;
+        const existingCount = await prisma.asset.count({
+            where: {
+                code: { startsWith: codePrefix },
+            },
+        });
+        const sequence = String(existingCount + 1).padStart(3, '0');
+        return `${codePrefix}${sequence}`;
     }
     async findOne(id) {
         const asset = await this.prisma.asset.findUnique({
@@ -286,6 +315,173 @@ let AssetService = class AssetService {
             };
         });
     }
+    async voidTransaction(assetId, tx) {
+        return tx.asset.update({
+            where: { id: assetId },
+            data: { status: 'INACTIVE', updatedBy: 'SYSTEM_VOID' },
+        });
+    }
+    async payAssetPurchase(dto) {
+        return this.prisma.$transaction(async (tx) => {
+            const asset = await tx.asset.findUnique({
+                where: { id: dto.assetId },
+            });
+            if (!asset)
+                throw new common_1.NotFoundException('Asset not found');
+            const hutangAccount = '2.20.04';
+            const manualData = {
+                date: dto.date || new Date(),
+                description: `Pembayaran Hutang Aset ${asset.code} - ${asset.name}`,
+                userId: dto.userId,
+                details: [
+                    {
+                        accountCode: hutangAccount,
+                        debit: dto.amount,
+                        credit: 0,
+                        description: `Bayar Hutang Aset ${asset.name}`,
+                    },
+                    {
+                        accountCode: dto.paymentAccountId,
+                        debit: 0,
+                        credit: dto.amount,
+                        description: `Keluar Kas/Bank`,
+                    },
+                ]
+            };
+            const date = dto.date || new Date();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const count = await tx.postedJournal.count({
+                where: {
+                    journalDate: {
+                        gte: new Date(year, date.getMonth(), 1),
+                        lt: new Date(year, date.getMonth() + 1, 1),
+                    },
+                },
+            });
+            const journalNo = `JU/${year}/${month}/${String(count + 1).padStart(4, '0')}`;
+            const journal = await tx.postedJournal.create({
+                data: {
+                    journalNumber: journalNo,
+                    journalDate: date,
+                    description: manualData.description,
+                    postingType: 'MANUAL',
+                    sourceCode: 'ASSET_PAYMENT',
+                    refId: asset.id,
+                    userId: dto.userId,
+                    status: 'POSTED',
+                    transType: 'ASSET_PAYMENT',
+                    details: {
+                        create: manualData.details
+                    }
+                }
+            });
+            return journal;
+        });
+    }
+    async disposeAsset(dto) {
+        return this.prisma.$transaction(async (tx) => {
+            const asset = await tx.asset.findUnique({
+                where: { id: dto.assetId },
+            });
+            if (!asset)
+                throw new common_1.NotFoundException('Asset not found');
+            if (asset.status !== 'ACTIVE')
+                throw new common_1.BadRequestException('Asset is not ACTIVE');
+            const history = await tx.assetDepreciationHistory.findMany({
+                where: { assetId: asset.id },
+            });
+            const accumDepreciation = history.reduce((sum, h) => sum.plus(h.amount), new client_1.Prisma.Decimal(0));
+            const acquisitionCost = new client_1.Prisma.Decimal(asset.acquisitionCost);
+            const bookValue = acquisitionCost.minus(accumDepreciation);
+            const saleAmount = new client_1.Prisma.Decimal(dto.saleAmount);
+            const gainLoss = saleAmount.minus(bookValue);
+            let gainLossAccount = dto.gainLossAccountId;
+            if (!gainLossAccount) {
+                if (gainLoss.greaterThan(0)) {
+                    gainLossAccount = '4.20.04';
+                }
+                else {
+                    gainLossAccount = '5.40.01';
+                }
+            }
+            const checkAcc = await tx.journalAccount.findUnique({ where: { accountCode: gainLossAccount } });
+            if (!checkAcc)
+                throw new common_1.BadRequestException(`Gain/Loss Account ${gainLossAccount} not found`);
+            const details = [];
+            if (saleAmount.greaterThan(0)) {
+                details.push({
+                    accountCode: dto.paymentAccountId,
+                    debit: saleAmount.toNumber(),
+                    credit: 0,
+                    description: `Penjualan Aset ${asset.name}`
+                });
+            }
+            if (accumDepreciation.greaterThan(0)) {
+                details.push({
+                    accountCode: asset.accumDepreciationAccountId,
+                    debit: accumDepreciation.toNumber(),
+                    credit: 0,
+                    description: `Hapus Akumulasi ${asset.name}`
+                });
+            }
+            details.push({
+                accountCode: asset.assetAccountId,
+                debit: 0,
+                credit: acquisitionCost.toNumber(),
+                description: `Hapus Aset ${asset.name}`
+            });
+            if (gainLoss.greaterThan(0)) {
+                details.push({
+                    accountCode: gainLossAccount,
+                    debit: 0,
+                    credit: gainLoss.toNumber(),
+                    description: `Keuntungan Penjualan Aset`
+                });
+            }
+            else if (gainLoss.lessThan(0)) {
+                details.push({
+                    accountCode: gainLossAccount,
+                    debit: gainLoss.abs().toNumber(),
+                    credit: 0,
+                    description: `Kerugian Penjualan Aset`
+                });
+            }
+            const date = dto.date || new Date();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const count = await tx.postedJournal.count({
+                where: {
+                    journalDate: {
+                        gte: new Date(year, date.getMonth(), 1),
+                        lt: new Date(year, date.getMonth() + 1, 1),
+                    },
+                },
+            });
+            const journalNo = `JU/${year}/${month}/${String(count + 1).padStart(4, '0')}`;
+            const journal = await tx.postedJournal.create({
+                data: {
+                    journalNumber: journalNo,
+                    journalDate: date,
+                    description: `Penjualan/Disposal Aset ${asset.name}`,
+                    postingType: 'AUTO',
+                    sourceCode: 'ASSET_DISPOSAL',
+                    refId: asset.id,
+                    userId: dto.userId,
+                    status: 'POSTED',
+                    transType: 'ASSET_DISPOSAL',
+                    details: {
+                        create: details
+                    }
+                }
+            });
+            await tx.asset.update({
+                where: { id: asset.id },
+                data: { status: 'DISPOSED', updatedBy: dto.userId.toString() }
+            });
+            return { journal, gainLoss: gainLoss.toNumber() };
+        });
+    }
     async getBalanceSheet(date) {
         const assets = await this.prisma.asset.findMany({
             where: {
@@ -368,6 +564,7 @@ exports.AssetService = AssetService = __decorate([
     (0, common_1.Injectable)(),
     __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => accounting_service_1.AccountingService))),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        accounting_service_1.AccountingService])
+        accounting_service_1.AccountingService,
+        period_lock_service_1.PeriodLockService])
 ], AssetService);
 //# sourceMappingURL=asset.service.js.map

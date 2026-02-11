@@ -4,14 +4,8 @@ export declare class AssetController {
     constructor(assetService: AssetService);
     create(user: any, createAssetDto: any): Promise<{
         asset: {
-            id: number;
-            updatedAt: Date | null;
             name: string;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
             code: string;
-            status: string;
             type: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -22,36 +16,37 @@ export declare class AssetController {
             assetAccountId: string;
             accumDepreciationAccountId: string;
             expenseAccountId: string;
+            status: string;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
         };
         journal: {
-            id: number;
-            transType: string | null;
-            description: string | null;
-            updatedAt: Date | null;
-            wilayahCd: string | null;
+            status: string;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            status: string;
-            userId: number;
+            updatedAt: Date | null;
+            id: number;
             journalNumber: string;
             journalDate: Date;
+            description: string | null;
             postingType: string;
+            transType: string | null;
             refId: number | null;
             tellerId: string | null;
+            wilayahCd: string | null;
             sourceCode: string | null;
+            userId: number;
         };
     }>;
-    findAll(page?: string, limit?: string): Promise<{
+    generateCode(date: string): Promise<string>;
+    findAll(page?: number, limit?: number): Promise<{
         data: {
-            id: number;
-            updatedAt: Date | null;
             name: string;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
             code: string;
-            status: string;
             type: string;
             acquisitionDate: Date;
             acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -62,49 +57,50 @@ export declare class AssetController {
             assetAccountId: string;
             accumDepreciationAccountId: string;
             expenseAccountId: string;
+            status: string;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
         }[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
+        meta: {
+            total: number;
+            page: number;
+            lastPage: number;
+        };
     }>;
     findOne(id: string): Promise<{
         depreciationHistory: ({
             journal: {
-                id: number;
-                transType: string | null;
-                description: string | null;
-                updatedAt: Date | null;
-                wilayahCd: string | null;
+                status: string;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                status: string;
-                userId: number;
+                updatedAt: Date | null;
+                id: number;
                 journalNumber: string;
                 journalDate: Date;
+                description: string | null;
                 postingType: string;
+                transType: string | null;
                 refId: number | null;
                 tellerId: string | null;
+                wilayahCd: string | null;
                 sourceCode: string | null;
+                userId: number;
             } | null;
         } & {
-            id: number;
             createdAt: Date;
+            id: number;
             period: string;
+            assetId: number;
             amount: import("@prisma/client/runtime/library").Decimal;
             journalId: number | null;
-            assetId: number;
         })[];
     } & {
-        id: number;
-        updatedAt: Date | null;
         name: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         code: string;
-        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -115,16 +111,16 @@ export declare class AssetController {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
     update(id: string, updateAssetDto: any): Promise<{
-        id: number;
-        updatedAt: Date | null;
         name: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         code: string;
-        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -135,16 +131,16 @@ export declare class AssetController {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
     remove(id: string): Promise<{
-        id: number;
-        updatedAt: Date | null;
         name: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
         code: string;
-        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: import("@prisma/client/runtime/library").Decimal;
@@ -155,6 +151,12 @@ export declare class AssetController {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
     }>;
     runDepreciation(user: any, dateStr?: string): Promise<{
         journalId: number;
@@ -165,4 +167,52 @@ export declare class AssetController {
         processedCount: number;
     }>;
     calculateDepreciation(id: string, dateStr?: string): Promise<number>;
+    payAssetPurchase(id: string, user: any, body: {
+        paymentAccountId: string;
+        amount: number;
+        date?: string;
+    }): Promise<{
+        status: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        id: number;
+        journalNumber: string;
+        journalDate: Date;
+        description: string | null;
+        postingType: string;
+        transType: string | null;
+        refId: number | null;
+        tellerId: string | null;
+        wilayahCd: string | null;
+        sourceCode: string | null;
+        userId: number;
+    }>;
+    disposeAsset(id: string, user: any, body: {
+        saleAmount: number;
+        paymentAccountId: string;
+        gainLossAccountId?: string;
+        date?: string;
+    }): Promise<{
+        journal: {
+            status: string;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
+            updatedAt: Date | null;
+            id: number;
+            journalNumber: string;
+            journalDate: Date;
+            description: string | null;
+            postingType: string;
+            transType: string | null;
+            refId: number | null;
+            tellerId: string | null;
+            wilayahCd: string | null;
+            sourceCode: string | null;
+            userId: number;
+        };
+        gainLoss: number;
+    }>;
 }

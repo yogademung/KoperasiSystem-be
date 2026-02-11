@@ -12,12 +12,13 @@ const asset_service_1 = require("./asset.service");
 const asset_controller_1 = require("./asset.controller");
 const accounting_module_1 = require("../accounting.module");
 const prisma_module_1 = require("../../database/prisma.module");
+const month_end_module_1 = require("../../month-end/month-end.module");
 let AssetModule = class AssetModule {
 };
 exports.AssetModule = AssetModule;
 exports.AssetModule = AssetModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, accounting_module_1.AccountingModule],
+        imports: [prisma_module_1.PrismaModule, (0, common_1.forwardRef)(() => accounting_module_1.AccountingModule), month_end_module_1.MonthEndModule],
         providers: [asset_service_1.AssetService],
         controllers: [asset_controller_1.AssetController],
         exports: [asset_service_1.AssetService],

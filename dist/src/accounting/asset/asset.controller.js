@@ -25,7 +25,13 @@ let AssetController = class AssetController {
     create(user, createAssetDto) {
         return this.assetService.create(createAssetDto, user.id);
     }
-    findAll(page = '1', limit = '10') {
+    generateCode(date) {
+        if (!date) {
+            throw new common_1.BadRequestException('Date is required');
+        }
+        return this.assetService.generateAssetCode(date);
+    }
+    findAll(page = 1, limit = 10) {
         return this.assetService.findAll(+page, +limit);
     }
     findOne(id) {
@@ -46,6 +52,25 @@ let AssetController = class AssetController {
         const date = dateStr ? new Date(dateStr) : new Date();
         return this.assetService.calculateMonthlyDepreciation(+id, date);
     }
+    payAssetPurchase(id, user, body) {
+        return this.assetService.payAssetPurchase({
+            assetId: +id,
+            paymentAccountId: body.paymentAccountId,
+            amount: body.amount,
+            date: body.date ? new Date(body.date) : undefined,
+            userId: user.id,
+        });
+    }
+    disposeAsset(id, user, body) {
+        return this.assetService.disposeAsset({
+            assetId: +id,
+            saleAmount: body.saleAmount,
+            paymentAccountId: body.paymentAccountId,
+            gainLossAccountId: body.gainLossAccountId,
+            date: body.date ? new Date(body.date) : undefined,
+            userId: user.id,
+        });
+    }
 };
 exports.AssetController = AssetController;
 __decorate([
@@ -57,11 +82,18 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AssetController.prototype, "create", null);
 __decorate([
+    (0, common_1.Get)('generate-code'),
+    __param(0, (0, common_1.Query)('date')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AssetController.prototype, "generateCode", null);
+__decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", void 0)
 ], AssetController.prototype, "findAll", null);
 __decorate([
@@ -102,6 +134,24 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AssetController.prototype, "calculateDepreciation", null);
+__decorate([
+    (0, common_1.Post)(':id/pay'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], AssetController.prototype, "payAssetPurchase", null);
+__decorate([
+    (0, common_1.Post)(':id/dispose'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], AssetController.prototype, "disposeAsset", null);
 exports.AssetController = AssetController = __decorate([
     (0, common_1.Controller)('api/accounting/assets'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

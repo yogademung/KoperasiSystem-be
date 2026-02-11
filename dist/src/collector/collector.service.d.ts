@@ -18,10 +18,10 @@ export declare class CollectorService {
             fullName: string;
         };
     } & {
-        id: number;
-        updatedAt: Date;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
@@ -54,10 +54,10 @@ export declare class CollectorService {
         closingJournalId: number | null;
     }) | null>;
     startShift(userId: number, dto: StartShiftDto): Promise<{
-        id: number;
-        updatedAt: Date;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
@@ -90,10 +90,10 @@ export declare class CollectorService {
         closingJournalId: number | null;
     }>;
     endShift(userId: number, dto: EndShiftDto): Promise<{
-        id: number;
-        updatedAt: Date;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;

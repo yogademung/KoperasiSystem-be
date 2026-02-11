@@ -15,6 +15,8 @@ import { BalimesariService } from '../simpanan/balimesari/balimesari.service';
 import { WanaprastaService } from '../simpanan/wanaprasta/wanaprasta.service';
 import { PeriodLockService } from '../month-end/period-lock.service';
 import { ProductConfigService } from '../product-config/product-config.service';
+import { AssetService } from './asset/asset.service';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @Injectable()
 export class AccountingService {
@@ -30,7 +32,9 @@ export class AccountingService {
     private wanaprastaService: WanaprastaService,
     private periodLockService: PeriodLockService,
     private productConfigService: ProductConfigService,
-  ) {}
+    @Inject(forwardRef(() => AssetService))
+    private assetService: AssetService,
+  ) { }
 
   // ============================================
   // COA MANAGEMENT
@@ -712,6 +716,14 @@ export class AccountingService {
             case 'WANAPRASTA':
               if (this.wanaprastaService)
                 await this.wanaprastaService.voidTransaction(journal.refId, tx);
+              break;
+            case 'WANAPRASTA':
+              if (this.wanaprastaService)
+                await this.wanaprastaService.voidTransaction(journal.refId, tx);
+              break;
+            case 'ASSET':
+              if (this.assetService)
+                await this.assetService.voidTransaction(journal.refId, tx);
               break;
             default:
               console.warn(

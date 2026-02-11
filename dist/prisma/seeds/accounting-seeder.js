@@ -71,7 +71,11 @@ const accountData = [
     { accountCode: "5.20.10", accountName: "BIAYA BUNGA PINJAMAN EXTERNAL", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 },
     { accountCode: "5.30.00", accountName: "BIAYA PENYUSUTAN", accountType: "EXP", debetPoleFlag: true },
     { accountCode: "5.30.01", accountName: "PENYUSUTAN GEDUNG", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 },
-    { accountCode: "5.30.02", accountName: "PENYUSUTAN PERALATAN", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 }
+    { accountCode: "5.30.01", accountName: "PENYUSUTAN GEDUNG", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 },
+    { accountCode: "5.30.02", accountName: "PENYUSUTAN PERALATAN", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 },
+    { accountCode: "2.20.04", accountName: "HUTANG PEMBELIAN ASET", accountType: "LIA", debetPoleFlag: false, businessUnitId: 1 },
+    { accountCode: "4.20.04", accountName: "KEUNTUNGAN PENJUALAN ASET", accountType: "REV", debetPoleFlag: false, businessUnitId: 1 },
+    { accountCode: "5.40.01", accountName: "KERUGIAN PENJUALAN ASET", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 }
 ];
 const mappingData = [
     { module: 'SIMPANAN', transType: 'ANGGOTA_SETOR_POKOK', description: 'Setoran Pokok Anggota', debit: '1.01.01', credit: '3.10.01' },
@@ -160,5 +164,16 @@ async function seedAccounting() {
         });
     }
     console.log('✅ Accounting Seeding Completed!');
+}
+if (require.main === module) {
+    seedAccounting()
+        .then(async () => {
+        await prisma.$disconnect();
+    })
+        .catch(async (e) => {
+        console.error(e);
+        await prisma.$disconnect();
+        process.exit(1);
+    });
 }
 //# sourceMappingURL=accounting-seeder.js.map

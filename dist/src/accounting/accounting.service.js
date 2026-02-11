@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountingService = void 0;
 const common_1 = require("@nestjs/common");
@@ -21,6 +24,8 @@ const balimesari_service_1 = require("../simpanan/balimesari/balimesari.service"
 const wanaprasta_service_1 = require("../simpanan/wanaprasta/wanaprasta.service");
 const period_lock_service_1 = require("../month-end/period-lock.service");
 const product_config_service_1 = require("../product-config/product-config.service");
+const asset_service_1 = require("./asset/asset.service");
+const common_2 = require("@nestjs/common");
 let AccountingService = class AccountingService {
     prisma;
     moduleRef;
@@ -32,7 +37,8 @@ let AccountingService = class AccountingService {
     wanaprastaService;
     periodLockService;
     productConfigService;
-    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, wanaprastaService, periodLockService, productConfigService) {
+    assetService;
+    constructor(prisma, moduleRef, anggotaService, tabrelaService, depositoService, brahmacariService, balimesariService, wanaprastaService, periodLockService, productConfigService, assetService) {
         this.prisma = prisma;
         this.moduleRef = moduleRef;
         this.anggotaService = anggotaService;
@@ -43,6 +49,7 @@ let AccountingService = class AccountingService {
         this.wanaprastaService = wanaprastaService;
         this.periodLockService = periodLockService;
         this.productConfigService = productConfigService;
+        this.assetService = assetService;
     }
     async getAccounts(type, page = 1, limit = 10) {
         const where = { isActive: true };
@@ -535,6 +542,14 @@ let AccountingService = class AccountingService {
                             if (this.wanaprastaService)
                                 await this.wanaprastaService.voidTransaction(journal.refId, tx);
                             break;
+                        case 'WANAPRASTA':
+                            if (this.wanaprastaService)
+                                await this.wanaprastaService.voidTransaction(journal.refId, tx);
+                            break;
+                        case 'ASSET':
+                            if (this.assetService)
+                                await this.assetService.voidTransaction(journal.refId, tx);
+                            break;
                         default:
                             console.warn(`[Accounting] No void handler for sourceCode: ${journal.sourceCode}`);
                     }
@@ -731,6 +746,7 @@ let AccountingService = class AccountingService {
 exports.AccountingService = AccountingService;
 exports.AccountingService = AccountingService = __decorate([
     (0, common_1.Injectable)(),
+    __param(10, (0, common_2.Inject)((0, common_2.forwardRef)(() => asset_service_1.AssetService))),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         core_1.ModuleRef,
         anggota_service_1.AnggotaService,
@@ -740,6 +756,7 @@ exports.AccountingService = AccountingService = __decorate([
         balimesari_service_1.BalimesariService,
         wanaprasta_service_1.WanaprastaService,
         period_lock_service_1.PeriodLockService,
-        product_config_service_1.ProductConfigService])
+        product_config_service_1.ProductConfigService,
+        asset_service_1.AssetService])
 ], AccountingService);
 //# sourceMappingURL=accounting.service.js.map
