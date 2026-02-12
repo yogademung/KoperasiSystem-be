@@ -4,8 +4,11 @@ const client_1 = require("@prisma/client");
 async function main() {
     const prisma = new client_1.PrismaClient();
     try {
-        const config = await prisma.s_lov_value.findFirst({
-            where: { lov_name: 'last_closing_month' }
+        const config = await prisma.lovValue.findFirst({
+            where: {
+                code: 'COMPANY_PROFILE',
+                codeValue: 'LAST_CLOSING_MONTH'
+            }
         });
         console.log('Last Closing Month Config:', JSON.stringify(config, null, 2));
         const locks = await prisma.periodLock.findMany({

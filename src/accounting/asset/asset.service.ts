@@ -515,9 +515,13 @@ export class AssetService {
 
       if (!gainLossAccount) {
         if (gainLoss.greaterThan(0)) {
-          gainLossAccount = '4.20.04'; // Default Gain Account
+          // Gain Mapping (Default 4.20.04 - Keuntungan Penjualan Aset)
+          const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'ASSET_DISPOSAL_GAIN' } });
+          gainLossAccount = mapping?.creditAccount || '4.20.04';
         } else {
-          gainLossAccount = '5.40.01'; // Default Loss Account
+          // Loss Mapping (Default 5.40.01 - Kerugian Penjualan Aset)
+          const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'ASSET_DISPOSAL_LOSS' } });
+          gainLossAccount = mapping?.debitAccount || '5.40.01';
         }
       }
 

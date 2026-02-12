@@ -399,10 +399,12 @@ let AssetService = class AssetService {
             let gainLossAccount = dto.gainLossAccountId;
             if (!gainLossAccount) {
                 if (gainLoss.greaterThan(0)) {
-                    gainLossAccount = '4.20.04';
+                    const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'ASSET_DISPOSAL_GAIN' } });
+                    gainLossAccount = mapping?.creditAccount || '4.20.04';
                 }
                 else {
-                    gainLossAccount = '5.40.01';
+                    const mapping = await tx.productCoaMapping.findUnique({ where: { transType: 'ASSET_DISPOSAL_LOSS' } });
+                    gainLossAccount = mapping?.debitAccount || '5.40.01';
                 }
             }
             const checkAcc = await tx.journalAccount.findUnique({ where: { accountCode: gainLossAccount } });
