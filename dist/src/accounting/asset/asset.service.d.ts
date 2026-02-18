@@ -9,8 +9,14 @@ export declare class AssetService {
     constructor(prisma: PrismaService, accountingService: AccountingService, periodLockService: PeriodLockService);
     create(createAssetDto: any, userId: number): Promise<{
         asset: {
+            id: number;
+            updatedAt: Date | null;
             name: string;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
             code: string;
+            status: string;
             type: string;
             acquisitionDate: Date;
             acquisitionCost: Prisma.Decimal;
@@ -21,36 +27,36 @@ export declare class AssetService {
             assetAccountId: string;
             accumDepreciationAccountId: string;
             expenseAccountId: string;
-            status: string;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
         };
         journal: {
-            status: string;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            updatedAt: Date | null;
+            wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
+            status: string;
+            userId: number;
             journalNumber: string;
             journalDate: Date;
-            description: string | null;
             postingType: string;
-            transType: string | null;
             refId: number | null;
             tellerId: string | null;
-            wilayahCd: string | null;
             sourceCode: string | null;
-            userId: number;
         };
     }>;
     findAll(page?: number, limit?: number): Promise<{
         data: {
+            id: number;
+            updatedAt: Date | null;
             name: string;
+            createdBy: string | null;
+            createdAt: Date;
+            updatedBy: string | null;
             code: string;
+            status: string;
             type: string;
             acquisitionDate: Date;
             acquisitionCost: Prisma.Decimal;
@@ -61,12 +67,6 @@ export declare class AssetService {
             assetAccountId: string;
             accumDepreciationAccountId: string;
             expenseAccountId: string;
-            status: string;
-            createdBy: string | null;
-            createdAt: Date;
-            updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
         }[];
         meta: {
             total: number;
@@ -78,34 +78,40 @@ export declare class AssetService {
     findOne(id: number): Promise<{
         depreciationHistory: ({
             journal: {
-                status: string;
+                id: number;
+                transType: string | null;
+                description: string | null;
+                updatedAt: Date | null;
+                wilayahCd: string | null;
                 createdBy: string | null;
                 createdAt: Date;
                 updatedBy: string | null;
-                updatedAt: Date | null;
-                id: number;
+                status: string;
+                userId: number;
                 journalNumber: string;
                 journalDate: Date;
-                description: string | null;
                 postingType: string;
-                transType: string | null;
                 refId: number | null;
                 tellerId: string | null;
-                wilayahCd: string | null;
                 sourceCode: string | null;
-                userId: number;
             } | null;
         } & {
-            createdAt: Date;
             id: number;
+            createdAt: Date;
             period: string;
-            assetId: number;
             amount: Prisma.Decimal;
             journalId: number | null;
+            assetId: number;
         })[];
     } & {
+        id: number;
+        updatedAt: Date | null;
         name: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
@@ -116,16 +122,16 @@ export declare class AssetService {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
-        status: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
     }>;
     update(id: number, data: any): Promise<{
+        id: number;
+        updatedAt: Date | null;
         name: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
@@ -136,16 +142,16 @@ export declare class AssetService {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
-        status: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
     }>;
     remove(id: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
         name: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
@@ -156,12 +162,6 @@ export declare class AssetService {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
-        status: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
     }>;
     calculateMonthlyDepreciation(assetId: number, date: Date): Promise<number>;
     runDepreciationProcess(userId: number, date: Date): Promise<{
@@ -173,8 +173,14 @@ export declare class AssetService {
         processedCount: number;
     }>;
     voidTransaction(assetId: number, tx: Prisma.TransactionClient): Promise<{
+        id: number;
+        updatedAt: Date | null;
         name: string;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
         code: string;
+        status: string;
         type: string;
         acquisitionDate: Date;
         acquisitionCost: Prisma.Decimal;
@@ -185,12 +191,6 @@ export declare class AssetService {
         assetAccountId: string;
         accumDepreciationAccountId: string;
         expenseAccountId: string;
-        status: string;
-        createdBy: string | null;
-        createdAt: Date;
-        updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
     }>;
     payAssetPurchase(dto: {
         assetId: number;
@@ -199,22 +199,22 @@ export declare class AssetService {
         date?: Date;
         userId: number;
     }): Promise<{
-        status: string;
+        id: number;
+        transType: string | null;
+        description: string | null;
+        updatedAt: Date | null;
+        wilayahCd: string | null;
         createdBy: string | null;
         createdAt: Date;
         updatedBy: string | null;
-        updatedAt: Date | null;
-        id: number;
+        status: string;
+        userId: number;
         journalNumber: string;
         journalDate: Date;
-        description: string | null;
         postingType: string;
-        transType: string | null;
         refId: number | null;
         tellerId: string | null;
-        wilayahCd: string | null;
         sourceCode: string | null;
-        userId: number;
     }>;
     disposeAsset(dto: {
         assetId: number;
@@ -225,22 +225,22 @@ export declare class AssetService {
         userId: number;
     }): Promise<{
         journal: {
-            status: string;
+            id: number;
+            transType: string | null;
+            description: string | null;
+            updatedAt: Date | null;
+            wilayahCd: string | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
+            status: string;
+            userId: number;
             journalNumber: string;
             journalDate: Date;
-            description: string | null;
             postingType: string;
-            transType: string | null;
             refId: number | null;
             tellerId: string | null;
-            wilayahCd: string | null;
             sourceCode: string | null;
-            userId: number;
         };
         gainLoss: number;
     }>;

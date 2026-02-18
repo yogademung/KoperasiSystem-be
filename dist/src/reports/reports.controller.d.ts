@@ -68,16 +68,16 @@ export declare class ReportsController {
             collaterals: {
                 collateral: {
                     assessedValue: number;
-                    type: string;
-                    status: string;
+                    id: number;
+                    description: string | null;
+                    updatedAt: Date | null;
                     createdBy: string | null;
                     createdAt: Date;
                     updatedBy: string | null;
-                    updatedAt: Date | null;
-                    id: number;
-                    description: string | null;
-                    details: string | null;
                     nasabahId: number;
+                    status: string;
+                    type: string;
+                    details: string | null;
                     marketValue: import("@prisma/client/runtime/library").Decimal;
                     photos: string | null;
                 };
@@ -129,17 +129,17 @@ export declare class ReportsController {
             angsuranBunga: number;
             totalAngsuran: number;
             sisaPinjaman: number;
-            status: string;
+            id: number;
+            updatedAt: Date | null;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            total: import("@prisma/client/runtime/library").Decimal;
+            status: string;
+            tglJatuhTempo: Date;
             bunga: import("@prisma/client/runtime/library").Decimal;
+            total: import("@prisma/client/runtime/library").Decimal;
             debiturKreditId: number;
             angsuranKe: number;
-            tglJatuhTempo: Date;
             pokok: import("@prisma/client/runtime/library").Decimal;
             sisaPokok: import("@prisma/client/runtime/library").Decimal;
             tglBayar: Date | null;
@@ -147,14 +147,14 @@ export declare class ReportsController {
         }[];
         transaksi: {
             nominal: number;
+            id: number;
             createdBy: string | null;
             createdAt: Date;
-            id: number;
-            journalId: number | null;
+            keterangan: string | null;
+            tipeTrans: string;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            tipeTrans: string;
-            keterangan: string | null;
+            journalId: number | null;
             debiturKreditId: number;
             bungaBayar: import("@prisma/client/runtime/library").Decimal | null;
             dendaBayar: import("@prisma/client/runtime/library").Decimal | null;
@@ -206,15 +206,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -397,15 +397,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -431,15 +431,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -465,15 +465,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -499,15 +499,15 @@ export declare class ReportsController {
             terbilangRefund: string;
         };
         nasabah: {
+            id: number;
+            updatedAt: Date | null;
+            isActive: boolean;
             createdBy: string | null;
             createdAt: Date;
             updatedBy: string | null;
-            updatedAt: Date | null;
-            id: number;
-            isActive: boolean;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;

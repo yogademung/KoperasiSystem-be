@@ -7,7 +7,7 @@ import { Post, Body } from '@nestjs/common';
 @Controller('api/collector')
 @UseGuards(JwtAuthGuard)
 export class CollectorController {
-  constructor(private readonly collectorService: CollectorService) {}
+  constructor(private readonly collectorService: CollectorService) { }
 
   @Get('stats')
   async getStats(@Req() req) {
@@ -35,6 +35,14 @@ export class CollectorController {
   async endShift(@Req() req, @Body() dto: EndShiftDto) {
     const userId = req.user.id;
     return this.collectorService.endShift(userId, dto);
+  }
+
+  @Get('my-transactions')
+  async getMyTransactions(@Req() req) {
+    const userId = req.user.id;
+    const activeShift = await this.collectorService.getActiveShift(userId);
+    const shiftStartTime = activeShift?.startTime;
+    return this.collectorService.getMyTransactions(userId, shiftStartTime);
   }
 
   @Get('flash-summary')

@@ -86,7 +86,8 @@ export const seedProductConfig = async () => {
                 tableName: product.tableName,
                 routePath: product.routePath,
                 icon: product.icon,
-                isCore: product.isCore
+                isCore: product.isCore,
+                isEnabled: product.isEnabled // Ensure products are enabled as per seed data
             },
             create: product,
         });

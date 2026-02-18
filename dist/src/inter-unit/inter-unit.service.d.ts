@@ -28,20 +28,20 @@ export declare class InterUnitService {
             fullName: string;
         };
     } & {
-        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
-        createdBy: number;
-        createdAt: Date;
         id: number;
         description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
         amount: Prisma.Decimal;
         journalId: number | null;
+        approvedBy: number | null;
         transactionDate: Date;
         sourceUnitId: number;
         destUnitId: number;
         transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
         referenceNo: string | null;
         eliminationJournalId: number | null;
-        approvedBy: number | null;
     }>;
     findAll(filters: InterUnitTransactionFilters): Promise<{
         data: ({
@@ -52,20 +52,20 @@ export declare class InterUnitService {
                 fullName: string;
             } | null;
         } & {
-            status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
-            createdBy: number;
-            createdAt: Date;
             id: number;
             description: string | null;
+            createdBy: number;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
             amount: Prisma.Decimal;
             journalId: number | null;
+            approvedBy: number | null;
             transactionDate: Date;
             sourceUnitId: number;
             destUnitId: number;
             transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
             referenceNo: string | null;
             eliminationJournalId: number | null;
-            approvedBy: number | null;
         })[];
         total: number;
         page: number;
@@ -82,52 +82,52 @@ export declare class InterUnitService {
             fullName: string;
         } | null;
     } & {
-        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
-        createdBy: number;
-        createdAt: Date;
         id: number;
         description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
         amount: Prisma.Decimal;
         journalId: number | null;
+        approvedBy: number | null;
         transactionDate: Date;
         sourceUnitId: number;
         destUnitId: number;
         transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
         referenceNo: string | null;
         eliminationJournalId: number | null;
-        approvedBy: number | null;
     }>;
     approve(id: number, userId: number): Promise<{
-        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
-        createdBy: number;
-        createdAt: Date;
         id: number;
         description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
         amount: Prisma.Decimal;
         journalId: number | null;
+        approvedBy: number | null;
         transactionDate: Date;
         sourceUnitId: number;
         destUnitId: number;
         transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
         referenceNo: string | null;
         eliminationJournalId: number | null;
-        approvedBy: number | null;
     }>;
     post(id: number, userId: number): Promise<{
-        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
-        createdBy: number;
-        createdAt: Date;
         id: number;
         description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
         amount: Prisma.Decimal;
         journalId: number | null;
+        approvedBy: number | null;
         transactionDate: Date;
         sourceUnitId: number;
         destUnitId: number;
         transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
         referenceNo: string | null;
         eliminationJournalId: number | null;
-        approvedBy: number | null;
     }>;
     getBalances(unitId: number, asOfDate?: Date): Promise<{
         unitId: number;
@@ -144,19 +144,19 @@ export declare class InterUnitService {
         processedBy: number | null;
     }>;
     delete(id: number): Promise<{
-        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
-        createdBy: number;
-        createdAt: Date;
         id: number;
         description: string | null;
+        createdBy: number;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.InterUnitTransactionStatus;
         amount: Prisma.Decimal;
         journalId: number | null;
+        approvedBy: number | null;
         transactionDate: Date;
         sourceUnitId: number;
         destUnitId: number;
         transactionType: import(".prisma/client").$Enums.InterUnitTransactionType;
         referenceNo: string | null;
         eliminationJournalId: number | null;
-        approvedBy: number | null;
     }>;
 }

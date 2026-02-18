@@ -13,14 +13,12 @@ export declare class CollectorController {
             fullName: string;
         };
     } & {
-        status: string;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
+        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -47,16 +45,16 @@ export declare class CollectorController {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
+        createdAt: Date;
+        updatedAt: Date;
     }) | null>;
     startShift(req: any, dto: StartShiftDto): Promise<{
-        status: string;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
+        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -83,16 +81,16 @@ export declare class CollectorController {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     endShift(req: any, dto: EndShiftDto): Promise<{
-        status: string;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
         userId: number;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
+        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         startDenom100k: number;
         startDenom50k: number;
@@ -119,6 +117,19 @@ export declare class CollectorController {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    getMyTransactions(req: any): Promise<{
+        transactions: {
+            date: Date;
+            product: string;
+            accountNumber: string;
+            transType: string;
+            amount: number;
+            description: string;
+        }[];
+        totalKredit: number;
     }>;
     getFlashSummary(): Promise<{
         activeCollectors: number;

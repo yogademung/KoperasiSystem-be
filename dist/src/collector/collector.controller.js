@@ -41,6 +41,12 @@ let CollectorController = class CollectorController {
         const userId = req.user.id;
         return this.collectorService.endShift(userId, dto);
     }
+    async getMyTransactions(req) {
+        const userId = req.user.id;
+        const activeShift = await this.collectorService.getActiveShift(userId);
+        const shiftStartTime = activeShift?.startTime;
+        return this.collectorService.getMyTransactions(userId, shiftStartTime);
+    }
     async getFlashSummary() {
         return this.collectorService.getFlashSummary();
     }
@@ -76,6 +82,13 @@ __decorate([
     __metadata("design:paramtypes", [Object, collector_shift_dto_1.EndShiftDto]),
     __metadata("design:returntype", Promise)
 ], CollectorController.prototype, "endShift", null);
+__decorate([
+    (0, common_1.Get)('my-transactions'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CollectorController.prototype, "getMyTransactions", null);
 __decorate([
     (0, common_1.Get)('flash-summary'),
     __metadata("design:type", Function),

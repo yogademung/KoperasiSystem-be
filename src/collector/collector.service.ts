@@ -19,7 +19,7 @@ export class CollectorService {
     private prisma: PrismaService,
     private accountingService: AccountingService,
     private systemDateService: SystemDateService,
-  ) {}
+  ) { }
 
   async getDailyStats(userId: number, shiftStartTime?: Date) {
     // Use shift start time if provided, otherwise use start of today
@@ -299,6 +299,107 @@ export class CollectorService {
       (d.denom200 || 0) * 200 +
       (d.denom100 || 0) * 100
     );
+  }
+
+  async getMyTransactions(userId: number, shiftStartTime?: Date) {
+    const startTime = shiftStartTime || startOfDay(new Date());
+    const endTime = endOfDay(new Date());
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) return { transactions: [], totalKredit: 0 };
+    const username = user.username;
+
+    const allTx: Array<{
+      date: Date;
+      product: string;
+      accountNumber: string;
+      transType: string;
+      amount: number;
+      description: string;
+    }> = [];
+
+    // 1. AnggotaTransaction
+    try {
+      const rows = await this.prisma.anggotaTransaction.findMany({
+        where: { userId, transDate: { gte: startTime, lte: endTime } },
+        orderBy: { transDate: 'desc' },
+      });
+      for (const r of rows) {
+        allTx.push({
+          date: r.transDate,
+          product: 'Simpanan Anggota',
+          accountNumber: r.accountNumber,
+          transType: r.transType,
+          amount: Number(r.amount),
+          description: r.description || '',
+        });
+      }
+    } catch (e) { /* table may not exist */ }
+
+    // 2. Savings tables (use createdBy = username)
+    const savingsTables: Array<{
+      model: any;
+      name: string;
+      accountField: string;
+    }> = [
+        { model: this.prisma.transTab, name: 'Tabungan', accountField: 'noTab' },
+        { model: this.prisma.transBrahmacari, name: 'Brahmacari', accountField: 'noBrahmacari' },
+        { model: this.prisma.transBalimesari, name: 'Balimesari', accountField: 'noBalimesari' },
+        { model: this.prisma.transWanaprasta, name: 'Wanaprasta', accountField: 'noWanaprasta' },
+      ];
+
+    for (const tbl of savingsTables) {
+      if (!tbl.model) continue;
+      try {
+        const rows = await tbl.model.findMany({
+          where: { createdBy: username, createdAt: { gte: startTime, lte: endTime } },
+          orderBy: { createdAt: 'desc' },
+        });
+        for (const r of rows) {
+          allTx.push({
+            date: r.createdAt,
+            product: tbl.name,
+            accountNumber: r[tbl.accountField] || '',
+            transType: r.tipeTrans || '',
+            amount: Number(r.nominal || 0),
+            description: r.keterangan || '',
+          });
+        }
+      } catch (e) { /* skip */ }
+    }
+
+    // 3. TransKredit (credit product)
+    let totalKredit = 0;
+    try {
+      const kreditRows: any[] = await this.prisma.transKredit.findMany({
+        where: { createdBy: username, createdAt: { gte: startTime, lte: endTime } },
+        include: {
+          kredit: {
+            select: { nomorKredit: true, nasabah: { select: { nama: true } } },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      for (const r of kreditRows) {
+        const amt = Number(r.nominal || 0);
+        totalKredit += amt;
+        allTx.push({
+          date: r.createdAt,
+          product: 'Kredit',
+          accountNumber: r.kredit?.nomorKredit || String(r.debiturKreditId),
+          transType: r.tipeTrans || '',
+          amount: amt,
+          description: r.keterangan || (r.kredit?.nasabah?.nama || ''),
+        });
+      }
+    } catch (e) { /* skip */ }
+
+    // Sort all by date descending
+    allTx.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return { transactions: allTx, totalKredit };
   }
 
   async getFlashSummary() {
