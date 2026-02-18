@@ -374,7 +374,10 @@ export class CollectorService {
     let totalKredit = 0;
     try {
       const kreditRows: any[] = await this.prisma.transKredit.findMany({
-        where: { createdBy: username, createdAt: { gte: startTime, lte: endTime } },
+        where: {
+          createdBy: { in: [username, String(userId)] },
+          createdAt: { gte: startTime, lte: endTime },
+        },
         include: {
           kredit: {
             select: { nomorKredit: true, nasabah: { select: { nama: true } } },
