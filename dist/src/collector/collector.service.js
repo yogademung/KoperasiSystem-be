@@ -49,11 +49,18 @@ let CollectorService = class CollectorService {
             const stats = await this.getStatsForModel(table.model, {
                 createdBy: username,
                 createdAt: { gte: startTime, lte: endTime },
-            }, table.name, 'nominal', 'tipeTrans');
+            }, table.name, 'nominal', table.typeField || 'tipeTrans');
             totalStats.count += stats.count;
             totalStats.deposits += stats.deposits;
             totalStats.withdrawals += stats.withdrawals;
         }
+        const kreditStats = await this.getStatsForModel(this.prisma.transKredit, {
+            createdBy: { in: [username, String(userId)] },
+            createdAt: { gte: startTime, lte: endTime },
+        }, 'TransKredit', 'nominal', 'tipeTrans');
+        totalStats.count += kreditStats.count;
+        totalStats.deposits += kreditStats.deposits;
+        totalStats.withdrawals += kreditStats.withdrawals;
         return {
             todayTransactions: totalStats.count,
             todayDeposits: totalStats.deposits,

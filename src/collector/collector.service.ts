@@ -47,11 +47,12 @@ export class CollectorService {
     );
 
     // 2. Savings Products (Uses createdBy username)
+    // 2. Savings Products (Uses createdBy username)
     const savingsTables = [
       { model: this.prisma.transTab, name: 'TransTab' },
       { model: this.prisma.transBrahmacari, name: 'TransBrahmacari' },
       { model: this.prisma.transBalimesari, name: 'TransBalimesari' },
-      { model: this.prisma.transWanaprasta, name: 'TransWanaprasta' },
+      { model: this.prisma.transWanaprasta, name: 'TransWanaprasta' }, // typeField removed as it defaults to tipeTrans in getStatsForModel
     ];
 
     const totalStats = { ...anggotaStats };
@@ -65,13 +66,30 @@ export class CollectorService {
         },
         table.name,
         'nominal',
-        'tipeTrans',
+        (table as any).typeField || 'tipeTrans',
       );
 
       totalStats.count += stats.count;
       totalStats.deposits += stats.deposits;
       totalStats.withdrawals += stats.withdrawals;
     }
+
+    // 3. TransKredit (Credit Payments) - Uses userId or username
+    // Using createdAt to match shift window logic consistenly
+    const kreditStats = await this.getStatsForModel(
+      this.prisma.transKredit,
+      {
+        createdBy: { in: [username, String(userId)] },
+        createdAt: { gte: startTime, lte: endTime },
+      },
+      'TransKredit',
+      'nominal',
+      'tipeTrans',
+    );
+
+    totalStats.count += kreditStats.count;
+    totalStats.deposits += kreditStats.deposits;
+    totalStats.withdrawals += kreditStats.withdrawals;
 
     return {
       todayTransactions: totalStats.count,
