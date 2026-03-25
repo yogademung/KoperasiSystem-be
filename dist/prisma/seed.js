@@ -39,9 +39,13 @@ const accounting_seeder_1 = require("./seeds/accounting-seeder");
 const menu_seeder_1 = require("./seeds/menu-seeder");
 const product_config_seeder_1 = require("./seeds/product-config-seeder");
 const allocation_seed_1 = require("./seeds/allocation-seed");
+const category_seeder_1 = require("./seeds/category-seeder");
+const setting_pos_seeder_1 = require("./seeds/setting-pos-seeder");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
+    await (0, category_seeder_1.categorySeeder)(prisma);
+    await (0, setting_pos_seeder_1.settingPosSeeder)(prisma);
     const adminRole = await prisma.role.upsert({
         where: { id: 1 },
         update: {},
@@ -59,7 +63,6 @@ async function main() {
     const adminUser = await prisma.user.upsert({
         where: { username: 'admin' },
         update: {
-            password: hashedPassword,
             isActive: true,
             roleId: 1,
         },

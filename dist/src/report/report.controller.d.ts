@@ -19,8 +19,8 @@ export declare class ReportController {
             createdAt: Date;
             code: string;
             isDefault: boolean;
-            productModule: string;
             category: string;
+            productModule: string;
             version: number;
         }[];
         total: number;
@@ -49,8 +49,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -74,8 +74,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -99,8 +99,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -124,8 +124,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -149,8 +149,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -174,8 +174,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -211,15 +211,15 @@ export declare class ReportController {
         } & {
             id: number;
             status: string;
-            format: string;
             recordId: string | null;
             parameters: string | null;
-            templateId: number;
+            format: string;
             errorMessage: string | null;
             filePath: string | null;
             fileSize: number | null;
             generatedBy: string | null;
             generatedAt: Date;
+            templateId: number;
         })[];
         total: number;
         limit: number;
@@ -234,14 +234,14 @@ export declare class ReportController {
     } & {
         id: number;
         status: string;
-        format: string;
         recordId: string | null;
         parameters: string | null;
-        templateId: number;
+        format: string;
         errorMessage: string | null;
         filePath: string | null;
         fileSize: number | null;
         generatedBy: string | null;
         generatedAt: Date;
+        templateId: number;
     }>;
 }

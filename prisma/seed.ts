@@ -4,11 +4,16 @@ import { seedAccounting } from './seeds/accounting-seeder';
 import { seedMenus } from './seeds/menu-seeder';
 import { seedProductConfig } from './seeds/product-config-seeder';
 import { seedAllocationRules } from './seeds/allocation-seed';
+import { categorySeeder } from './seeds/category-seeder';
+import { settingPosSeeder } from './seeds/setting-pos-seeder';
 
 const prisma = new PrismaClient();
 
 async function main() {
     console.log('Seeding database...');
+    
+    await categorySeeder(prisma);
+    await settingPosSeeder(prisma);
 
 
 
@@ -33,7 +38,6 @@ async function main() {
     const adminUser = await prisma.user.upsert({
         where: { username: 'admin' },
         update: {
-            password: hashedPassword,
             isActive: true,
             roleId: 1,
         },

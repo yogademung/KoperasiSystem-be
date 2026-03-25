@@ -44,6 +44,19 @@ const business_unit_module_1 = require("./business-unit/business-unit.module");
 const budget_module_1 = require("./budget/budget.module");
 const allocation_module_1 = require("./allocation/allocation.module");
 const audit_context_middleware_1 = require("./common/middleware/audit-context.middleware");
+const mobile_auth_module_1 = require("./mobile-auth/mobile-auth.module");
+const mobile_module_1 = require("./mobile/mobile.module");
+const product_category_module_1 = require("./pos/product-category/product-category.module");
+const pos_product_module_1 = require("./pos/pos-product/pos-product.module");
+const uom_module_1 = require("./inventory/uom/uom.module");
+const inventory_item_module_1 = require("./inventory/inventory-item/inventory-item.module");
+const pos_sale_module_1 = require("./pos/pos-sale/pos-sale.module");
+const pos_shift_module_1 = require("./pos/pos-shift/pos-shift.module");
+const goods_receipt_module_1 = require("./inventory/goods-receipt/goods-receipt.module");
+const stock_adjustment_module_1 = require("./inventory/stock-adjustment/stock-adjustment.module");
+const stock_transfer_module_1 = require("./inventory/stock-transfer/stock-transfer.module");
+const vendor_module_1 = require("./inventory/vendor/vendor.module");
+const warehouse_module_1 = require("./inventory/warehouse/warehouse.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(audit_context_middleware_1.AuditContextMiddleware).forRoutes('*');
@@ -84,7 +97,7 @@ exports.AppModule = AppModule = __decorate([
             inter_unit_module_1.InterUnitModule,
             cost_center_module_1.CostCenterModule,
             budget_module_1.BudgetModule,
-            allocation_module_1.AllocationModule,
+            allocation_module_1.AllocationModule, mobile_auth_module_1.MobileAuthModule, mobile_module_1.MobileModule, product_category_module_1.ProductCategoryModule, pos_product_module_1.PosProductModule, uom_module_1.UomModule, inventory_item_module_1.InventoryItemModule, pos_sale_module_1.PosSaleModule, pos_shift_module_1.PosShiftModule, goods_receipt_module_1.GoodsReceiptModule, stock_adjustment_module_1.StockAdjustmentModule, stock_transfer_module_1.StockTransferModule, vendor_module_1.VendorModule, warehouse_module_1.WarehouseModule,
         ],
         controllers: [app_controller_1.AppController, month_end_controller_1.MonthEndController],
         providers: [

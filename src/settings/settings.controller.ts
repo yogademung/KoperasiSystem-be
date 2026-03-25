@@ -48,4 +48,13 @@ export class SettingsController {
     // Return URL path without leading slash (frontend will add it)
     return { url: `uploads/logo/${file.filename}` };
   }
+  @Get('kode-koperasi')
+  async getKodeKoperasi() {
+    return this.settingsService.getKodeKoperasi();
+  }
+
+  @Put('kode-koperasi')
+  async updateKodeKoperasi(@Body() data: { kodeKoperasi: string }) {
+    return this.settingsService.updateKodeKoperasi(data.kodeKoperasi);
+  }
 }

@@ -35,6 +35,12 @@ let SettingsController = class SettingsController {
             throw new common_1.BadRequestException('No file uploaded');
         return { url: `uploads/logo/${file.filename}` };
     }
+    async getKodeKoperasi() {
+        return this.settingsService.getKodeKoperasi();
+    }
+    async updateKodeKoperasi(data) {
+        return this.settingsService.updateKodeKoperasi(data.kodeKoperasi);
+    }
 };
 exports.SettingsController = SettingsController;
 __decorate([
@@ -67,6 +73,19 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], SettingsController.prototype, "uploadLogo", null);
+__decorate([
+    (0, common_1.Get)('kode-koperasi'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "getKodeKoperasi", null);
+__decorate([
+    (0, common_1.Put)('kode-koperasi'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "updateKodeKoperasi", null);
 exports.SettingsController = SettingsController = __decorate([
     (0, common_1.Controller)('settings'),
     __metadata("design:paramtypes", [settings_service_1.SettingsService])

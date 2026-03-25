@@ -7,4 +7,10 @@ export declare class SettingsService implements OnModuleInit {
     private ensureDefaults;
     getProfile(): Promise<Record<string, string>>;
     updateProfile(data: Record<string, string>): Promise<Record<string, string>>;
+    getKodeKoperasi(): Promise<{
+        kodeKoperasi: string;
+    }>;
+    updateKodeKoperasi(kodeKoperasi: string): Promise<{
+        kodeKoperasi: string;
+    }>;
 }

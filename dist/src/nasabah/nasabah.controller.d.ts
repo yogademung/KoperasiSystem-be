@@ -16,8 +16,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -35,8 +35,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -139,8 +139,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -158,8 +158,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -277,8 +277,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -299,8 +299,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -318,8 +318,8 @@ export declare class NasabahController {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -328,5 +328,36 @@ export declare class NasabahController {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+    }>;
+    getMobileAccess(id: string): Promise<{
+        isActive: boolean;
+        username: string;
+        lastLoginAt: Date | null;
+    } | null>;
+    activateMobileAccess(id: string, body: any): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        nasabahId: number;
+        username: string;
+        password: string;
+        lastLoginAt: Date | null;
+        fcmToken: string | null;
+    }>;
+    deactivateMobileAccess(id: string): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        nasabahId: number;
+        username: string;
+        password: string;
+        lastLoginAt: Date | null;
+        fcmToken: string | null;
     }>;
 }

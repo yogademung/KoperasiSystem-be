@@ -150,8 +150,8 @@ export declare class ReportsController {
             id: number;
             createdBy: string | null;
             createdAt: Date;
-            keterangan: string | null;
             tipeTrans: string;
+            keterangan: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
             journalId: number | null;
@@ -213,8 +213,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -404,8 +404,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -438,8 +438,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -472,8 +472,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -506,8 +506,8 @@ export declare class ReportsController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            alamat: string | null;
             noKtp: string | null;
+            alamat: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;

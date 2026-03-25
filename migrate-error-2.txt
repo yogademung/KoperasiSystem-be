@@ -1,0 +1,52 @@
+﻿Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": MySQL database "koperasi_system" at "localhost:3306"
+
+
+node.exe : Error: 
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Error: :Strin   
+ g) [], RemoteExcep    
+tion
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+ΓÜá∩╕Å We found 
+changes that cannot be 
+executed:
+
+  ΓÇó Step 4 Added the 
+required column `id` 
+to the 
+`s_product_config` 
+table without a 
+default value. There 
+are 6 rows in this 
+table, it is not 
+possible to execute 
+this step.
+
+You can use prisma 
+migrate dev 
+--create-only to 
+create the migration 
+file, and manually 
+modify it to address 
+the underlying 
+issue(s).
+Then run prisma 
+migrate dev to apply 
+it and verify it works.
+

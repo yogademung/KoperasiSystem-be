@@ -26,7 +26,8 @@ let RolesGuard = class RolesGuard {
         if (!user.role) {
             return false;
         }
-        return requiredRoles.some((role) => user.role?.roleName === role || user.role?.name === role);
+        return requiredRoles.some((role) => user.role?.roleName?.toUpperCase() === role.toUpperCase() ||
+            user.role?.name?.toUpperCase() === role.toUpperCase());
     }
 };
 exports.RolesGuard = RolesGuard;

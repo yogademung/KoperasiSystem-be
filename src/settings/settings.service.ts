@@ -105,4 +105,40 @@ export class SettingsService implements OnModuleInit {
     }
     return this.getProfile();
   }
+
+  async getKodeKoperasi() {
+    const item = await this.prisma.lovValue.findUnique({
+      where: {
+        code_codeValue: {
+          code: 'KOPERASI_CONFIG',
+          codeValue: 'KOPERASI_CODE',
+        },
+      },
+    });
+    return { kodeKoperasi: item?.description || '' };
+  }
+
+  async updateKodeKoperasi(kodeKoperasi: string) {
+    await this.prisma.lovValue.upsert({
+      where: {
+        code_codeValue: {
+          code: 'KOPERASI_CONFIG',
+          codeValue: 'KOPERASI_CODE',
+        },
+      },
+      update: {
+        description: kodeKoperasi,
+        updatedAt: new Date(),
+        updatedBy: 'ADMIN',
+      },
+      create: {
+        code: 'KOPERASI_CONFIG',
+        codeValue: 'KOPERASI_CODE',
+        description: kodeKoperasi,
+        isActive: true,
+        createdBy: 'ADMIN',
+      },
+    });
+    return { kodeKoperasi };
+  }
 }

@@ -35,6 +35,20 @@ import { BusinessUnitModule } from './business-unit/business-unit.module';
 import { BudgetModule } from './budget/budget.module';
 import { AllocationModule } from './allocation/allocation.module';
 import { AuditContextMiddleware } from './common/middleware/audit-context.middleware';
+import { MobileAuthModule } from './mobile-auth/mobile-auth.module';
+import { MobileModule } from './mobile/mobile.module';
+import { ProductCategoryModule } from './pos/product-category/product-category.module';
+import { PosProductModule } from './pos/pos-product/pos-product.module';
+import { UomModule } from './inventory/uom/uom.module';
+import { InventoryItemModule } from './inventory/inventory-item/inventory-item.module';
+import { PosSaleModule } from './pos/pos-sale/pos-sale.module';
+import { PosShiftModule } from './pos/pos-shift/pos-shift.module';
+import { GoodsReceiptModule } from './inventory/goods-receipt/goods-receipt.module';
+import { StockAdjustmentModule } from './inventory/stock-adjustment/stock-adjustment.module';
+import { StockTransferModule } from './inventory/stock-transfer/stock-transfer.module';
+import { VendorModule } from './inventory/vendor/vendor.module';
+import { WarehouseModule } from './inventory/warehouse/warehouse.module';
+import { InventoryClosingModule } from './inventory/inventory-closing/inventory-closing.module';
 
 @Module({
   imports: [
@@ -69,7 +83,7 @@ import { AuditContextMiddleware } from './common/middleware/audit-context.middle
     InterUnitModule, // Phase 13: Inter-Unit Transactions
     CostCenterModule, // Phase 13: Cost Centers
     BudgetModule, // Phase 13: Budget Management
-    AllocationModule, // Phase 13: Allocation Rules
+    AllocationModule, MobileAuthModule, MobileModule, ProductCategoryModule, PosProductModule, UomModule, InventoryItemModule, PosSaleModule, PosShiftModule, GoodsReceiptModule, StockAdjustmentModule, StockTransferModule, VendorModule, WarehouseModule, // Phase 14: Stock Transfer
   ],
   controllers: [AppController, MonthEndController],
   providers: [

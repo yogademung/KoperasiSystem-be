@@ -12,8 +12,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -31,8 +31,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -50,8 +50,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -69,8 +69,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -173,8 +173,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -292,8 +292,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -311,8 +311,8 @@ export declare class NasabahService {
         createdAt: Date;
         updatedBy: string | null;
         nama: string;
-        alamat: string | null;
         noKtp: string | null;
+        alamat: string | null;
         email: string | null;
         telepon: string | null;
         tempatLahir: string | null;
@@ -321,5 +321,36 @@ export declare class NasabahService {
         pekerjaan: string | null;
         fileKtp: string | null;
         fileKk: string | null;
+    }>;
+    getMobileAccess(nasabahId: number): Promise<{
+        isActive: boolean;
+        username: string;
+        lastLoginAt: Date | null;
+    } | null>;
+    activateMobileAccess(nasabahId: number, reqBody: any): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        nasabahId: number;
+        username: string;
+        password: string;
+        lastLoginAt: Date | null;
+        fcmToken: string | null;
+    }>;
+    deactivateMobileAccess(nasabahId: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        nasabahId: number;
+        username: string;
+        password: string;
+        lastLoginAt: Date | null;
+        fcmToken: string | null;
     }>;
 }

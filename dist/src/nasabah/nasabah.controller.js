@@ -203,6 +203,15 @@ let NasabahController = class NasabahController {
     remove(id) {
         return this.nasabahService.remove(+id);
     }
+    getMobileAccess(id) {
+        return this.nasabahService.getMobileAccess(+id);
+    }
+    activateMobileAccess(id, body) {
+        return this.nasabahService.activateMobileAccess(+id, body);
+    }
+    deactivateMobileAccess(id) {
+        return this.nasabahService.deactivateMobileAccess(+id);
+    }
 };
 exports.NasabahController = NasabahController;
 __decorate([
@@ -276,6 +285,34 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], NasabahController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Get)(':id/mobile-access'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'kepala_koperasi'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], NasabahController.prototype, "getMobileAccess", null);
+__decorate([
+    (0, common_1.Post)(':id/mobile-access'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'kepala_koperasi'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], NasabahController.prototype, "activateMobileAccess", null);
+__decorate([
+    (0, common_1.Delete)(':id/mobile-access'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'kepala_koperasi'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], NasabahController.prototype, "deactivateMobileAccess", null);
 exports.NasabahController = NasabahController = __decorate([
     (0, common_1.Controller)('api/nasabah'),
     __metadata("design:paramtypes", [nasabah_service_1.NasabahService])

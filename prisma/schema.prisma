@@ -33,6 +33,7 @@ model User {
   unlockRequests  UnlockRequest[]  @relation("UnlockRequester")
   collectorShifts CollectorShift[]
   auditLogs       AuditLog[]
+  posShifts       PosShift[]
 
   // Phase 13: Inter-Unit Transactions
   interUnitTransactionsCreated  InterUnitTransaction[] @relation("InterUnitCreator")
@@ -49,9 +50,9 @@ model User {
   createdBudgets        UnitBudget[]   @relation("UnitBudgetCreator")
 
   // Phase 13: Allocation Rules
-  createdAllocationRules    AllocationRule[]      @relation("AllocationRuleCreator")
-  executedAllocations       AllocationExecution[] @relation("AllocationExecutor")
-  rolledBackAllocations     AllocationExecution[] @relation("AllocationRollbacker")
+  createdAllocationRules AllocationRule[]      @relation("AllocationRuleCreator")
+  executedAllocations    AllocationExecution[] @relation("AllocationExecutor")
+  rolledBackAllocations  AllocationExecution[] @relation("AllocationRollbacker")
 
   @@index([roleId], map: "s_user_lpd_ROLE_LPD_ID_fkey")
   @@map("s_user_lpd")
@@ -172,8 +173,48 @@ model Nasabah {
   tabungan     NasabahTab[]
   wanaprasta   NasabahWanaprasta[]
   waris        NasabahWaris[]
+  mobileUser   MobileUser?
+  withdrawals  WithdrawalRequest[]
 
   @@map("m_nasabah")
+}
+
+model MobileUser {
+  id          Int       @id @default(autoincrement()) @map("MOBILE_USER_ID")
+  nasabahId   Int       @unique @map("NASABAH_ID")
+  username    String    @unique @map("USERNAME") @db.VarChar(50)
+  password    String    @map("PWD") @db.VarChar(255)
+  isActive    Boolean   @default(true) @map("ACTIVE_FLAG")
+  lastLoginAt DateTime? @map("LAST_LOGIN")
+  fcmToken    String?   @map("FCM_TOKEN") @db.Text
+  createdBy   String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
+  updatedBy   String?   @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
+  nasabah     Nasabah   @relation(fields: [nasabahId], references: [id])
+
+  @@map("m_mobile_user")
+}
+
+model WithdrawalRequest {
+  id              Int       @id @default(autoincrement()) @map("WITHDRAWAL_ID")
+  nasabahId       Int       @map("NASABAH_ID")
+  referenceNumber String    @unique @map("REF_NO") @db.VarChar(30)
+  amount          Decimal   @map("AMOUNT") @db.Decimal(19, 4)
+  fee             Decimal   @default(0) @map("FEE") @db.Decimal(19, 4)
+  totalDeducted   Decimal   @map("TOTAL_DEDUCTED") @db.Decimal(19, 4)
+  deliveryAddress String    @map("DELIVERY_ADDRESS") @db.Text
+  scheduledDate   DateTime  @map("SCHEDULED_DATE") @db.Date
+  timeSlot        String    @map("TIME_SLOT") @db.VarChar(10)
+  status          String    @default("SCHEDULED") @map("STATUS") @db.VarChar(20)
+  notes           String?   @map("NOTES") @db.Text
+  createdBy       String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime  @default(now()) @map("CREATE_DATE")
+  updatedAt       DateTime? @updatedAt @map("CHANGE_DATE")
+  nasabah         Nasabah   @relation(fields: [nasabahId], references: [id])
+
+  @@index([nasabahId])
+  @@map("t_withdrawal_request")
 }
 
 model AnggotaAccount {
@@ -513,25 +554,25 @@ model JournalAccount {
 }
 
 model PostedJournal {
-  id            Int                        @id @default(autoincrement()) @map("JOURNAL_ID")
-  journalNumber String                     @unique @map("JOURNAL_NO") @db.VarChar(30)
-  journalDate   DateTime                   @map("TGL_POSTING") @db.Date
-  description   String?                    @map("KETERANGAN") @db.Text
-  postingType   String                     @default("AUTO") @map("POSTING_TYPE") @db.VarChar(10)
-  transType     String?                    @map("TRANS_TYPE") @db.VarChar(30)
-  refId         Int?                       @map("REF_ID")
-  userId        Int                        @map("USER_ID")
-  tellerId      String?                    @map("TELLER_ID") @db.VarChar(20)
-  wilayahCd     String?                    @map("WILAYAH_CD") @db.VarChar(10)
-  status        String                     @default("POSTED") @map("STATUS") @db.VarChar(20)
-  createdBy     String?                    @map("CREATE_WHO") @db.VarChar(50)
-  createdAt     DateTime                   @default(now()) @map("CREATE_DATE")
-  updatedBy     String?                    @map("CHANGE_WHO") @db.VarChar(50)
-  updatedAt     DateTime?                  @updatedAt @map("CHANGE_DATE")
-  sourceCode    String?                    @map("SOURCE_CODE") @db.VarChar(20)
-  assetHistory  AssetDepreciationHistory[]
-  user          User                       @relation(fields: [userId], references: [id])
-  details       PostedJournalDetail[]
+  id                   Int                        @id @default(autoincrement()) @map("JOURNAL_ID")
+  journalNumber        String                     @unique @map("JOURNAL_NO") @db.VarChar(30)
+  journalDate          DateTime                   @map("TGL_POSTING") @db.Date
+  description          String?                    @map("KETERANGAN") @db.Text
+  postingType          String                     @default("AUTO") @map("POSTING_TYPE") @db.VarChar(10)
+  transType            String?                    @map("TRANS_TYPE") @db.VarChar(30)
+  refId                Int?                       @map("REF_ID")
+  userId               Int                        @map("USER_ID")
+  tellerId             String?                    @map("TELLER_ID") @db.VarChar(20)
+  wilayahCd            String?                    @map("WILAYAH_CD") @db.VarChar(10)
+  status               String                     @default("POSTED") @map("STATUS") @db.VarChar(20)
+  createdBy            String?                    @map("CREATE_WHO") @db.VarChar(50)
+  createdAt            DateTime                   @default(now()) @map("CREATE_DATE")
+  updatedBy            String?                    @map("CHANGE_WHO") @db.VarChar(50)
+  updatedAt            DateTime?                  @updatedAt @map("CHANGE_DATE")
+  sourceCode           String?                    @map("SOURCE_CODE") @db.VarChar(20)
+  assetHistory         AssetDepreciationHistory[]
+  user                 User                       @relation(fields: [userId], references: [id])
+  details              PostedJournalDetail[]
   allocationExecutions AllocationExecution[]
 
   @@index([userId], map: "t_posted_journal_USER_ID_fkey")
@@ -1073,13 +1114,13 @@ model CostCenter {
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
   // Relations
-  parent       CostCenter?  @relation("CostCenterHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children     CostCenter[] @relation("CostCenterHierarchy")
-  manager      User?        @relation("CostCenterManager", fields: [managerId], references: [id])
-  creator      User         @relation("CostCenterCreator", fields: [createdBy], references: [id])
-  unitBudgets  UnitBudget[]
+  parent                     CostCenter?                 @relation("CostCenterHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children                   CostCenter[]                @relation("CostCenterHierarchy")
+  manager                    User?                       @relation("CostCenterManager", fields: [managerId], references: [id])
+  creator                    User                        @relation("CostCenterCreator", fields: [createdBy], references: [id])
+  unitBudgets                UnitBudget[]
   // Phase 13: Allocation Rules
-  allocationTargets         AllocationTarget[]
+  allocationTargets          AllocationTarget[]
   allocationExecutionDetails AllocationExecutionDetail[]
 
   @@index([parentId])
@@ -1141,16 +1182,16 @@ model BudgetPeriod {
 }
 
 model UnitBudget {
-  id             Int           @id @default(autoincrement())
-  periodId       Int           @map("period_id")
-  costCenterId   Int?          @map("cost_center_id")
-  businessUnitId Int?          @map("business_unit_id")
-  accountCode    String        @map("account_code") @db.VarChar(20)
-  budgetAmount   Decimal       @default(0) @map("budget_amount") @db.Decimal(15, 2)
-  notes          String?       @db.Text
-  createdBy      Int           @map("created_by")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  id             Int      @id @default(autoincrement())
+  periodId       Int      @map("period_id")
+  costCenterId   Int?     @map("cost_center_id")
+  businessUnitId Int?     @map("business_unit_id")
+  accountCode    String   @map("account_code") @db.VarChar(20)
+  budgetAmount   Decimal  @default(0) @map("budget_amount") @db.Decimal(15, 2)
+  notes          String?  @db.Text
+  createdBy      Int      @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
   period       BudgetPeriod  @relation(fields: [periodId], references: [id], onDelete: Cascade)
@@ -1185,21 +1226,21 @@ enum AllocationExecutionStatus {
 }
 
 model AllocationRule {
-  id               Int              @id @default(autoincrement())
-  name             String           @db.VarChar(200)
-  description      String?          @db.Text
-  sourceAccountCode String          @map("source_account_code") @db.VarChar(20)
-  allocationMethod AllocationMethod @map("allocation_method")
-  customFormula    String?          @map("custom_formula") @db.Text
-  isActive         Boolean          @default(true) @map("is_active")
-  createdBy        Int              @map("created_by")
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at")
+  id                Int              @id @default(autoincrement())
+  name              String           @db.VarChar(200)
+  description       String?          @db.Text
+  sourceAccountCode String           @map("source_account_code") @db.VarChar(20)
+  allocationMethod  AllocationMethod @map("allocation_method")
+  customFormula     String?          @map("custom_formula") @db.Text
+  isActive          Boolean          @default(true) @map("is_active")
+  createdBy         Int              @map("created_by")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  creator         User                  @relation("AllocationRuleCreator", fields: [createdBy], references: [id])
-  targets         AllocationTarget[]
-  executions      AllocationExecution[]
+  creator    User                  @relation("AllocationRuleCreator", fields: [createdBy], references: [id])
+  targets    AllocationTarget[]
+  executions AllocationExecution[]
 
   @@index([sourceAccountCode])
   @@index([isActive])
@@ -1208,9 +1249,9 @@ model AllocationRule {
 }
 
 model AllocationTarget {
-  id               Int     @id @default(autoincrement())
-  ruleId           Int     @map("rule_id")
-  costCenterId     Int     @map("cost_center_id")
+  id               Int      @id @default(autoincrement())
+  ruleId           Int      @map("rule_id")
+  costCenterId     Int      @map("cost_center_id")
   targetPercentage Decimal? @map("target_percentage") @db.Decimal(5, 2)
   fixedAmount      Decimal? @map("fixed_amount") @db.Decimal(15, 2)
   weight           Decimal? @db.Decimal(10, 2)
@@ -1240,11 +1281,11 @@ model AllocationExecution {
   notes         String?                   @db.Text
 
   // Relations
-  rule          AllocationRule              @relation(fields: [ruleId], references: [id])
-  journal       PostedJournal?              @relation(fields: [journalId], references: [id])
-  executor      User                        @relation("AllocationExecutor", fields: [executedBy], references: [id])
-  rollbacker    User?                       @relation("AllocationRollbacker", fields: [rolledBackBy], references: [id])
-  details       AllocationExecutionDetail[]
+  rule       AllocationRule              @relation(fields: [ruleId], references: [id])
+  journal    PostedJournal?              @relation(fields: [journalId], references: [id])
+  executor   User                        @relation("AllocationExecutor", fields: [executedBy], references: [id])
+  rollbacker User?                       @relation("AllocationRollbacker", fields: [rolledBackBy], references: [id])
+  details    AllocationExecutionDetail[]
 
   @@index([periodYear, periodMonth])
   @@index([ruleId])
@@ -1254,10 +1295,10 @@ model AllocationExecution {
 }
 
 model AllocationExecutionDetail {
-  id               Int     @id @default(autoincrement())
-  executionId      Int     @map("execution_id")
-  costCenterId     Int     @map("cost_center_id")
-  allocatedAmount  Decimal @map("allocated_amount") @db.Decimal(15, 2)
+  id               Int      @id @default(autoincrement())
+  executionId      Int      @map("execution_id")
+  costCenterId     Int      @map("cost_center_id")
+  allocatedAmount  Decimal  @map("allocated_amount") @db.Decimal(15, 2)
   percentage       Decimal? @db.Decimal(5, 2)
   calculationBasis Decimal? @map("calculation_basis") @db.Decimal(15, 2)
 
@@ -1271,17 +1312,17 @@ model AllocationExecutionDetail {
 }
 
 model AuditLog {
-  id          Int      @id @default(autoincrement()) @map("id")
-  userId      Int?     @map("user_id")
-  username    String?  @map("username") @db.VarChar(50)
-  action      String   @map("action") @db.VarChar(20)
-  tableName   String   @map("table_name") @db.VarChar(100)
-  recordId    String   @map("record_id") @db.VarChar(100)
-  oldValue    String?  @map("old_value") @db.LongText
-  newValue    String?  @map("new_value") @db.LongText
-  ipAddress   String?  @map("ip_address") @db.VarChar(50)
-  userAgent   String?  @map("user_agent") @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement()) @map("id")
+  userId    Int?     @map("user_id")
+  username  String?  @map("username") @db.VarChar(50)
+  action    String   @map("action") @db.VarChar(20)
+  tableName String   @map("table_name") @db.VarChar(100)
+  recordId  String   @map("record_id") @db.VarChar(100)
+  oldValue  String?  @map("old_value") @db.LongText
+  newValue  String?  @map("new_value") @db.LongText
+  ipAddress String?  @map("ip_address") @db.VarChar(50)
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
 
   user User? @relation(fields: [userId], references: [id])
 
@@ -1291,3 +1332,362 @@ model AuditLog {
   @@map("audit_log")
 }
 
+// ============================================
+// Phase 13-15: POS & Inventory System
+// ============================================
+
+model ProductCategory {
+  id          Int       @id @default(autoincrement()) @map("CATEGORY_ID")
+  name        String    @map("CATEGORY_NAME") @db.VarChar(100)
+  description String?   @map("DESCRIPTION") @db.Text
+  parentId    Int?      @map("PARENT_ID")
+  level       Int       @default(1) @map("LEVEL") // 1: MainGroup, 2: SubGroup
+  isActive    Boolean   @default(true) @map("ACTIVE_FLAG")
+  createdBy   String?   @map("CREATE_WHO") @db.VarChar(50)
+  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
+  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
+
+  parent         ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children       ProductCategory[] @relation("CategoryHierarchy")
+  posProducts    PosProduct[]
+  inventoryItems InventoryItem[]
+
+  @@index([parentId])
+  @@map("m_product_category")
+}
+
+model Uom {
+  id       Int             @id @default(autoincrement()) @map("UOM_ID")
+  code     String          @unique @map("UOM_CODE") @db.VarChar(20)
+  name     String          @map("UOM_NAME") @db.VarChar(50)
+  isActive Boolean         @default(true) @map("ACTIVE_FLAG")
+  items    InventoryItem[]
+
+  @@map("m_uom")
+}
+
+model InventoryItem {
+  id          Int       @id @default(autoincrement()) @map("ITEM_ID")
+  sku         String    @unique @map("SKU") @db.VarChar(50)
+  name        String    @map("ITEM_NAME") @db.VarChar(100)
+  categoryId  Int       @map("CATEGORY_ID")
+  uomId       Int       @map("UOM_ID")
+  averageCost Decimal   @default(0.0000) @map("AVERAGE_COST") @db.Decimal(19, 4)
+  stockQty    Decimal   @default(0.00) @map("STOCK_QTY") @db.Decimal(19, 2)
+  isActive    Boolean   @default(true) @map("ACTIVE_FLAG")
+  createdAt   DateTime  @default(now()) @map("CREATE_DATE")
+  updatedAt   DateTime? @updatedAt @map("CHANGE_DATE")
+
+  category     ProductCategory    @relation(fields: [categoryId], references: [id])
+  uom          Uom                @relation(fields: [uomId], references: [id])
+  recipes      PosProductRecipe[]
+  receiptItems GoodsReceiptItem[]
+  adjustments  StockAdjustment[]
+  warehouseStocks WarehouseStock[]
+  transfers    StockTransfer[]
+  closings     InventoryClosing[]
+
+  @@index([categoryId])
+  @@index([uomId])
+  @@map("m_inventory_item")
+}
+
+model PosProduct {
+  id           Int       @id @default(autoincrement()) @map("POS_PRODUCT_ID")
+  code         String    @unique @map("PRODUCT_CODE") @db.VarChar(50)
+  name         String    @map("PRODUCT_NAME") @db.VarChar(100)
+  categoryId   Int       @map("CATEGORY_ID")
+  sellingPrice Decimal   @map("SELLING_PRICE") @db.Decimal(19, 4)
+  cogs         Decimal   @default(0.0000) @map("COGS") @db.Decimal(19, 4)
+  isActive     Boolean   @default(true) @map("ACTIVE_FLAG")
+  createdAt    DateTime  @default(now()) @map("CREATE_DATE")
+  updatedAt    DateTime? @updatedAt @map("CHANGE_DATE")
+
+  category  ProductCategory    @relation(fields: [categoryId], references: [id])
+  recipes   PosProductRecipe[]
+  saleItems PosSaleItem[]
+
+  @@index([categoryId])
+  @@map("m_pos_product")
+}
+
+model PosProductRecipe {
+  posProductId    Int     @map("POS_PRODUCT_ID")
+  inventoryItemId Int     @map("INVENTORY_ITEM_ID")
+  quantity        Decimal @map("QUANTITY_REQUIRED") @db.Decimal(19, 4)
+
+  posProduct    PosProduct    @relation(fields: [posProductId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@id([posProductId, inventoryItemId])
+  @@index([inventoryItemId])
+  @@map("m_pos_product_recipe")
+}
+
+model GoodsReceipt {
+  id            Int                @id @default(autoincrement()) @map("RECEIPT_ID")
+  receiptNumber String             @unique @map("RECEIPT_NO") @db.VarChar(50)
+  receiptDate   DateTime           @map("RECEIPT_DATE") @db.Date
+  vendorId      Int?               @map("VENDOR_ID")
+  supplierName  String?            @map("SUPPLIER_NAME") @db.VarChar(100)
+  referenceNo   String?            @map("REFERENCE_NO") @db.VarChar(50)
+  status        String             @default("DRAFT") @map("STATUS") @db.VarChar(20) // DRAFT, POSTED
+  totalAmount   Decimal            @default(0.0000) @map("TOTAL_AMOUNT") @db.Decimal(19, 4)
+  createdBy     String?            @map("CREATE_WHO") @db.VarChar(50)
+  createdAt     DateTime           @default(now()) @map("CREATE_DATE")
+  warehouseId   Int?               @map("WAREHOUSE_ID")
+  
+  items         GoodsReceiptItem[]
+  vendor        Vendor?            @relation(fields: [vendorId], references: [id])
+  invoice       ApInvoice?
+  warehouse     Warehouse?         @relation(fields: [warehouseId], references: [id])
+
+  @@index([vendorId])
+  @@map("t_goods_receipt")
+}
+
+model GoodsReceiptItem {
+  id              Int     @id @default(autoincrement()) @map("RECEIPT_ITEM_ID")
+  receiptId       Int     @map("RECEIPT_ID")
+  inventoryItemId Int     @map("INVENTORY_ITEM_ID")
+  quantity        Decimal @map("QUANTITY") @db.Decimal(19, 2)
+  unitPrice       Decimal @map("UNIT_PRICE") @db.Decimal(19, 4)
+  totalPrice      Decimal @map("TOTAL_PRICE") @db.Decimal(19, 4)
+
+  receipt       GoodsReceipt  @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@index([receiptId])
+  @@index([inventoryItemId])
+  @@map("t_goods_receipt_item")
+}
+
+model StockAdjustment {
+  id              Int      @id @default(autoincrement()) @map("ADJUSTMENT_ID")
+  adjustmentDate  DateTime @map("ADJUSTMENT_DATE") @db.Date
+  inventoryItemId Int      @map("INVENTORY_ITEM_ID")
+  adjustmentQty   Decimal  @map("ADJUSTMENT_QTY") @db.Decimal(19, 2) // Bisa plus/minus
+  averageCost     Decimal  @map("AVERAGE_COST") @db.Decimal(19, 4) // HPP mutasi
+  reason          String?  @map("REASON") @db.Text
+  status          String   @default("POSTED") @map("STATUS") @db.VarChar(20) // DRAFT, POSTED
+  createdBy       String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime @default(now()) @map("CREATE_DATE")
+  warehouseId     Int?     @map("WAREHOUSE_ID")
+
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+  warehouse       Warehouse?    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+
+  @@index([inventoryItemId])
+  @@map("t_stock_adjustment")
+}
+
+model PosShift {
+  id           Int       @id @default(autoincrement()) @map("SHIFT_ID")
+  userId       Int       @map("USER_ID")
+  warehouseId  Int?      @map("WAREHOUSE_ID")
+  terminalId   String?   @map("TERMINAL_ID") @db.VarChar(50)
+  shiftDate    DateTime  @default(now()) @map("SHIFT_DATE") @db.Date
+  startTime    DateTime  @default(now()) @map("START_TIME")
+  endTime      DateTime? @map("END_TIME")
+  status       String    @default("OPEN") @map("STATUS") @db.VarChar(20) // OPEN, CLOSED
+  startingCash Decimal   @default(0) @map("STARTING_CASH") @db.Decimal(19, 4)
+  endingCash   Decimal?  @map("ENDING_CASH") @db.Decimal(19, 4)
+  totalSales   Decimal   @default(0) @map("TOTAL_SALES") @db.Decimal(19, 4)
+  journalId    Int?      @map("JOURNAL_ID") // Reference to the batch posting
+  sales        PosSale[]
+
+  user      User      @relation(fields: [userId], references: [id])
+  warehouse Warehouse? @relation(fields: [warehouseId], references: [id])
+
+  @@index([userId])
+  @@index([warehouseId])
+  @@map("t_pos_shift")
+}
+
+model PosSale {
+  id            Int           @id @default(autoincrement()) @map("SALE_ID")
+  shiftId       Int           @map("SHIFT_ID")
+  receiptNumber String        @unique @map("RECEIPT_NO") @db.VarChar(50)
+  saleDate      DateTime      @default(now()) @map("SALE_DATE")
+  totalAmount   Decimal       @map("TOTAL_AMOUNT") @db.Decimal(19, 4)
+  paymentMethod String        @map("PAYMENT_METHOD") @db.VarChar(20) // CASH, TRANSFER, dll
+  paymentAmount Decimal       @map("PAYMENT_AMOUNT") @db.Decimal(19, 4)
+  changeAmount  Decimal       @default(0) @map("CHANGE_AMOUNT") @db.Decimal(19, 4)
+  status        String        @default("COMPLETED") @map("STATUS") @db.VarChar(20) // COMPLETED, VOIDED
+  items         PosSaleItem[]
+
+  shift PosShift @relation(fields: [shiftId], references: [id])
+
+  @@index([shiftId])
+  @@map("t_pos_sale")
+}
+
+model PosSaleItem {
+  id           Int     @id @default(autoincrement()) @map("SALE_ITEM_ID")
+  saleId       Int     @map("SALE_ID")
+  posProductId Int     @map("POS_PRODUCT_ID")
+  quantity     Decimal @map("QUANTITY") @db.Decimal(19, 2)
+  unitPrice    Decimal @map("UNIT_PRICE") @db.Decimal(19, 4) // Harga jual saat transaksi
+  cogsPrice    Decimal @map("COGS_PRICE") @db.Decimal(19, 4) // HPP saat transaksi
+  totalPrice   Decimal @map("TOTAL_PRICE") @db.Decimal(19, 4)
+
+  sale       PosSale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  posProduct PosProduct @relation(fields: [posProductId], references: [id], onDelete: Restrict)
+
+  @@index([saleId])
+  @@index([posProductId])
+  @@map("t_pos_sale_item")
+}
+
+model Vendor {
+  id           Int      @id @default(autoincrement()) @map("VENDOR_ID")
+  code         String   @unique @map("VENDOR_CD") @db.VarChar(50)
+  name         String   @map("NAMA_VENDOR") @db.VarChar(100)
+  contactName  String?  @map("NAMA_KONTAK") @db.VarChar(100)
+  phone        String?  @map("NO_TELP") @db.VarChar(20)
+  email        String?  @map("EMAIL") @db.VarChar(100)
+  address      String?  @map("ALAMAT") @db.Text
+  status       String   @default("ACTIVE") @map("STATUS") @db.VarChar(20)
+  createdBy    String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime @default(now()) @map("CREATE_DATE")
+  
+  receipts     GoodsReceipt[]
+  invoices     ApInvoice[]
+
+  @@map("m_vendor")
+}
+
+model ApInvoice {
+  id              Int      @id @default(autoincrement()) @map("INVOICE_ID")
+  invoiceNumber   String   @unique @map("INVOICE_NO") @db.VarChar(50)
+  vendorId        Int      @map("VENDOR_ID")
+  receiptId       Int?     @unique @map("RECEIPT_ID")
+  invoiceDate     DateTime @map("INVOICE_DATE") @db.Date
+  dueDate         DateTime @map("DUE_DATE") @db.Date
+  totalAmount     Decimal  @map("TOTAL_AMOUNT") @db.Decimal(19, 4)
+  paidAmount      Decimal  @default(0) @map("PAID_AMOUNT") @db.Decimal(19, 4)
+  status          String   @default("UNPAID") @map("STATUS") @db.VarChar(20) // UNPAID, PARTIAL, PAID
+  journalId       Int?     @map("JOURNAL_ID")
+  createdBy       String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime @default(now()) @map("CREATE_DATE")
+  
+  vendor          Vendor        @relation(fields: [vendorId], references: [id])
+  receipt         GoodsReceipt? @relation(fields: [receiptId], references: [id])
+  payments        ApPayment[]
+
+  @@index([vendorId])
+  @@map("t_ap_invoice")
+}
+
+model ApPayment {
+  id            Int      @id @default(autoincrement()) @map("PAYMENT_ID")
+  paymentNumber String   @unique @map("PAYMENT_NO") @db.VarChar(50)
+  invoiceId     Int      @map("INVOICE_ID")
+  paymentDate   DateTime @map("PAYMENT_DATE") @db.Date
+  amount        Decimal  @map("AMOUNT") @db.Decimal(19, 4)
+  paymentMethod String   @map("PAYMENT_METHOD") @db.VarChar(50)
+  referenceNo   String?  @map("REFERENCE_NO") @db.VarChar(50)
+  journalId     Int?     @map("JOURNAL_ID")
+  createdBy     String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt     DateTime @default(now()) @map("CREATE_DATE")
+
+  invoice       ApInvoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@map("t_ap_payment")
+}
+
+model Warehouse {
+  id          Int      @id @default(autoincrement()) @map("WAREHOUSE_ID")
+  code        String   @unique @map("WAREHOUSE_CD") @db.VarChar(50)
+  name        String   @map("NAMA_GUDANG") @db.VarChar(100)
+  address     String?  @map("ALAMAT") @db.Text
+  isActive    Boolean  @default(true) @map("ACTIVE_FLAG")
+  createdBy   String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt   DateTime @default(now()) @map("CREATE_DATE")
+
+  stocks       WarehouseStock[]
+  receipts     GoodsReceipt[]
+  adjustments  StockAdjustment[]
+  transfersFrom StockTransfer[] @relation("TransferFrom")
+  transfersTo   StockTransfer[] @relation("TransferTo")
+  closings      InventoryClosing[]
+  posShifts     PosShift[]
+
+  @@map("m_warehouse")
+}
+
+model WarehouseStock {
+  id              Int     @id @default(autoincrement()) @map("STOCK_ID")
+  warehouseId     Int     @map("WAREHOUSE_ID")
+  inventoryItemId Int     @map("INVENTORY_ITEM_ID")
+  quantity        Decimal @default(0.00) @map("QUANTITY") @db.Decimal(19, 2)
+
+  warehouse     Warehouse     @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, inventoryItemId])
+  @@index([warehouseId])
+  @@index([inventoryItemId])
+  @@map("t_warehouse_stock")
+}
+
+// ============================================
+// Phase 14: Stock Transfer (antar Gudang)
+// ============================================
+
+model StockTransfer {
+  id              Int      @id @default(autoincrement()) @map("TRANSFER_ID")
+  transferNumber  String   @unique @map("TRANSFER_NO") @db.VarChar(50)
+  transferDate    DateTime @map("TRANSFER_DATE") @db.Date
+  fromWarehouseId Int      @map("FROM_WAREHOUSE_ID")
+  toWarehouseId   Int      @map("TO_WAREHOUSE_ID")
+  inventoryItemId Int      @map("INVENTORY_ITEM_ID")
+  quantity        Decimal  @map("QUANTITY") @db.Decimal(19, 2)
+  averageCost     Decimal  @default(0.0000) @map("AVERAGE_COST") @db.Decimal(19, 4)
+  notes           String?  @map("NOTES") @db.Text
+  status          String   @default("POSTED") @map("STATUS") @db.VarChar(20)
+  journalId       Int?     @map("JOURNAL_ID")
+  createdBy       String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt       DateTime @default(now()) @map("CREATE_DATE")
+
+  fromWarehouse Warehouse     @relation("TransferFrom", fields: [fromWarehouseId], references: [id], onDelete: Restrict)
+  toWarehouse   Warehouse     @relation("TransferTo", fields: [toWarehouseId], references: [id], onDelete: Restrict)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@index([transferDate])
+  @@index([fromWarehouseId])
+  @@index([toWarehouseId])
+  @@index([inventoryItemId])
+  @@map("t_stock_transfer")
+}
+
+// ============================================
+// Phase 15: Tutup Gudang (Inventory Closing)
+// ============================================
+
+model InventoryClosing {
+  id               Int      @id @default(autoincrement()) @map("CLOSING_ID")
+  period           String   @map("PERIOD") @db.VarChar(7) // Format: "YYYY-MM"
+  warehouseId      Int      @map("WAREHOUSE_ID")
+  inventoryItemId  Int      @map("INVENTORY_ITEM_ID")
+  openingStock     Decimal  @default(0.00) @map("OPENING_STOCK") @db.Decimal(19, 2)
+  receivingStock   Decimal  @default(0.00) @map("RECEIVING_STOCK") @db.Decimal(19, 2)
+  transferInStock  Decimal  @default(0.00) @map("TRANSFER_IN_STOCK") @db.Decimal(19, 2)
+  transferOutStock Decimal  @default(0.00) @map("TRANSFER_OUT_STOCK") @db.Decimal(19, 2)
+  adjustmentStock  Decimal  @default(0.00) @map("ADJUSTMENT_STOCK") @db.Decimal(19, 2)
+  salesStock       Decimal  @default(0.00) @map("SALES_STOCK") @db.Decimal(19, 2)
+  endingStock      Decimal  @default(0.00) @map("ENDING_STOCK") @db.Decimal(19, 2)
+  averageCost      Decimal  @default(0.0000) @map("AVERAGE_COST") @db.Decimal(19, 4)
+  closedAt         DateTime @default(now()) @map("CLOSED_AT")
+  closedBy         String?  @map("CLOSED_BY") @db.VarChar(50)
+
+  warehouse        Warehouse     @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  inventoryItem    InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@unique([period, warehouseId, inventoryItemId])
+  @@index([period])
+  @@index([warehouseId])
+  @@index([inventoryItemId])
+  @@map("t_inventory_closing")
+}
