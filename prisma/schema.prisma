@@ -1406,6 +1406,7 @@ model PosProduct {
   category  ProductCategory    @relation(fields: [categoryId], references: [id])
   recipes   PosProductRecipe[]
   saleItems PosSaleItem[]
+  voidLogs  PosVoidLog[]
 
   @@index([categoryId])
   @@map("m_pos_product")
@@ -1495,6 +1496,7 @@ model PosShift {
   totalSales   Decimal   @default(0) @map("TOTAL_SALES") @db.Decimal(19, 4)
   journalId    Int?      @map("JOURNAL_ID") // Reference to the batch posting
   sales        PosSale[]
+  voidLogs     PosVoidLog[]
 
   user      User      @relation(fields: [userId], references: [id])
   warehouse Warehouse? @relation(fields: [warehouseId], references: [id])
@@ -1512,8 +1514,11 @@ model PosSale {
   totalAmount   Decimal       @map("TOTAL_AMOUNT") @db.Decimal(19, 4)
   paymentMethod String        @map("PAYMENT_METHOD") @db.VarChar(20) // CASH, TRANSFER, dll
   paymentAmount Decimal       @map("PAYMENT_AMOUNT") @db.Decimal(19, 4)
-  changeAmount  Decimal       @default(0) @map("CHANGE_AMOUNT") @db.Decimal(19, 4)
-  status        String        @default("COMPLETED") @map("STATUS") @db.VarChar(20) // COMPLETED, VOIDED
+  changeAmount   Decimal      @default(0) @map("CHANGE_AMOUNT") @db.Decimal(19, 4)
+  discountAmount Decimal      @default(0) @map("DISCOUNT_AMOUNT") @db.Decimal(19, 4)
+  discountNote   String?      @map("DISCOUNT_NOTE") @db.VarChar(200)
+  status         String       @default("COMPLETED") @map("STATUS") @db.VarChar(20) // COMPLETED, VOIDED
+  createdBy      String?      @map("CREATE_WHO") @db.VarChar(50)
   items         PosSaleItem[]
 
   shift PosShift @relation(fields: [shiftId], references: [id])
@@ -1530,6 +1535,7 @@ model PosSaleItem {
   unitPrice    Decimal @map("UNIT_PRICE") @db.Decimal(19, 4) // Harga jual saat transaksi
   cogsPrice    Decimal @map("COGS_PRICE") @db.Decimal(19, 4) // HPP saat transaksi
   totalPrice   Decimal @map("TOTAL_PRICE") @db.Decimal(19, 4)
+  createdBy    String? @map("CREATE_WHO") @db.VarChar(50)
 
   sale       PosSale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   posProduct PosProduct @relation(fields: [posProductId], references: [id], onDelete: Restrict)
@@ -1537,6 +1543,23 @@ model PosSaleItem {
   @@index([saleId])
   @@index([posProductId])
   @@map("t_pos_sale_item")
+}
+
+model PosVoidLog {
+  id           Int      @id @default(autoincrement()) @map("VOID_ID")
+  shiftId      Int      @map("SHIFT_ID")
+  posProductId Int      @map("POS_PRODUCT_ID")
+  quantity     Decimal  @map("QUANTITY") @db.Decimal(19, 2)
+  reason       String   @map("REASON") @db.VarChar(200)
+  createdBy    String?  @map("CREATE_WHO") @db.VarChar(50)
+  createdAt    DateTime @default(now()) @map("CREATE_DATE")
+
+  shift      PosShift   @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  posProduct PosProduct @relation(fields: [posProductId], references: [id], onDelete: Restrict)
+
+  @@index([shiftId])
+  @@index([posProductId])
+  @@map("t_pos_void_log")
 }
 
 model Vendor {

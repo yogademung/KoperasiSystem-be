@@ -45,7 +45,7 @@ export class InventoryClosingService {
         include: { inventoryItem: true }
       });
 
-      const closings = [];
+      const closings: any[] = [];
 
       for (const stock of currentStocks) {
         // 2. Cari Opening Stock (Ending bulan lalu)

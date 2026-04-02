@@ -14,6 +14,7 @@ const KEYS = [
   'LAST_CLOSING_MONTH',
   'COA_FORMAT',
   'IDLE_TIMEOUT',
+  'STRUK_FOOTER',
 ];
 
 @Injectable()
@@ -44,6 +45,7 @@ export class SettingsService implements OnModuleInit {
         { codeValue: 'LAST_CLOSING_MONTH', description: '' }, // Format: YYYY-MM
         { codeValue: 'COA_FORMAT', description: 'xxx-xxx-xxx' }, // Default Format
         { codeValue: 'IDLE_TIMEOUT', description: '15' }, // Default 15 minutes
+        { codeValue: 'STRUK_FOOTER', description: 'Barang yang sudah dibeli\ntidak dapat ditukar/dikembalikan.\nTerima Kasih!' }, // Default Receipt Footer
       ];
 
       for (const d of defaults) {

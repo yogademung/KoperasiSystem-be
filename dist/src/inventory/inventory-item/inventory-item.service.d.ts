@@ -48,9 +48,9 @@ export declare class InventoryItemService {
             };
         } & {
             id: number;
+            warehouseId: number;
             quantity: import("@prisma/client/runtime/library").Decimal;
             inventoryItemId: number;
-            warehouseId: number;
         })[];
     } & {
         id: number;

@@ -154,19 +154,13 @@ export declare class PosProductService {
         sellingPrice?: number;
         cogs?: number;
         name?: string;
+        code?: string;
+        categoryId?: number;
+        recipes?: {
+            inventoryItemId: number;
+            quantity: number;
+        }[];
     }): Promise<{
-        category: {
-            id: number;
-            description: string | null;
-            updatedAt: Date | null;
-            name: string;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            parentId: number | null;
-            level: number;
-        };
-    } & {
         id: number;
         updatedAt: Date | null;
         name: string;

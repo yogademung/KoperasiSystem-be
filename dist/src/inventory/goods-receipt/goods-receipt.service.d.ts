@@ -64,12 +64,12 @@ export declare class GoodsReceiptService {
         createdAt: Date;
         status: string;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
+        warehouseId: number | null;
         referenceNo: string | null;
         receiptNumber: string;
         receiptDate: Date;
         vendorId: number | null;
         supplierName: string | null;
-        warehouseId: number | null;
     }) | null>;
     findAll(): Promise<({
         vendor: {
@@ -147,12 +147,12 @@ export declare class GoodsReceiptService {
         createdAt: Date;
         status: string;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
+        warehouseId: number | null;
         referenceNo: string | null;
         receiptNumber: string;
         receiptDate: Date;
         vendorId: number | null;
         supplierName: string | null;
-        warehouseId: number | null;
     })[]>;
     removeReceipt(id: number): Promise<{
         success: boolean;
@@ -207,11 +207,11 @@ export declare class GoodsReceiptService {
         createdAt: Date;
         status: string;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
+        warehouseId: number | null;
         referenceNo: string | null;
         receiptNumber: string;
         receiptDate: Date;
         vendorId: number | null;
         supplierName: string | null;
-        warehouseId: number | null;
     }) | null>;
 }

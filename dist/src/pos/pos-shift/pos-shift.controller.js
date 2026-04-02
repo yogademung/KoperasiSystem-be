@@ -29,6 +29,9 @@ let PosShiftController = class PosShiftController {
     getActiveShift(userId) {
         return this.posShiftService.getActiveShift(+userId);
     }
+    logVoid(data) {
+        return this.posShiftService.logVoid(data);
+    }
 };
 exports.PosShiftController = PosShiftController;
 __decorate([
@@ -53,6 +56,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], PosShiftController.prototype, "getActiveShift", null);
+__decorate([
+    (0, common_1.Post)('void'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PosShiftController.prototype, "logVoid", null);
 exports.PosShiftController = PosShiftController = __decorate([
     (0, common_1.Controller)('pos/shifts'),
     __metadata("design:paramtypes", [pos_shift_service_1.PosShiftService])

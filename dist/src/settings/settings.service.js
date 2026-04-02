@@ -25,6 +25,7 @@ const KEYS = [
     'LAST_CLOSING_MONTH',
     'COA_FORMAT',
     'IDLE_TIMEOUT',
+    'STRUK_FOOTER',
 ];
 let SettingsService = class SettingsService {
     prisma;
@@ -54,6 +55,7 @@ let SettingsService = class SettingsService {
                 { codeValue: 'LAST_CLOSING_MONTH', description: '' },
                 { codeValue: 'COA_FORMAT', description: 'xxx-xxx-xxx' },
                 { codeValue: 'IDLE_TIMEOUT', description: '15' },
+                { codeValue: 'STRUK_FOOTER', description: 'Barang yang sudah dibeli\ntidak dapat ditukar/dikembalikan.\nTerima Kasih!' },
             ];
             for (const d of defaults) {
                 await this.prisma.lovValue.create({

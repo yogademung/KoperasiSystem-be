@@ -19,4 +19,9 @@ export class PosShiftController {
   getActiveShift(@Query('userId') userId: string) {
     return this.posShiftService.getActiveShift(+userId);
   }
+
+  @Post('void')
+  logVoid(@Body() data: { shiftId: number; posProductId: number; quantity: number; reason: string; createdBy: string }) {
+    return this.posShiftService.logVoid(data);
+  }
 }

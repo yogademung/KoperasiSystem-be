@@ -55,12 +55,27 @@ export class PosProductService {
     return item;
   }
 
-  async update(id: number, data: { isActive?: boolean; sellingPrice?: number; cogs?: number; name?: string }) {
-    return this.prisma.posProduct.update({
+  async update(id: number, data: { isActive?: boolean; sellingPrice?: number; cogs?: number; name?: string; code?: string; categoryId?: number; recipes?: { inventoryItemId: number; quantity: number }[] }) {
+    const { recipes, ...updateData } = data;
+    
+    // Base query update
+    const query: any = {
       where: { id },
-      data,
+      data: { ...updateData },
       include: { category: true }
-    });
+    };
+
+    if (recipes !== undefined) {
+      query.data.recipes = {
+        deleteMany: {},
+        create: recipes.map(r => ({
+          inventoryItemId: r.inventoryItemId,
+          quantity: r.quantity
+        }))
+      };
+    }
+
+    return this.prisma.posProduct.update(query);
   }
 
   async remove(id: number) {

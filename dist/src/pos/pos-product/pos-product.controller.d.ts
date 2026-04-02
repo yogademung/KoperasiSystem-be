@@ -140,18 +140,6 @@ export declare class PosProductController {
         cogs: import("@prisma/client/runtime/library").Decimal;
     }>;
     update(id: string, data: any): Promise<{
-        category: {
-            id: number;
-            description: string | null;
-            updatedAt: Date | null;
-            name: string;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            parentId: number | null;
-            level: number;
-        };
-    } & {
         id: number;
         updatedAt: Date | null;
         name: string;

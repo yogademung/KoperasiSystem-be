@@ -20,11 +20,31 @@ let PosSaleController = class PosSaleController {
     constructor(posSaleService) {
         this.posSaleService = posSaleService;
     }
+    getDrafts(shiftId) {
+        return this.posSaleService.getDrafts(Number(shiftId));
+    }
+    saveDraft(data) {
+        return this.posSaleService.saveDraft(data);
+    }
     checkout(data) {
         return this.posSaleService.checkout(data);
     }
 };
 exports.PosSaleController = PosSaleController;
+__decorate([
+    (0, common_1.Get)('drafts'),
+    __param(0, (0, common_1.Query)('shiftId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], PosSaleController.prototype, "getDrafts", null);
+__decorate([
+    (0, common_1.Post)('draft'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PosSaleController.prototype, "saveDraft", null);
 __decorate([
     (0, common_1.Post)('checkout'),
     __param(0, (0, common_1.Body)()),

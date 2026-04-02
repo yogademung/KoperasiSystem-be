@@ -58,11 +58,22 @@ let PosProductService = class PosProductService {
         return item;
     }
     async update(id, data) {
-        return this.prisma.posProduct.update({
+        const { recipes, ...updateData } = data;
+        const query = {
             where: { id },
-            data,
+            data: { ...updateData },
             include: { category: true }
-        });
+        };
+        if (recipes !== undefined) {
+            query.data.recipes = {
+                deleteMany: {},
+                create: recipes.map(r => ({
+                    inventoryItemId: r.inventoryItemId,
+                    quantity: r.quantity
+                }))
+            };
+        }
+        return this.prisma.posProduct.update(query);
     }
     async remove(id) {
         return this.prisma.posProduct.delete({ where: { id } });

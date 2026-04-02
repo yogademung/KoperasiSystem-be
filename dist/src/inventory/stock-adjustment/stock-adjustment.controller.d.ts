@@ -8,9 +8,9 @@ export declare class StockAdjustmentController {
         createdAt: Date;
         status: string;
         reason: string | null;
+        warehouseId: number | null;
         inventoryItemId: number;
         averageCost: import("@prisma/client/runtime/library").Decimal;
-        warehouseId: number | null;
         adjustmentDate: Date;
         adjustmentQty: import("@prisma/client/runtime/library").Decimal;
     }>;
@@ -42,9 +42,9 @@ export declare class StockAdjustmentController {
         createdAt: Date;
         status: string;
         reason: string | null;
+        warehouseId: number | null;
         inventoryItemId: number;
         averageCost: import("@prisma/client/runtime/library").Decimal;
-        warehouseId: number | null;
         adjustmentDate: Date;
         adjustmentQty: import("@prisma/client/runtime/library").Decimal;
     })[]>;

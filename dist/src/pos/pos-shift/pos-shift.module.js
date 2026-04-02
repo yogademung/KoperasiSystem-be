@@ -10,11 +10,13 @@ exports.PosShiftModule = void 0;
 const common_1 = require("@nestjs/common");
 const pos_shift_controller_1 = require("./pos-shift.controller");
 const pos_shift_service_1 = require("./pos-shift.service");
+const accounting_module_1 = require("../../accounting/accounting.module");
 let PosShiftModule = class PosShiftModule {
 };
 exports.PosShiftModule = PosShiftModule;
 exports.PosShiftModule = PosShiftModule = __decorate([
     (0, common_1.Module)({
+        imports: [accounting_module_1.AccountingModule],
         controllers: [pos_shift_controller_1.PosShiftController],
         providers: [pos_shift_service_1.PosShiftService]
     })

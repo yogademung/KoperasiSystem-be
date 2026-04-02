@@ -115,6 +115,19 @@ async function main() {
         },
     });
     console.log('Idle timeout configuration seeded:', idleTimeoutConfig);
+    const strukFooterConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'COMPANY_PROFILE', codeValue: 'STRUK_FOOTER' } },
+        update: {},
+        create: {
+            code: 'COMPANY_PROFILE',
+            codeValue: 'STRUK_FOOTER',
+            description: 'Barang yang sudah dibeli\ntidak dapat ditukar/dikembalikan.\nTerima Kasih!',
+            orderNum: 0,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Struk footer configuration seeded:', strukFooterConfig);
     await (0, accounting_seeder_1.seedAccounting)();
     await (0, menu_seeder_1.seedMenus)();
     console.log('\n5. Seeding product configuration...');
