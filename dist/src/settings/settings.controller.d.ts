@@ -7,4 +7,12 @@ export declare class SettingsController {
     uploadLogo(file: Express.Multer.File): {
         url: string;
     };
+    getKodeKoperasi(): Promise<{
+        kodeKoperasi: string;
+    }>;
+    updateKodeKoperasi(data: {
+        kodeKoperasi: string;
+    }): Promise<{
+        kodeKoperasi: string;
+    }>;
 }

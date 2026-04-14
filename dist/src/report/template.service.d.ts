@@ -17,8 +17,8 @@ export declare class TemplateService {
         createdAt: Date;
         code: string;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         version: number;
     }[]>;
     findOne(id: number): Promise<{
@@ -45,8 +45,8 @@ export declare class TemplateService {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -70,8 +70,8 @@ export declare class TemplateService {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -95,8 +95,8 @@ export declare class TemplateService {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -120,8 +120,8 @@ export declare class TemplateService {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -145,8 +145,8 @@ export declare class TemplateService {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -170,8 +170,8 @@ export declare class TemplateService {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;

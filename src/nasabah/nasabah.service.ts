@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateNasabahDto } from './dto/create-nasabah.dto';
 import { UpdateNasabahDto } from './dto/update-nasabah.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class NasabahService {
@@ -135,6 +136,60 @@ export class NasabahService {
 
     return this.prisma.nasabah.update({
       where: { id },
+      data: { isActive: false },
+    });
+  }
+
+  async getMobileAccess(nasabahId: number) {
+    const mobileUser = await this.prisma.mobileUser.findUnique({
+      where: { nasabahId },
+    });
+    if (!mobileUser) return null;
+    return {
+      isActive: mobileUser.isActive,
+      username: mobileUser.username,
+      lastLoginAt: mobileUser.lastLoginAt,
+    };
+  }
+
+  async activateMobileAccess(nasabahId: number, reqBody: any) {
+    const { username, password } = reqBody;
+    
+    // Check if username is already taken by another access
+    const existing = await this.prisma.mobileUser.findUnique({
+      where: { username },
+    });
+    if (existing && existing.nasabahId !== nasabahId) {
+      throw new BadRequestException('Username has already been taken.');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    return this.prisma.mobileUser.upsert({
+      where: { nasabahId },
+      create: {
+        nasabahId,
+        username,
+        password: hashedPassword,
+        isActive: true,
+      },
+      update: {
+        username,
+        password: hashedPassword,
+        isActive: true,
+      },
+    });
+  }
+
+  async deactivateMobileAccess(nasabahId: number) {
+    const existing = await this.prisma.mobileUser.findUnique({
+      where: { nasabahId },
+    });
+    if (!existing) {
+      throw new BadRequestException('Mobile access not configured for this Nasabah');
+    }
+    return this.prisma.mobileUser.update({
+      where: { nasabahId },
       data: { isActive: false },
     });
   }

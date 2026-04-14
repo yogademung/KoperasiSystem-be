@@ -24,7 +24,9 @@ export class RolesGuard implements CanActivate {
 
     // Assuming user.role is an object with a name property as per Schema and Strategy include
     return requiredRoles.some(
-      (role) => user.role?.roleName === role || user.role?.name === role,
+      (role) =>
+        user.role?.roleName?.toUpperCase() === role.toUpperCase() ||
+        user.role?.name?.toUpperCase() === role.toUpperCase(),
     );
     // Note: Schema says `roleName`. Prompt auth service says `user.role.name`.
     // Schema: Role model has `roleName`.

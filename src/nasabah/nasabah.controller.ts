@@ -266,4 +266,25 @@ export class NasabahController {
   remove(@Param('id') id: string) {
     return this.nasabahService.remove(+id);
   }
+
+  @Get(':id/mobile-access')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'kepala_koperasi')
+  getMobileAccess(@Param('id') id: string) {
+    return this.nasabahService.getMobileAccess(+id);
+  }
+
+  @Post(':id/mobile-access')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'kepala_koperasi')
+  activateMobileAccess(@Param('id') id: string, @Body() body: any) {
+    return this.nasabahService.activateMobileAccess(+id, body);
+  }
+
+  @Delete(':id/mobile-access')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'kepala_koperasi')
+  deactivateMobileAccess(@Param('id') id: string) {
+    return this.nasabahService.deactivateMobileAccess(+id);
+  }
 }

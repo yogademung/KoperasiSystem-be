@@ -39,7 +39,7 @@ export async function seedMenus() {
         { id: 65, menuName: 'Journal List', path: '/accounting/reports', module: 'ACCOUNTING', orderNum: 5, parentId: 6 },
         { id: 66, menuName: 'Manajemen Aset', path: '/accounting/assets', module: 'ACCOUNTING', orderNum: 6, parentId: 6 },
         { id: 68, menuName: 'Penutupan Periode', path: '/accounting/closing', module: 'ACCOUNTING', orderNum: 8, parentId: 6 },
-        { id: 902, menuName: 'Mutasi Antar Unit', path: '/business-units/transactions', module: 'ACCOUNTING', orderNum: 10, parentId: 6 },
+        // { id: 902, menuName: 'Mutasi Antar Unit', path: '/business-units/transactions', module: 'ACCOUNTING', orderNum: 10, parentId: 6 },
 
         // Laporan Section
         { id: 7, menuName: 'Laporan', path: '/laporan', icon: 'FileText', module: 'LAPORAN', orderNum: 7, parentId: null },
@@ -57,18 +57,39 @@ export async function seedMenus() {
         { id: 89, menuName: 'Konfigurasi Mapping', path: '/accounting/config/mappings', icon: 'FileText', module: 'SETTINGS', orderNum: 9, parentId: 8 },
 
         { id: 85, menuName: 'Master Unit Kerja', path: '/settings/business-units', module: 'SETTINGS', orderNum: 5, parentId: 8 },
-        { id: 91, menuName: 'Cost Centers', path: '/cost-centers', module: 'SETTINGS', orderNum: 6, parentId: 8 },
+        // { id: 91, menuName: 'Cost Centers', path: '/cost-centers', module: 'SETTINGS', orderNum: 6, parentId: 8 },
 
+        // POS Section (Phase 15)
+        { id: 200, menuName: 'Point of Sale', path: '/pos', icon: 'ShoppingCart', module: 'POS', orderNum: 5, parentId: null },
+        { id: 201, menuName: 'Kasir', path: '/pos/checkout', module: 'POS', orderNum: 1, parentId: 200 },
+        { id: 202, menuName: 'Shift Kasir', path: '/pos/shifts', module: 'POS', orderNum: 2, parentId: 200 },
+        { id: 203, menuName: 'Master Produk POS', path: '/pos/products', module: 'POS', orderNum: 3, parentId: 200 },
+        { id: 204, menuName: 'Riwayat Penjualan', path: '/pos/history', module: 'POS', orderNum: 4, parentId: 200 },
+
+        // Inventory Section (Phase 14)
+        { id: 300, menuName: 'Inventory', path: '/inventory', icon: 'Package', module: 'INVENTORY', orderNum: 5.5, parentId: null },
+        { id: 301, menuName: 'Penerimaan Barang', path: '/inventory/receipts', module: 'INVENTORY', orderNum: 1, parentId: 300 },
+        { id: 302, menuName: 'Stock Opname', path: '/inventory/adjustments', module: 'INVENTORY', orderNum: 2, parentId: 300 },
+        { id: 303, menuName: 'Stok Gudang', path: '/inventory/items', module: 'INVENTORY', orderNum: 3, parentId: 300 },
+        { id: 304, menuName: 'Master Barang', path: '/inventory/categories', module: 'INVENTORY', orderNum: 4, parentId: 300 },
+        { id: 305, menuName: 'Tutup Gudang', path: '/inventory/closing', module: 'INVENTORY', orderNum: 5, parentId: 300 },
+        { id: 306, menuName: 'Master Vendor', path: '/inventory/vendors', module: 'INVENTORY', orderNum: 6, parentId: 300 },
+        { id: 307, menuName: 'Laporan AP Aging', path: '/inventory/ap-aging', module: 'INVENTORY', orderNum: 7, parentId: 300 },
+
+
+        // --- FITUR ERP DI-HOLD ---
         // Phase 13: Budget & Allocation
-        { id: 100, menuName: 'Anggaran', path: '#', icon: 'DollarSign', module: 'SETTINGS', orderNum: 7, parentId: 8 },
-        { id: 101, menuName: 'Periode Anggaran', path: '/budget/periods', module: 'SETTINGS', orderNum: 1, parentId: 100 },
-        { id: 102, menuName: 'Input Anggaran', path: '/budget/entries', module: 'SETTINGS', orderNum: 2, parentId: 100 },
-        { id: 103, menuName: 'Pantau Anggaran', path: '/budget/variance', module: 'SETTINGS', orderNum: 3, parentId: 100 },
+        // { id: 100, menuName: 'Anggaran', path: '#', icon: 'DollarSign', module: 'SETTINGS', orderNum: 7, parentId: 8 },
+        // { id: 101, menuName: 'Periode Anggaran', path: '/budget/periods', module: 'SETTINGS', orderNum: 1, parentId: 100 },
+        // { id: 102, menuName: 'Input Anggaran', path: '/budget/entries', module: 'SETTINGS', orderNum: 2, parentId: 100 },
+        // { id: 103, menuName: 'Pantau Anggaran', path: '/budget/variance', module: 'SETTINGS', orderNum: 3, parentId: 100 },
 
-        { id: 110, menuName: 'Aturan Alokasi', path: '#', icon: 'PieChart', module: 'SETTINGS', orderNum: 8, parentId: 8 },
-        { id: 111, menuName: 'Daftar Aturan', path: '/allocations/rules', module: 'SETTINGS', orderNum: 1, parentId: 110 },
-        { id: 112, menuName: 'Jalankan Alokasi', path: '/allocations/execute', module: 'SETTINGS', orderNum: 2, parentId: 110 },
-        { id: 113, menuName: 'Riwayat Alokasi', path: '/allocations/history', module: 'SETTINGS', orderNum: 3, parentId: 110 },
+        // { id: 110, menuName: 'Aturan Alokasi', path: '#', icon: 'PieChart', module: 'SETTINGS', orderNum: 8, parentId: 8 },
+        // { id: 111, menuName: 'Daftar Aturan', path: '/allocations/rules', module: 'SETTINGS', orderNum: 1, parentId: 110 },
+        // { id: 112, menuName: 'Jalankan Alokasi', path: '/allocations/execute', module: 'SETTINGS', orderNum: 2, parentId: 110 },
+        // { id: 113, menuName: 'Riwayat Alokasi', path: '/allocations/history', module: 'SETTINGS', orderNum: 3, parentId: 110 },
+        // --------------------------
+
     ];
 
     // Insert menus
@@ -154,5 +175,61 @@ export async function seedMenus() {
 
         await prisma.menuRole.createMany({ data: menuRoles });
         console.log(`✅ Assigned ${menuRoles.length} menus to COLLECTOR`);
+    }
+
+    // 3. KASIR ROLE ASSIGNMENT
+    const kasirRole = await prisma.role.upsert({
+        where: { id: 3 },
+        update: {},
+        create: {
+            id: 3,
+            roleName: 'KASIR',
+            description: 'Kasir POS',
+            isActive: true,
+            createdBy: 'SYSTEM'
+        }
+    });
+
+    if (kasirRole) {
+        console.log('📋 Assigning menus to KASIR role...');
+        const kasirMenuIds = [1, 200, 201, 202, 204]; // Dashboard + POS Menus (tanpa Master Produk)
+        const kasirMenus = menus.filter(m => kasirMenuIds.includes(m.id));
+        
+        await prisma.menuRole.deleteMany({ where: { roleId: kasirRole.id } });
+        const menuRoles = kasirMenus.map(menu => ({
+            roleId: kasirRole.id,
+            menuId: menu.id,
+            canCreate: true, canRead: true, canUpdate: true, canDelete: false,
+        }));
+        await prisma.menuRole.createMany({ data: menuRoles });
+        console.log(`✅ Assigned ${menuRoles.length} menus to KASIR`);
+    }
+
+    // 4. STOREKEEPER ROLE ASSIGNMENT
+    const storekeeperRole = await prisma.role.upsert({
+        where: { id: 4 },
+        update: {},
+        create: {
+            id: 4,
+            roleName: 'STOREKEEPER',
+            description: 'Admin Gudang',
+            isActive: true,
+            createdBy: 'SYSTEM'
+        }
+    });
+
+    if (storekeeperRole) {
+        console.log('📋 Assigning menus to STOREKEEPER role...');
+        const skMenuIds = [1, 300, 301, 302, 303, 304, 305, 306, 200, 203]; // Dashboard + Inventory + Vendor + Master Produk POS
+        const skMenus = menus.filter(m => skMenuIds.includes(m.id));
+        
+        await prisma.menuRole.deleteMany({ where: { roleId: storekeeperRole.id } });
+        const menuRoles = skMenus.map(menu => ({
+            roleId: storekeeperRole.id,
+            menuId: menu.id,
+            canCreate: true, canRead: true, canUpdate: true, canDelete: false,
+        }));
+        await prisma.menuRole.createMany({ data: menuRoles });
+        console.log(`✅ Assigned ${menuRoles.length} menus to STOREKEEPER`);
     }
 }

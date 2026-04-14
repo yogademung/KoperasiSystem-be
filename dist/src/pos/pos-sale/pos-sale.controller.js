@@ -1,0 +1,59 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PosSaleController = void 0;
+const common_1 = require("@nestjs/common");
+const pos_sale_service_1 = require("./pos-sale.service");
+let PosSaleController = class PosSaleController {
+    posSaleService;
+    constructor(posSaleService) {
+        this.posSaleService = posSaleService;
+    }
+    getDrafts(shiftId) {
+        return this.posSaleService.getDrafts(Number(shiftId));
+    }
+    saveDraft(data) {
+        return this.posSaleService.saveDraft(data);
+    }
+    checkout(data) {
+        return this.posSaleService.checkout(data);
+    }
+};
+exports.PosSaleController = PosSaleController;
+__decorate([
+    (0, common_1.Get)('drafts'),
+    __param(0, (0, common_1.Query)('shiftId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], PosSaleController.prototype, "getDrafts", null);
+__decorate([
+    (0, common_1.Post)('draft'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PosSaleController.prototype, "saveDraft", null);
+__decorate([
+    (0, common_1.Post)('checkout'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PosSaleController.prototype, "checkout", null);
+exports.PosSaleController = PosSaleController = __decorate([
+    (0, common_1.Controller)('pos/sales'),
+    __metadata("design:paramtypes", [pos_sale_service_1.PosSaleService])
+], PosSaleController);
+//# sourceMappingURL=pos-sale.controller.js.map

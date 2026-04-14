@@ -322,4 +322,35 @@ export declare class NasabahService {
         fileKtp: string | null;
         fileKk: string | null;
     }>;
+    getMobileAccess(nasabahId: number): Promise<{
+        isActive: boolean;
+        username: string;
+        lastLoginAt: Date | null;
+    } | null>;
+    activateMobileAccess(nasabahId: number, reqBody: any): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        nasabahId: number;
+        username: string;
+        password: string;
+        lastLoginAt: Date | null;
+        fcmToken: string | null;
+    }>;
+    deactivateMobileAccess(nasabahId: number): Promise<{
+        id: number;
+        updatedAt: Date | null;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        nasabahId: number;
+        username: string;
+        password: string;
+        lastLoginAt: Date | null;
+        fcmToken: string | null;
+    }>;
 }

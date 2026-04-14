@@ -21,8 +21,8 @@ export declare class ReportService {
             code: string;
             parentId: number | null;
             isDefault: boolean;
-            productModule: string;
             category: string;
+            productModule: string;
             jsonSchema: string;
             paperSize: string;
             orientation: string;
@@ -52,8 +52,8 @@ export declare class ReportService {
         createdAt: Date;
         code: string;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         version: number;
     }[]>;
     getDefaultTemplates(): Promise<{
@@ -65,8 +65,8 @@ export declare class ReportService {
         createdAt: Date;
         code: string;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         version: number;
     }[]>;
 }

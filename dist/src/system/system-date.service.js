@@ -44,7 +44,7 @@ let SystemDateService = class SystemDateService {
         const targetDate = date || (await this.getCurrentBusinessDate());
         const dayStart = (0, date_fns_1.startOfDay)(targetDate);
         const dayEnd = (0, date_fns_1.endOfDay)(targetDate);
-        return this.prisma.collectorShift.findMany({
+        const collectorShifts = await this.prisma.collectorShift.findMany({
             where: {
                 status: 'ACTIVE',
                 startTime: {
@@ -61,6 +61,28 @@ let SystemDateService = class SystemDateService {
                 },
             },
         });
+        const posShifts = await this.prisma.posShift.findMany({
+            where: {
+                status: 'OPEN',
+                startTime: {
+                    gte: dayStart,
+                    lte: dayEnd,
+                },
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                    },
+                },
+            },
+        });
+        const mappedPosShifts = posShifts.map(shift => ({
+            ...shift,
+            user: { ...shift.user, fullName: `${shift.user.fullName} (Kasir POS)` }
+        }));
+        return [...collectorShifts, ...mappedPosShifts];
     }
     async canAdvanceDate() {
         const businessDate = await this.getCurrentBusinessDate();

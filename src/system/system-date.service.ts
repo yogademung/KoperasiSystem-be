@@ -52,7 +52,7 @@ export class SystemDateService {
     const dayStart = startOfDay(targetDate);
     const dayEnd = endOfDay(targetDate);
 
-    return this.prisma.collectorShift.findMany({
+    const collectorShifts = await this.prisma.collectorShift.findMany({
       where: {
         status: 'ACTIVE',
         startTime: {
@@ -69,6 +69,31 @@ export class SystemDateService {
         },
       },
     });
+
+    const posShifts = await this.prisma.posShift.findMany({
+      where: {
+        status: 'OPEN',
+        startTime: {
+          gte: dayStart,
+          lte: dayEnd,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
+      },
+    });
+
+    const mappedPosShifts = posShifts.map(shift => ({
+      ...shift,
+      user: { ...shift.user, fullName: `${shift.user.fullName} (Kasir POS)` }
+    }));
+
+    return [...collectorShifts, ...mappedPosShifts];
   }
 
   /**

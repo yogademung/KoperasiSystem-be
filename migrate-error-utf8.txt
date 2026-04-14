@@ -1,0 +1,34 @@
+﻿Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": MySQL database "koperasi_system" at "localhost:3306"
+
+node.exe : Error: P3015
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Error: P3015:   
+ String) [], Remote    
+Exception
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+
+Could not find the 
+migration file at prism
+a\migrations\20260109_p
+roduct_config_seed\migr
+ation.sql. Please 
+delete the directory 
+or restore the 
+migration file.
+

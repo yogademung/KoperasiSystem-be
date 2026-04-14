@@ -39,9 +39,13 @@ const accounting_seeder_1 = require("./seeds/accounting-seeder");
 const menu_seeder_1 = require("./seeds/menu-seeder");
 const product_config_seeder_1 = require("./seeds/product-config-seeder");
 const allocation_seed_1 = require("./seeds/allocation-seed");
+const category_seeder_1 = require("./seeds/category-seeder");
+const setting_pos_seeder_1 = require("./seeds/setting-pos-seeder");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
+    await (0, category_seeder_1.categorySeeder)(prisma);
+    await (0, setting_pos_seeder_1.settingPosSeeder)(prisma);
     const adminRole = await prisma.role.upsert({
         where: { id: 1 },
         update: {},
@@ -59,7 +63,6 @@ async function main() {
     const adminUser = await prisma.user.upsert({
         where: { username: 'admin' },
         update: {
-            password: hashedPassword,
             isActive: true,
             roleId: 1,
         },
@@ -112,6 +115,19 @@ async function main() {
         },
     });
     console.log('Idle timeout configuration seeded:', idleTimeoutConfig);
+    const strukFooterConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'COMPANY_PROFILE', codeValue: 'STRUK_FOOTER' } },
+        update: {},
+        create: {
+            code: 'COMPANY_PROFILE',
+            codeValue: 'STRUK_FOOTER',
+            description: 'Barang yang sudah dibeli\ntidak dapat ditukar/dikembalikan.\nTerima Kasih!',
+            orderNum: 0,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Struk footer configuration seeded:', strukFooterConfig);
     await (0, accounting_seeder_1.seedAccounting)();
     await (0, menu_seeder_1.seedMenus)();
     console.log('\n5. Seeding product configuration...');

@@ -10,8 +10,8 @@ export declare class ReportMetadataService {
         description: string | null;
         updatedAt: Date | null;
         createdAt: Date;
-        productModule: string;
         category: string;
+        productModule: string;
         variableKey: string;
         variableName: string;
         dataType: string;
@@ -34,8 +34,8 @@ export declare class ReportMetadataService {
         description: string | null;
         updatedAt: Date | null;
         createdAt: Date;
-        productModule: string;
         category: string;
+        productModule: string;
         variableKey: string;
         variableName: string;
         dataType: string;
@@ -58,8 +58,8 @@ export declare class ReportMetadataService {
         description: string | null;
         updatedAt: Date | null;
         createdAt: Date;
-        productModule: string;
         category: string;
+        productModule: string;
         variableKey: string;
         variableName: string;
         dataType: string;

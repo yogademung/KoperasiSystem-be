@@ -5,7 +5,7 @@ export declare class SystemDateService {
     getCurrentBusinessDate(): Promise<Date>;
     getServerDate(): Date;
     isDateMismatch(): Promise<boolean>;
-    getUnclosedShifts(date?: Date): Promise<({
+    getUnclosedShifts(date?: Date): Promise<(({
         user: {
             id: number;
             fullName: string;
@@ -45,6 +45,23 @@ export declare class SystemDateService {
         totalWithdrawals: import("@prisma/client/runtime/library").Decimal;
         transactionCount: number;
         closingJournalId: number | null;
+    }) | {
+        user: {
+            fullName: string;
+            id: number;
+        };
+        id: number;
+        status: string;
+        userId: number;
+        journalId: number | null;
+        shiftDate: Date;
+        startTime: Date;
+        endTime: Date | null;
+        startingCash: import("@prisma/client/runtime/library").Decimal;
+        endingCash: import("@prisma/client/runtime/library").Decimal | null;
+        warehouseId: number | null;
+        terminalId: string | null;
+        totalSales: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     canAdvanceDate(): Promise<boolean>;
     advanceBusinessDate(): Promise<{

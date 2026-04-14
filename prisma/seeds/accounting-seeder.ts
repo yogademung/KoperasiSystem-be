@@ -19,6 +19,9 @@ const accountData = [
     { accountCode: "1.02.02", accountName: "BANK BRI (USP)", accountType: "AST", debetPoleFlag: true, businessUnitId: 1 },
     { accountCode: "1.02.11", accountName: "BANK BPD BALI (TOKO)", accountType: "AST", debetPoleFlag: true, businessUnitId: 2 },
 
+    { accountCode: "1.10.00", accountName: "PERSEDIAAN BARANG DAGANG", accountType: "AST", debetPoleFlag: true },
+    { accountCode: "1.10.01", accountName: "PERSEDIAAN BARANG DAGANG (TOKO)", accountType: "AST", debetPoleFlag: true, businessUnitId: 2 },
+
     { accountCode: "1.20.00", accountName: "PIUTANG PINJAMAN", accountType: "AST", debetPoleFlag: true },
     { accountCode: "1.20.01", accountName: "PINJAMAN ANGGOTA (KREDIT)", accountType: "AST", debetPoleFlag: true, businessUnitId: 1 },
     { accountCode: "1.20.02", accountName: "PINJAMAN PEGAWAI", accountType: "AST", debetPoleFlag: true, businessUnitId: 1 },
@@ -53,6 +56,7 @@ const accountData = [
     { accountCode: "2.20.01", accountName: "TITIPAN DANA SOSIAL", accountType: "LIA", debetPoleFlag: false, businessUnitId: 1 },
     { accountCode: "2.20.02", accountName: "HUTANG SHU ANGGOTA", accountType: "LIA", debetPoleFlag: false, businessUnitId: 1 },
     { accountCode: "2.20.03", accountName: "HUTANG PAJAK", accountType: "LIA", debetPoleFlag: false, businessUnitId: 1 },
+    { accountCode: "2.20.05", accountName: "HUTANG DAGANG (PEMASOK)", accountType: "LIA", debetPoleFlag: false, businessUnitId: 2 },
 
     // EXTERNAL LOAN LIABILITIES
     { accountCode: "2.30.00", accountName: "HUTANG PINJAMAN", accountType: "LIA", debetPoleFlag: false },
@@ -84,6 +88,9 @@ const accountData = [
     { accountCode: "4.20.02", accountName: "PROVISI KREDIT", accountType: "REV", debetPoleFlag: false, businessUnitId: 1 },
     { accountCode: "4.20.03", accountName: "DENDAS KETERLAMBATAN", accountType: "REV", debetPoleFlag: false, businessUnitId: 1 },
 
+    { accountCode: "4.30.00", accountName: "PENDAPATAN OPERASIONAL TOKO", accountType: "REV", debetPoleFlag: false },
+    { accountCode: "4.30.01", accountName: "PENDAPATAN PENJUALAN TOKO", accountType: "REV", debetPoleFlag: false, businessUnitId: 2 },
+
     // ------------------------------------------------------------------
     // 5. BIAYA (EXPENSES)
     // ------------------------------------------------------------------
@@ -113,7 +120,14 @@ const accountData = [
     // ASSET DISPOSAL & PAYABLE
     { accountCode: "2.20.04", accountName: "HUTANG PEMBELIAN ASET", accountType: "LIA", debetPoleFlag: false, businessUnitId: 1 },
     { accountCode: "4.20.04", accountName: "KEUNTUNGAN PENJUALAN ASET", accountType: "REV", debetPoleFlag: false, businessUnitId: 1 },
-    { accountCode: "5.40.01", accountName: "KERUGIAN PENJUALAN ASET", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 }
+    { accountCode: "5.40.01", accountName: "KERUGIAN PENJUALAN ASET", accountType: "EXP", debetPoleFlag: true, businessUnitId: 1 },
+
+    // COST OF GOODS SOLD & RETAIL EXPENSES
+    { accountCode: "5.50.00", accountName: "HARGA POKOK PENJUALAN (HPP)", accountType: "EXP", debetPoleFlag: true },
+    { accountCode: "5.50.01", accountName: "HPP TOKO (BERBASIS INVENTORY)", accountType: "EXP", debetPoleFlag: true, businessUnitId: 2 },
+    { accountCode: "5.50.02", accountName: "BEBAN LANGSUNG POS (NON-INVENTORY)", accountType: "EXP", debetPoleFlag: true, businessUnitId: 2 },
+    { accountCode: "5.60.00", accountName: "BIAYA DISKON PENJUALAN", accountType: "EXP", debetPoleFlag: true },
+    { accountCode: "5.60.01", accountName: "BIAYA DISKON TOKO", accountType: "EXP", debetPoleFlag: true, businessUnitId: 2 }
 ];
 
 const mappingData = [
@@ -177,6 +191,16 @@ const mappingData = [
     // Note: Interest part handled separately in logic? No, logic splits it manually in `repayExternalLoan`. 
     // But `autoPostJournal` is not used for Repayment there, manual `postedJournal.create` is used.
     // So only LOAN_DISBURSE needs mapping here for `autoPostJournal`.
+
+    // 11. POS (Point of Sale) Toko
+    // Entry Revenue: DR Kas POS (1.01.02), CR Pendapatan Penjualan (4.30.01)
+    { module: 'POS', transType: 'POS_SALE', description: 'Pendapatan Penjualan POS', debit: '1.01.02', credit: '4.30.01' },
+    // HPP Item WITH inventory: DR HPP (5.50.01), CR Persediaan Barang (1.10.01)
+    { module: 'POS', transType: 'POS_HPP', description: 'Harga Pokok Penjualan POS (Inventory-Based)', debit: '5.50.01', credit: '1.10.01' },
+    // HPP Item WITHOUT inventory: DR Beban Langsung (5.50.02), CR Beban Langsung (5.50.02) — pasangannya di service hard-coded
+    { module: 'POS', transType: 'POS_HPP_DIRECT', description: 'Beban Langsung POS (Non-Inventory)', debit: '5.50.02', credit: '5.50.02' },
+    // Diskon: DR Diskon (5.60.01), CR Kas (1.01.02)
+    { module: 'POS', transType: 'POS_DISCOUNT', description: 'Diskon Penjualan POS', debit: '5.60.01', credit: '1.01.02' }
 ];
 
 export async function seedAccounting() {

@@ -4,11 +4,16 @@ import { seedAccounting } from './seeds/accounting-seeder';
 import { seedMenus } from './seeds/menu-seeder';
 import { seedProductConfig } from './seeds/product-config-seeder';
 import { seedAllocationRules } from './seeds/allocation-seed';
+import { categorySeeder } from './seeds/category-seeder';
+import { settingPosSeeder } from './seeds/setting-pos-seeder';
 
 const prisma = new PrismaClient();
 
 async function main() {
     console.log('Seeding database...');
+    
+    await categorySeeder(prisma);
+    await settingPosSeeder(prisma);
 
 
 
@@ -33,7 +38,6 @@ async function main() {
     const adminUser = await prisma.user.upsert({
         where: { username: 'admin' },
         update: {
-            password: hashedPassword,
             isActive: true,
             roleId: 1,
         },
@@ -93,7 +97,22 @@ async function main() {
     });
     console.log('Idle timeout configuration seeded:', idleTimeoutConfig);
 
-    // 5. Seed Accounting Module
+    // 6. Seed Struk Footer Config
+    const strukFooterConfig = await prisma.lovValue.upsert({
+        where: { code_codeValue: { code: 'COMPANY_PROFILE', codeValue: 'STRUK_FOOTER' } },
+        update: {},
+        create: {
+            code: 'COMPANY_PROFILE',
+            codeValue: 'STRUK_FOOTER',
+            description: 'Barang yang sudah dibeli\ntidak dapat ditukar/dikembalikan.\nTerima Kasih!',
+            orderNum: 0,
+            isActive: true,
+            createdBy: 'SYSTEM',
+        },
+    });
+    console.log('Struk footer configuration seeded:', strukFooterConfig);
+
+    // 7. Seed Accounting Module
     await seedAccounting();
 
     // 6. Seed Menus (Phase 10)

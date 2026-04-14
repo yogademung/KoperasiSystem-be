@@ -19,8 +19,8 @@ export declare class ReportController {
             createdAt: Date;
             code: string;
             isDefault: boolean;
-            productModule: string;
             category: string;
+            productModule: string;
             version: number;
         }[];
         total: number;
@@ -49,8 +49,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -74,8 +74,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -99,8 +99,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -124,8 +124,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -149,8 +149,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
@@ -174,8 +174,8 @@ export declare class ReportController {
         code: string;
         parentId: number | null;
         isDefault: boolean;
-        productModule: string;
         category: string;
+        productModule: string;
         jsonSchema: string;
         paperSize: string;
         orientation: string;
