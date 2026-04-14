@@ -15,8 +15,8 @@ export declare class MobileJwtStrategy extends MobileJwtStrategy_base {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;

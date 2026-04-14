@@ -121,10 +121,10 @@ export declare class GoodsReceiptService {
                 createdAt: Date;
                 amount: import("@prisma/client/runtime/library").Decimal;
                 journalId: number | null;
+                paymentDate: Date;
                 referenceNo: string | null;
                 paymentMethod: string;
                 paymentNumber: string;
-                paymentDate: Date;
                 invoiceId: number;
             }[];
         } & {

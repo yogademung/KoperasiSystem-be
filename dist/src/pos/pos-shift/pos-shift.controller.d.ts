@@ -6,67 +6,67 @@ export declare class PosShiftController {
         userId: number;
         startingCash: number;
     }): Promise<{
-        terminalId: string | null;
+        id: number;
+        status: string;
+        userId: number;
+        journalId: number | null;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         endingCash: import("@prisma/client/runtime/library").Decimal | null;
-        totalSales: import("@prisma/client/runtime/library").Decimal;
-        journalId: number | null;
-        id: number;
-        userId: number;
         warehouseId: number | null;
+        terminalId: string | null;
+        totalSales: import("@prisma/client/runtime/library").Decimal;
     }>;
     closeShift(id: string, data: {
         endingCash: number;
     }): Promise<{
-        terminalId: string | null;
+        id: number;
+        status: string;
+        userId: number;
+        journalId: number | null;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         endingCash: import("@prisma/client/runtime/library").Decimal | null;
-        totalSales: import("@prisma/client/runtime/library").Decimal;
-        journalId: number | null;
-        id: number;
-        userId: number;
         warehouseId: number | null;
+        terminalId: string | null;
+        totalSales: import("@prisma/client/runtime/library").Decimal;
     }>;
     getActiveShift(userId: string): Promise<({
         sales: ({
             items: ({
                 posProduct: {
                     id: number;
-                    name: string;
-                    createdAt: Date;
                     updatedAt: Date | null;
+                    name: string;
+                    isActive: boolean;
+                    createdAt: Date;
                     code: string;
                     categoryId: number;
                     sellingPrice: import("@prisma/client/runtime/library").Decimal;
                     cogs: import("@prisma/client/runtime/library").Decimal;
-                    isActive: boolean;
                 };
             } & {
                 id: number;
                 createdBy: string | null;
-                saleId: number;
-                posProductId: number;
                 quantity: import("@prisma/client/runtime/library").Decimal;
                 unitPrice: import("@prisma/client/runtime/library").Decimal;
                 cogsPrice: import("@prisma/client/runtime/library").Decimal;
                 totalPrice: import("@prisma/client/runtime/library").Decimal;
+                posProductId: number;
+                saleId: number;
             })[];
         } & {
-            status: string;
             id: number;
             createdBy: string | null;
+            status: string;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
             shiftId: number;
             receiptNumber: string;
             saleDate: Date;
-            totalAmount: import("@prisma/client/runtime/library").Decimal;
             paymentMethod: string;
             paymentAmount: import("@prisma/client/runtime/library").Decimal;
             changeAmount: import("@prisma/client/runtime/library").Decimal;
@@ -74,18 +74,18 @@ export declare class PosShiftController {
             discountNote: string | null;
         })[];
     } & {
-        terminalId: string | null;
+        id: number;
+        status: string;
+        userId: number;
+        journalId: number | null;
         shiftDate: Date;
         startTime: Date;
         endTime: Date | null;
-        status: string;
         startingCash: import("@prisma/client/runtime/library").Decimal;
         endingCash: import("@prisma/client/runtime/library").Decimal | null;
-        totalSales: import("@prisma/client/runtime/library").Decimal;
-        journalId: number | null;
-        id: number;
-        userId: number;
         warehouseId: number | null;
+        terminalId: string | null;
+        totalSales: import("@prisma/client/runtime/library").Decimal;
     }) | null>;
     logVoid(data: {
         shiftId: number;
@@ -97,9 +97,9 @@ export declare class PosShiftController {
         id: number;
         createdBy: string | null;
         createdAt: Date;
+        reason: string;
+        quantity: import("@prisma/client/runtime/library").Decimal;
         shiftId: number;
         posProductId: number;
-        quantity: import("@prisma/client/runtime/library").Decimal;
-        reason: string;
     }>;
 }

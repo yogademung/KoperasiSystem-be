@@ -20,6 +20,16 @@ export class PosProductController {
     return this.posProductService.findOne(+id);
   }
 
+  @Get(':id/calculate-cogs')
+  calculateCogs(@Param('id') id: string) {
+    return this.posProductService.calculateCogs(+id);
+  }
+
+  @Post(':id/sync-cogs')
+  syncCogs(@Param('id') id: string) {
+    return this.posProductService.syncCogs(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: any) {
     return this.posProductService.update(+id, data);

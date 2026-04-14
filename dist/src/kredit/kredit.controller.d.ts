@@ -31,8 +31,8 @@ export declare class KreditController {
                 createdAt: Date;
                 updatedBy: string | null;
                 nama: string;
-                noKtp: string | null;
                 alamat: string | null;
+                noKtp: string | null;
                 email: string | null;
                 telepon: string | null;
                 tempatLahir: string | null;
@@ -75,8 +75,8 @@ export declare class KreditController {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -91,8 +91,8 @@ export declare class KreditController {
             createdBy: string | null;
             createdAt: Date;
             nominal: import("@prisma/client/runtime/library").Decimal;
-            tipeTrans: string;
             keterangan: string | null;
+            tipeTrans: string;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
             journalId: number | null;

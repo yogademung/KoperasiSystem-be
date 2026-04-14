@@ -29,6 +29,12 @@ let PosProductController = class PosProductController {
     findOne(id) {
         return this.posProductService.findOne(+id);
     }
+    calculateCogs(id) {
+        return this.posProductService.calculateCogs(+id);
+    }
+    syncCogs(id) {
+        return this.posProductService.syncCogs(+id);
+    }
     update(id, data) {
         return this.posProductService.update(+id, data);
     }
@@ -57,6 +63,20 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], PosProductController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)(':id/calculate-cogs'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], PosProductController.prototype, "calculateCogs", null);
+__decorate([
+    (0, common_1.Post)(':id/sync-cogs'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], PosProductController.prototype, "syncCogs", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),

@@ -118,8 +118,8 @@ export declare class KreditService {
                 createdAt: Date;
                 updatedBy: string | null;
                 nama: string;
-                noKtp: string | null;
                 alamat: string | null;
+                noKtp: string | null;
                 email: string | null;
                 telepon: string | null;
                 tempatLahir: string | null;
@@ -162,8 +162,8 @@ export declare class KreditService {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -178,8 +178,8 @@ export declare class KreditService {
             createdBy: string | null;
             createdAt: Date;
             nominal: Prisma.Decimal;
-            tipeTrans: string;
             keterangan: string | null;
+            tipeTrans: string;
             latitude: Prisma.Decimal | null;
             longitude: Prisma.Decimal | null;
             journalId: number | null;

@@ -13,141 +13,141 @@ export declare class PosProductService {
             quantity: number;
         }[];
     }): Promise<{
+        category: {
+            name: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date | null;
+            id: number;
+            description: string | null;
+            parentId: number | null;
+            level: number;
+            createdBy: string | null;
+        };
         recipes: ({
             inventoryItem: {
-                id: number;
-                updatedAt: Date | null;
                 name: string;
                 isActive: boolean;
                 createdAt: Date;
+                updatedAt: Date | null;
+                id: number;
                 categoryId: number;
                 sku: string;
+                uomId: number;
                 averageCost: import("@prisma/client/runtime/library").Decimal;
                 stockQty: import("@prisma/client/runtime/library").Decimal;
-                uomId: number;
             };
         } & {
             quantity: import("@prisma/client/runtime/library").Decimal;
             inventoryItemId: number;
             posProductId: number;
         })[];
-        category: {
-            id: number;
-            description: string | null;
-            updatedAt: Date | null;
-            name: string;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            parentId: number | null;
-            level: number;
-        };
     } & {
-        id: number;
-        updatedAt: Date | null;
-        name: string;
-        isActive: boolean;
-        createdAt: Date;
         code: string;
-        categoryId: number;
+        name: string;
         sellingPrice: import("@prisma/client/runtime/library").Decimal;
         cogs: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date | null;
+        id: number;
+        categoryId: number;
     }>;
     findAll(): Promise<({
+        category: {
+            name: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date | null;
+            id: number;
+            description: string | null;
+            parentId: number | null;
+            level: number;
+            createdBy: string | null;
+        };
         recipes: ({
             inventoryItem: {
                 uom: {
-                    id: number;
+                    code: string;
                     name: string;
                     isActive: boolean;
-                    code: string;
+                    id: number;
                 };
             } & {
-                id: number;
-                updatedAt: Date | null;
                 name: string;
                 isActive: boolean;
                 createdAt: Date;
+                updatedAt: Date | null;
+                id: number;
                 categoryId: number;
                 sku: string;
+                uomId: number;
                 averageCost: import("@prisma/client/runtime/library").Decimal;
                 stockQty: import("@prisma/client/runtime/library").Decimal;
-                uomId: number;
             };
         } & {
             quantity: import("@prisma/client/runtime/library").Decimal;
             inventoryItemId: number;
             posProductId: number;
         })[];
-        category: {
-            id: number;
-            description: string | null;
-            updatedAt: Date | null;
-            name: string;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            parentId: number | null;
-            level: number;
-        };
     } & {
-        id: number;
-        updatedAt: Date | null;
-        name: string;
-        isActive: boolean;
-        createdAt: Date;
         code: string;
-        categoryId: number;
+        name: string;
         sellingPrice: import("@prisma/client/runtime/library").Decimal;
         cogs: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date | null;
+        id: number;
+        categoryId: number;
     })[]>;
     findOne(id: number): Promise<{
+        category: {
+            name: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date | null;
+            id: number;
+            description: string | null;
+            parentId: number | null;
+            level: number;
+            createdBy: string | null;
+        };
         recipes: ({
             inventoryItem: {
                 uom: {
-                    id: number;
+                    code: string;
                     name: string;
                     isActive: boolean;
-                    code: string;
+                    id: number;
                 };
             } & {
-                id: number;
-                updatedAt: Date | null;
                 name: string;
                 isActive: boolean;
                 createdAt: Date;
+                updatedAt: Date | null;
+                id: number;
                 categoryId: number;
                 sku: string;
+                uomId: number;
                 averageCost: import("@prisma/client/runtime/library").Decimal;
                 stockQty: import("@prisma/client/runtime/library").Decimal;
-                uomId: number;
             };
         } & {
             quantity: import("@prisma/client/runtime/library").Decimal;
             inventoryItemId: number;
             posProductId: number;
         })[];
-        category: {
-            id: number;
-            description: string | null;
-            updatedAt: Date | null;
-            name: string;
-            isActive: boolean;
-            createdBy: string | null;
-            createdAt: Date;
-            parentId: number | null;
-            level: number;
-        };
     } & {
-        id: number;
-        updatedAt: Date | null;
-        name: string;
-        isActive: boolean;
-        createdAt: Date;
         code: string;
-        categoryId: number;
+        name: string;
         sellingPrice: import("@prisma/client/runtime/library").Decimal;
         cogs: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date | null;
+        id: number;
+        categoryId: number;
     }>;
     update(id: number, data: {
         isActive?: boolean;
@@ -161,25 +161,94 @@ export declare class PosProductService {
             quantity: number;
         }[];
     }): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        name: string;
-        isActive: boolean;
-        createdAt: Date;
         code: string;
-        categoryId: number;
+        name: string;
         sellingPrice: import("@prisma/client/runtime/library").Decimal;
         cogs: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date | null;
+        id: number;
+        categoryId: number;
     }>;
     remove(id: number): Promise<{
-        id: number;
-        updatedAt: Date | null;
-        name: string;
-        isActive: boolean;
-        createdAt: Date;
         code: string;
-        categoryId: number;
+        name: string;
         sellingPrice: import("@prisma/client/runtime/library").Decimal;
         cogs: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date | null;
+        id: number;
+        categoryId: number;
+    }>;
+    calculateCogs(id: number): Promise<{
+        calculatedCogs: number;
+        hasRecipe: boolean;
+        details: never[];
+        message: string;
+        currentCogs?: undefined;
+    } | {
+        calculatedCogs: number;
+        hasRecipe: boolean;
+        currentCogs: number;
+        details: {
+            inventoryItemId: number;
+            name: string;
+            sku: string;
+            uom: string;
+            quantityRequired: number;
+            averageCost: number;
+            subtotal: number;
+            warning: string | null;
+        }[];
+        message: null;
+    }>;
+    syncCogs(id: number): Promise<{
+        calculatedCogs: number;
+        hasRecipe: boolean;
+        details: never[];
+        message: string;
+        currentCogs?: undefined;
+    } | {
+        calculatedCogs: number;
+        hasRecipe: boolean;
+        currentCogs: number;
+        details: {
+            inventoryItemId: number;
+            name: string;
+            sku: string;
+            uom: string;
+            quantityRequired: number;
+            averageCost: number;
+            subtotal: number;
+            warning: string | null;
+        }[];
+        message: null;
+    } | {
+        synced: boolean;
+        savedCogs: number;
+        calculatedCogs: number;
+        hasRecipe: boolean;
+        details: never[];
+        message: string;
+        currentCogs?: undefined;
+    } | {
+        synced: boolean;
+        savedCogs: number;
+        calculatedCogs: number;
+        hasRecipe: boolean;
+        currentCogs: number;
+        details: {
+            inventoryItemId: number;
+            name: string;
+            sku: string;
+            uom: string;
+            quantityRequired: number;
+            averageCost: number;
+            subtotal: number;
+            warning: string | null;
+        }[];
+        message: null;
     }>;
 }

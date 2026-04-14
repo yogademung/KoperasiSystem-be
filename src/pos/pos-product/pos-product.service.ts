@@ -81,4 +81,72 @@ export class PosProductService {
   async remove(id: number) {
     return this.prisma.posProduct.delete({ where: { id } });
   }
+
+  /**
+   * Kalkulasi HPP dari recipe (tanpa simpan)
+   * Menghitung Σ(quantity_required × averageCost) untuk setiap bahan dalam recipe
+   */
+  async calculateCogs(id: number) {
+    const product = await this.prisma.posProduct.findUnique({
+      where: { id },
+      include: {
+        recipes: {
+          include: {
+            inventoryItem: { include: { uom: true } }
+          }
+        }
+      }
+    });
+    if (!product) throw new NotFoundException('POS Product not found');
+
+    if (product.recipes.length === 0) {
+      return {
+        calculatedCogs: 0,
+        hasRecipe: false,
+        details: [],
+        message: 'Produk ini tidak memiliki recipe/BOM, HPP tidak dapat dihitung otomatis.'
+      };
+    }
+
+    const details = product.recipes.map(r => {
+      const avgCost = Number(r.inventoryItem.averageCost ?? 0);
+      const qty = Number(r.quantity);
+      const subtotal = qty * avgCost;
+      return {
+        inventoryItemId: r.inventoryItemId,
+        name: r.inventoryItem.name,
+        sku: r.inventoryItem.sku,
+        uom: r.inventoryItem.uom?.name ?? '-',
+        quantityRequired: qty,
+        averageCost: avgCost,
+        subtotal,
+        warning: avgCost === 0 ? 'Belum ada harga rata-rata (belum ada penerimaan barang)' : null
+      };
+    });
+
+    const calculatedCogs = details.reduce((sum, d) => sum + d.subtotal, 0);
+
+    return {
+      calculatedCogs,
+      hasRecipe: true,
+      currentCogs: Number(product.cogs),
+      details,
+      message: null
+    };
+  }
+
+  /**
+   * Kalkulasi HPP dari recipe dan langsung simpan ke cogs
+   */
+  async syncCogs(id: number) {
+    const calc = await this.calculateCogs(id);
+    if (!calc.hasRecipe) return calc;
+
+    await this.prisma.posProduct.update({
+      where: { id },
+      data: { cogs: calc.calculatedCogs }
+    });
+
+    return { ...calc, synced: true, savedCogs: calc.calculatedCogs };
+  }
 }

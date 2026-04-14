@@ -16,8 +16,8 @@ export declare class AnggotaService {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -53,8 +53,8 @@ export declare class AnggotaService {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -90,8 +90,8 @@ export declare class AnggotaService {
             accountNumber: string;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            transDate: Date;
             amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];
@@ -103,8 +103,8 @@ export declare class AnggotaService {
             createdAt: Date;
             updatedBy: string | null;
             nama: string;
-            noKtp: string | null;
             alamat: string | null;
+            noKtp: string | null;
             email: string | null;
             telepon: string | null;
             tempatLahir: string | null;
@@ -151,8 +151,8 @@ export declare class AnggotaService {
             accountNumber: string;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            transDate: Date;
             amount: import("@prisma/client/runtime/library").Decimal;
+            transDate: Date;
             balanceAfter: import("@prisma/client/runtime/library").Decimal;
             userId: number;
         }[];
