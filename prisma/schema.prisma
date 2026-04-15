@@ -859,7 +859,7 @@ model TransModal {
   id           Int          @id @default(autoincrement()) @map("TRANS_ID")
   noRekModal   String       @map("NO_REK_MODAL") @db.VarChar(50)
   tipeTrans    String       @map("TIPE_TRANS") @db.VarChar(10)
-  transDate    DateTime     @default(now()) @map("TGL_TRANS") @db.DateTime(3)
+  transDate    DateTime     @map("TGL_TRANS") @db.Date
   nominal      Decimal      @map("NOMINAL") @db.Decimal(19, 4)
   saldoAkhir   Decimal      @map("SALDO_AKHIR") @db.Decimal(19, 4)
   keterangan   String?      @map("KETERANGAN") @db.Text
@@ -1391,7 +1391,7 @@ model PosShift {
   userId       Int          @map("USER_ID")
   warehouseId  Int?         @map("WAREHOUSE_ID")
   terminalId   String?      @map("TERMINAL_ID") @db.VarChar(50)
-  shiftDate    DateTime     @default(now()) @map("SHIFT_DATE") @db.DateTime(3)
+  shiftDate    DateTime     @map("SHIFT_DATE") @db.Date
   startTime    DateTime     @default(now()) @map("START_TIME")
   endTime      DateTime?    @map("END_TIME")
   status       String       @default("OPEN") @map("STATUS") @db.VarChar(20)
