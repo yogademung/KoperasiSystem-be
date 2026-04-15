@@ -1,0 +1,118 @@
+import { MenuService } from './menu.service';
+import { CreateMenuDto, UpdateMenuDto, AssignMenusToRoleDto, CopyPermissionsDto } from './dto/menu.dto';
+export declare class MenuController {
+    private menuService;
+    constructor(menuService: MenuService);
+    getAllMenus(): Promise<any[]>;
+    getMenusForRole(roleId: number): Promise<any[]>;
+    getMenuById(id: number): Promise<{
+        menuRoles: ({
+            role: {
+                id: number;
+                isActive: boolean;
+                createdBy: string | null;
+                createdAt: Date;
+                updatedBy: string | null;
+                updatedAt: Date | null;
+                roleName: string;
+                description: string | null;
+            };
+        } & {
+            roleId: number;
+            menuId: number;
+            canCreate: boolean;
+            canRead: boolean;
+            canUpdate: boolean;
+            canDelete: boolean;
+        })[];
+    } & {
+        id: number;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        menuName: string;
+        module: string | null;
+        node: string | null;
+        parentId: number | null;
+        icon: string | null;
+        path: string | null;
+        orderNum: number | null;
+    }>;
+    createMenu(dto: CreateMenuDto, req: any): Promise<{
+        id: number;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        menuName: string;
+        module: string | null;
+        node: string | null;
+        parentId: number | null;
+        icon: string | null;
+        path: string | null;
+        orderNum: number | null;
+    }>;
+    updateMenu(id: number, dto: UpdateMenuDto, req: any): Promise<{
+        id: number;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        menuName: string;
+        module: string | null;
+        node: string | null;
+        parentId: number | null;
+        icon: string | null;
+        path: string | null;
+        orderNum: number | null;
+    }>;
+    deleteMenu(id: number, req: any): Promise<{
+        id: number;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        menuName: string;
+        module: string | null;
+        node: string | null;
+        parentId: number | null;
+        icon: string | null;
+        path: string | null;
+        orderNum: number | null;
+    }>;
+    getRoleMenus(roleId: number): Promise<{
+        permissions: {
+            canCreate: boolean;
+            canRead: boolean;
+            canUpdate: boolean;
+            canDelete: boolean;
+        };
+        id: number;
+        isActive: boolean;
+        createdBy: string | null;
+        createdAt: Date;
+        updatedBy: string | null;
+        updatedAt: Date | null;
+        menuName: string;
+        module: string | null;
+        node: string | null;
+        parentId: number | null;
+        icon: string | null;
+        path: string | null;
+        orderNum: number | null;
+    }[]>;
+    assignMenusToRole(roleId: number, dto: AssignMenusToRoleDto): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    copyPermissions(dto: CopyPermissionsDto): Promise<{
+        success: boolean;
+        message: string;
+        copiedCount: number;
+    }>;
+}
