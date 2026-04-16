@@ -124,6 +124,33 @@ export class GoodsReceiptService {
           }
         });
 
+        // 3b. Create Journal for Goods Receipt (Debit Persediaan, Credit AP)
+        const invReceiptMap = await tx.productCoaMapping.findUnique({ where: { transType: 'INV_RECEIPT' } });
+        const receiptJournal = await tx.postedJournal.create({
+          data: {
+            journalNumber: `JRN-RCV-${receiptNumber}-${Math.floor(Math.random() * 1000)}`,
+            journalDate: passedDate,
+            description: `Penerimaan Barang AP #${invoice.invoiceNumber}`,
+            postingType: 'AUTO',
+            transType: 'INV_RECEIPT',
+            refId: receipt.id,
+            userId: 1, // System User
+            status: 'POSTED',
+            createdBy: 'SYSTEM',
+            details: {
+              create: [
+                { accountCode: invReceiptMap?.debitAccount || '1.10.01', debit: totalAmount, credit: 0, description: 'Persediaan Barang Masuk' },
+                { accountCode: invReceiptMap?.creditAccount || '2.20.05', debit: 0, credit: totalAmount, description: 'Hutang Dagang Pemasok' }
+              ]
+            }
+          }
+        });
+
+        await tx.apInvoice.update({
+          where: { id: invoice.id },
+          data: { journalId: receiptJournal.id }
+        });
+
         // 4. Direct Pay Execution
         if (data.isDirectPay && data.paymentMethod) {
           const paymentNo = `PAY-${invoiceNo}`;
@@ -142,22 +169,24 @@ export class GoodsReceiptService {
           const coaLov = await tx.lovValue.findUnique({
             where: { code_codeValue: { code: 'PAYMENT_METHOD', codeValue: data.paymentMethod } }
           });
-          const paymentCoa = coaLov?.description || '111-10'; // Default to Kas Laci (dummy)
+          
+          const apDirectMap = await tx.productCoaMapping.findUnique({ where: { transType: 'AP_DIRECT_PAY' } });
+          const paymentCoa = coaLov?.description || apDirectMap?.creditAccount || '1.01.02'; // Priority: LOV -> Mapping -> Default
 
-          const journal = await tx.postedJournal.create({
+          const paymentJournal = await tx.postedJournal.create({
             data: {
-              journalNumber: `JRN-${paymentNo}-${Math.floor(Math.random() * 1000)}`,
+              journalNumber: `JRN-PAY-${paymentNo}-${Math.floor(Math.random() * 1000)}`,
               journalDate: passedDate,
-              description: `Penerimaan & Pembayaran Langsung Vendor AP #${invoice.invoiceNumber}`,
+              description: `Pembayaran Langsung Vendor AP #${invoice.invoiceNumber}`,
               postingType: 'AUTO',
               transType: 'AP_DIRECT_PAY',
               refId: payment.id,
-              userId: 1, // System User
+              userId: 1,
               status: 'POSTED',
               createdBy: 'SYSTEM',
               details: {
                 create: [
-                  { accountCode: '114-10', debit: totalAmount, credit: 0, description: 'Persediaan Barang' }, // Dummy Persediaan
+                  { accountCode: apDirectMap?.debitAccount || '2.20.05', debit: totalAmount, credit: 0, description: 'Pelunasan Hutang Dagang' },
                   { accountCode: paymentCoa, debit: 0, credit: totalAmount, description: `Pembayaran AP Vendor - ${data.paymentMethod}` }
                 ]
               }
@@ -166,12 +195,7 @@ export class GoodsReceiptService {
 
           await tx.apPayment.update({
             where: { id: payment.id },
-            data: { journalId: journal.id }
-          });
-          
-          await tx.apInvoice.update({
-            where: { id: invoice.id },
-            data: { journalId: journal.id }
+            data: { journalId: paymentJournal.id }
           });
         }
       }

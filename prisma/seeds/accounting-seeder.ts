@@ -200,8 +200,15 @@ const mappingData = [
     // HPP Item WITHOUT inventory: DR Beban Langsung (5.50.02), CR Beban Langsung (5.50.02) — pasangannya di service hard-coded
     { module: 'POS', transType: 'POS_HPP_DIRECT', description: 'Beban Langsung POS (Non-Inventory)', debit: '5.50.02', credit: '5.50.02' },
     // Diskon: DR Diskon (5.60.01), CR Kas (1.01.02)
-    { module: 'POS', transType: 'POS_DISCOUNT', description: 'Diskon Penjualan POS', debit: '5.60.01', credit: '1.01.02' }
+    { module: 'POS', transType: 'POS_DISCOUNT', description: 'Diskon Penjualan POS', debit: '5.60.01', credit: '1.01.02' },
+
+    // 12. INVENTORY
+    // Penerimaan Barang: DR Persediaan (1.10.01), CR Hutang Dagang (2.20.05)
+    { module: 'INVENTORY', transType: 'INV_RECEIPT', description: 'Penerimaan Barang (Inventory Receipt)', debit: '1.10.01', credit: '2.20.05' },
+    // Pembayaran Langsung AP: DR Hutang Dagang (2.20.05), CR Kas (1.01.02)
+    { module: 'INVENTORY', transType: 'AP_DIRECT_PAY', description: 'Pembayaran Hutang Vendor (Direct Pay)', debit: '2.20.05', credit: '1.01.02' }
 ];
+
 
 export async function seedAccounting() {
     console.log('🌱 Seeding Business Units...');

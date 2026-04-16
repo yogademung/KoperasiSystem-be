@@ -6,7 +6,7 @@ export class InventoryItemController {
   constructor(private readonly inventoryItemService: InventoryItemService) {}
 
   @Post()
-  create(@Body() data: { sku: string; name: string; categoryId: number; uomId: number }) {
+  create(@Body() data: { sku: string; name: string; categoryId: number; uomId: number; barcodes?: string[] }) {
     return this.inventoryItemService.create(data);
   }
 
@@ -28,5 +28,20 @@ export class InventoryItemController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.inventoryItemService.remove(+id);
+  }
+
+  @Get('scan/:barcode')
+  findByBarcode(@Param('barcode') barcode: string) {
+    return this.inventoryItemService.findByBarcode(barcode);
+  }
+
+  @Post(':id/barcodes')
+  addBarcode(@Param('id') id: string, @Body('barcode') barcode: string) {
+    return this.inventoryItemService.addBarcode(+id, barcode);
+  }
+
+  @Delete('barcodes/:barcodeId')
+  removeBarcode(@Param('barcodeId') barcodeId: string) {
+    return this.inventoryItemService.removeBarcode(+barcodeId);
   }
 }
